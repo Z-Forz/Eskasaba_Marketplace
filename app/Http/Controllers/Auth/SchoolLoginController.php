@@ -6,14 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use App\Services\SchoolApiService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class SchoolLoginController extends Controller
 {
     public function __construct(private SchoolApiService $schoolApi) {}
 
+    /**
+     * Display login page.
+     */
+    public function create(): View
+    {
+        return view('auth.login');
+    }
+
+    /**
+     * Handle login request.
+     */
     public function login(LoginRequest $request)
     {
         $credentials = $request->validated(); // ['nis_nip' => ..., 'password' => ...]
@@ -45,7 +59,7 @@ class SchoolLoginController extends Controller
             }
 
             $localUser = User::create([
-                'username'             => $apiData['nama'], // nama asli dari API, misal "Budi Santoso"
+                'username'             => $apiData['nama'], // nama asli dari API
                 'nis_nip'              => $apiData['nis_nip'],
                 'role'                 => $apiData['jenis_pengguna'], // siswa/guru
                 'password'             => Hash::make('password'),
@@ -63,5 +77,19 @@ class SchoolLoginController extends Controller
         }
 
         return redirect()->intended(route('dashboard'));
+    }
+
+    /**
+     * Logout.
+     */
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home');
     }
 }

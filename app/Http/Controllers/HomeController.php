@@ -30,7 +30,7 @@ class HomeController extends Controller
         ->paginate(12)
         ->withQueryString();
 
-        return view('home', compact(
+        return view('home.index', compact(
             'products',
             'categories',
             'keyword'

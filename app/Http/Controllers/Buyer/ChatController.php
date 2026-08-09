@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Buyer;
 
+use App\Http\Controllers\Controller;
 use App\Models\Chat;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
@@ -12,7 +13,7 @@ use Illuminate\View\View;
 class ChatController extends Controller
 {
     /**
-     * Display chat list.
+     * Display chat list milik buyer yang login.
      */
     public function index(): View
     {
@@ -25,7 +26,7 @@ class ChatController extends Controller
         ->latest()
         ->paginate(10);
 
-        return view('chat.index', compact(
+        return view('buyer.chat.index', compact(
             'chats'
         ));
     }
@@ -35,19 +36,21 @@ class ChatController extends Controller
      */
     public function show(Chat $chat): View
     {
+        abort_unless($chat->buyer_id === Auth::id(), 403);
+
         $chat->load([
             'buyer',
             'seller.user',
             'product',
         ]);
 
-        return view('chat.show', compact(
+        return view('buyer.chat.show', compact(
             'chat'
         ));
     }
 
     /**
-     * Start a new chat.
+     * Start a new chat (atau lanjut yang udah ada) soal 1 produk.
      */
     public function store(
         Request $request,
@@ -55,12 +58,11 @@ class ChatController extends Controller
     ): RedirectResponse {
 
         $chat = Chat::firstOrCreate([
-            'buyer_id' => Auth::id(),
-            'seller_id' => $product->seller_id,
+            'buyer_id'   => Auth::id(),
+            'seller_id'  => $product->seller_id,
             'product_id' => $product->id,
         ]);
 
-        return redirect()
-            ->route('chat.show', $chat);
+        return redirect()->route('buyer.chats.show', $chat);
     }
 }
