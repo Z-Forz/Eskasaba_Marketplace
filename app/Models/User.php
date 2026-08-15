@@ -19,9 +19,6 @@ class User extends Authenticatable
         'is_default_password',
         // Data profil dari API Sekolah
         'api_id',
-        'name',
-        'school_number',
-        'type',
         'birth_date',
         'class',
         'major',

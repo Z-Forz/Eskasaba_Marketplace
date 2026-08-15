@@ -15,7 +15,7 @@ return new class extends Migration
 
             $table->id();
 
-            // Nama tampilan: siswa/guru = nama asli dari API Sekolah, admin = nama admin
+            // Nama tampilan (satu-satunya kolom nama — diisi dari API Sekolah untuk siswa/guru)
             $table->string('username');
 
             // Login siswa/guru (nullable karena admin gak punya NIS/NIP)
@@ -40,10 +40,9 @@ return new class extends Migration
             ])->default('student');
 
             // Data dari API Sekolah (wajib diisi — user sekolah selalu punya data ini)
+            // Catatan: nis_nip sudah merangkap school_number; username sudah merangkap name;
+            //          role (student/teacher) sudah merangkap type (siswa/guru).
             $table->unsignedBigInteger('api_id');
-            $table->string('school_number');
-            $table->string('name');
-            $table->string('type');        // siswa / guru
             $table->date('birth_date');
             $table->string('class')->nullable();  // nullable: guru tidak punya kelas
             $table->string('major')->nullable();  // nullable: guru tidak punya jurusan

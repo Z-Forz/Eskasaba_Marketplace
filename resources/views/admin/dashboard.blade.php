@@ -74,7 +74,7 @@
                                     #{{ $order->id }}
                                 </p>
                                 <p class="mt-1 text-sm text-slate-500">
-                                    {{ $order->buyer->name ?? 'Pembeli' }} • {{ ucfirst($order->status ?? '-') }}
+                                    {{ $order->buyer->username ?? 'Pembeli' }} • {{ ucfirst($order->status ?? '-') }}
                                 </p>
                             </div>
                             <p class="text-lg font-bold text-slate-900">

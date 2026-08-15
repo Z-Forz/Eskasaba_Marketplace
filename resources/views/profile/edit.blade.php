@@ -58,11 +58,11 @@
                         @if (auth()->user()->avatar)
                             <img
                                 src="{{ Storage::url(auth()->user()->avatar) }}"
-                                alt="{{ auth()->user()->name }}"
+                                alt="{{ auth()->user()->username }}"
                                 class="h-full w-full object-cover"
                             >
                         @else
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
                         @endif
                     </div>
 
@@ -92,13 +92,13 @@
 
                 <div class="mt-6 space-y-5">
 
-                    <x-input
+                    <!-- <x-input
                         name="username"
                         label="Username"
                         type="text"
                         placeholder="Masukkan username"
                         :value="old('username', auth()->user()->username)"
-                    />
+                    /> -->
 
                     <x-input
                         name="email"

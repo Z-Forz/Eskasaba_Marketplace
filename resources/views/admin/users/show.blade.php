@@ -163,41 +163,6 @@
 
         </div>
 
-        {{-- Danger Zone --}}
-        @if ($user->id !== auth()->id())
-
-            <section class="rounded-2xl border border-red-200 bg-white p-5 sm:p-6 dark:border-red-900/50 dark:bg-gray-900">
-
-                <h2 class="font-semibold text-red-600 dark:text-red-400">
-                    Zona Berbahaya
-                </h2>
-
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Menghapus pengguna akan menghapus data yang bergantung pada akun tersebut.
-                </p>
-
-                <form
-                    action="{{ route('admin.users.destroy', $user) }}"
-                    method="POST"
-                    class="mt-4"
-                    onsubmit="return confirm('Yakin ingin menghapus pengguna ini?')"
-                >
-                    @csrf
-                    @method('DELETE')
-
-                    <button
-                        type="submit"
-                        class="rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:hover:bg-red-950/30"
-                    >
-                        Hapus Pengguna
-                    </button>
-
-                </form>
-
-            </section>
-
-        @endif
-
     </div>
 
 </x-layouts.admin>

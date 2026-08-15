@@ -59,7 +59,7 @@ Route::middleware('auth')->group(function () {
         ->name('password.change');
 
     Route::put('/password/change', [PasswordChangeController::class, 'update'])
-        ->name('password.update');
+        ->name('password.change.update');
 
     Route::get('/dashboard', DashboardRedirectController::class)
         ->name('dashboard');

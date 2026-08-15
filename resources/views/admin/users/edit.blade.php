@@ -73,39 +73,6 @@
 
             </div>
 
-            {{-- Role --}}
-            <div>
-
-                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Role
-                </label>
-
-                <select
-                    name="role"
-                    required
-                    class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                >
-
-                    <option value="student" @selected(old('role', $user->role) === 'student')}>
-                        Student
-                    </option>
-
-                    <option value="teacher" @selected(old('role', $user->role) === 'teacher')}>
-                        Teacher
-                    </option>
-
-                    <option value="admin" @selected(old('role', $user->role) === 'admin')}>
-                        Admin
-                    </option>
-
-                </select>
-
-                @error('role')
-                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                @enderror
-
-            </div>
-
             {{-- School Profile --}}
             <div>
 
@@ -154,17 +121,12 @@
 
                 <div class="mt-4">
 
-                    <input
+                    <x-input
                         type="password"
                         name="password"
+                        placeholder="Password baru (kosongkan jika tidak diubah)"
                         autocomplete="new-password"
-                        placeholder="Password baru"
-                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                    >
-
-                    @error('password')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
+                    />
 
                 </div>
 

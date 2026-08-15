@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -13,10 +14,22 @@ class UserController extends Controller
     /**
      * Display a listing of the users.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::latest()->paginate(10);
-        return view('admin.users.index', compact('users'));
+        $search = $request->query('search');
+
+        $users = User::when($search, function ($query) use ($search) {
+            $query->where('username', 'like', "%{$search}%")
+                ->orWhere('nis_nip', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('class', 'like', "%{$search}%")
+                ->orWhere('major', 'like', "%{$search}%");
+        })
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+        return view('admin.users.index', compact('users', 'search'));
     }
 
     /**

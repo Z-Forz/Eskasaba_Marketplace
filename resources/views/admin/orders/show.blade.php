@@ -1,4 +1,4 @@
-<x-layouts.admin>
+<x-layouts.admin title="Detail Pesanan">
     <div class="space-y-6">
 
         {{-- Header --}}
@@ -6,7 +6,7 @@
             <div>
                 <a
                     href="{{ route('admin.orders.index') }}"
-                    class="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                    class="text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"
                 >
                     ← Kembali ke Pesanan
                 </a>
@@ -20,7 +20,9 @@
                 </p>
             </div>
 
-            <x-badge :status="$order->status" />
+            <span class="rounded-full px-3.5 py-1 text-xs font-bold bg-slate-100 text-slate-800 dark:bg-gray-800 dark:text-gray-200">
+                {{ ucfirst($order->status) }}
+            </span>
         </div>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -28,40 +30,40 @@
             {{-- Order Items --}}
             <div class="space-y-6 lg:col-span-2">
 
-                <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-700">
+                <div class="rounded-3xl border border-slate-200 bg-white shadow-xs dark:border-gray-700 dark:bg-gray-900">
+                    <div class="border-b border-slate-100 px-6 py-4 dark:border-gray-800">
                         <h2 class="font-bold text-gray-900 dark:text-white">
-                            Produk
+                            Item Produk Pesanan
                         </h2>
                     </div>
 
-                    <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @foreach ($order->items as $item)
+                    <div class="divide-y divide-slate-100 dark:divide-gray-800">
+                        @foreach ($order->items ?? [] as $item)
                             <div class="flex gap-4 p-5">
 
-                                <div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                                <div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100 dark:bg-gray-800">
                                     @if ($item->product?->images?->first())
                                         <img
                                             src="{{ asset('storage/' . $item->product->images->first()->image) }}"
                                             class="h-full w-full object-cover"
-                                            alt="{{ $item->product_name }}"
+                                            alt="{{ $item->product_name ?? 'Produk' }}"
                                         >
                                     @endif
                                 </div>
 
                                 <div class="min-w-0 flex-1">
                                     <h3 class="font-semibold text-gray-900 dark:text-white">
-                                        {{ $item->product_name }}
+                                        {{ $item->product_name ?? $item->product?->name ?? 'Produk' }}
                                     </h3>
 
-                                    <p class="mt-1 text-sm text-gray-500">
+                                    <p class="mt-1 text-sm text-slate-500">
                                         {{ $item->quantity }} ×
-                                        Rp {{ number_format($item->unit_price, 0, ',', '.') }}
+                                        Rp {{ number_format($item->unit_price ?? $item->price ?? 0, 0, ',', '.') }}
                                     </p>
                                 </div>
 
                                 <div class="font-bold text-gray-900 dark:text-white">
-                                    Rp {{ number_format($item->quantity * $item->unit_price, 0, ',', '.') }}
+                                    Rp {{ number_format(($item->quantity ?? 1) * ($item->unit_price ?? $item->price ?? 0), 0, ',', '.') }}
                                 </div>
 
                             </div>
@@ -71,21 +73,21 @@
 
                 {{-- Pickup --}}
                 @if ($order->pickupSchedule)
-                    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-gray-700 dark:bg-gray-900">
                         <h2 class="font-bold text-gray-900 dark:text-white">
                             Jadwal Pengambilan
                         </h2>
 
                         <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <p class="text-xs text-gray-500">Tanggal</p>
+                                <p class="text-xs text-slate-500">Tanggal Pengambilan</p>
                                 <p class="mt-1 font-semibold text-gray-900 dark:text-white">
                                     {{ $order->pickupSchedule->pickup_date }}
                                 </p>
                             </div>
 
                             <div>
-                                <p class="text-xs text-gray-500">Waktu</p>
+                                <p class="text-xs text-slate-500">Waktu / Jam</p>
                                 <p class="mt-1 font-semibold text-gray-900 dark:text-white">
                                     {{ $order->pickupSchedule->pickup_time }}
                                 </p>
@@ -99,56 +101,47 @@
             {{-- Summary --}}
             <div class="space-y-6">
 
-                <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-gray-700 dark:bg-gray-900">
                     <h2 class="font-bold text-gray-900 dark:text-white">
-                        Ringkasan
+                        Ringkasan Pembayaran
                     </h2>
 
                     <div class="mt-4 space-y-3 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Subtotal</span>
-                            <span class="font-medium">
-                                Rp {{ number_format($order->subtotal ?? 0, 0, ',', '.') }}
+                            <span class="text-slate-500">Nominal Pesanan</span>
+                            <span class="font-bold text-slate-900 dark:text-white">
+                                Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}
                             </span>
-                        </div>
-
-                        <div class="border-t border-gray-200 pt-3 dark:border-gray-700">
-                            <div class="flex justify-between">
-                                <span class="font-semibold">Total</span>
-                                <span class="text-lg font-bold">
-                                    Rp {{ number_format($order->total ?? 0, 0, ',', '.') }}
-                                </span>
-                            </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Buyer --}}
-                <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-gray-700 dark:bg-gray-900">
                     <h2 class="font-bold text-gray-900 dark:text-white">
-                        Pembeli
+                        Pembeli (Buyer)
                     </h2>
 
                     <div class="mt-4">
-                        <p class="font-semibold text-gray-900 dark:text-white">
-                            {{ $order->user?->name ?? '-' }}
+                        <p class="font-bold text-gray-900 dark:text-white">
+                            {{ $order->buyer?->username ?? $order->user?->username ?? '-' }}
                         </p>
 
-                        <p class="mt-1 text-sm text-gray-500">
-                            {{ $order->user?->email ?? '-' }}
+                        <p class="mt-1 text-xs text-slate-500">
+                            {{ $order->buyer?->email ?? $order->user?->email ?? '-' }}
                         </p>
                     </div>
                 </div>
 
                 {{-- Seller --}}
-                <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-gray-700 dark:bg-gray-900">
                     <h2 class="font-bold text-gray-900 dark:text-white">
-                        Seller
+                        Penjual (Seller)
                     </h2>
 
                     <div class="mt-4">
-                        <p class="font-semibold text-gray-900 dark:text-white">
-                            {{ $order->seller?->user?->name ?? '-' }}
+                        <p class="font-bold text-gray-900 dark:text-white">
+                            {{ $order->seller?->user?->username ?? '-' }}
                         </p>
                     </div>
                 </div>

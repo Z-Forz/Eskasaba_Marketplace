@@ -22,7 +22,7 @@ class EnsurePasswordChanged
 
         if ($user && $user->is_default_password) {
             // Izinkan akses ke password change dan logout
-            if ($request->routeIs('password.change', 'password.update', 'logout')) {
+            if ($request->routeIs('password.change', 'password.change.update', 'password.update', 'logout')) {
                 return $next($request);
             }
 

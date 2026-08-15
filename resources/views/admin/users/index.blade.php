@@ -1,4 +1,4 @@
-<x-layouts.admin>
+<x-layouts.admin title="Kelola Pengguna">
 
     <div class="space-y-6">
 
@@ -7,11 +7,11 @@
 
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                    Pengguna
+                    Kelola Pengguna
                 </h1>
 
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Kelola pengguna marketplace.
+                    Kelola daftar pengguna terdaftar di Eskasaba Marketplace.
                 </p>
             </div>
 
@@ -24,6 +24,12 @@
 
         </div>
 
+        @if (session('success'))
+            <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-400">
+                {{ session('success') }}
+            </div>
+        @endif
+
         {{-- Search --}}
         <form
             method="GET"
@@ -34,8 +40,8 @@
             <input
                 type="search"
                 name="search"
-                value="{{ request('search') }}"
-                placeholder="Cari nama, email, atau nomor sekolah..."
+                value="{{ $search ?? request('search') }}"
+                placeholder="Cari username, NIS/NIP, email, kelas, jurusan..."
                 class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
             >
 
@@ -48,7 +54,7 @@
 
         </form>
 
-        {{-- Desktop --}}
+        {{-- Desktop Table --}}
         <div class="hidden overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 md:block">
 
             <div class="overflow-x-auto">
@@ -59,19 +65,19 @@
 
                         <tr>
                             <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                Pengguna
+                                Username / Email
                             </th>
 
                             <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                Nomor Sekolah
+                                NIS / NIP
                             </th>
 
                             <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                Role
+                                Kelas & Jurusan
                             </th>
 
                             <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                Status
+                                Peran (Role)
                             </th>
 
                             <th class="px-5 py-4 text-right font-semibold text-gray-600 dark:text-gray-300">
@@ -91,14 +97,14 @@
 
                                     <div class="flex items-center gap-3">
 
-                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-800 font-semibold text-white shadow-xs">
+                                            {{ strtoupper(substr($user->username, 0, 1)) }}
                                         </div>
 
                                         <div class="min-w-0">
 
-                                            <p class="font-medium text-gray-900 dark:text-white">
-                                                {{ $user->name }}
+                                            <p class="font-bold text-gray-900 dark:text-white">
+                                                {{ $user->username }}
                                             </p>
 
                                             <p class="truncate text-xs text-gray-500 dark:text-gray-400">
@@ -111,34 +117,45 @@
 
                                 </td>
 
+                                <td class="px-5 py-4 font-medium text-gray-700 dark:text-gray-300">
+                                    {{ $user->nis_nip ?? '-' }}
+                                </td>
+
                                 <td class="px-5 py-4 text-gray-600 dark:text-gray-300">
-                                    {{ $user->school_number ?? '-' }}
+                                    @if ($user->class || $user->major)
+                                        {{ $user->class ?? '' }} {{ $user->major ? '• ' . $user->major : '' }}
+                                    @else
+                                        -
+                                    @endif
                                 </td>
 
                                 <td class="px-5 py-4">
 
-                                    <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                        {{ ucfirst($user->role) }}
-                                    </span>
-
-                                </td>
-
-                                <td class="px-5 py-4">
-
-                                    <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                        {{ ucfirst($user->status ?? 'active') }}
+                                    <span class="rounded-full px-3 py-1 text-xs font-semibold
+                                        {{ $user->role === 'teacher' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}"
+                                    >
+                                        {{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}
                                     </span>
 
                                 </td>
 
                                 <td class="px-5 py-4 text-right">
 
-                                    <a
-                                        href="{{ route('admin.users.show', $user) }}"
-                                        class="font-medium text-gray-700 hover:underline dark:text-gray-300"
-                                    >
-                                        Detail
-                                    </a>
+                                    <div class="flex justify-end gap-2">
+                                        <a
+                                            href="{{ route('admin.users.show', $user) }}"
+                                            class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300"
+                                        >
+                                            Detail
+                                        </a>
+
+                                        <a
+                                            href="{{ route('admin.users.edit', $user) }}"
+                                            class="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800 dark:bg-white dark:text-gray-900"
+                                        >
+                                            Edit
+                                        </a>
+                                    </div>
 
                                 </td>
 
@@ -151,7 +168,7 @@
                                     colspan="5"
                                     class="px-5 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
                                 >
-                                    Belum ada pengguna.
+                                    Belum ada data pengguna yang ditemukan.
                                 </td>
                             </tr>
 
@@ -165,32 +182,31 @@
 
         </div>
 
-        {{-- Mobile --}}
+        {{-- Mobile View --}}
         <div class="space-y-3 md:hidden">
 
             @forelse ($users as $user)
 
-                <a
-                    href="{{ route('admin.users.show', $user) }}"
-                    class="block rounded-2xl border border-gray-200 bg-white p-4 transition hover:shadow-sm dark:border-gray-700 dark:bg-gray-900"
-                >
+                <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900 shadow-xs">
 
                     <div class="flex items-center gap-3">
 
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-800 font-semibold text-white shadow-xs">
+                            {{ strtoupper(substr($user->username, 0, 1)) }}
                         </div>
 
                         <div class="min-w-0 flex-1">
 
                             <div class="flex items-start justify-between gap-3">
 
-                                <h2 class="truncate font-semibold text-gray-900 dark:text-white">
-                                    {{ $user->name }}
+                                <h2 class="truncate font-bold text-gray-900 dark:text-white">
+                                    {{ $user->username }}
                                 </h2>
 
-                                <span class="shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    {{ ucfirst($user->role) }}
+                                <span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold
+                                    {{ $user->role === 'teacher' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}"
+                                >
+                                    {{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}
                                 </span>
 
                             </div>
@@ -203,36 +219,45 @@
 
                     </div>
 
-                    <div class="mt-4 grid grid-cols-2 gap-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+                    <div class="mt-4 grid grid-cols-2 gap-3 border-t border-gray-100 pt-3 dark:border-gray-800 text-xs">
 
                         <div>
-                            <p class="text-[11px] text-gray-400">
-                                Nomor Sekolah
-                            </p>
-
-                            <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                                {{ $user->school_number ?? '-' }}
+                            <p class="text-gray-400">NIS / NIP</p>
+                            <p class="mt-0.5 font-medium text-gray-800 dark:text-gray-200">
+                                {{ $user->nis_nip ?? '-' }}
                             </p>
                         </div>
 
                         <div>
-                            <p class="text-[11px] text-gray-400">
-                                Status
-                            </p>
-
-                            <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                                {{ ucfirst($user->status ?? 'active') }}
+                            <p class="text-gray-400">Kelas / Jurusan</p>
+                            <p class="mt-0.5 font-medium text-gray-800 dark:text-gray-200">
+                                {{ $user->class ?? '-' }} {{ $user->major ? '• ' . $user->major : '' }}
                             </p>
                         </div>
 
                     </div>
 
-                </a>
+                    <div class="mt-4 flex gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
+                        <a
+                            href="{{ route('admin.users.show', $user) }}"
+                            class="flex-1 rounded-xl border border-gray-200 py-2 text-center text-xs font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300"
+                        >
+                            Detail
+                        </a>
+                        <a
+                            href="{{ route('admin.users.edit', $user) }}"
+                            class="flex-1 rounded-xl bg-gray-900 py-2 text-center text-xs font-semibold text-white dark:bg-white dark:text-gray-900"
+                        >
+                            Edit
+                        </a>
+                    </div>
+
+                </div>
 
             @empty
 
                 <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900">
-                    Belum ada pengguna.
+                    Belum ada data pengguna yang ditemukan.
                 </div>
 
             @endforelse

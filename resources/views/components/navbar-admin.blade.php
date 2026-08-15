@@ -154,392 +154,139 @@
 
 
         {{-- Users --}}
-
         <a
             href="{{ route('admin.users.index') }}"
-            class="
-                mb-1 flex items-center justify-between
-                rounded-lg px-4 py-3
-                text-sm
-                transition
-
-                {{ request()->routeIs('admin.users.*')
-                    ? 'bg-blue-50 font-semibold text-blue-600'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
-                }}
-            "
+            class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition {{ request()->routeIs('admin.users.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}"
         >
-
             <span class="flex items-center gap-3">
-
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                >
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"
-                    />
-
-                    <circle
-                        cx="9"
-                        cy="7"
-                        r="4"
-                    />
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
-                    />
-
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
                 </svg>
-
-                <span>
-                    Kelola User
-                </span>
-
+                <span>Kelola User</span>
             </span>
-
-            <span>
-                ›
-            </span>
-
+            <span>›</span>
         </a>
-
-
-        {{-- Sellers --}}
-
-        <a
-            href="{{ route('admin.sellers.index') }}"
-            class="
-                mb-1 flex items-center justify-between
-                rounded-lg px-4 py-3
-                text-sm
-                transition
-
-                {{ request()->routeIs('admin.sellers.*')
-                    ? 'bg-blue-50 font-semibold text-blue-600'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
-                }}
-            "
-        >
-
-            <span class="flex items-center gap-3">
-
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                >
-
-                    <circle
-                        cx="12"
-                        cy="12"
-                        r="9"
-                    />
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8 12h8M12 8v8"
-                    />
-
-                </svg>
-
-                <span>
-                    Verifikasi Seller
-                </span>
-
-            </span>
-
-            <span>
-                ›
-            </span>
-
-        </a>
-
-
-        {{-- Categories --}}
-
-        <a
-            href="{{ route('admin.categories.index') }}"
-            class="
-                mb-1 flex items-center justify-between
-                rounded-lg px-4 py-3
-                text-sm
-                transition
-
-                {{ request()->routeIs('admin.categories.*')
-                    ? 'bg-blue-50 font-semibold text-blue-600'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
-                }}
-            "
-        >
-
-            <span class="flex items-center gap-3">
-
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                >
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M4 6h16M4 12h16M4 18h16"
-                    />
-
-                </svg>
-
-                <span>
-                    Kelola Kategori
-                </span>
-
-            </span>
-
-            <span>
-                ›
-            </span>
-
-        </a>
-
-
-        {{-- Orders --}}
-
-        <a
-            href="{{ route('admin.orders.index') }}"
-            class="
-                mb-1 flex items-center justify-between
-                rounded-lg px-4 py-3
-                text-sm
-                transition
-
-                {{ request()->routeIs('admin.orders.*')
-                    ? 'bg-blue-50 font-semibold text-blue-600'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
-                }}
-            "
-        >
-
-            <span class="flex items-center gap-3">
-
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                >
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M3 3h2l2 13h10l3-9H6"
-                    />
-
-                    <circle
-                        cx="10"
-                        cy="20"
-                        r="1"
-                    />
-
-                    <circle
-                        cx="18"
-                        cy="20"
-                        r="1"
-                    />
-
-                </svg>
-
-                <span>
-                    Kelola Pesanan
-                </span>
-
-            </span>
-
-            <span>
-                ›
-            </span>
-
-        </a>
-
-
-        {{-- =================================================
-            LAPORAN
-        ================================================== --}}
-
-        <p
-            class="
-                mb-2 mt-7 px-4
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-wider
-                text-slate-400
-            "
-        >
-            Laporan
-        </p>
-
-
-        {{-- Laporan Penjualan --}}
-
-        <a
-            href="{{ route('admin.orders.index') }}"
-            class="
-                mb-1 flex items-center gap-3
-                rounded-lg px-4 py-3
-                text-sm text-slate-600
-                transition
-                hover:bg-slate-50
-                hover:text-blue-600
-            "
-        >
-
-            <span class="text-lg">
-                ▣
-            </span>
-
-            <span>
-                Laporan Penjualan
-            </span>
-
-        </a>
-
-
-        {{-- Laporan Produk --}}
-
-        <a
-            href="{{ route('admin.categories.index') }}"
-            class="
-                mb-1 flex items-center gap-3
-                rounded-lg px-4 py-3
-                text-sm text-slate-600
-                transition
-                hover:bg-slate-50
-                hover:text-blue-600
-            "
-        >
-
-            <span class="text-lg">
-                ◷
-            </span>
-
-            <span>
-                Laporan Produk
-            </span>
-
-        </a>
-
 
         {{-- Seller Aktif --}}
-
         <a
             href="{{ route('admin.sellers.index') }}"
-            class="
-                mb-1 flex items-center gap-3
-                rounded-lg px-4 py-3
-                text-sm text-slate-600
-                transition
-                hover:bg-slate-50
-                hover:text-blue-600
-            "
+            class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition {{ request()->routeIs('admin.sellers.index') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}"
         >
-
-            <span class="text-lg">
-                ♙
+            <span class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-6 9 6v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/>
+                </svg>
+                <span>Seller Aktif</span>
             </span>
-
-            <span>
-                Seller Aktif
-            </span>
-
+            <span>›</span>
         </a>
 
-
-        {{-- =================================================
-            PENGATURAN
-        ================================================== --}}
-
-        <p
-            class="
-                mb-2 mt-7 px-4
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-wider
-                text-slate-400
-            "
+        {{-- Verifikasi Seller --}}
+        <a
+            href="{{ route('admin.sellers.verifications') }}"
+            class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition {{ request()->routeIs('admin.sellers.verifications') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}"
         >
+            <span class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Verifikasi Seller</span>
+            </span>
+            <span>›</span>
+        </a>
+
+        {{-- Categories --}}
+        <a
+            href="{{ route('admin.categories.index') }}"
+            class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition {{ request()->routeIs('admin.categories.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}"
+        >
+            <span class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M3 3h8l9 9a2 2 0 010 2.83l-5.17 5.17a2 2 0 01-2.83 0L3 11V3z"/>
+                </svg>
+                <span>Kelola Kategori</span>
+            </span>
+            <span>›</span>
+        </a>
+
+        {{-- Orders --}}
+        <a
+            href="{{ route('admin.orders.index') }}"
+            class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition {{ request()->routeIs('admin.orders.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}"
+        >
+            <span class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l2 13h10l3-9H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>
+                </svg>
+                <span>Kelola Pesanan</span>
+            </span>
+            <span>›</span>
+        </a>
+
+        {{-- Payments --}}
+        <a
+            href="{{ route('admin.payments.index') }}"
+            class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition {{ request()->routeIs('admin.payments.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}"
+        >
+            <span class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M2 10h20"/>
+                </svg>
+                <span>Kelola Pembayaran</span>
+            </span>
+            <span>›</span>
+        </a>
+
+        {{-- Laporan --}}
+        <p class="mb-2 mt-6 px-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Laporan & Analistik
+        </p>
+
+        {{-- Laporan Produk --}}
+        <a
+            href="{{ route('admin.reports.products') }}"
+            class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition {{ request()->routeIs('admin.reports.products') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}"
+        >
+            <span class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+                <span>Laporan Produk</span>
+            </span>
+            <span>›</span>
+        </a>
+
+        {{-- Laporan Penjualan --}}
+        <a
+            href="{{ route('admin.reports.sales') }}"
+            class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition {{ request()->routeIs('admin.reports.sales') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}"
+        >
+            <span class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2M9 19a2 2 0 01-2-2v-4a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9z"/>
+                </svg>
+                <span>Laporan Penjualan</span>
+            </span>
+            <span>›</span>
+        </a>
+
+        {{-- Pengaturan --}}
+        <p class="mb-2 mt-6 px-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Pengaturan
         </p>
 
-
         {{-- Website Settings --}}
-
         <a
             href="{{ route('admin.website-settings.index') }}"
-            class="
-                mb-1 flex items-center gap-3
-                rounded-lg px-4 py-3
-                text-sm
-                transition
-
-                {{ request()->routeIs('admin.website-settings.*')
-                    ? 'bg-blue-50 font-semibold text-blue-600'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
-                }}
-            "
+            class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition {{ request()->routeIs('admin.website-settings.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600' }}"
         >
-
-            <span class="text-lg">
-                ⚙
+            <span class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                </svg>
+                <span>Pengaturan Website</span>
             </span>
-
-            <span>
-                Pengaturan Website
-            </span>
-
-        </a>
-
-
-        {{-- Account Settings --}}
-
-        <a
-            href="{{ route('profile.index') }}"
-            class="
-                mb-1 flex items-center gap-3
-                rounded-lg px-4 py-3
-                text-sm text-slate-600
-                transition
-                hover:bg-slate-50
-                hover:text-blue-600
-            "
-        >
-
-            <span class="text-lg">
-                ♙
-            </span>
-
-            <span>
-                Pengaturan Akun
-            </span>
-
+            <span>›</span>
         </a>
 
     </nav>
@@ -761,9 +508,6 @@
 
                     request()->routeIs('admin.website-settings.*')
                         => 'Pengaturan Website',
-
-                    request()->routeIs('profile.*')
-                        => 'Pengaturan Akun',
 
                     default
                         => 'Admin Panel',
@@ -1175,130 +919,49 @@
             </p>
 
 
-            <a
-                href="{{ route('admin.users.index') }}"
-                class="
-                    block rounded-lg
-                    px-4 py-3
-                    text-sm
-                    {{ request()->routeIs('admin.users.*')
-                        ? 'bg-blue-50 font-semibold text-blue-600'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }}
-                "
-            >
+            <a href="{{ route('admin.users.index') }}" class="block rounded-lg px-4 py-3 text-sm {{ request()->routeIs('admin.users.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50' }}">
                 Kelola User
             </a>
 
+            <a href="{{ route('admin.sellers.index') }}" class="block rounded-lg px-4 py-3 text-sm {{ request()->routeIs('admin.sellers.index') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50' }}">
+                Seller Aktif
+            </a>
 
-            <a
-                href="{{ route('admin.sellers.index') }}"
-                class="
-                    block rounded-lg
-                    px-4 py-3
-                    text-sm
-                    {{ request()->routeIs('admin.sellers.*')
-                        ? 'bg-blue-50 font-semibold text-blue-600'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }}
-                "
-            >
+            <a href="{{ route('admin.sellers.verifications') }}" class="block rounded-lg px-4 py-3 text-sm {{ request()->routeIs('admin.sellers.verifications') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50' }}">
                 Verifikasi Seller
             </a>
 
-
-            <a
-                href="{{ route('admin.categories.index') }}"
-                class="
-                    block rounded-lg
-                    px-4 py-3
-                    text-sm
-                    {{ request()->routeIs('admin.categories.*')
-                        ? 'bg-blue-50 font-semibold text-blue-600'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }}
-                "
-            >
+            <a href="{{ route('admin.categories.index') }}" class="block rounded-lg px-4 py-3 text-sm {{ request()->routeIs('admin.categories.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50' }}">
                 Kelola Kategori
             </a>
 
-
-            <a
-                href="{{ route('admin.orders.index') }}"
-                class="
-                    block rounded-lg
-                    px-4 py-3
-                    text-sm
-                    {{ request()->routeIs('admin.orders.*')
-                        ? 'bg-blue-50 font-semibold text-blue-600'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }}
-                "
-            >
+            <a href="{{ route('admin.orders.index') }}" class="block rounded-lg px-4 py-3 text-sm {{ request()->routeIs('admin.orders.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50' }}">
                 Kelola Pesanan
             </a>
 
-            <a
-                href="{{ route('admin.payments.index') }}"
-                class="
-                    block rounded-lg
-                    px-4 py-3
-                    text-sm
-                    {{ request()->routeIs('admin.payments.*')
-                        ? 'bg-blue-50 font-semibold text-blue-600'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }}
-                "
-            >
+            <a href="{{ route('admin.payments.index') }}" class="block rounded-lg px-4 py-3 text-sm {{ request()->routeIs('admin.payments.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50' }}">
                 Kelola Pembayaran
             </a>
 
+            <p class="px-4 pb-1 pt-6 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Laporan & Analistik
+            </p>
 
-            {{-- Pengaturan --}}
+            <a href="{{ route('admin.reports.products') }}" class="block rounded-lg px-4 py-3 text-sm {{ request()->routeIs('admin.reports.products') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50' }}">
+                Laporan Produk
+            </a>
 
-            <p
-                class="
-                    px-4 pb-1 pt-6
-                    text-[10px]
-                    font-bold
-                    uppercase
-                    tracking-wider
-                    text-slate-400
-                "
-            >
+            <a href="{{ route('admin.reports.sales') }}" class="block rounded-lg px-4 py-3 text-sm {{ request()->routeIs('admin.reports.sales') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50' }}">
+                Laporan Penjualan
+            </a>
+
+            <p class="px-4 pb-1 pt-6 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Pengaturan
             </p>
 
-
-            <a
-                href="{{ route('admin.website-settings.index') }}"
-                class="
-                    block rounded-lg
-                    px-4 py-3
-                    text-sm
-                    {{ request()->routeIs('admin.website-settings.*')
-                        ? 'bg-blue-50 font-semibold text-blue-600'
-                        : 'text-slate-600 hover:bg-slate-50'
-                    }}
-                "
-            >
+            <a href="{{ route('admin.website-settings.index') }}" class="block rounded-lg px-4 py-3 text-sm {{ request()->routeIs('admin.website-settings.*') ? 'bg-blue-50 font-semibold text-blue-600' : 'text-slate-600 hover:bg-slate-50' }}">
                 Pengaturan Website
             </a>
-
-
-            <a
-                href="{{ route('profile.index') }}"
-                class="
-                    block rounded-lg
-                    px-4 py-3
-                    text-sm
-                    text-slate-600
-                    hover:bg-slate-50
-                "
-            >
-                Pengaturan Akun
-            </a>
-
         </nav>
 
 

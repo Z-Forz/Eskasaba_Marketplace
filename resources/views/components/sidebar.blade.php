@@ -1,7 +1,7 @@
 {{-- resources/views/components/sidebar.blade.php --}}
 
 @props([
-    'type' => 'admin', {{-- 'admin' | 'seller' --}}
+    'type' => 'admin',
 ])
 
 @php
@@ -17,16 +17,20 @@
     $badgeDesc      = $isAdmin ? 'Kelola marketplace dengan mudah dan aman.' : 'Kelola toko dan produk Anda.';
 
     $adminMenus = [
-        'Data Master' => [
+        'Data Master & Kelola' => [
             ['route' => 'admin.users.index',            'pattern' => 'admin.users.*',            'label' => 'Kelola User',         'icon' => 'users'],
-            ['route' => 'admin.sellers.index',          'pattern' => 'admin.sellers.*',          'label' => 'Verifikasi Seller',   'icon' => 'store'],
+            ['route' => 'admin.sellers.index',          'pattern' => 'admin.sellers.index',      'label' => 'Seller Aktif',        'icon' => 'store'],
+            ['route' => 'admin.sellers.verifications',  'pattern' => 'admin.sellers.verifications', 'label' => 'Verifikasi Seller', 'icon' => 'check-badge'],
             ['route' => 'admin.categories.index',       'pattern' => 'admin.categories.*',       'label' => 'Kelola Kategori',     'icon' => 'tag'],
             ['route' => 'admin.orders.index',           'pattern' => 'admin.orders.*',           'label' => 'Kelola Pesanan',      'icon' => 'cart'],
             ['route' => 'admin.payments.index',         'pattern' => 'admin.payments.*',         'label' => 'Kelola Pembayaran',   'icon' => 'money'],
         ],
+        'Laporan & Analistik' => [
+            ['route' => 'admin.reports.products',       'pattern' => 'admin.reports.products',   'label' => 'Laporan Produk',      'icon' => 'report-product'],
+            ['route' => 'admin.reports.sales',          'pattern' => 'admin.reports.sales',      'label' => 'Laporan Penjualan',   'icon' => 'report-sales'],
+        ],
         'Pengaturan' => [
             ['route' => 'admin.website-settings.index', 'pattern' => 'admin.website-settings.*', 'label' => 'Pengaturan Website',  'icon' => 'settings'],
-            ['route' => 'profile.index',                'pattern' => 'profile.*',                'label' => 'Pengaturan Akun',     'icon' => 'account'],
         ],
     ];
 
@@ -41,7 +45,7 @@
             ['route' => 'seller.chats.index',            'pattern' => 'seller.chats.*',            'label' => 'Chat',              'icon' => 'chat'],
         ],
         'Akun' => [
-            ['route' => 'profile.index',                 'pattern' => 'profile.*',                 'label' => 'Profil',            'icon' => 'account'],
+            ['route' => 'profile.index',                 'pattern' => 'profile.*',                 'label' => 'Profil Saya',       'icon' => 'account'],
         ],
     ];
 
@@ -49,15 +53,18 @@
 
     // SVG icon map
     $icons = [
-        'users'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>',
-        'store'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-6 9 6v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/>',
-        'tag'      => '<path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M3 3h8l9 9a2 2 0 010 2.83l-5.17 5.17a2 2 0 01-2.83 0L3 11V3z"/>',
-        'cart'     => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l2 13h10l3-9H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>',
-        'money'    => '<rect x="2" y="5" width="20" height="14" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M2 10h20"/>',
-        'settings' => '<circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>',
-        'account'  => '<path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-        'calendar' => '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
-        'chat'     => '<path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
+        'users'          => '<path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>',
+        'store'          => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-6 9 6v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/>',
+        'check-badge'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+        'tag'            => '<path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M3 3h8l9 9a2 2 0 010 2.83l-5.17 5.17a2 2 0 01-2.83 0L3 11V3z"/>',
+        'cart'           => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l2 13h10l3-9H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>',
+        'money'          => '<rect x="2" y="5" width="20" height="14" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M2 10h20"/>',
+        'report-product' => '<path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>',
+        'report-sales'   => '<path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2M9 19a2 2 0 01-2-2v-4a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9z"/>',
+        'settings'       => '<circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>',
+        'account'        => '<path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+        'calendar'       => '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+        'chat'           => '<path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
     ];
 @endphp
 
@@ -106,14 +113,14 @@
         {{-- Grouped Menu Items --}}
         @foreach ($menus as $groupLabel => $items)
 
-            <p class="mb-2 mt-7 px-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <p class="mb-2 mt-6 px-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 {{ $groupLabel }}
             </p>
 
             @foreach ($items as $item)
                 <a
                     href="{{ route($item['route']) }}"
-                    class="mb-1 flex items-center justify-between rounded-lg px-4 py-3 text-sm transition
+                    class="mb-1 flex items-center justify-between rounded-lg px-4 py-2.5 text-sm transition
                         {{ request()->routeIs($item['pattern']) ? $accentActive : 'text-slate-600 ' . $accentHover }}"
                 >
                     <span class="flex items-center gap-3">

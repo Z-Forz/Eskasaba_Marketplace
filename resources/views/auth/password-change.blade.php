@@ -29,7 +29,7 @@
 
             <form
                 method="POST"
-                action="{{ route('password.update') }}"
+                action="{{ route('password.change.update') }}"
                 class="space-y-5"
             >
                 @csrf

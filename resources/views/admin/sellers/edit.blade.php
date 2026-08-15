@@ -1,4 +1,4 @@
-<x-layouts.admin>
+<x-layouts.admin title="Kelola Seller">
 
     <div class="mx-auto max-w-2xl space-y-6">
 
@@ -47,21 +47,28 @@
                         value="pending"
                         @selected(old('status', $seller->status) === 'pending')
                     >
-                        Pending
+                        Pending (Menunggu Verifikasi)
                     </option>
 
                     <option
                         value="approved"
                         @selected(old('status', $seller->status) === 'approved')
                     >
-                        Approved
+                        Approved (Disetujui)
+                    </option>
+
+                    <option
+                        value="revision"
+                        @selected(old('status', $seller->status) === 'revision')
+                    >
+                        Revision (Perlu Revisi)
                     </option>
 
                     <option
                         value="rejected"
                         @selected(old('status', $seller->status) === 'rejected')
                     >
-                        Rejected
+                        Rejected (Ditolak)
                     </option>
 
                 </select>
@@ -72,16 +79,37 @@
 
             </div>
 
+            {{-- WhatsApp Number --}}
+            <div>
+
+                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Nomor WhatsApp
+                </label>
+
+                <input
+                    type="text"
+                    name="whatsapp_number"
+                    value="{{ old('whatsapp_number', $seller->whatsapp_number) }}"
+                    placeholder="Contoh: 081234567890"
+                    class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                />
+
+                @error('whatsapp_number')
+                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                @enderror
+
+            </div>
+
             {{-- Description --}}
             <div>
 
                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Deskripsi
+                    Deskripsi Toko
                 </label>
 
                 <textarea
                     name="description"
-                    rows="5"
+                    rows="4"
                     class="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 >{{ old('description', $seller->description) }}</textarea>
 
@@ -91,29 +119,25 @@
 
             </div>
 
-            {{-- Rejection --}}
-            @if ($seller->status === 'rejected' || old('status') === 'rejected')
+            {{-- Rejection / Revision Note --}}
+            <div>
 
-                <div>
+                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Catatan Admin (Revisi / Penolakan)
+                </label>
 
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Alasan Penolakan
-                    </label>
+                <textarea
+                    name="rejection_note"
+                    rows="3"
+                    class="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    placeholder="Jelaskan alasan jika ditolak atau minta revisi"
+                >{{ old('rejection_note', $seller->rejection_note) }}</textarea>
 
-                    <textarea
-                        name="rejection_reason"
-                        rows="4"
-                        class="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                        placeholder="Jelaskan alasan seller ditolak"
-                    >{{ old('rejection_reason', $seller->rejection_reason) }}</textarea>
+                @error('rejection_note')
+                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                @enderror
 
-                    @error('rejection_reason')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-
-                </div>
-
-            @endif
+            </div>
 
             <div class="rounded-xl bg-gray-50 p-4 text-sm text-gray-600 dark:bg-gray-800 dark:text-gray-400">
 
@@ -140,7 +164,7 @@
                     type="submit"
                     class="rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white dark:bg-white dark:text-gray-900"
                 >
-                    Simpan Status
+                    Simpan Perubahan
                 </button>
 
             </div>

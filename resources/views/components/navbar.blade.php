@@ -3,8 +3,8 @@
 ])
 
 <nav
-    x-data="{ open: false }"
-    class="sticky top-0 z-50 w-full border-b border-emerald-800/80 bg-white/95 backdrop-blur-xl"
+    id="main-navbar"
+    class="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-xl"
 >
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
@@ -20,7 +20,7 @@
                     class="h-9 w-9 shrink-0 rounded-xl object-cover sm:h-10 sm:w-10"
                 >
             @else
-                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-800 text-sm font-bold text-white sm:h-10 sm:w-10">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-800 text-sm font-bold text-white sm:h-10 sm:w-10 shadow-xs">
                     E
                 </div>
             @endif
@@ -35,62 +35,48 @@
             </span>
         </a>
 
-        {{-- Desktop Navigation --}}
-        <div class="hidden items-center gap-7 md:flex">
+        {{-- Desktop Navigation Links --}}
+        <div class="hidden items-center gap-2 md:flex">
 
             <a
                 href="{{ route('home') }}"
-                class="text-md font-medium text-slate-500 transition hover:text-emerald-800
-                {{ request()->routeIs('home') ? 'active text-emerald-800' : '' }}"
+                class="px-3.5 py-2 rounded-xl text-sm transition {{ request()->routeIs('home') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
             >
                 Beranda
             </a>
 
             <a
                 href="{{ route('products.index') }}"
-                class="text-md font-medium text-slate-500 transition hover:text-emerald-800
-                {{ request()->routeIs('products.index') ? 'active text-emerald-800' : '' }}"
+                class="px-3.5 py-2 rounded-xl text-sm transition {{ request()->routeIs('products.*') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
             >
                 Produk
             </a>
 
             <a
                 href="{{ route('guide') }}"
-                class="text-md font-medium text-slate-500 transition hover:text-emerald-800
-                {{ request()->routeIs('guide') ? 'active text-emerald-800' : '' }}"
+                class="px-3.5 py-2 rounded-xl text-sm transition {{ request()->routeIs('guide') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
             >
                 Panduan
             </a>
 
             <a
                 href="{{ route('about') }}"
-                class="text-md font-medium text-slate-500 transition hover:text-emerald-800
-                {{ request()->routeIs('about') ? 'active text-emerald-800' : '' }}"
+                class="px-3.5 py-2 rounded-xl text-sm transition {{ request()->routeIs('about') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
             >
                 Tentang
             </a>
 
-            @auth
-                <a
-                    href="{{ route('buyer.dashboard') }}"
-                    class="text-md font-medium text-slate-500 transition hover:text-emerald-800
-                    {{ request()->routeIs('buyer.dashboard') ? 'active text-emerald-800' : '' }}"
-                >
-                    Dashboard
-                </a>
-            @endauth
-
         </div>
 
-        {{-- Desktop Right --}}
+        {{-- Desktop Right Actions --}}
         <div class="hidden items-center gap-2 md:flex">
 
             @auth
 
-                {{-- Cart --}}
+                {{-- Cart Button --}}
                 <a
                     href="{{ route('buyer.cart.index') }}"
-                    class="rounded-xl p-2.5 text-emerald-800 transition hover:bg-emerald-800 hover:text-emerald-800"
+                    class="rounded-xl p-2 transition {{ request()->routeIs('buyer.cart.*') ? 'bg-emerald-100 text-emerald-800 shadow-xs ring-1 ring-emerald-300' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-800' }}"
                     aria-label="Keranjang"
                 >
                     <svg
@@ -108,25 +94,25 @@
                     </svg>
                 </a>
 
-                {{-- Profile --}}
+                {{-- Profile Card --}}
                 <a
                     href="{{ route('profile.index') }}"
-                    class="ml-1 flex items-center gap-2 rounded-xl px-2 py-1.5 transition hover:bg-emerald-800"
+                    class="ml-1 flex items-center gap-2.5 rounded-xl p-1.5 {{ request()->routeIs('profile.*') ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-300 shadow-xs' : '' }}"
                 >
-                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-sm font-semibold text-white">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-sm font-semibold text-white shadow-xs">
+                        {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
                     </div>
 
                     <div class="max-w-32">
-                        <p class="truncate text-sm font-semibold text-emerald-800">
-                            {{ auth()->user()->name }}
+                        <p class="truncate text-sm font-bold text-slate-800">
+                            {{ auth()->user()->username }}
                         </p>
 
-                        <p class="text-xs text-emerald-800">
+                        <p class="text-xs text-slate-500 font-medium">
                             @if(auth()->user()->seller?->status === 'approved')
                                 Seller
                             @else
-                                Buyer
+                                {{ auth()->user()->role === 'teacher' ? 'Guru' : 'Siswa' }}
                             @endif
                         </p>
                     </div>
@@ -137,20 +123,13 @@
                     method="POST"
                 >
                     @csrf
-
-                    <button
-                        type="submit"
-                        class="rounded-xl px-3 py-2 text-sm font-medium text-emerald-800 transition hover:bg-emerald-800 hover:text-emerald-800"
-                    >
-                        Keluar
-                    </button>
                 </form>
 
             @else
 
                 <a
                     href="{{ route('login') }}"
-                    class="rounded-xl bg-emerald-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                    class="rounded-xl bg-emerald-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-900 shadow-xs"
                 >
                     Masuk
                 </a>
@@ -162,13 +141,14 @@
         {{-- Mobile Menu Button --}}
         <button
             type="button"
-            @click="open = !open"
-            class="inline-flex rounded-xl p-2.5 text-emerald-800 transition hover:bg-emerald-800/10 md:hidden"
+            id="mobile-nav-toggle-btn"
+            class="inline-flex rounded-xl p-2.5 text-slate-700 transition hover:bg-slate-100 md:hidden"
             aria-label="Buka menu"
         >
+            {{-- Hamburger Icon --}}
             <svg
-                x-show="!open"
-                class="h-5 w-5"
+                id="icon-hamburger"
+                class="h-6 w-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -180,98 +160,136 @@
                     d="M4 6h16M4 12h16M4 18h16"
                 />
             </svg>
+
+            {{-- Close (X) Icon --}}
+            <svg
+                id="icon-close"
+                class="hidden h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.8"
+                    d="M6 18L18 6M6 6l12 12"
+                />
+            </svg>
         </button>
 
     </div>
 
-    {{-- Mobile Menu --}}
+    {{-- Mobile Menu Drawer --}}
     <div
-        x-show="open"
-        x-cloak
-        x-transition
-        class="border-t border-emerald-800 bg-white md:hidden"
+        id="mobile-nav-drawer"
+        class="hidden border-t border-slate-200/80 bg-white/98 backdrop-blur-xl md:hidden"
     >
-        <div class="space-y-1 px-4 py-4 sm:px-6">
+        <div class="space-y-1.5 px-4 py-4 sm:px-6">
 
             <a
                 href="{{ route('home') }}"
-                class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-500 hover:text-emerald-800"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('home') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
             >
-                Beranda
+                <span>🏠</span> Beranda
             </a>
 
             <a
                 href="{{ route('products.index') }}"
-                class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-500 hover:text-emerald-800"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('products.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
             >
-                Produk
+                <span>🛍️</span> Produk
             </a>
 
             <a
                 href="{{ route('guide') }}"
-                class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-500 transition hover:text-emerald-800
-                {{ request()->routeIs('guide') ? 'active text-emerald-800' : '' }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('guide') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
             >
-                Panduan
+                <span>📖</span> Panduan
             </a>
 
             <a
                 href="{{ route('about') }}"
-                class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-500 transition hover:text-emerald-800
-                {{ request()->routeIs('about') ? 'active text-emerald-800' : '' }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('about') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
             >
-                Tentang
+                <span>ℹ️</span> Tentang
             </a>
 
             @auth
-
-                <a
-                    href="{{ route('buyer.dashboard') }}"
-                    class="block rounded-xl px-4 py-3 text-sm font-medium text-emerald-800 hover:bg-emerald-60"
-                >
-                    Dashboard
-                </a>
-
                 <a
                     href="{{ route('buyer.cart.index') }}"
-                    class="block rounded-xl px-4 py-3 text-sm font-medium text-emerald-800 hover:bg-emerald-60"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.cart.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
                 >
-                    Keranjang
+                    <span>🛒</span> Keranjang Belanja
                 </a>
 
-                <a
-                    href="{{ route('profile.index') }}"
-                    class="block rounded-xl px-4 py-3 text-sm font-medium text-emerald-800 hover:bg-emerald-60"
-                >
-                    Profil
-                </a>
-
-                <form
-                    action="{{ route('logout') }}"
-                    method="POST"
-                    class="pt-1"
-                >
-                    @csrf
-
-                    <button
-                        type="submit"
-                        class="w-full rounded-xl px-4 py-3 text-left text-sm font-medium text-red-800 hover:bg-red-50"
-                    >
-                        Keluar
-                    </button>
-                </form>
+                {{-- User Profile Nav Section (Paling Bawah) --}}
+                <div class="mt-4 border-t border-slate-100 pt-4">
+                    <div class="flex items-center justify-between gap-3 rounded-2xl border p-3.5 {{ request()->routeIs('profile.*') ? 'border-emerald-300 bg-emerald-100/70 ring-2 ring-emerald-600/20 shadow-sm' : 'border-slate-200/80 bg-slate-50' }}">
+                        <a href="{{ route('profile.index') }}" class="flex min-w-0 flex-1 items-center gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-sm font-semibold text-white shadow-xs">
+                                {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-bold text-slate-900">
+                                    {{ auth()->user()->username }}
+                                </p>
+                                <p class="truncate text-xs font-semibold text-emerald-800">
+                                    {{ auth()->user()->role === 'teacher' ? 'Guru' : 'Siswa' }} • Profil & Dashboard →
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
 
             @else
 
-                <a
-                    href="{{ route('login') }}"
-                    class="mt-2 block rounded-xl bg-emerald-800 px-4 py-3 text-center text-sm font-semibold text-white"
-                >
-                    Masuk
-                </a>
+                {{-- Guest Button (Paling Bawah) --}}
+                <div class="mt-4 border-t border-slate-100 pt-4">
+                    <a
+                        href="{{ route('login') }}"
+                        class="block w-full rounded-xl bg-emerald-800 px-4 py-3 text-center text-sm font-semibold text-white shadow-xs transition hover:bg-emerald-900"
+                    >
+                        Masuk Akun
+                    </a>
+                </div>
 
             @endauth
 
         </div>
     </div>
 </nav>
+
+<script>
+    (function () {
+        function setupMobileNav() {
+            const btn = document.getElementById('mobile-nav-toggle-btn');
+            const drawer = document.getElementById('mobile-nav-drawer');
+            const hamburger = document.getElementById('icon-hamburger');
+            const closeIcon = document.getElementById('icon-close');
+
+            if (!btn || !drawer) return;
+
+            btn.onclick = function (e) {
+                e.stopPropagation();
+                const isHidden = drawer.classList.contains('hidden');
+
+                if (isHidden) {
+                    drawer.classList.remove('hidden');
+                    if (hamburger) hamburger.classList.add('hidden');
+                    if (closeIcon) closeIcon.classList.remove('hidden');
+                } else {
+                    drawer.classList.add('hidden');
+                    if (hamburger) hamburger.classList.remove('hidden');
+                    if (closeIcon) closeIcon.classList.add('hidden');
+                }
+            };
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupMobileNav);
+        } else {
+            setupMobileNav();
+        }
+    })();
+</script>

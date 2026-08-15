@@ -21,7 +21,8 @@ class DashboardController extends Controller
 
         $totalCategories = Category::count();
 
-        $totalSellers = Seller::count();
+        // Only count approved sellers as active sellers
+        $totalSellers = Seller::where('status', 'approved')->count();
 
         $totalProducts = Product::count();
 

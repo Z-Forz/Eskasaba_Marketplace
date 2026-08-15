@@ -36,7 +36,7 @@ class SchoolLoginController extends Controller
 
         $localUser = User::where('nis_nip', $credentials['nis_nip'])->first();
 
-        if ($localUser) {
+        if ($localUser instanceof User) {
             // Sudah pernah login → auth lokal biasa, TIDAK hit API
             if (! Auth::attempt(['nis_nip' => $credentials['nis_nip'], 'password' => $credentials['password']])) {
                 throw ValidationException::withMessages([
@@ -44,6 +44,7 @@ class SchoolLoginController extends Controller
                 ]);
             }
 
+            /** @var User $localUser */
             $localUser = Auth::user();
         } else {
             // Login pertama kali → validasi identitas ke API Sekolah
@@ -54,6 +55,8 @@ class SchoolLoginController extends Controller
                     'nis_nip' => 'NIS/NIP tidak ditemukan di sistem sekolah.',
                 ]);
             }
+
+            /** @var array<string, mixed> $apiData */
 
             // Password default = 'password'
             if ($credentials['password'] !== 'password') {
@@ -77,9 +80,6 @@ class SchoolLoginController extends Controller
                 'is_default_password' => true,
                 // Data profil sekolah
                 'api_id'              => $apiData['id'] ?? null,
-                'name'                => $apiData['nama'],
-                'school_number'       => $apiData['nis_nip'],
-                'type'                => $apiData['jenis_pengguna'],
                 'birth_date'          => $apiData['tanggal_lahir'] ?? null,
                 'class'               => $apiData['kelas'] ?? null,
                 'major'               => $apiData['jurusan'] ?? null,

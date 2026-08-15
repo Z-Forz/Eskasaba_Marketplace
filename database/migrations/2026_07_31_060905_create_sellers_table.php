@@ -20,7 +20,8 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->string('whatsapp_number');
+            $table->string('whatsapp_number')
+                ->nullable();
 
             // Deskripsi toko
             $table->text('description')

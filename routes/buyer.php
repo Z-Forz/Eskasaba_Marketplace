@@ -8,6 +8,7 @@ use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ReviewController;
 use App\Http\Controllers\Buyer\ChatController;
+use App\Http\Controllers\SellerApplicationController;
 
 Route::middleware(['auth', 'password.changed'])
     ->prefix('buyer')
@@ -33,4 +34,11 @@ Route::middleware(['auth', 'password.changed'])
 
         Route::resource('chats', ChatController::class)
             ->only(['index', 'show', 'store']);
+
+        // Pengajuan menjadi seller
+        Route::get('/apply-seller', [SellerApplicationController::class, 'create'])
+            ->name('apply-seller');
+
+        Route::post('/apply-seller', [SellerApplicationController::class, 'store'])
+            ->name('apply-seller.store');
     });

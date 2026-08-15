@@ -3,15 +3,14 @@
 namespace App\Services;
 
 /**
- * Dummy SchoolApiService used as a placeholder until the real
- * implementation is available. Keeps the container resolution
- * from failing during local development.
+ * SchoolApiService — placeholder sampai integrasi API Sekolah nyata tersedia.
+ * Saat ini mengembalikan data dummy agar alur login bisa berjalan di lokal.
+ *
+ * Ganti implementasi method validate() dengan HTTP call ke API Sekolah asli
+ * ketika endpoint sudah tersedia.
  */
 class SchoolApiService
 {
-    /**
-     * Create a new dummy service instance.
-     */
     public function __construct()
     {
         // placeholder
@@ -37,16 +36,50 @@ class SchoolApiService
     {
         return null;
     }
+
     /**
      * Validate user credentials against the school system.
      *
-     * This is currently a placeholder implementation that always returns true.
-     * Replace with real API call when the school integration is ready.
+     * Returns an associative array with the user's school data on success,
+     * or null if the NIS/NIP is not found in the school system.
+     *
+     * Expected keys in the returned array:
+     *   - id              (int)     — ID unik dari sistem sekolah
+     *   - nis_nip         (string)  — NIS (siswa) atau NIP (guru)
+     *   - nama            (string)  — Nama lengkap
+     *   - jenis_pengguna  (string)  — 'siswa' | 'guru'
+     *   - tanggal_lahir   (string|null) — format Y-m-d
+     *   - kelas           (string|null) — kelas (khusus siswa)
+     *   - jurusan         (string|null) — jurusan (khusus siswa)
+     *   - telepon         (string|null) — nomor HP
+     *
+     * TODO: Ganti implementasi ini dengan HTTP call ke API Sekolah asli.
+     *
+     * @param  string  $nisNip  NIS atau NIP yang diinput user
+     * @return array<string,mixed>|null  Data sekolah jika ditemukan, null jika tidak
      */
-    public function validate(string $username, string $password): bool
+    public function validate(string $nisNip): array|null
     {
-        // TODO: Integrate with actual school API.
-        return true;
+        // ---------------------------------------------------------------
+        // PLACEHOLDER — hapus blok ini dan ganti dengan panggilan API asli
+        // ---------------------------------------------------------------
+        // Contoh dummy: anggap semua NIS/NIP valid untuk keperluan development
+        return [
+            'id'             => 1,
+            'nis_nip'        => $nisNip,
+            'nama'           => 'User ' . $nisNip,
+            'jenis_pengguna' => 'siswa',
+            'tanggal_lahir'  => null,
+            'kelas'          => null,
+            'jurusan'        => null,
+            'telepon'        => null,
+        ];
+
+        // ---------------------------------------------------------------
+        // IMPLEMENTASI NYATA (contoh dengan HTTP):
+        // ---------------------------------------------------------------
+        // $response = Http::get('https://api.sekolah.example/users/' . $nisNip);
+        // if ($response->failed()) return null;
+        // return $response->json();
     }
 }
-

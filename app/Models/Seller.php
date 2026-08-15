@@ -11,8 +11,11 @@ class Seller extends Model
 
     protected $fillable = [
         'user_id',
-        'whatsapp_number',
         'description',
+        'reason',
+        'products_plan',
+        'rejection_note',
+        'whatsapp_number',
         'status',
         'approved_at',
     ];
@@ -30,21 +33,70 @@ class Seller extends Model
     |--------------------------------------------------------------------------
     */
 
-    // Pemilik toko
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Produk yang dijual
     public function products()
     {
         return $this->hasMany(Product::class);
     }
 
-    // Semua pesanan yang masuk ke seller
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    public function needsRevision(): bool
+    {
+        return $this->status === 'revision';
+    }
+
+    /**
+     * Badge color untuk status di UI.
+     */
+    public function statusColor(): string
+    {
+        return match ($this->status) {
+            'approved' => 'green',
+            'rejected' => 'red',
+            'revision' => 'yellow',
+            default    => 'blue', // pending
+        };
+    }
+
+    /**
+     * Label status dalam Bahasa Indonesia.
+     */
+    public function statusLabel(): string
+    {
+        return match ($this->status) {
+            'approved' => 'Disetujui',
+            'rejected' => 'Ditolak',
+            'revision' => 'Perlu Revisi',
+            default    => 'Menunggu Verifikasi',
+        };
     }
 }

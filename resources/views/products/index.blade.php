@@ -1,10 +1,4 @@
-{{-- resources/views/products/index.blade.php --}}
-<x-layouts.app>
-    <div class="container">
-        <h1>Products index</h1>
-    </div>
-</x-layouts.app>
-<x-layouts.app>
+<x-layouts.app title="Katalog Produk">
 
     <section class="bg-slate-50 py-10 sm:py-14">
 
