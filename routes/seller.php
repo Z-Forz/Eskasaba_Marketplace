@@ -9,7 +9,7 @@ use App\Http\Controllers\Seller\PaymentController;
 use App\Http\Controllers\Seller\PickupScheduleController;
 use App\Http\Controllers\Seller\ChatController;
 
-Route::middleware('auth')
+Route::middleware(['auth', 'password.changed'])
     ->prefix('seller')
     ->name('seller.')
     ->group(function () {

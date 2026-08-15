@@ -13,9 +13,19 @@ class User extends Authenticatable
         'username',
         'nis_nip',
         'email',
+        'avatar',
         'password',
         'role',
         'is_default_password',
+        // Data profil dari API Sekolah
+        'api_id',
+        'name',
+        'school_number',
+        'type',
+        'birth_date',
+        'class',
+        'major',
+        'phone',
     ];
 
     protected $hidden = [
@@ -26,8 +36,9 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password'             => 'hashed',
-            'is_default_password'  => 'boolean',
+            'password'            => 'hashed',
+            'is_default_password' => 'boolean',
+            'birth_date'          => 'date',
         ];
     }
 
@@ -37,7 +48,7 @@ class User extends Authenticatable
     |--------------------------------------------------------------------------
     */
 
-    // Data seller (jika user menjadi penjual)
+    // Data seller (jika user mendaftar sebagai penjual)
     public function seller()
     {
         return $this->hasOne(Seller::class);
@@ -59,5 +70,26 @@ class User extends Authenticatable
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    public function isSeller(): bool
+    {
+        return $this->seller()->exists();
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->role === 'student';
+    }
+
+    public function isTeacher(): bool
+    {
+        return $this->role === 'teacher';
     }
 }

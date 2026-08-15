@@ -27,50 +27,71 @@ class SchoolLoginController extends Controller
 
     /**
      * Handle login request.
+     * - Login pertama: validasi ke API Sekolah, buat akun lokal.
+     * - Login berikutnya: auth lokal biasa tanpa hit API.
      */
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): RedirectResponse
     {
         $credentials = $request->validated(); // ['nis_nip' => ..., 'password' => ...]
 
         $localUser = User::where('nis_nip', $credentials['nis_nip'])->first();
 
         if ($localUser) {
-            // Sudah pernah login sebelumnya -> auth lokal biasa, TIDAK hit API
-            if (! Auth::attempt($credentials)) {
+            // Sudah pernah login → auth lokal biasa, TIDAK hit API
+            if (! Auth::attempt(['nis_nip' => $credentials['nis_nip'], 'password' => $credentials['password']])) {
                 throw ValidationException::withMessages([
                     'nis_nip' => 'NIS/NIP atau password salah.',
                 ]);
             }
+
             $localUser = Auth::user();
         } else {
-            // Login pertama kali -> validasi identitas ke API Sekolah dulu
+            // Login pertama kali → validasi identitas ke API Sekolah
             $apiData = $this->schoolApi->validate($credentials['nis_nip']);
 
             if (! $apiData) {
                 throw ValidationException::withMessages([
-                    'nis_nip' => 'NIS/NIP tidak ditemukan.',
+                    'nis_nip' => 'NIS/NIP tidak ditemukan di sistem sekolah.',
                 ]);
             }
 
+            // Password default = 'password'
             if ($credentials['password'] !== 'password') {
                 throw ValidationException::withMessages([
                     'nis_nip' => 'NIS/NIP atau password salah.',
                 ]);
             }
 
+            // Mapping role dari API ke role lokal
+            $role = match ($apiData['jenis_pengguna'] ?? 'student') {
+                'guru'  => 'teacher',
+                default => 'student',
+            };
+
+            // Buat akun lokal dengan data dari API
             $localUser = User::create([
-                'username'             => $apiData['nama'], // nama asli dari API
-                'nis_nip'              => $apiData['nis_nip'],
-                'role'                 => $apiData['jenis_pengguna'], // siswa/guru
-                'password'             => Hash::make('password'),
-                'is_default_password'  => true,
+                'username'            => $apiData['nama'],
+                'nis_nip'             => $apiData['nis_nip'],
+                'role'                => $role,
+                'password'            => Hash::make('password'),
+                'is_default_password' => true,
+                // Data profil sekolah
+                'api_id'              => $apiData['id'] ?? null,
+                'name'                => $apiData['nama'],
+                'school_number'       => $apiData['nis_nip'],
+                'type'                => $apiData['jenis_pengguna'],
+                'birth_date'          => $apiData['tanggal_lahir'] ?? null,
+                'class'               => $apiData['kelas'] ?? null,
+                'major'               => $apiData['jurusan'] ?? null,
+                'phone'               => $apiData['telepon'] ?? null,
             ]);
 
             Auth::login($localUser);
         }
 
-        $request->session()->regenerate(); // cegah session fixation
+        $request->session()->regenerate();
 
+        // Paksa ganti password default sebelum bisa akses fitur
         if ($localUser->is_default_password) {
             return redirect()->route('password.change')
                 ->with('warning', 'Silakan ganti password default Anda terlebih dahulu.');

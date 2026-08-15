@@ -27,7 +27,11 @@ class DashboardController extends Controller
 
         $totalOrders = Order::count();
 
-        $pendingSellers = Seller::where('status', 'pending')->count();
+        // Recent orders for display
+        $recentOrders = Order::with('buyer')->latest()->limit(8)->get();
+
+        // Pending sellers collection for the dashboard list
+        $pendingSellers = Seller::with('user')->where('status', 'pending')->latest()->limit(8)->get();
 
         $pendingOrders = Order::where('status', 'pending')->count();
 
@@ -38,7 +42,8 @@ class DashboardController extends Controller
             'totalProducts',
             'totalOrders',
             'pendingSellers',
-            'pendingOrders'
+            'pendingOrders',
+            'recentOrders'
         ));
     }
 }

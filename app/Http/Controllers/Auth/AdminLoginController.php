@@ -20,6 +20,7 @@ class AdminLoginController extends Controller
 
     /**
      * Handle admin login request.
+     * Menggunakan guard 'admin' (tabel admins, terpisah dari users).
      */
     public function store(Request $request): RedirectResponse
     {
@@ -28,10 +29,7 @@ class AdminLoginController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $credentials['role'] = 'admin';
-
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-
+        if (! Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             return back()
                 ->withErrors([
                     'username' => 'Username atau password salah.',
@@ -41,22 +39,22 @@ class AdminLoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()
-            ->route('admin.dashboard');
+        return redirect()->route('admin.dashboard');
     }
 
     /**
-     * Logout admin.
+     * Logout admin dari guard 'admin'.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::logout();
+        Auth::guard('admin')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
         return redirect()
-            ->route('home');
+            ->route('admin.login')
+            ->with('status', 'Anda telah berhasil logout.');
     }
 }

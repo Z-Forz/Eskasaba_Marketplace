@@ -17,12 +17,14 @@ class Product extends Model
         'stock',
         'description',
         'status',
+        'discount',
     ];
 
     protected function casts(): array
     {
         return [
             'price' => 'decimal:2',
+            'discount' => 'decimal:2',
         ];
     }
 

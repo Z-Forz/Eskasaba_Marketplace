@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Admin;
 use App\Models\User;
 
 return [
@@ -38,9 +39,16 @@ return [
     */
 
     'guards' => [
+        // Guard default untuk siswa & guru (login via API sekolah)
         'web' => [
-            'driver' => 'session',
+            'driver'   => 'session',
             'provider' => 'users',
+        ],
+
+        // Guard khusus admin panel (login lokal, tabel admins)
+        'admin' => [
+            'driver'   => 'session',
+            'provider' => 'admins',
         ],
     ],
 
@@ -62,15 +70,17 @@ return [
     */
 
     'providers' => [
+        // Provider untuk siswa & guru
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
+            'model'  => env('AUTH_MODEL', User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        // Provider untuk admin panel
+        'admins' => [
+            'driver' => 'eloquent',
+            'model'  => Admin::class,
+        ],
     ],
 
     /*

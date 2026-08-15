@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Seller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -21,6 +22,16 @@ class SellerController extends Controller
         return view('admin.sellers.index', compact(
             'sellers'
         ));
+    }
+
+    /**
+     * Show the form for creating a new seller.
+     */
+    public function create(): View
+    {
+        $users = User::all();
+
+        return view('admin.sellers.create', compact('users'));
     }
 
     /**

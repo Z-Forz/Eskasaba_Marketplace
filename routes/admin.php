@@ -10,7 +10,7 @@ use App\Http\Controllers\Admin\SellerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WebsiteSettingController;
 
-Route::middleware('auth')
+Route::middleware(['auth:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

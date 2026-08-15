@@ -16,9 +16,10 @@ class UserSeeder extends Seeder
         User::insert([
             [
                 'school_profile_id' => 1,
+                'username'          => 'Admin',
                 'name'              => 'Administrator',
                 'email'             => 'admin@eskasaba.com',
-                'password'          => Hash::make('password'),
+                'password'          => Hash::make('password123'),
                 'role'              => 'admin',
                 'created_at'        => now(),
                 'updated_at'        => now(),

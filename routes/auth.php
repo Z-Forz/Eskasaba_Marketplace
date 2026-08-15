@@ -24,13 +24,23 @@ Route::post('/logout', [SchoolLoginController::class, 'logout'])
     ->name('logout');
 
 // Login admin (username lokal, terpisah dari API Sekolah)
-Route::middleware('guest')
-    ->prefix('admin')
+Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/login', [AdminLoginController::class, 'create'])
-            ->name('login');
+        // /admin → dashboard kalau sudah login sebagai admin, login page kalau belum
+        Route::get('/', function () {
+            if (auth('admin')->check()) {
+                return redirect()->route('admin.dashboard');
+            }
+            return redirect()->route('admin.login');
+        })->name('index');
+
+        // Halaman login admin - hanya untuk yang belum login via guard admin
+        Route::middleware('guest:admin')->group(function () {
+            Route::get('/login', [AdminLoginController::class, 'create'])
+                ->name('login');
+        });
 
         Route::post('/login', [AdminLoginController::class, 'store'])
             ->middleware('throttle:login')
@@ -39,7 +49,7 @@ Route::middleware('guest')
     });
 
 Route::post('/admin/logout', [AdminLoginController::class, 'destroy'])
-    ->middleware('auth')
+    ->middleware('auth:admin')
     ->name('admin.logout');
 
 // Wajib ganti password default + redirect dashboard sesuai role
@@ -53,5 +63,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', DashboardRedirectController::class)
         ->name('dashboard');
+
+    /* User profile routes */
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])
+        ->name('profile.index');
+
+    Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])
+        ->name('profile.update');
 
 });

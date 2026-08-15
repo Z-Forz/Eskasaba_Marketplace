@@ -35,11 +35,19 @@ return new class extends Migration
                 ->default(false);
 
             $table->enum('role', [
-                'admin',
                 'student',
-                'teacher'
+                'teacher',
             ])->default('student');
 
+            // Data dari API Sekolah (wajib diisi — user sekolah selalu punya data ini)
+            $table->unsignedBigInteger('api_id');
+            $table->string('school_number');
+            $table->string('name');
+            $table->string('type');        // siswa / guru
+            $table->date('birth_date');
+            $table->string('class')->nullable();  // nullable: guru tidak punya kelas
+            $table->string('major')->nullable();  // nullable: guru tidak punya jurusan
+            $table->string('phone')->nullable();
             $table->rememberToken();
 
             $table->timestamps();

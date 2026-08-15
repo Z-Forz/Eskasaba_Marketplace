@@ -9,7 +9,7 @@ use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ReviewController;
 use App\Http\Controllers\Buyer\ChatController;
 
-Route::middleware('auth')
+Route::middleware(['auth', 'password.changed'])
     ->prefix('buyer')
     ->name('buyer.')
     ->group(function () {
