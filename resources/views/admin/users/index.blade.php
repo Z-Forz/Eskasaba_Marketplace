@@ -6,157 +6,143 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                    Kelola Pengguna
+                <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-users text-blue-600"></i> Kelola Pengguna Sekolah
                 </h1>
 
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Kelola daftar pengguna terdaftar di Eskasaba Marketplace.
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Kelola daftar pengguna terdaftar (Siswa, Guru, Admin) di Eskasaba Marketplace.
                 </p>
             </div>
 
             <a
                 href="{{ route('admin.users.create') }}"
-                class="inline-flex items-center justify-center rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 dark:bg-white dark:text-gray-900"
+                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-blue-700"
             >
-                + Tambah Pengguna
+                <i class="fa-solid fa-user-plus"></i> Tambah Pengguna Baru
             </a>
 
         </div>
 
         @if (session('success'))
-            <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-400">
-                {{ session('success') }}
-            </div>
+            <x-alert type="success" :message="session('success')" class="mb-4" />
         @endif
 
         {{-- Search --}}
-        <form
-            method="GET"
-            action="{{ route('admin.users.index') }}"
-            class="flex flex-col gap-2 sm:flex-row"
-        >
-
-            <input
-                type="search"
-                name="search"
-                value="{{ $search ?? request('search') }}"
-                placeholder="Cari username, NIS/NIP, email, kelas, jurusan..."
-                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <form
+                method="GET"
+                action="{{ route('admin.users.index') }}"
+                class="flex flex-col gap-2 sm:flex-row"
             >
+                <div class="relative flex-1">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ $search ?? request('search') }}"
+                        placeholder="Cari username, NIS/NIP, email, kelas, jurusan, mapel..."
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 pl-10 text-sm font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    >
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
+                </div>
 
-            <button
-                type="submit"
-                class="rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white dark:bg-white dark:text-gray-900"
-            >
-                Cari
-            </button>
-
-        </form>
+                <button
+                    type="submit"
+                    class="rounded-2xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700 flex items-center justify-center gap-1.5"
+                >
+                    <i class="fa-solid fa-magnifying-glass"></i> Cari
+                </button>
+            </form>
+        </div>
 
         {{-- Desktop Table --}}
-        <div class="hidden overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 md:block">
+        <div class="hidden overflow-hidden rounded-3xl border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900 md:block shadow-xs">
 
             <div class="overflow-x-auto">
 
                 <table class="w-full text-left text-sm">
 
-                    <thead class="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50">
+                    <thead class="border-b border-slate-100 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
 
                         <tr>
-                            <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                Username / Email
-                            </th>
-
-                            <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                NIS / NIP
-                            </th>
-
-                            <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                Kelas & Jurusan
-                            </th>
-
-                            <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                Peran (Role)
-                            </th>
-
-                            <th class="px-5 py-4 text-right font-semibold text-gray-600 dark:text-gray-300">
-                                Aksi
-                            </th>
+                            <th class="px-6 py-4">Username / Email</th>
+                            <th class="px-6 py-4">NIS / NIP</th>
+                            <th class="px-6 py-4">Kelas & Jurusan / Mapel</th>
+                            <th class="px-6 py-4">Peran (Role)</th>
+                            <th class="px-6 py-4 text-right">Aksi</th>
                         </tr>
 
                     </thead>
 
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
 
                         @forelse ($users as $user)
 
-                            <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <tr class="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
 
-                                <td class="px-5 py-4">
-
+                                <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-
-                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-800 font-semibold text-white shadow-xs">
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-900 font-bold text-white shadow-xs">
                                             {{ strtoupper(substr($user->username, 0, 1)) }}
                                         </div>
 
                                         <div class="min-w-0">
-
-                                            <p class="font-bold text-gray-900 dark:text-white">
+                                            <p class="font-bold text-slate-900 dark:text-white">
                                                 {{ $user->username }}
                                             </p>
-
-                                            <p class="truncate text-xs text-gray-500 dark:text-gray-400">
+                                            <p class="truncate text-xs text-slate-400">
                                                 {{ $user->email ?? '-' }}
                                             </p>
-
                                         </div>
-
                                     </div>
-
                                 </td>
 
-                                <td class="px-5 py-4 font-medium text-gray-700 dark:text-gray-300">
+                                <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
                                     {{ $user->nis_nip ?? '-' }}
                                 </td>
 
-                                <td class="px-5 py-4 text-gray-600 dark:text-gray-300">
-                                    @if ($user->class || $user->major)
-                                        {{ $user->class ?? '' }} {{ $user->major ? '• ' . $user->major : '' }}
+                                <td class="px-6 py-4 text-slate-600 dark:text-slate-300">
+                                    @if ($user->role === 'teacher')
+                                        <span class="font-bold text-amber-700 dark:text-amber-400 inline-flex items-center gap-1">
+                                            <i class="fa-solid fa-chalkboard-user text-xs"></i> {{ $user->subject_taught ?? $user->major ?? 'Guru Mapel' }}
+                                        </span>
+                                    @elseif ($user->class || $user->major)
+                                        <span class="font-semibold inline-flex items-center gap-1">
+                                            <i class="fa-solid fa-graduation-cap text-xs text-emerald-600"></i> {{ $user->class ?? '' }} {{ $user->major ? '• ' . $user->major : '' }}
+                                        </span>
                                     @else
                                         -
                                     @endif
                                 </td>
 
-                                <td class="px-5 py-4">
-
-                                    <span class="rounded-full px-3 py-1 text-xs font-semibold
-                                        {{ $user->role === 'teacher' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}"
+                                <td class="px-6 py-4">
+                                    <span class="rounded-full px-3 py-1 text-xs font-bold
+                                        {{ $user->role === 'teacher' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' }}"
                                     >
-                                        {{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}
+                                        @if($user->role === 'teacher')
+                                            <i class="fa-solid fa-chalkboard-user mr-1"></i> Guru
+                                        @else
+                                            <i class="fa-solid fa-graduation-cap mr-1"></i> Siswa
+                                        @endif
                                     </span>
-
                                 </td>
 
-                                <td class="px-5 py-4 text-right">
-
+                                <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end gap-2">
                                         <a
                                             href="{{ route('admin.users.show', $user) }}"
-                                            class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300"
+                                            class="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                                         >
-                                            Detail
+                                            <i class="fa-solid fa-eye"></i> Detail
                                         </a>
 
                                         <a
                                             href="{{ route('admin.users.edit', $user) }}"
-                                            class="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800 dark:bg-white dark:text-gray-900"
+                                            class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
                                         >
-                                            Edit
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
                                         </a>
                                     </div>
-
                                 </td>
 
                             </tr>
@@ -164,10 +150,7 @@
                         @empty
 
                             <tr>
-                                <td
-                                    colspan="5"
-                                    class="px-5 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
-                                >
+                                <td colspan="5" class="px-6 py-12 text-center text-sm text-slate-500">
                                     Belum ada data pengguna yang ditemukan.
                                 </td>
                             </tr>
@@ -187,68 +170,68 @@
 
             @forelse ($users as $user)
 
-                <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900 shadow-xs">
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
                     <div class="flex items-center gap-3">
-
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-800 font-semibold text-white shadow-xs">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-900 font-bold text-white shadow-xs">
                             {{ strtoupper(substr($user->username, 0, 1)) }}
                         </div>
 
                         <div class="min-w-0 flex-1">
-
                             <div class="flex items-start justify-between gap-3">
-
-                                <h2 class="truncate font-bold text-gray-900 dark:text-white">
+                                <h2 class="truncate font-bold text-slate-900 dark:text-white">
                                     {{ $user->username }}
                                 </h2>
 
-                                <span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold
+                                <span class="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold
                                     {{ $user->role === 'teacher' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}"
                                 >
                                     {{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}
                                 </span>
-
                             </div>
 
-                            <p class="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">
+                            <p class="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
                                 {{ $user->email ?? '-' }}
                             </p>
-
                         </div>
-
                     </div>
 
-                    <div class="mt-4 grid grid-cols-2 gap-3 border-t border-gray-100 pt-3 dark:border-gray-800 text-xs">
-
+                    <div class="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3 dark:border-slate-800 text-xs">
                         <div>
-                            <p class="text-gray-400">NIS / NIP</p>
-                            <p class="mt-0.5 font-medium text-gray-800 dark:text-gray-200">
+                            <p class="text-slate-400 font-semibold">NIS / NIP</p>
+                            <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200">
                                 {{ $user->nis_nip ?? '-' }}
                             </p>
                         </div>
 
                         <div>
-                            <p class="text-gray-400">Kelas / Jurusan</p>
-                            <p class="mt-0.5 font-medium text-gray-800 dark:text-gray-200">
-                                {{ $user->class ?? '-' }} {{ $user->major ? '• ' . $user->major : '' }}
+                            <p class="text-slate-400 font-semibold">
+                                {{ $user->role === 'teacher' ? 'Mapel Diampu' : 'Kelas / Jurusan' }}
+                            </p>
+                            <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200">
+                                @if ($user->role === 'teacher')
+                                    <i class="fa-solid fa-chalkboard-user text-amber-600"></i> {{ $user->subject_taught ?? $user->major ?? 'Guru Mapel' }}
+                                @elseif ($user->class || $user->major)
+                                    <i class="fa-solid fa-graduation-cap text-emerald-600"></i> {{ $user->class ?? '' }} {{ $user->major ? '• ' . $user->major : '' }}
+                                @else
+                                    -
+                                @endif
                             </p>
                         </div>
-
                     </div>
 
-                    <div class="mt-4 flex gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
+                    <div class="mt-4 flex gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
                         <a
                             href="{{ route('admin.users.show', $user) }}"
-                            class="flex-1 rounded-xl border border-gray-200 py-2 text-center text-xs font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300"
+                            class="flex-1 rounded-2xl border border-slate-200 py-2 text-center text-xs font-bold text-slate-700 dark:border-slate-700 dark:text-slate-300 flex items-center justify-center gap-1"
                         >
-                            Detail
+                            <i class="fa-solid fa-eye"></i> Detail
                         </a>
                         <a
                             href="{{ route('admin.users.edit', $user) }}"
-                            class="flex-1 rounded-xl bg-gray-900 py-2 text-center text-xs font-semibold text-white dark:bg-white dark:text-gray-900"
+                            class="flex-1 rounded-2xl bg-slate-900 py-2 text-center text-xs font-bold text-white dark:bg-blue-600 flex items-center justify-center gap-1"
                         >
-                            Edit
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
                         </a>
                     </div>
 
@@ -256,7 +239,7 @@
 
             @empty
 
-                <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900">
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-10 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
                     Belum ada data pengguna yang ditemukan.
                 </div>
 

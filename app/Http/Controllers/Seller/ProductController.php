@@ -7,6 +7,7 @@ use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Seller;
+use App\Services\ImageCompressor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -58,10 +59,19 @@ class ProductController extends Controller
             Auth::id()
         )->firstOrFail();
 
-        Product::create([
+        $product = Product::create([
             ...$request->validated(),
             'seller_id' => $seller->id,
         ]);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = ImageCompressor::compressAndStore($file, 'products');
+                $product->images()->create([
+                    'image' => $path,
+                ]);
+            }
+        }
 
         return redirect()
             ->route('seller.products.index')
@@ -69,18 +79,11 @@ class ProductController extends Controller
     }
 
     /**
-     * Display the specified product.
+     * Redirect product detail to public product page.
      */
-    public function show(Product $product): View
+    public function show(Product $product): RedirectResponse
     {
-        $product->load([
-            'category',
-            'images',
-        ]);
-
-        return view('seller.products.show', compact(
-            'product'
-        ));
+        return redirect()->route('products.show', $product);
     }
 
     /**
@@ -107,6 +110,15 @@ class ProductController extends Controller
         $product->update(
             $request->validated()
         );
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = ImageCompressor::compressAndStore($file, 'products');
+                $product->images()->create([
+                    'image' => $path,
+                ]);
+            }
+        }
 
         return redirect()
             ->route('seller.products.index')

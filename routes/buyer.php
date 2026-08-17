@@ -9,6 +9,7 @@ use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ReviewController;
 use App\Http\Controllers\Buyer\ChatController;
 use App\Http\Controllers\SellerApplicationController;
+use App\Http\Controllers\NotificationController;
 
 Route::middleware(['auth', 'password.changed'])
     ->prefix('buyer')
@@ -29,11 +30,17 @@ Route::middleware(['auth', 'password.changed'])
         Route::resource('orders', OrderController::class)
             ->only(['index', 'show']);
 
+        Route::get('/reviews/create/{order}', [ReviewController::class, 'create'])
+            ->name('reviews.create');
+
         Route::resource('reviews', ReviewController::class)
             ->only(['store', 'update', 'destroy']);
 
         Route::resource('chats', ChatController::class)
             ->only(['index', 'show', 'store']);
+
+        Route::post('/chats/{chat}/message', [ChatController::class, 'storeMessage'])
+            ->name('chats.message');
 
         // Pengajuan menjadi seller
         Route::get('/apply-seller', [SellerApplicationController::class, 'create'])
@@ -41,4 +48,14 @@ Route::middleware(['auth', 'password.changed'])
 
         Route::post('/apply-seller', [SellerApplicationController::class, 'store'])
             ->name('apply-seller.store');
+
+        // Notifikasi sistem in-app
+        Route::get('/notifications', [NotificationController::class, 'index'])
+            ->name('notifications.index');
+
+        Route::get('/notifications/{notification}/read', [NotificationController::class, 'read'])
+            ->name('notifications.read');
+
+        Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])
+            ->name('notifications.read-all');
     });

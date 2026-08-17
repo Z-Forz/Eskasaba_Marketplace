@@ -1,26 +1,24 @@
-<x-layouts.buyer title="Chat">
+<x-layouts.buyer title="Chat Seller">
 
     <div class="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
 
         <div class="mb-8">
-
-            <p class="text-sm font-medium text-slate-500">
-                Komunikasi
+            <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                Komunikasi & Diskusi
             </p>
 
-            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                Chat
+            <h1 class="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl flex items-center gap-2">
+                <i class="fa-solid fa-comments text-emerald-600"></i> Chat dengan Penjual Toko
             </h1>
 
-            <p class="mt-2 text-sm text-slate-500">
-                Hubungi seller mengenai produk atau pesananmu.
+            <p class="mt-1 text-sm text-slate-500">
+                Hubungi penjual mengenai ketersediaan barang atau informasi pesanan Anda.
             </p>
-
         </div>
 
         @if ($chats->count())
 
-            <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xs">
 
                 <div class="divide-y divide-slate-100">
 
@@ -28,13 +26,11 @@
 
                         <a
                             href="{{ route('buyer.chats.show', $chat) }}"
-                            class="flex gap-4 p-5 transition hover:bg-slate-50 sm:p-6"
+                            class="flex items-center gap-4 p-5 transition hover:bg-slate-50/80 sm:p-6"
                         >
 
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-100 font-bold text-slate-600">
-
-                                {{ strtoupper(substr($chat->seller->user->name ?? 'S', 0, 1)) }}
-
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-base font-bold text-white shadow-xs">
+                                {{ strtoupper(substr($chat->seller?->user?->username ?? 'S', 0, 1)) }}
                             </div>
 
                             <div class="min-w-0 flex-1">
@@ -42,29 +38,27 @@
                                 <div class="flex items-start justify-between gap-4">
 
                                     <div class="min-w-0">
-
-                                        <h2 class="truncate font-semibold text-slate-900">
-                                            {{ $chat->seller->user->name ?? 'Seller' }}
+                                        <h2 class="truncate font-bold text-slate-900 text-base">
+                                            {{ $chat->seller?->user?->username ?? 'Seller' }}
                                         </h2>
 
                                         @if ($chat->product)
-                                            <p class="mt-1 truncate text-xs text-slate-400">
-                                                {{ $chat->product->name }}
+                                            <p class="mt-0.5 truncate text-xs font-semibold text-emerald-700">
+                                                <i class="fa-solid fa-box mr-1"></i> Produk: {{ $chat->product->name }}
                                             </p>
                                         @endif
-
                                     </div>
 
-                                    @if ($chat->updated_at)
-                                        <time class="shrink-0 text-xs text-slate-400">
-                                            {{ $chat->updated_at->diffForHumans() }}
+                                    @if ($chat->last_message_at ?? $chat->updated_at)
+                                        <time class="shrink-0 text-xs font-medium text-slate-400">
+                                            {{ ($chat->last_message_at ?? $chat->updated_at)->diffForHumans() }}
                                         </time>
                                     @endif
 
                                 </div>
 
-                                <p class="mt-2 truncate text-sm text-slate-500">
-                                    {{ $chat->latestMessage->message ?? 'Belum ada pesan.' }}
+                                <p class="mt-1.5 truncate text-sm text-slate-600">
+                                    {{ $chat->last_message ?? 'Belum ada pesan.' }}
                                 </p>
 
                             </div>
@@ -87,9 +81,9 @@
 
             <x-empty-state
                 title="Belum ada percakapan"
-                message="Percakapan dengan seller akan muncul di sini."
+                description="Percakapan Anda dengan penjual toko akan muncul di halaman ini."
                 action="{{ route('products.index') }}"
-                actionText="Cari Produk"
+                actionText="Cari Produk Sekolah"
             />
 
         @endif

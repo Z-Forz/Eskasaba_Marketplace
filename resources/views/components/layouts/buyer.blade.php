@@ -1,79 +1,48 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
+<html lang="id" class="h-full scroll-smooth">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>{{ $title ?? 'Buyer Area' }} - {{ config('app.name', 'Marketplace') }}</title>
 
-    <meta
-        name="csrf-token"
-        content="{{ csrf_token() }}"
-    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <title>
-        {{ $title ?? 'Buyer - ' . ($settings->website_name ?? 'Eskasaba Market') }}
-    </title>
-
-    @if(isset($settings) && $settings->favicon)
-        <link
-            rel="icon"
-            href="{{ asset('storage/' . $settings->favicon) }}"
-        >
-    @endif
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    @stack('head')
 </head>
 
-<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+<body class="flex min-h-full flex-col bg-slate-50 font-['Plus_Jakarta_Sans',sans-serif] text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200">
 
-    {{-- Navbar --}}
     <x-navbar />
 
-    {{-- Buyer content --}}
-    <main class="min-h-[calc(100vh-4rem)]">
-        <div class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-
-            {{ $slot }}
-
-        </div>
+    <main class="min-h-[calc(100vh-4rem)] flex-1">
+        {{ $slot }}
     </main>
 
-    {{-- Footer --}}
     <x-footer />
 
-    {{-- Flash messages --}}
-    @if(session('success'))
-        <x-alert
-            type="success"
-            :message="session('success')"
-        />
-    @endif
-
-    @if(session('error'))
-        <x-alert
-            type="error"
-            :message="session('error')"
-        />
-    @endif
-
-    @if(session('warning'))
-        <x-alert
-            type="warning"
-            :message="session('warning')"
-        />
-    @endif
-
-    @if(session('info'))
-        <x-alert
-            type="info"
-            :message="session('info')"
-        />
+    {{-- Flash Messages --}}
+    @if(session('success') || session('error') || session('warning') || session('info'))
+        <div class="fixed bottom-5 right-5 z-50 max-w-md w-full px-4 space-y-2 pointer-events-none">
+            @if(session('success'))
+                <x-alert type="success" :message="session('success')" class="pointer-events-auto shadow-lg" />
+            @endif
+            @if(session('error'))
+                <x-alert type="error" :message="session('error')" class="pointer-events-auto shadow-lg" />
+            @endif
+            @if(session('warning'))
+                <x-alert type="warning" :message="session('warning')" class="pointer-events-auto shadow-lg" />
+            @endif
+            @if(session('info'))
+                <x-alert type="info" :message="session('info')" class="pointer-events-auto shadow-lg" />
+            @endif
+        </div>
     @endif
 
     @stack('scripts')

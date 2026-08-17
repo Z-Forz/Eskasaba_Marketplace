@@ -4,8 +4,8 @@
 
         {{-- Header --}}
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                📈 Laporan Penjualan Marketplace
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-emerald-600"></i>Laporan Penjualan Marketplace
             </h1>
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Ringkasan perputaran transaksi, total pendapatan, dan riwayat pesanan di Eskasaba Marketplace.

@@ -3,112 +3,82 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PickupScheduleRequest;
 use App\Models\Order;
-use App\Models\PickupSchedule;
+use App\Models\Seller;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class PickupScheduleController extends Controller
 {
     /**
-     * Display a listing of pickup schedules.
+     * Display a listing of pickup schedules for active (non-completed) orders.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $pickupSchedules = PickupSchedule::with([
-            'order',
-            'order.user',
+        $seller = Seller::where('user_id', Auth::id())->firstOrFail();
+        $status = $request->input('status', 'active');
+
+        $query = Order::with([
+            'user',
+            'items.product',
+            'payment',
+            'pickupSchedule',
         ])
-        ->latest()
-        ->paginate(10);
+        ->where('seller_id', $seller->id)
+        ->whereNotNull('pickup_location');
 
-        return view('seller.pickups.index', compact(
-            'pickupSchedules'
-        ));
+        if ($status === 'active') {
+            // Default view: exclude completed & cancelled orders so completed orders will clear out automatically
+            $query->whereNotIn('status', ['completed', 'cancelled']);
+        } elseif (in_array($status, ['pending', 'confirmed', 'processing', 'ready_for_pickup', 'completed', 'cancelled'])) {
+            $query->where('status', $status);
+        }
+
+        $orders = $query->latest()->paginate(10)->withQueryString();
+
+        $activeCount = Order::where('seller_id', $seller->id)
+            ->whereNotNull('pickup_location')
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->count();
+
+        return view('seller.pickup-schedules.index', compact('orders', 'status', 'activeCount'));
     }
 
     /**
-     * Show the form for creating a pickup schedule.
+     * Display the specified order pickup schedule.
      */
-    public function create(Order $order): View
+    public function show(Order $order): View
     {
-        return view('seller.pickups.create', compact(
-            'order'
-        ));
-    }
+        $seller = Seller::where('user_id', Auth::id())->firstOrFail();
+        abort_unless($order->seller_id === $seller->id, 403);
 
-    /**
-     * Store a newly created pickup schedule.
-     */
-    public function store(
-        PickupScheduleRequest $request
-    ): RedirectResponse {
-
-        PickupSchedule::create(
-            $request->validated()
-        );
-
-        return redirect()
-            ->route('seller.pickups.index')
-            ->with('success', 'Jadwal pengambilan berhasil dibuat.');
-    }
-
-    /**
-     * Display the specified pickup schedule.
-     */
-    public function show(
-        PickupSchedule $pickupSchedule
-    ): View {
-
-        return view('seller.pickups.show', compact(
-            'pickupSchedule'
-        ));
-    }
-
-    /**
-     * Show the form for editing the pickup schedule.
-     */
-    public function edit(
-        PickupSchedule $pickupSchedule
-    ): View {
-
-        return view('seller.pickups.edit', compact(
-            'pickupSchedule'
-        ));
-    }
-
-    /**
-     * Update the specified pickup schedule.
-     */
-    public function update(
-        PickupScheduleRequest $request,
-        PickupSchedule $pickupSchedule
-    ): RedirectResponse {
-
-        $pickupSchedule->update(
-            $request->validated()
-        );
-
-        return redirect()
-            ->route('seller.pickups.index')
-            ->with('success', 'Jadwal pengambilan berhasil diperbarui.');
-    }
-
-    /**
-     * Mark pickup as completed.
-     */
-    public function complete(
-        PickupSchedule $pickupSchedule
-    ): RedirectResponse {
-
-        $pickupSchedule->update([
-            'is_picked_up' => true,
-            'picked_up_at' => now(),
+        $order->load([
+            'user',
+            'items.product',
+            'payment',
+            'pickupSchedule',
         ]);
 
-        return redirect()
-            ->route('seller.pickups.index')
-            ->with('success', 'Barang berhasil diserahkan.');
+        return view('seller.pickup-schedules.show', compact('order'));
+    }
+
+    /**
+     * Update pickup location and status directly.
+     */
+    public function update(Request $request, Order $order): RedirectResponse
+    {
+        $seller = Seller::where('user_id', Auth::id())->firstOrFail();
+        abort_unless($order->seller_id === $seller->id, 403);
+
+        $data = $request->validate([
+            'pickup_location' => ['required', 'string', 'max:255'],
+            'status'          => ['nullable', 'in:pending,confirmed,processing,ready_for_pickup,completed,cancelled'],
+        ]);
+
+        $order->update(array_filter($data, fn ($v) => ! is_null($v)));
+
+        return back()->with('success', 'Lokasi & status pengambilan pesanan berhasil diperbarui.');
     }
 }

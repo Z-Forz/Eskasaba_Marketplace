@@ -52,7 +52,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'destroy'])
     ->middleware('auth:admin')
     ->name('admin.logout');
 
-// Wajib ganti password default + redirect dashboard sesuai role
+// Route form ganti password
 Route::middleware('auth')->group(function () {
 
     Route::get('/password/change', [PasswordChangeController::class, 'edit'])
@@ -60,6 +60,11 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/password/change', [PasswordChangeController::class, 'update'])
         ->name('password.change.update');
+
+});
+
+// Route user terautentikasi (wajib sudah ganti password default jika is_default_password = true)
+Route::middleware(['auth', 'password.changed'])->group(function () {
 
     Route::get('/dashboard', DashboardRedirectController::class)
         ->name('dashboard');

@@ -16,6 +16,7 @@ class Seller extends Model
         'products_plan',
         'rejection_note',
         'whatsapp_number',
+        'qris_image',
         'status',
         'approved_at',
     ];

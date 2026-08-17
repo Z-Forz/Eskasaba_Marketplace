@@ -1,4 +1,4 @@
-<x-layouts.admin title="Detail Seller">
+<x-layouts.admin title="Detail Verifikasi Seller">
 
     <div class="space-y-6">
 
@@ -8,46 +8,39 @@
 
                 <a
                     href="{{ route('admin.sellers.index') }}"
-                    class="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                    class="text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-1.5"
                 >
-                    ← Kembali ke seller
+                    <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar Seller
                 </a>
 
-                <h1 class="mt-3 text-2xl font-bold text-gray-900 dark:text-white">
-                    Detail Seller
+                <h1 class="mt-3 text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-user-check text-emerald-600"></i> Detail & Verifikasi Seller: {{ $seller->user?->username }}
                 </h1>
 
             </div>
-
-            <a
-                href="{{ route('admin.sellers.edit', $seller) }}"
-                class="rounded-xl bg-gray-900 px-5 py-3 text-center text-sm font-semibold text-white dark:bg-white dark:text-gray-900"
-            >
-                Kelola Seller
-            </a>
 
         </div>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
             {{-- Profile --}}
-            <section class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 lg:col-span-1 dark:border-gray-700 dark:bg-gray-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 lg:col-span-1 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
-                <div class="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-800 text-2xl font-bold text-white shadow-xs">
+                <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-800 text-2xl font-black text-white shadow-xs">
                     {{ strtoupper(substr($seller->user?->username ?? 'S', 0, 1)) }}
                 </div>
 
-                <h2 class="mt-5 text-xl font-bold text-gray-900 dark:text-white">
+                <h2 class="mt-5 text-xl font-black text-slate-900 dark:text-white">
                     {{ $seller->user?->username ?? '-' }}
                 </h2>
 
-                <p class="mt-1 break-all text-sm text-gray-500 dark:text-gray-400">
-                    {{ $seller->user?->email ?? '-' }}
+                <p class="mt-1 break-all text-xs font-medium text-slate-500 dark:text-slate-400">
+                    <i class="fa-solid fa-envelope mr-1 text-slate-400"></i> {{ $seller->user?->email ?? '-' }}
                 </p>
 
                 <div class="mt-4">
 
-                    <span class="rounded-full px-3 py-1 text-xs font-semibold
+                    <span class="rounded-full px-3 py-1 text-xs font-bold
                         {{ $seller->status === 'approved'
                             ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
                             : ($seller->status === 'rejected'
@@ -56,7 +49,7 @@
                                     ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
                                     : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400')) }}"
                     >
-                        {{ $seller->statusLabel() }}
+                        <i class="fa-solid fa-circle-info mr-1"></i> Status: {{ $seller->statusLabel() }}
                     </span>
 
                 </div>
@@ -64,41 +57,51 @@
             </section>
 
             {{-- Information --}}
-            <section class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 lg:col-span-2 dark:border-gray-700 dark:bg-gray-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 lg:col-span-2 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
-                <h2 class="font-semibold text-gray-900 dark:text-white">
-                    Informasi Seller
+                <h2 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-store text-emerald-600"></i> Informasi Toko & WhatsApp
                 </h2>
 
                 <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                     <div>
-                        <p class="text-xs text-gray-400">
-                            Nomor WhatsApp
+                        <p class="text-xs font-bold text-slate-400">
+                            Nomor WhatsApp Toko
                         </p>
 
-                        <p class="mt-1 text-sm font-medium text-gray-800 dark:text-gray-200">
-                            {{ $seller->whatsapp_number ?: '-' }}
+                        <p class="mt-1 text-sm font-bold text-slate-800 dark:text-slate-200">
+                            @if ($seller->whatsapp_number)
+                                <a
+                                    href="https://wa.me/{{ preg_replace('/\D/', '', $seller->whatsapp_number) }}"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-1.5 text-emerald-700 hover:underline dark:text-emerald-400"
+                                >
+                                    <i class="fa-brands fa-whatsapp text-base"></i> {{ $seller->whatsapp_number }}
+                                </a>
+                            @else
+                                -
+                            @endif
                         </p>
                     </div>
 
                     <div>
-                        <p class="text-xs text-gray-400">
+                        <p class="text-xs font-bold text-slate-400">
                             Tanggal Pendaftaran
                         </p>
 
-                        <p class="mt-1 text-sm text-gray-800 dark:text-gray-200">
-                            {{ $seller->created_at?->format('d F Y H:i') ?? '-' }}
+                        <p class="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                            <i class="fa-solid fa-calendar-days text-slate-400 mr-1"></i> {{ $seller->created_at?->format('d F Y H:i') ?? '-' }}
                         </p>
                     </div>
 
                     <div class="sm:col-span-2">
 
-                        <p class="text-xs text-gray-400">
+                        <p class="text-xs font-bold text-slate-400">
                             Deskripsi Toko
                         </p>
 
-                        <p class="mt-1 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                        <p class="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                             {{ $seller->description ?: 'Belum ada deskripsi toko.' }}
                         </p>
 
@@ -108,12 +111,12 @@
 
                         <div>
 
-                            <p class="text-xs text-gray-400">
-                                Waktu Disetujui
+                            <p class="text-xs font-bold text-slate-400">
+                                Waktu Disetujui Admin
                             </p>
 
-                            <p class="mt-1 text-sm text-gray-800 dark:text-gray-200">
-                                {{ $seller->approved_at->format('d F Y H:i') }}
+                            <p class="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                <i class="fa-solid fa-clock-check text-emerald-600 mr-1"></i> {{ $seller->approved_at->format('d F Y H:i') }}
                             </p>
 
                         </div>
@@ -129,38 +132,38 @@
         {{-- School identity --}}
         @if ($seller->user?->nis_nip)
 
-            <section class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 dark:border-gray-700 dark:bg-gray-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
-                <h2 class="font-semibold text-gray-900 dark:text-white">
-                    Identitas Sekolah
+                <h2 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-emerald-600"></i> Identitas Sekolah (Warga Sekolah)
                 </h2>
 
                 <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
                     <div>
-                        <p class="text-xs text-gray-400">Username</p>
-                        <p class="mt-1 text-sm font-medium dark:text-gray-200">
+                        <p class="text-xs font-bold text-slate-400">Username</p>
+                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
                             {{ $seller->user->username }}
                         </p>
                     </div>
 
                     <div>
-                        <p class="text-xs text-gray-400">NIS / NIP</p>
-                        <p class="mt-1 text-sm font-medium dark:text-gray-200">
+                        <p class="text-xs font-bold text-slate-400">NIS / NIP</p>
+                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
                             {{ $seller->user->nis_nip }}
                         </p>
                     </div>
 
                     <div>
-                        <p class="text-xs text-gray-400">Kelas</p>
-                        <p class="mt-1 text-sm font-medium dark:text-gray-200">
+                        <p class="text-xs font-bold text-slate-400">Kelas</p>
+                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
                             {{ $seller->user->class ?? '-' }}
                         </p>
                     </div>
 
                     <div>
-                        <p class="text-xs text-gray-400">Jurusan</p>
-                        <p class="mt-1 text-sm font-medium dark:text-gray-200">
+                        <p class="text-xs font-bold text-slate-400">Jurusan / Mapel</p>
+                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
                             {{ $seller->user->major ?? '-' }}
                         </p>
                     </div>
@@ -172,20 +175,32 @@
         @endif
 
         {{-- Application Info --}}
-        @if ($seller->reason || $seller->products_plan)
+        @if ($seller->reason || $seller->products_plan || $seller->qris_image)
 
-            <section class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 dark:border-gray-700 dark:bg-gray-900">
+            <section class="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
-                <h2 class="font-semibold text-gray-900 dark:text-white">
-                    Detail Pengajuan
+                <h2 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode text-emerald-600"></i> Detail Pengajuan & Barcode QRIS Toko
                 </h2>
 
                 <div class="mt-5 space-y-5">
 
+                    @if ($seller->qris_image)
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Gambar Barcode QRIS Toko</p>
+                            <div class="mt-3 flex items-center gap-4">
+                                <img src="{{ Storage::url($seller->qris_image) }}" alt="QRIS {{ $seller->user?->username }}" class="h-40 w-40 rounded-2xl border border-slate-200 object-cover shadow-xs dark:border-slate-700 bg-white p-2">
+                                <a href="{{ Storage::url($seller->qris_image) }}" target="_blank" class="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                    <i class="fa-solid fa-magnifying-glass-plus"></i> Lihat Ukuran Penuh
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
                     @if ($seller->reason)
                         <div>
-                            <p class="text-xs text-gray-400">Alasan Ingin Menjadi Seller</p>
-                            <p class="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                            <p class="text-xs font-bold text-slate-400">Alasan Ingin Menjadi Seller</p>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                                 {{ $seller->reason }}
                             </p>
                         </div>
@@ -193,17 +208,19 @@
 
                     @if ($seller->products_plan)
                         <div>
-                            <p class="text-xs text-gray-400">Rencana Produk yang Akan Dijual</p>
-                            <p class="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                            <p class="text-xs font-bold text-slate-400">Rencana Produk yang Akan Dijual</p>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                                 {{ $seller->products_plan }}
                             </p>
                         </div>
                     @endif
 
                     @if ($seller->rejection_note)
-                        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/30">
-                            <p class="text-xs font-semibold text-amber-800 dark:text-amber-400">📋 Catatan Revisi / Penolakan</p>
-                            <p class="mt-1 text-sm text-amber-700 dark:text-amber-300">{{ $seller->rejection_note }}</p>
+                        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/30">
+                            <p class="text-xs font-bold text-amber-800 dark:text-amber-400 flex items-center gap-1">
+                                <i class="fa-solid fa-note-sticky"></i> Catatan Revisi / Penolakan Admin:
+                            </p>
+                            <p class="mt-1 text-sm font-semibold text-amber-700 dark:text-amber-300">{{ $seller->rejection_note }}</p>
                         </div>
                     @endif
 
@@ -213,20 +230,20 @@
 
         @endif
 
-        {{-- Interactive Verification Card Panel --}}
-        <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        {{-- Verification Panel --}}
+        <section class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
 
-            <div class="flex items-center justify-between gap-4 border-b border-gray-100 pb-4 dark:border-gray-800">
+            <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-4 dark:border-slate-800">
                 <div>
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                        Kartu Verifikasi Seller
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-gavel text-emerald-600"></i> Panel Aksi Verifikasi Seller
                     </h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
                         Kelola status verifikasi pendaftaran seller di bawah ini.
                     </p>
                 </div>
 
-                <span class="rounded-full px-3 py-1 text-xs font-semibold
+                <span class="rounded-full px-3 py-1 text-xs font-bold
                     {{ $seller->status === 'approved'
                         ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
                         : ($seller->status === 'rejected'
@@ -247,27 +264,27 @@
                     <button
                         type="button"
                         onclick="document.getElementById('modal-approve').classList.remove('hidden')"
-                        class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 shadow-xs"
+                        class="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 shadow-xs"
                     >
-                        <span>✓</span> Setujui Pengajuan
+                        <i class="fa-solid fa-check"></i> Setujui Pengajuan Seller
                     </button>
 
                     {{-- Minta Revisi Button --}}
                     <button
                         type="button"
                         onclick="document.getElementById('modal-revision').classList.remove('hidden')"
-                        class="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-600 shadow-xs"
+                        class="inline-flex items-center gap-2 rounded-2xl bg-amber-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-amber-700 shadow-xs"
                     >
-                        <span>✎</span> Minta Revisi
+                        <i class="fa-solid fa-pen-to-square"></i> Minta Revisi
                     </button>
 
                     {{-- Tolak Button --}}
                     <button
                         type="button"
                         onclick="document.getElementById('modal-reject').classList.remove('hidden')"
-                        class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 shadow-xs"
+                        class="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-700 shadow-xs"
                     >
-                        <span>✕</span> Tolak Pengajuan
+                        <i class="fa-solid fa-xmark"></i> Tolak Pengajuan
                     </button>
 
                 @else
@@ -276,9 +293,9 @@
                     <button
                         type="button"
                         onclick="document.getElementById('modal-revoke').classList.remove('hidden')"
-                        class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
+                        class="inline-flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-600 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
                     >
-                        <span>🚫</span> Cabut Status Seller
+                        <i class="fa-solid fa-ban"></i> Cabut Status Seller
                     </button>
 
                 @endif
@@ -294,17 +311,17 @@
         id="modal-approve"
         class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
     >
-        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-3 text-emerald-600">
                 <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/50">
-                    ✓
+                    <i class="fa-solid fa-check text-lg"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Setujui Pengajuan Seller</h3>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Setujui Pengajuan Seller</h3>
             </div>
 
-            <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                Apakah Anda yakin ingin menyetujui pengajuan seller untuk <strong>{{ $seller->user->username }}</strong>?
-                User akan langsung mendapatkan akses panel seller dan mulai menjual produk.
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                Apakah Anda yakin ingin menyetujui pengajuan seller untuk <strong>{{ $seller->user?->username }}</strong>?
+                User akan langsung mendapatkan akses ke dashboard seller.
             </p>
 
             <form
@@ -316,16 +333,16 @@
                 <button
                     type="button"
                     onclick="document.getElementById('modal-approve').classList.add('hidden')"
-                    class="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                    class="rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                     Batal
                 </button>
 
                 <button
                     type="submit"
-                    class="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 shadow-xs"
+                    class="rounded-2xl bg-emerald-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-xs flex items-center gap-1.5"
                 >
-                    Ya, Setujui
+                    <i class="fa-solid fa-check"></i> Ya, Setujui
                 </button>
             </form>
         </div>
@@ -336,16 +353,16 @@
         id="modal-revision"
         class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
     >
-        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-3 text-amber-600">
                 <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-950/50">
-                    ✎
+                    <i class="fa-solid fa-pen-to-square text-lg"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Minta Revisi Pengajuan</h3>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Minta Revisi Pengajuan</h3>
             </div>
 
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Tuliskan catatan detail mengenai apa yang perlu diperbaiki oleh <strong>{{ $seller->user->username }}</strong>.
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                Tuliskan catatan revisi mengenai hal yang perlu diperbaiki oleh <strong>{{ $seller->user?->username }}</strong>.
             </p>
 
             <form
@@ -359,24 +376,24 @@
                     name="rejection_note"
                     rows="4"
                     required
-                    placeholder="Contoh: Alasan yang diberikan kurang detail. Mohon jelaskan lebih lanjut jenis produk yang akan dijual..."
-                    class="block w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-gray-400 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    placeholder="Contoh: Alasan pengajuan kurang jelas. Mohon lengkapi gambar QRIS toko..."
+                    class="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium focus:border-amber-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 ></textarea>
 
                 <div class="flex justify-end gap-3">
                     <button
                         type="button"
                         onclick="document.getElementById('modal-revision').classList.add('hidden')"
-                        class="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                        class="rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                         Batal
                     </button>
 
                     <button
                         type="submit"
-                        class="rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 shadow-xs"
+                        class="rounded-2xl bg-amber-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-amber-700 shadow-xs flex items-center gap-1.5"
                     >
-                        Kirim Permintaan Revisi
+                        <i class="fa-solid fa-paper-plane"></i> Kirim Permintaan Revisi
                     </button>
                 </div>
 
@@ -389,16 +406,16 @@
         id="modal-reject"
         class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
     >
-        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-3 text-red-600">
                 <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-950/50">
-                    ✕
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Tolak Pengajuan Seller</h3>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Tolak Pengajuan Seller</h3>
             </div>
 
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Tuliskan alasan penolakan pengajuan untuk <strong>{{ $seller->user->username }}</strong>.
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                Tuliskan alasan penolakan pengajuan untuk <strong>{{ $seller->user?->username }}</strong>.
             </p>
 
             <form
@@ -412,24 +429,24 @@
                     name="rejection_note"
                     rows="4"
                     required
-                    placeholder="Contoh: Pengajuan tidak memenuhi syarat karena produk yang direncanakan tidak sesuai ketentuan marketplace..."
-                    class="block w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-gray-400 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    placeholder="Contoh: Pengajuan tidak memenuhi syarat karena produk tidak sesuai ketentuan..."
+                    class="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium focus:border-red-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 ></textarea>
 
                 <div class="flex justify-end gap-3">
                     <button
                         type="button"
                         onclick="document.getElementById('modal-reject').classList.add('hidden')"
-                        class="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                        class="rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                         Batal
                     </button>
 
                     <button
                         type="submit"
-                        class="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 shadow-xs"
+                        class="rounded-2xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-red-700 shadow-xs flex items-center gap-1.5"
                     >
-                        Tolak Pengajuan
+                        <i class="fa-solid fa-ban"></i> Tolak Pengajuan
                     </button>
                 </div>
 
@@ -442,17 +459,16 @@
         id="modal-revoke"
         class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
     >
-        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-3 text-red-600">
                 <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-950/50">
-                    🚫
+                    <i class="fa-solid fa-user-slash text-lg"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Cabut Status Seller</h3>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Cabut Status Seller</h3>
             </div>
 
-            <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                Apakah Anda yakin ingin mencabut status seller dari <strong>{{ $seller->user->username }}</strong>?
-                Seller ini tidak akan lagi dapat mengelola toko atau menambah produk baru.
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                Apakah Anda yakin ingin mencabut status seller dari <strong>{{ $seller->user?->username }}</strong>?
             </p>
 
             <form
@@ -467,16 +483,16 @@
                     <button
                         type="button"
                         onclick="document.getElementById('modal-revoke').classList.add('hidden')"
-                        class="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                        class="rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                         Batal
                     </button>
 
                     <button
                         type="submit"
-                        class="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 shadow-xs"
+                        class="rounded-2xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-red-700 shadow-xs flex items-center gap-1.5"
                     >
-                        Ya, Cabut Status
+                        <i class="fa-solid fa-user-slash"></i> Ya, Cabut Status
                     </button>
                 </div>
             </form>

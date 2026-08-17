@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Seller;
+use App\Services\ImageCompressor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class SellerApplicationController extends Controller
@@ -45,13 +47,22 @@ class SellerApplicationController extends Controller
             'whatsapp_number' => ['required', 'string', 'max:20'],
             'reason'          => ['required', 'string', 'min:20', 'max:1000'],
             'products_plan'   => ['required', 'string', 'min:20', 'max:1000'],
+            'qris_image'      => ['nullable', 'image', 'max:10240'],
         ], [
             'whatsapp_number.required' => 'Nomor WhatsApp wajib diisi.',
             'reason.required'          => 'Alasan wajib diisi.',
             'reason.min'               => 'Alasan terlalu singkat, minimal 20 karakter.',
             'products_plan.required'   => 'Rencana produk wajib diisi.',
             'products_plan.min'        => 'Rencana produk terlalu singkat, minimal 20 karakter.',
+            'qris_image.image'         => 'File QRIS harus berupa gambar.',
         ]);
+
+        if ($request->hasFile('qris_image')) {
+            if ($seller?->qris_image) {
+                Storage::disk('public')->delete($seller->qris_image);
+            }
+            $data['qris_image'] = ImageCompressor::compressAndStore($request->file('qris_image'), 'qris');
+        }
 
         if ($seller) {
             // Sudah pernah ada record (revision / rejected) → update & set pending
@@ -60,13 +71,19 @@ class SellerApplicationController extends Controller
                     ->with('error', 'Pengajuan Anda sedang diproses.');
             }
 
-            $seller->update([
+            $updateData = [
                 'whatsapp_number' => $data['whatsapp_number'],
                 'reason'          => $data['reason'],
                 'products_plan'   => $data['products_plan'],
                 'status'          => 'pending',
-                'rejection_note'  => null, // Reset catatan lama
-            ]);
+                'rejection_note'  => null,
+            ];
+
+            if (isset($data['qris_image'])) {
+                $updateData['qris_image'] = $data['qris_image'];
+            }
+
+            $seller->update($updateData);
         } else {
             // Pengajuan pertama kali
             Seller::create([
@@ -74,6 +91,7 @@ class SellerApplicationController extends Controller
                 'whatsapp_number' => $data['whatsapp_number'],
                 'reason'          => $data['reason'],
                 'products_plan'   => $data['products_plan'],
+                'qris_image'      => $data['qris_image'] ?? null,
                 'status'          => 'pending',
             ]);
         }

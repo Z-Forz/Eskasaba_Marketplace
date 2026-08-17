@@ -1,55 +1,61 @@
-{{-- resources/views/seller/payments/index.blade.php --}}
-<x-layouts.seller>
-    <div class="container">
-        <h1>Payments</h1>
-    </div>
-</x-layouts.seller>
-<x-layouts.seller>
+<x-layouts.seller title="Riwayat Pembayaran Seller">
     <div class="space-y-6">
 
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                Pembayaran
-            </h1>
+        {{-- Header --}}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-credit-card text-emerald-600"></i> Riwayat & Verifikasi Pembayaran
+                </h1>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Pantau transaksi pembayaran COD maupun QRIS dari pembeli produk Anda.
+                </p>
+            </div>
 
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Lihat pembayaran yang berkaitan dengan pesanan kamu.
-            </p>
+            <div class="flex items-center gap-2">
+                <span class="rounded-full bg-emerald-100 px-3.5 py-1.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                    Total {{ $payments->total() }} Pembayaran
+                </span>
+            </div>
         </div>
+
+        @if (session('success'))
+            <x-alert type="success" :message="session('success')" class="mb-4" />
+        @endif
 
         @if($payments->count())
 
-            <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
 
                 <div class="overflow-x-auto">
 
                     <table class="min-w-full text-left text-sm">
 
-                        <thead class="border-b border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50">
+                        <thead class="border-b border-slate-100 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
 
                             <tr>
 
-                                <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                    Pesanan
+                                <th class="px-6 py-4">
+                                    Invoice / Pesanan
                                 </th>
 
-                                <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
+                                <th class="px-6 py-4">
                                     Pembeli
                                 </th>
 
-                                <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
+                                <th class="px-6 py-4">
                                     Metode
                                 </th>
 
-                                <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                    Jumlah
+                                <th class="px-6 py-4">
+                                    Jumlah Tagihan
                                 </th>
 
-                                <th class="px-5 py-4 font-semibold text-gray-600 dark:text-gray-300">
-                                    Status
+                                <th class="px-6 py-4">
+                                    Status Bayar
                                 </th>
 
-                                <th class="px-5 py-4 text-right font-semibold text-gray-600 dark:text-gray-300">
+                                <th class="px-6 py-4 text-right">
                                     Aksi
                                 </th>
 
@@ -57,43 +63,55 @@
 
                         </thead>
 
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
 
                             @foreach($payments as $payment)
 
-                                <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                <tr class="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
 
-                                    <td class="px-5 py-4 font-semibold text-gray-900 dark:text-white">
-                                        #{{ $payment->order_id }}
+                                    <td class="whitespace-nowrap px-6 py-4 font-bold text-slate-900 dark:text-white">
+                                        {{ $payment->order?->invoice_number ?? '#' . $payment->order_id }}
                                     </td>
 
-                                    <td class="px-5 py-4 text-gray-600 dark:text-gray-300">
-                                        {{ $payment->order?->user?->name ?? '-' }}
+                                    <td class="whitespace-nowrap px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">
+                                        <i class="fa-solid fa-user text-slate-400 mr-1"></i> {{ $payment->order?->user?->username ?? '-' }}
                                     </td>
 
-                                    <td class="px-5 py-4 text-gray-600 dark:text-gray-300">
-                                        {{ strtoupper($payment->method ?? '-') }}
+                                    <td class="whitespace-nowrap px-6 py-4">
+                                        <span class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-extrabold uppercase tracking-wide
+                                            {{ strtolower($payment->method) === 'qris'
+                                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                                                : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' }}"
+                                        >
+                                            <i class="{{ strtolower($payment->method) === 'qris' ? 'fa-solid fa-qrcode' : 'fa-solid fa-money-bill-wave' }}"></i>
+                                            {{ $payment->method === 'qris' ? 'QRIS' : 'COD' }}
+                                        </span>
                                     </td>
 
-                                    <td class="px-5 py-4 font-semibold text-gray-900 dark:text-white">
-                                        Rp {{ number_format($payment->amount, 0, ',', '.') }}
+                                    <td class="whitespace-nowrap px-6 py-4 font-black text-slate-900 dark:text-white">
+                                        Rp {{ number_format($payment->amount ?? $payment->order?->total_price ?? 0, 0, ',', '.') }}
                                     </td>
 
-                                    <td class="px-5 py-4">
-
-                                        <x-badge
-                                            :type="$payment->status"
-                                            :label="ucfirst(str_replace('_', ' ', $payment->status))"
-                                        />
-
+                                    <td class="whitespace-nowrap px-6 py-4">
+                                        <span class="rounded-full px-3 py-1 text-xs font-bold
+                                            {{ match($payment->status) {
+                                                'verified'  => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
+                                                'pending'   => 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+                                                'rejected'  => 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300',
+                                                default     => 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                                            } }}"
+                                        >
+                                            {{ ucfirst($payment->status ?? 'pending') }}
+                                        </span>
                                     </td>
 
-                                    <td class="px-5 py-4 text-right">
+                                    <td class="whitespace-nowrap px-6 py-4 text-right">
 
                                         <a
                                             href="{{ route('seller.payments.show', $payment) }}"
-                                            class="font-semibold text-blue-600 hover:text-blue-700">
-                                            Detail
+                                            class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                                        >
+                                            Detail →
                                         </a>
 
                                     </td>
@@ -110,13 +128,15 @@
 
             </div>
 
-            {{ $payments->links() }}
+            <div class="mt-6">
+                {{ $payments->links() }}
+            </div>
 
         @else
 
             <x-empty-state
-                title="Belum ada pembayaran"
-                description="Data pembayaran akan muncul ketika pembeli melakukan pembayaran."
+                title="Belum ada transaksi pembayaran"
+                description="Data pembayaran dari pesanan pembeli akan muncul secara otomatis di sini."
             />
 
         @endif

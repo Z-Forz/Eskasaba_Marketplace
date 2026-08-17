@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Order;
+use App\Services\ImageCompressor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -53,13 +54,13 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $data = $request->validate([
-            'username' => ['required', 'string', 'max:255'],
-            'email'    => ['nullable', 'email', 'max:255'],
-            'avatar'   => ['nullable', 'image', 'max:2048'],
+            'email'  => ['nullable', 'email', 'max:255'],
+            'phone'  => ['nullable', 'string', 'max:30'],
+            'avatar' => ['nullable', 'image', 'max:10240'],
         ]);
 
         if ($request->hasFile('avatar')) {
-            $path = $request->file('avatar')->store('avatars', 'public');
+            $path = ImageCompressor::compressAndStore($request->file('avatar'), 'avatars');
 
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);

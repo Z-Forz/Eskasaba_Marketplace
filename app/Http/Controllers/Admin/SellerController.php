@@ -159,6 +159,14 @@ class SellerController extends Controller
             'rejection_note' => null,
         ]);
 
+        \App\Models\Notification::create([
+            'user_id' => $seller->user_id,
+            'title'   => 'Pengajuan Seller Disetujui! 🎉',
+            'message' => 'Selamat! Pengajuan toko Anda telah disetujui oleh admin. Anda sekarang dapat mengakses panel seller & mengelola produk.',
+            'type'    => 'seller_approved',
+            'link'    => route('seller.dashboard'),
+        ]);
+
         return redirect()
             ->route('admin.sellers.show', $seller)
             ->with('success', "Pengajuan {$seller->user->username} berhasil disetujui.");
@@ -182,6 +190,14 @@ class SellerController extends Controller
             'approved_at'    => null,
         ]);
 
+        \App\Models\Notification::create([
+            'user_id' => $seller->user_id,
+            'title'   => 'Pengajuan Seller Ditolak',
+            'message' => 'Pengajuan toko Anda belum disetujui. Catatan admin: ' . $request->rejection_note,
+            'type'    => 'seller_rejected',
+            'link'    => route('profile.index'),
+        ]);
+
         return redirect()
             ->route('admin.sellers.show', $seller)
             ->with('success', "Pengajuan {$seller->user->username} berhasil ditolak.");
@@ -202,6 +218,14 @@ class SellerController extends Controller
         $seller->update([
             'status'         => 'revision',
             'rejection_note' => $request->rejection_note,
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $seller->user_id,
+            'title'   => 'Permintaan Revisi Seller 📝',
+            'message' => 'Pengajuan toko Anda memerlukan revisi. Catatan: ' . $request->rejection_note,
+            'type'    => 'seller_revision',
+            'link'    => route('buyer.apply-seller'),
         ]);
 
         return redirect()

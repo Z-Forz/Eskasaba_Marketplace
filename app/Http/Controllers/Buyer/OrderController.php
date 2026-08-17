@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Buyer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -12,21 +13,23 @@ class OrderController extends Controller
     /**
      * Display a listing of the orders.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $orders = Order::with([
+        $query = Order::with([
             'seller.user',
             'items.product',
             'payment',
             'pickupSchedule',
         ])
-        ->where('user_id', Auth::id())
-        ->latest()
-        ->paginate(10);
+        ->where('user_id', Auth::id());
 
-        return view('buyer.orders.index', compact(
-            'orders'
-        ));
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $orders = $query->latest()->paginate(10);
+
+        return view('buyer.orders.index', compact('orders'));
     }
 
     /**
@@ -34,6 +37,8 @@ class OrderController extends Controller
      */
     public function show(Order $order): View
     {
+        abort_unless($order->user_id === Auth::id(), 403);
+
         $order->load([
             'seller.user',
             'items.product',
@@ -41,8 +46,6 @@ class OrderController extends Controller
             'pickupSchedule',
         ]);
 
-        return view('buyer.orders.show', compact(
-            'order'
-        ));
+        return view('buyer.orders.show', compact('order'));
     }
 }

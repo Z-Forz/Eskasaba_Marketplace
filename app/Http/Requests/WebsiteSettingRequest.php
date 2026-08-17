@@ -77,19 +77,28 @@ class WebsiteSettingRequest extends FormRequest
                 'max:255',
             ],
 
+            'phone' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
+
             'instagram' => [
                 'nullable',
-                'url',
+                'string',
+                'max:255',
             ],
 
             'facebook' => [
                 'nullable',
-                'url',
+                'string',
+                'max:255',
             ],
 
             'tiktok' => [
                 'nullable',
-                'url',
+                'string',
+                'max:255',
             ],
 
             'copyright' => [

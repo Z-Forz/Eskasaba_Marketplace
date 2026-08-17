@@ -22,6 +22,7 @@ class User extends Authenticatable
         'birth_date',
         'class',
         'major',
+        'subject_taught',
         'phone',
     ];
 
@@ -67,6 +68,12 @@ class User extends Authenticatable
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    // Notifikasi sistem in-app
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class)->latest();
     }
 
     /*

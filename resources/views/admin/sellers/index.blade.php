@@ -5,17 +5,17 @@
         {{-- Header Section --}}
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                     @if ($status === 'approved')
-                        🏪 Daftar Seller Aktif
+                        <i class="fa-solid fa-store text-emerald-600"></i> Daftar Seller Aktif
                     @elseif ($status === 'pending')
-                        ⏳ Verifikasi Pengajuan Seller
+                        <i class="fa-solid fa-hourglass-half text-blue-600"></i> Verifikasi Pengajuan Seller
                     @elseif ($status === 'revision')
-                        📝 Seller Perlu Revisi
+                        <i class="fa-solid fa-rotate-left text-amber-600"></i> Seller Perlu Revisi
                     @elseif ($status === 'rejected')
-                        ❌ Seller Ditolak
+                        <i class="fa-solid fa-ban text-red-600"></i> Seller Ditolak
                     @else
-                        📋 Seluruh Data Seller
+                        <i class="fa-solid fa-users-gear text-slate-700"></i> Seluruh Data Seller
                     @endif
                 </h1>
 
@@ -32,27 +32,25 @@
 
             <a
                 href="{{ route('admin.sellers.create') }}"
-                class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-emerald-800"
+                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
             >
-                <span>+</span> Tambah Seller Manual
+                <i class="fa-solid fa-plus"></i> Tambah Seller Manual
             </a>
         </div>
 
         @if (session('success'))
-            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 text-sm font-medium text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
-                ✓ {{ session('success') }}
-            </div>
+            <x-alert type="success" :message="session('success')" class="mb-4" />
         @endif
 
         {{-- Status Filter Tabs Bar --}}
-        <div class="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xs dark:border-gray-700 dark:bg-gray-900">
+        <div class="flex flex-wrap gap-2 rounded-3xl border border-slate-200/80 bg-white p-2 shadow-xs dark:border-slate-800 dark:bg-slate-900">
             @php
                 $tabs = [
-                    'approved' => ['label' => 'Seller Aktif',         'color' => 'emerald'],
-                    'pending'  => ['label' => 'Menunggu Verifikasi', 'color' => 'blue'],
-                    'revision' => ['label' => 'Perlu Revisi',        'color' => 'amber'],
-                    'rejected' => ['label' => 'Ditolak',             'color' => 'red'],
-                    'all'      => ['label' => 'Semua',               'color' => 'slate'],
+                    'approved' => ['label' => 'Seller Aktif',         'color' => 'emerald', 'icon' => 'fa-store'],
+                    'pending'  => ['label' => 'Menunggu Verifikasi', 'color' => 'blue',    'icon' => 'fa-hourglass-half'],
+                    'revision' => ['label' => 'Perlu Revisi',        'color' => 'amber',   'icon' => 'fa-rotate-left'],
+                    'rejected' => ['label' => 'Ditolak',             'color' => 'red',     'icon' => 'fa-ban'],
+                    'all'      => ['label' => 'Semua',               'color' => 'slate',   'icon' => 'fa-list-ul'],
                 ];
             @endphp
 
@@ -70,21 +68,22 @@
                             default   => 'bg-slate-900 text-white font-bold shadow-xs dark:bg-white dark:text-slate-900',
                         };
                     } else {
-                        $activeClass = 'bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 font-medium';
+                        $activeClass = 'bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 font-semibold';
                     }
                 @endphp
 
                 <a
                     href="{{ route('admin.sellers.index', ['status' => $key]) }}"
-                    class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm transition {{ $activeClass }}"
+                    class="inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs transition {{ $activeClass }}"
                 >
+                    <i class="fa-solid {{ $tab['icon'] }} text-xs"></i>
                     <span>{{ $tab['label'] }}</span>
 
                     @if ($key === 'pending' && $count > 0 && ! $isActive)
                         <span class="flex h-2 w-2 rounded-full bg-blue-600"></span>
                     @endif
 
-                    <span class="rounded-full px-2 py-0.5 text-xs font-bold {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700 dark:bg-gray-700 dark:text-gray-300' }}">
+                    <span class="rounded-full px-2 py-0.5 text-[11px] font-extrabold {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300' }}">
                         {{ number_format($count) }}
                     </span>
                 </a>
@@ -92,7 +91,7 @@
         </div>
 
         {{-- Table Container --}}
-        <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs dark:border-gray-700 dark:bg-gray-900">
+        <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
 
             @if ($sellers->count())
 
@@ -100,7 +99,7 @@
 
                     <table class="w-full text-left text-sm">
 
-                        <thead class="border-b border-slate-100 bg-slate-50/80 text-xs uppercase tracking-wider text-slate-500 dark:border-gray-800 dark:bg-gray-800/80 dark:text-gray-400">
+                        <thead class="border-b border-slate-100 bg-slate-50/80 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400">
 
                             <tr>
                                 <th class="px-6 py-4">Seller / Pengguna</th>
@@ -113,17 +112,17 @@
 
                         </thead>
 
-                        <tbody class="divide-y divide-slate-100 dark:divide-gray-800">
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
 
                             @foreach ($sellers as $seller)
 
-                                <tr class="transition hover:bg-slate-50/60 dark:hover:bg-gray-800/50">
+                                <tr class="transition hover:bg-slate-50/60 dark:hover:bg-slate-800/50">
 
                                     {{-- Seller User --}}
                                     <td class="px-6 py-4">
 
                                         <div class="flex items-center gap-3">
-                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-sm font-bold text-white shadow-xs">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-800 text-sm font-bold text-white shadow-xs">
                                                 {{ strtoupper(substr($seller->user?->username ?? 'S', 0, 1)) }}
                                             </div>
 
@@ -132,7 +131,7 @@
                                                     {{ $seller->user?->username ?? '-' }}
                                                 </div>
 
-                                                <div class="text-xs text-slate-500 dark:text-gray-400">
+                                                <div class="text-xs text-slate-500 dark:text-slate-400">
                                                     {{ $seller->user?->email ?? '-' }}
                                                 </div>
                                             </div>
@@ -143,7 +142,7 @@
                                     {{-- School Identity --}}
                                     <td class="px-6 py-4 text-xs">
                                         @if ($seller->user?->nis_nip)
-                                            <p class="font-semibold text-slate-800 dark:text-gray-200">
+                                            <p class="font-bold text-slate-800 dark:text-slate-200">
                                                 NIS/NIP: {{ $seller->user->nis_nip }}
                                             </p>
                                             <p class="text-slate-500">
@@ -160,9 +159,9 @@
                                             <a
                                                 href="https://wa.me/{{ preg_replace('/\D/', '', $seller->whatsapp_number) }}"
                                                 target="_blank"
-                                                class="inline-flex items-center gap-1.5 font-medium text-emerald-700 hover:underline dark:text-emerald-400"
+                                                class="inline-flex items-center gap-1.5 font-bold text-emerald-700 hover:underline dark:text-emerald-400"
                                             >
-                                                <span>💬</span> {{ $seller->whatsapp_number }}
+                                                <i class="fa-brands fa-whatsapp text-sm"></i> {{ $seller->whatsapp_number }}
                                             </a>
                                         @else
                                             <span class="text-slate-400">-</span>
@@ -171,15 +170,15 @@
 
                                     {{-- Product Count --}}
                                     <td class="px-6 py-4 text-xs">
-                                        <span class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 font-semibold text-slate-700 dark:bg-gray-800 dark:text-gray-300">
-                                            📦 {{ number_format($seller->products_count ?? 0) }} Produk
+                                        <span class="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-3 py-1 font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                            <i class="fa-solid fa-boxes-stacked text-xs text-slate-500"></i> {{ number_format($seller->products_count ?? 0) }} Produk
                                         </span>
                                     </td>
 
                                     {{-- Status --}}
                                     <td class="px-6 py-4">
 
-                                        <span class="rounded-full px-3 py-1 text-xs font-semibold
+                                        <span class="rounded-full px-3 py-1 text-xs font-bold
                                             {{ $seller->status === 'approved'
                                                 ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
                                                 : ($seller->status === 'rejected'
@@ -198,9 +197,9 @@
 
                                         <a
                                             href="{{ route('admin.sellers.show', $seller) }}"
-                                            class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 shadow-xs"
+                                            class="inline-flex items-center gap-1.5 rounded-2xl bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 shadow-xs"
                                         >
-                                            Detail & Verifikasi →
+                                            <i class="fa-solid fa-user-check"></i> Detail & Verifikasi
                                         </a>
 
                                     </td>
@@ -216,7 +215,7 @@
                 </div>
 
                 {{-- Mobile List --}}
-                <div class="divide-y divide-slate-100 md:hidden dark:divide-gray-800">
+                <div class="divide-y divide-slate-100 md:hidden dark:divide-slate-800">
 
                     @foreach ($sellers as $seller)
 
@@ -225,20 +224,20 @@
                             <div class="flex items-center justify-between gap-3">
 
                                 <div class="flex items-center gap-3">
-                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-sm font-bold text-white shadow-xs">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-800 text-sm font-bold text-white shadow-xs">
                                         {{ strtoupper(substr($seller->user?->username ?? 'S', 0, 1)) }}
                                     </div>
                                     <div class="min-w-0">
                                         <h2 class="font-bold text-slate-900 dark:text-white">
                                             {{ $seller->user?->username ?? '-' }}
                                         </h2>
-                                        <p class="truncate text-xs text-slate-500 dark:text-gray-400">
+                                        <p class="truncate text-xs text-slate-500 dark:text-slate-400">
                                             {{ $seller->user?->email ?? '-' }}
                                         </p>
                                     </div>
                                 </div>
 
-                                <span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold
+                                <span class="shrink-0 rounded-full px-3 py-1 text-xs font-bold
                                     {{ $seller->status === 'approved'
                                         ? 'bg-green-100 text-green-700'
                                         : ($seller->status === 'rejected'
@@ -264,9 +263,9 @@
                             <div>
                                 <a
                                     href="{{ route('admin.sellers.show', $seller) }}"
-                                    class="block w-full rounded-xl bg-slate-900 py-2.5 text-center text-xs font-semibold text-white shadow-xs dark:bg-white dark:text-slate-900"
+                                    class="flex items-center justify-center gap-2 rounded-2xl bg-slate-900 py-2.5 text-xs font-bold text-white shadow-xs dark:bg-emerald-700"
                                 >
-                                    Detail & Verifikasi →
+                                    <i class="fa-solid fa-user-check"></i> Detail & Verifikasi
                                 </a>
                             </div>
 
@@ -280,9 +279,9 @@
 
                 <div class="p-12 text-center">
 
-                    <div class="text-5xl">🏪</div>
+                    <div class="text-5xl text-slate-300 mb-3"><i class="fa-solid fa-store"></i></div>
 
-                    <h2 class="mt-4 text-lg font-bold text-slate-900 dark:text-white">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">
                         @if ($status === 'approved')
                             Belum Ada Seller Aktif
                         @elseif ($status === 'pending')

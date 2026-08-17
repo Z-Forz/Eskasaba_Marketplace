@@ -21,7 +21,7 @@
                 >
             @else
                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-800 text-sm font-bold text-white sm:h-10 sm:w-10 shadow-xs">
-                    E
+                    <i class="fa-solid fa-shop"></i>
                 </div>
             @endif
 
@@ -40,30 +40,30 @@
 
             <a
                 href="{{ route('home') }}"
-                class="px-3.5 py-2 rounded-xl text-sm transition {{ request()->routeIs('home') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
+                class="px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 {{ request()->routeIs('home') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
             >
-                Beranda
+                <i class="fa-solid fa-house text-xs"></i> Beranda
             </a>
 
             <a
                 href="{{ route('products.index') }}"
-                class="px-3.5 py-2 rounded-xl text-sm transition {{ request()->routeIs('products.*') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
+                class="px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 {{ request()->routeIs('products.*') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
             >
-                Produk
+                <i class="fa-solid fa-bag-shopping text-xs"></i> Produk
             </a>
 
             <a
                 href="{{ route('guide') }}"
-                class="px-3.5 py-2 rounded-xl text-sm transition {{ request()->routeIs('guide') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
+                class="px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 {{ request()->routeIs('guide') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
             >
-                Panduan
+                <i class="fa-solid fa-book-open text-xs"></i> Panduan
             </a>
 
             <a
                 href="{{ route('about') }}"
-                class="px-3.5 py-2 rounded-xl text-sm transition {{ request()->routeIs('about') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
+                class="px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 {{ request()->routeIs('about') ? 'bg-emerald-50 text-emerald-800 font-bold shadow-xs ring-1 ring-emerald-200/60' : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900' }}"
             >
-                Tentang
+                <i class="fa-solid fa-circle-info text-xs"></i> Tentang
             </a>
 
         </div>
@@ -76,22 +76,27 @@
                 {{-- Cart Button --}}
                 <a
                     href="{{ route('buyer.cart.index') }}"
-                    class="rounded-xl p-2 transition {{ request()->routeIs('buyer.cart.*') ? 'bg-emerald-100 text-emerald-800 shadow-xs ring-1 ring-emerald-300' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-800' }}"
+                    class="rounded-xl p-2.5 transition flex items-center justify-center {{ request()->routeIs('buyer.cart.*') ? 'bg-emerald-100 text-emerald-800 shadow-xs ring-1 ring-emerald-300' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-800' }}"
                     aria-label="Keranjang"
                 >
-                    <svg
-                        class="h-5 w-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="1.8"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 4h13m-8-1a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"
-                        />
-                    </svg>
+                    <i class="fa-solid fa-cart-shopping text-base"></i>
+                </a>
+
+                {{-- Notifications Button --}}
+                @php
+                    $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
+                @endphp
+                <a
+                    href="{{ route('buyer.notifications.index') }}"
+                    class="relative rounded-xl p-2.5 transition flex items-center justify-center {{ request()->routeIs('buyer.notifications.*') ? 'bg-emerald-100 text-emerald-800 shadow-xs ring-1 ring-emerald-300' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-800' }}"
+                    aria-label="Notifikasi"
+                >
+                    <i class="fa-solid fa-bell text-base"></i>
+                    @if ($unreadCount > 0)
+                        <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-xs">
+                            {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                        </span>
+                    @endif
                 </a>
 
                 {{-- Profile Card --}}
@@ -118,20 +123,13 @@
                     </div>
                 </a>
 
-                <form
-                    action="{{ route('logout') }}"
-                    method="POST"
-                >
-                    @csrf
-                </form>
-
             @else
 
                 <a
                     href="{{ route('login') }}"
-                    class="rounded-xl bg-emerald-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-900 shadow-xs"
+                    class="rounded-xl bg-emerald-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-900 shadow-xs flex items-center gap-2"
                 >
-                    Masuk
+                    <i class="fa-solid fa-right-to-bracket"></i> Masuk
                 </a>
 
             @endauth
@@ -145,37 +143,8 @@
             class="inline-flex rounded-xl p-2.5 text-slate-700 transition hover:bg-slate-100 md:hidden"
             aria-label="Buka menu"
         >
-            {{-- Hamburger Icon --}}
-            <svg
-                id="icon-hamburger"
-                class="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.8"
-                    d="M4 6h16M4 12h16M4 18h16"
-                />
-            </svg>
-
-            {{-- Close (X) Icon --}}
-            <svg
-                id="icon-close"
-                class="hidden h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.8"
-                    d="M6 18L18 6M6 6l12 12"
-                />
-            </svg>
+            <i id="icon-hamburger" class="fa-solid fa-bars text-xl"></i>
+            <i id="icon-close" class="fa-solid fa-xmark text-xl hidden"></i>
         </button>
 
     </div>
@@ -191,28 +160,28 @@
                 href="{{ route('home') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('home') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
             >
-                <span>🏠</span> Beranda
+                <i class="fa-solid fa-house w-5 text-center"></i> Beranda
             </a>
 
             <a
                 href="{{ route('products.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('products.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
             >
-                <span>🛍️</span> Produk
+                <i class="fa-solid fa-bag-shopping w-5 text-center"></i> Produk
             </a>
 
             <a
                 href="{{ route('guide') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('guide') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
             >
-                <span>📖</span> Panduan
+                <i class="fa-solid fa-book-open w-5 text-center"></i> Panduan
             </a>
 
             <a
                 href="{{ route('about') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('about') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
             >
-                <span>ℹ️</span> Tentang
+                <i class="fa-solid fa-circle-info w-5 text-center"></i> Tentang
             </a>
 
             @auth
@@ -220,10 +189,10 @@
                     href="{{ route('buyer.cart.index') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.cart.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
                 >
-                    <span>🛒</span> Keranjang Belanja
+                    <i class="fa-solid fa-cart-shopping w-5 text-center"></i> Keranjang Belanja
                 </a>
 
-                {{-- User Profile Nav Section (Paling Bawah) --}}
+                {{-- User Profile Nav Section --}}
                 <div class="mt-4 border-t border-slate-100 pt-4">
                     <div class="flex items-center justify-between gap-3 rounded-2xl border p-3.5 {{ request()->routeIs('profile.*') ? 'border-emerald-300 bg-emerald-100/70 ring-2 ring-emerald-600/20 shadow-sm' : 'border-slate-200/80 bg-slate-50' }}">
                         <a href="{{ route('profile.index') }}" class="flex min-w-0 flex-1 items-center gap-3">
@@ -244,13 +213,12 @@
 
             @else
 
-                {{-- Guest Button (Paling Bawah) --}}
                 <div class="mt-4 border-t border-slate-100 pt-4">
                     <a
                         href="{{ route('login') }}"
                         class="block w-full rounded-xl bg-emerald-800 px-4 py-3 text-center text-sm font-semibold text-white shadow-xs transition hover:bg-emerald-900"
                     >
-                        Masuk Akun
+                        <i class="fa-solid fa-right-to-bracket mr-1"></i> Masuk Akun
                     </a>
                 </div>
 

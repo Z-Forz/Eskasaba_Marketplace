@@ -8,6 +8,7 @@ use App\Http\Controllers\Seller\OrderController;
 use App\Http\Controllers\Seller\PaymentController;
 use App\Http\Controllers\Seller\PickupScheduleController;
 use App\Http\Controllers\Seller\ChatController;
+use App\Http\Controllers\Seller\ProfileController;
 
 Route::middleware(['auth', 'password.changed', 'seller.approved'])
     ->prefix('seller')
@@ -16,6 +17,12 @@ Route::middleware(['auth', 'password.changed', 'seller.approved'])
 
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
+
+        Route::get('/profile', [ProfileController::class, 'edit'])
+            ->name('profile.edit');
+
+        Route::put('/profile', [ProfileController::class, 'update'])
+            ->name('profile.update');
 
         Route::resource('products', ProductController::class);
 
@@ -30,4 +37,7 @@ Route::middleware(['auth', 'password.changed', 'seller.approved'])
 
         Route::resource('chats', ChatController::class)
             ->only(['index', 'show', 'store']);
+
+        Route::post('/chats/{chat}/message', [ChatController::class, 'storeMessage'])
+            ->name('chats.message');
     });

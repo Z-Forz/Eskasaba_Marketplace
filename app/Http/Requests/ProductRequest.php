@@ -49,14 +49,20 @@ class ProductRequest extends FormRequest
                 'string',
             ],
 
+            'condition' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
             'status' => [
                 'nullable',
                 'in:active,inactive',
             ],
             'discount' => [
+                'nullable',
                 'numeric',
                 'min:0',
-                // Assuming discount is a fixed amount, max 999999.99
                 'max:999999.99',
             ],
 
@@ -74,9 +80,6 @@ class ProductRequest extends FormRequest
             'category_id.exists'   => 'Kategori tidak ditemukan.',
 
             'name.required' => 'Nama produk wajib diisi.',
-            'discount.numeric' => 'Diskon harus berupa angka.',
-            'discount.min' => 'Diskon tidak boleh kurang dari 0.',
-            'discount.max' => 'Diskon tidak boleh lebih dari 999999.99.',
             'name.string'   => 'Nama produk harus berupa teks.',
             'name.max'      => 'Nama produk maksimal 255 karakter.',
 
@@ -89,6 +92,8 @@ class ProductRequest extends FormRequest
             'stock.min'      => 'Stok produk tidak boleh kurang dari 0.',
 
             'description.string' => 'Deskripsi harus berupa teks.',
+            'condition.string'   => 'Kondisi/varian harus berupa teks.',
+            'condition.max'      => 'Kondisi/varian maksimal 100 karakter.',
 
             'status.in' => 'Status produk tidak valid.',
 

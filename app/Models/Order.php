@@ -14,6 +14,8 @@ class Order extends Model
         'seller_id',
         'invoice_number',
         'total_price',
+        'pickup_location',
+        'note',
         'status',
     ];
 
@@ -34,6 +36,12 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Pembeli (Alias for backward compatibility)
+    public function buyer()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // Penjual

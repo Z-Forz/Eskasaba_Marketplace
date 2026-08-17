@@ -16,6 +16,7 @@ class Product extends Model
         'price',
         'stock',
         'description',
+        'condition',
         'status',
         'discount',
     ];
@@ -26,6 +27,24 @@ class Product extends Model
             'price' => 'decimal:2',
             'discount' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Get final calculated price after discount.
+     */
+    public function getFinalPriceAttribute(): float
+    {
+        $discount = (float) ($this->discount ?? 0);
+        $price = (float) $this->price;
+
+        if ($discount > 0) {
+            if ($discount <= 100) {
+                return max(0, $price - ($price * ($discount / 100)));
+            }
+            return max(0, $price - $discount);
+        }
+
+        return $price;
     }
 
     /*

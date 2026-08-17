@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -30,30 +31,40 @@ class CartController extends Controller
     }
 
     /**
-     * Add product to cart.
+     * Add product to cart with flavor/variant selection support.
      */
-    public function store(Product $product): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
+        $request->validate([
+            'product_id' => ['required', 'exists:products,id'],
+            'quantity'   => ['nullable', 'integer', 'min:1'],
+            'note'       => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $productId = $request->input('product_id');
+        $quantity = max(1, (int) $request->input('quantity', 1));
+        $note = $request->input('note');
+
+        $product = Product::findOrFail($productId);
+
         $cart = Cart::firstOrCreate([
             'user_id' => Auth::id(),
         ]);
 
         $cartItem = $cart->items()
             ->where('product_id', $product->id)
+            ->where('note', $note)
             ->first();
 
         if ($cartItem) {
-
-            $cartItem->increment('quantity');
-
+            $cartItem->increment('quantity', $quantity);
         } else {
-
             $cart->items()->create([
                 'product_id' => $product->id,
-                'quantity'   => 1,
-                'price'      => $product->price,
+                'quantity'   => $quantity,
+                'price'      => $product->final_price,
+                'note'       => $note,
             ]);
-
         }
 
         return redirect()
