@@ -33,6 +33,17 @@ class CheckoutController extends Controller
                 ->with('error', 'Keranjang kamu masih kosong.');
         }
 
+        // Prevent seller from checking out own products
+        $isOwnSeller = $cart->items->contains(function ($item) {
+            return $item->product && $item->product->seller && $item->product->seller->user_id === Auth::id();
+        });
+
+        if ($isOwnSeller) {
+            return redirect()
+                ->route('buyer.cart.index')
+                ->with('error', 'Kamu tidak dapat melakukan checkout pada produk tokomu sendiri.');
+        }
+
         $sellerIds = $cart->items
             ->pluck('product.seller_id')
             ->unique();
@@ -74,7 +85,7 @@ class CheckoutController extends Controller
         ]);
 
         $cart = Cart::with([
-            'items.product',
+            'items.product.seller',
         ])
         ->where('user_id', Auth::id())
         ->first();
@@ -83,6 +94,17 @@ class CheckoutController extends Controller
             return redirect()
                 ->route('buyer.cart.index')
                 ->with('error', 'Keranjang kamu masih kosong.');
+        }
+
+        // Prevent seller from checking out own products
+        $isOwnSeller = $cart->items->contains(function ($item) {
+            return $item->product && $item->product->seller && $item->product->seller->user_id === Auth::id();
+        });
+
+        if ($isOwnSeller) {
+            return redirect()
+                ->route('buyer.cart.index')
+                ->with('error', 'Kamu tidak dapat melakukan checkout pada produk tokomu sendiri.');
         }
 
         try {

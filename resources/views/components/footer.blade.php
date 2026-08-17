@@ -26,7 +26,7 @@
                             Eskasaba <span class="text-emerald-400">Market</span>
                         </span>
                         <span class="text-[10px] font-semibold text-emerald-400/80 uppercase tracking-widest block">
-                            SMKN 1 Bantul
+                            SMKN 1 Bangsri
                         </span>
                     </div>
 

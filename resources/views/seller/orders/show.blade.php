@@ -43,6 +43,29 @@
                 'cancelled'        => 0,
                 default            => 1,
             };
+
+            // Format WhatsApp pre-filled text for seller to contact buyer
+            $buyerName  = $order->user?->username ?? 'Pembeli';
+            $sellerName = auth()->user()->username ?? 'Penjual';
+
+            $itemsSummary = "";
+            foreach($order->items as $idx => $item) {
+                $flavor = !empty($item->note) ? " (Varian: {$item->note})" : "";
+                $price  = number_format($item->price ?? 0, 0, ',', '.');
+                $itemsSummary .= ($idx + 1) . ". {$item->product_name}{$flavor} - {$item->quantity}x @ Rp {$price}\n";
+            }
+
+            $sellerWaText = "Halo Kak {$buyerName}, saya {$sellerName} dari Toko Eskasaba Marketplace.\n\n"
+                . "📦 *INFORMASI PESANAN ANDA*\n"
+                . "• Invoice: {$order->invoice_number}\n"
+                . "• Status Pesanan: " . ucfirst(str_replace('_', ' ', $order->status)) . "\n"
+                . "• Status Pembayaran: " . ucfirst($order->payment?->status ?? 'pending') . "\n\n"
+                . "🛍️ *ITEM PESANAN:*\n" . $itemsSummary . "\n"
+                . "📍 *TITIK PENGAMBILAN:* " . ($order->pickup_location ?? 'Kantin Sekolah') . "\n\n"
+                . "Pesanan kakak sedang disiapkan. Silakan konfirmasi titik pengambilan ya. Terima kasih!";
+
+            $buyerPhone = preg_replace('/[^0-9]/', '', $order->user?->phone ?? '');
+            $sellerWaUrl = !empty($buyerPhone) ? "https://wa.me/{$buyerPhone}?text=" . urlencode($sellerWaText) : null;
         @endphp
 
         @if($order->status !== 'cancelled')
@@ -109,27 +132,42 @@
         {{-- Buyer & Pickup Info --}}
         <div class="grid gap-6 sm:grid-cols-2">
 
-            {{-- Buyer Details --}}
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                <h2 class="text-base font-bold text-slate-900 dark:text-white">
-                    <i class="fa-solid fa-user mr-1.5 text-slate-500"></i> Informasi Pembeli
-                </h2>
+            {{-- Buyer Details Card --}}
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">
+                        <i class="fa-solid fa-user mr-1.5 text-slate-500"></i> Informasi Pembeli
+                    </h2>
 
-                <div class="mt-4 space-y-3 text-sm">
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-400">Nama Pembeli</p>
-                        <p class="mt-0.5 font-bold text-slate-900 dark:text-white">
-                            {{ $order->user?->username ?? '-' }}
-                        </p>
-                    </div>
+                    <div class="mt-4 space-y-3 text-sm">
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-slate-400">Nama Pembeli</p>
+                            <p class="mt-0.5 font-bold text-slate-900 dark:text-white">
+                                {{ $order->user?->username ?? '-' }}
+                            </p>
+                        </div>
 
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-slate-400">Email / No. HP</p>
-                        <p class="mt-0.5 font-semibold text-slate-700 dark:text-slate-300">
-                            {{ $order->user?->email ?? $order->user?->phone ?? '-' }}
-                        </p>
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-slate-400">Kontak Pembeli</p>
+                            <p class="mt-0.5 font-semibold text-slate-700 dark:text-slate-300">
+                                {{ $order->user?->phone ?? $order->user?->email ?? '-' }}
+                            </p>
+                        </div>
                     </div>
                 </div>
+
+                @if($sellerWaUrl)
+                    <div class="mt-5 border-t border-slate-100 pt-4 dark:border-slate-800">
+                        <a
+                            href="{{ $sellerWaUrl }}"
+                            target="_blank"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-700 cursor-pointer"
+                        >
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                            <span>Chat WA Pembeli (Kirim Info)</span>
+                        </a>
+                    </div>
+                @endif
             </div>
 
             {{-- Pickup & Note Details --}}
@@ -374,7 +412,7 @@
                 <div class="flex justify-end pt-2">
                     <button
                         type="submit"
-                        class="rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center gap-2"
+                        class="rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center gap-2 cursor-pointer"
                     >
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Konfirmasi Pesanan & Pembayaran
                     </button>

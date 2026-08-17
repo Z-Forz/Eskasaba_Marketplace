@@ -42,53 +42,7 @@
             <x-alert type="success" :message="session('success')" class="mb-4" />
         @endif
 
-        {{-- Status Filter Tabs Bar --}}
-        <div class="flex flex-wrap gap-2 rounded-3xl border border-slate-200/80 bg-white p-2 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-            @php
-                $tabs = [
-                    'approved' => ['label' => 'Seller Aktif',         'color' => 'emerald', 'icon' => 'fa-store'],
-                    'pending'  => ['label' => 'Menunggu Verifikasi', 'color' => 'blue',    'icon' => 'fa-hourglass-half'],
-                    'revision' => ['label' => 'Perlu Revisi',        'color' => 'amber',   'icon' => 'fa-rotate-left'],
-                    'rejected' => ['label' => 'Ditolak',             'color' => 'red',     'icon' => 'fa-ban'],
-                    'all'      => ['label' => 'Semua',               'color' => 'slate',   'icon' => 'fa-list-ul'],
-                ];
-            @endphp
 
-            @foreach ($tabs as $key => $tab)
-                @php
-                    $isActive = $status === $key;
-                    $count = $counts[$key] ?? 0;
-                    
-                    if ($isActive) {
-                        $activeClass = match ($tab['color']) {
-                            'emerald' => 'bg-emerald-700 text-white font-bold shadow-xs',
-                            'blue'    => 'bg-blue-600 text-white font-bold shadow-xs',
-                            'amber'   => 'bg-amber-600 text-white font-bold shadow-xs',
-                            'red'     => 'bg-red-600 text-white font-bold shadow-xs',
-                            default   => 'bg-slate-900 text-white font-bold shadow-xs dark:bg-white dark:text-slate-900',
-                        };
-                    } else {
-                        $activeClass = 'bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 font-semibold';
-                    }
-                @endphp
-
-                <a
-                    href="{{ route('admin.sellers.index', ['status' => $key]) }}"
-                    class="inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs transition {{ $activeClass }}"
-                >
-                    <i class="fa-solid {{ $tab['icon'] }} text-xs"></i>
-                    <span>{{ $tab['label'] }}</span>
-
-                    @if ($key === 'pending' && $count > 0 && ! $isActive)
-                        <span class="flex h-2 w-2 rounded-full bg-blue-600"></span>
-                    @endif
-
-                    <span class="rounded-full px-2 py-0.5 text-[11px] font-extrabold {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300' }}">
-                        {{ number_format($count) }}
-                    </span>
-                </a>
-            @endforeach
-        </div>
 
         {{-- Table Container --}}
         <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">

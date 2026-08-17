@@ -45,7 +45,12 @@ class CartController extends Controller
         $quantity = max(1, (int) $request->input('quantity', 1));
         $note = $request->input('note');
 
-        $product = Product::findOrFail($productId);
+        $product = Product::with('seller')->findOrFail($productId);
+
+        // Prevent seller from buying their own product
+        if (Auth::check() && $product->seller && $product->seller->user_id === Auth::id()) {
+            return back()->with('error', 'Kamu tidak dapat membeli produk dari tokomu sendiri.');
+        }
 
         $cart = Cart::firstOrCreate([
             'user_id' => Auth::id(),

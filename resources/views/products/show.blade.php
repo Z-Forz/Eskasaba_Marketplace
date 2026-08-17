@@ -185,12 +185,13 @@
                     @php
                         $flavors = !empty($product->condition) ? array_values(array_filter(array_map('trim', explode(',', $product->condition)))) : [];
                         $firstFlavor = count($flavors) > 0 ? $flavors[0] : '';
+                        $isOwnProduct = auth()->check() && $product->seller && $product->seller->user_id === auth()->id();
                     @endphp
 
                     <div class="mt-8">
 
                         {{-- Shopee-Style Flavor Option Buttons (Interactive Pill Chips) --}}
-                        @if(count($flavors) > 0)
+                        @if(count($flavors) > 0 && ! $isOwnProduct)
                             <div
                                 id="variant-selector-wrapper"
                                 x-data="{ selectedFlavor: @js($firstFlavor) }"
@@ -225,7 +226,32 @@
                         @endif
 
                         @auth
-                            @if($product->stock > 0)
+                            @if($isOwnProduct)
+                                {{-- Own product notice --}}
+                                <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow-xs dark:border-amber-900/60 dark:bg-amber-950/40">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-xs">
+                                            <i class="fa-solid fa-store text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-black text-amber-900 dark:text-amber-300">
+                                                Ini Adalah Produk Tokomu Sendiri
+                                            </h3>
+                                            <p class="mt-0.5 text-xs font-semibold text-amber-700 dark:text-amber-400">
+                                                Kamu tidak dapat membeli atau menambahkan produk toko sendiri ke keranjang.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex gap-2">
+                                        <a
+                                            href="{{ route('seller.products.index') }}"
+                                            class="inline-flex items-center gap-2 rounded-2xl bg-amber-700 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-amber-800"
+                                        >
+                                            <i class="fa-solid fa-pen-to-square"></i> Kelola Produk Toko
+                                        </a>
+                                    </div>
+                                </div>
+                            @elseif($product->stock > 0)
                                 <form
                                     action="{{ route('buyer.cart.store') }}"
                                     method="POST"
@@ -266,7 +292,7 @@
 
                                         <button
                                             type="submit"
-                                            class="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-6 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                                            class="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-6 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-400 cursor-pointer"
                                         >
                                             <i class="fa-solid fa-cart-shopping"></i> Tambah ke Keranjang
                                         </button>
@@ -353,7 +379,7 @@
                 const flavor = btn.getAttribute('data-flavor');
                 const hiddenInput = document.getElementById('product_variant_note_input');
                 const labelDisplay = document.getElementById('variant-label-display');
-                
+
                 if (hiddenInput) hiddenInput.value = flavor;
                 if (labelDisplay) labelDisplay.textContent = 'Varian: ' + flavor;
 
@@ -363,7 +389,7 @@
                     allBtns.forEach(function(b) {
                         b.classList.remove('border-emerald-600', 'bg-emerald-50', 'text-emerald-900', 'ring-2', 'ring-emerald-200', 'font-bold', 'shadow-xs', 'variant-active');
                         b.classList.add('border-slate-200', 'bg-white', 'text-slate-700', 'font-semibold');
-                        
+
                         const dot = b.querySelector('.pill-dot');
                         if (dot) {
                             dot.classList.remove('text-emerald-600');
@@ -377,7 +403,7 @@
 
                     btn.classList.remove('border-slate-200', 'bg-white', 'text-slate-700', 'font-semibold');
                     btn.classList.add('border-emerald-600', 'bg-emerald-50', 'text-emerald-900', 'ring-2', 'ring-emerald-200', 'font-bold', 'shadow-xs', 'variant-active');
-                    
+
                     const activeDot = btn.querySelector('.pill-dot');
                     if (activeDot) {
                         activeDot.classList.remove('text-slate-300');

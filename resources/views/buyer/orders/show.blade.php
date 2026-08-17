@@ -46,6 +46,31 @@
                 'cancelled'        => 0,
                 default            => 1,
             };
+
+            // Format WhatsApp pre-filled text with order details
+            $sellerName = $order->seller?->user?->username ?? 'Penjual';
+            $buyerName  = auth()->user()->username ?? 'Pembeli';
+
+            $itemsSummary = "";
+            foreach($order->items as $idx => $item) {
+                $flavor = !empty($item->note) ? " (Varian: {$item->note})" : "";
+                $price  = number_format($item->price ?? 0, 0, ',', '.');
+                $itemsSummary .= ($idx + 1) . ". {$item->product_name}{$flavor} - {$item->quantity}x @ Rp {$price}\n";
+            }
+
+            $waText = "Halo Kak {$sellerName}, saya {$buyerName} dari Eskasaba Marketplace.\n\n"
+                . "📦 *DETAIL PESANAN SAYA*\n"
+                . "• Invoice: {$order->invoice_number}\n"
+                . "• Waktu Pesanan: " . ($order->created_at?->format('d M Y, H:i') ?? '-') . "\n"
+                . "• Status: " . ucfirst(str_replace('_', ' ', $order->status)) . "\n\n"
+                . "🛍️ *DAFTAR ITEM PRODUK:*\n" . $itemsSummary . "\n"
+                . "💰 *TOTAL BAYAR:* Rp " . number_format($order->total_price ?? 0, 0, ',', '.') . "\n"
+                . "💳 *METODE PEMBAYARAN:* " . strtoupper($order->payment?->method ?? 'COD') . "\n"
+                . "📍 *TITIK PENGAMBILAN:* " . ($order->pickup_location ?? 'COD Sekolah') . "\n\n"
+                . "Mohon bantuan untuk diproses ya kak. Terima kasih!";
+
+            $waPhone = preg_replace('/[^0-9]/', '', $order->seller?->whatsapp_number ?? '');
+            $waUrl   = !empty($waPhone) ? "https://wa.me/{$waPhone}?text=" . urlencode($waText) : null;
         @endphp
 
         @if($order->status !== 'cancelled')
@@ -114,7 +139,7 @@
             {{-- Detail Content --}}
             <div class="space-y-6 lg:col-span-2">
 
-                {{-- Seller Info --}}
+                {{-- Seller Info Card with Pre-Formatted WA Redirect --}}
                 <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
 
                     <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -138,14 +163,22 @@
                             </div>
                         </div>
 
-                        @if($order->seller?->whatsapp_number)
+                        @if($waUrl)
                             <a
-                                href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->seller->whatsapp_number) }}?text=Halo%20{{ urlencode($order->seller->user?->username ?? 'Seller') }},%20saya%20tanya%20mengenai%20pesanan%20{{ $order->invoice_number }}"
+                                href="{{ $waUrl }}"
                                 target="_blank"
-                                class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100"
+                                class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-700 cursor-pointer"
                             >
-                                <i class="fa-brands fa-whatsapp text-sm"></i> Chat WA
+                                <i class="fa-brands fa-whatsapp text-base"></i>
+                                <span>Chat WA Seller</span>
                             </a>
+                        @else
+                            <button
+                                disabled
+                                class="inline-flex items-center gap-1.5 rounded-2xl bg-slate-100 px-3.5 py-2 text-xs font-bold text-slate-400 cursor-not-allowed"
+                            >
+                                <i class="fa-brands fa-whatsapp text-sm"></i> WA Tidak Tersedia
+                            </button>
                         @endif
 
                     </div>
@@ -339,9 +372,9 @@
 
                         <a
                             href="{{ route('buyer.reviews.create', ['order' => $order->id]) }}"
-                            class="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800"
+                            class="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100"
                         >
-                            <i class="fa-solid fa-star text-amber-300"></i> Beri Ulasan Produk
+                            <i class="fa-solid fa-star text-amber-500"></i> Beri Ulasan Produk
                         </a>
 
                     @endif

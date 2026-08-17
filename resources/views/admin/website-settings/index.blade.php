@@ -3,7 +3,7 @@
 
         <div class="mb-6">
             <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                <i class="fa-solid fa-sliders text-emerald-600"></i> Pengaturan Website & Portal Sekolah
+                <i class="fa-solid fa-sliders text-emerald-600"></i> Pengaturan Website
             </h1>
 
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -28,14 +28,14 @@
             <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
 
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-globe text-emerald-600"></i> Identitas & Logo Portal
+                    <i class="fa-solid fa-globe text-emerald-600"></i> Identitas & Logo
                 </h2>
 
                 <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
 
                     <div>
                         <label class="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
-                            <i class="fa-solid fa-heading text-slate-400 mr-1"></i> Nama Website / Portal <span class="text-red-500">*</span>
+                            <i class="fa-solid fa-heading text-slate-400 mr-1"></i> Nama Website <span class="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
