@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Cart;
 use App\Models\Order;
-use App\Services\ImageCompressor;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -35,13 +35,30 @@ class ProfileController extends Controller
             ->limit(5)
             ->get();
 
+        // Riwayat login & aktivitas terkini
+        $recentActivityLogs = $user->activityLogs()
+            ->take(5)
+            ->get();
+
         return view('profile.index', compact(
             'totalOrders',
             'pendingOrders',
             'completedOrders',
             'cartCount',
-            'recentOrders'
+            'recentOrders',
+            'recentActivityLogs'
         ));
+    }
+
+    /**
+     * Tampilkan halaman lengkap Riwayat Login & Aktivitas Akun.
+     */
+    public function activityLogs(): View
+    {
+        $user = Auth::user();
+        $logs = $user->activityLogs()->paginate(15);
+
+        return view('profile.activity-logs', compact('logs'));
     }
 
     public function edit(): View
@@ -49,27 +66,23 @@ class ProfileController extends Controller
         return view('profile.edit');
     }
 
-    public function update(Request $request)
+    public function update(Request $request): RedirectResponse
     {
         $user = Auth::user();
 
         $data = $request->validate([
-            'email'  => ['nullable', 'email', 'max:255'],
-            'phone'  => ['nullable', 'string', 'max:30'],
-            'avatar' => ['nullable', 'image', 'max:10240'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
         ]);
 
-        if ($request->hasFile('avatar')) {
-            $path = ImageCompressor::compressAndStore($request->file('avatar'), 'avatars');
-
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-
-            $data['avatar'] = $path;
-        }
-
         $user->update($data);
+
+        ActivityLog::record(
+            $user->id,
+            'profile_updated',
+            'Informasi profil akun (email/telepon) diperbarui',
+            $request
+        );
 
         return redirect()->route('profile.index')
             ->with('success', 'Profil berhasil diperbarui.');

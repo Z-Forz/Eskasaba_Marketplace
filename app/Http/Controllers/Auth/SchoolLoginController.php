@@ -91,6 +91,14 @@ class SchoolLoginController extends Controller
 
         $request->session()->regenerate();
 
+        // Catat log login
+        \App\Models\ActivityLog::record(
+            $localUser->id,
+            'login',
+            "Login berhasil dari IP {$request->ip()}",
+            $request
+        );
+
         // Paksa ganti password default sebelum bisa akses fitur
         if ($localUser->is_default_password) {
             return redirect()->route('password.change')

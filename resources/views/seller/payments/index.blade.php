@@ -111,7 +111,7 @@
                                             href="{{ route('seller.payments.show', $payment) }}"
                                             class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800"
                                         >
-                                            Detail →
+                                            Detail <i class="fa-solid fa-arrow-right"></i>
                                         </a>
 
                                     </td>

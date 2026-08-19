@@ -8,9 +8,9 @@
 
                 <a
                     href="{{ route('seller.products.index') }}"
-                    class="text-sm font-medium text-slate-500 hover:text-slate-900"
+                    class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900"
                 >
-                    ← Kembali ke produk
+                    <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke produk
                 </a>
 
                 <h1 class="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">

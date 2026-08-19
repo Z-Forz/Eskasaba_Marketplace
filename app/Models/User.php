@@ -13,16 +13,12 @@ class User extends Authenticatable
         'username',
         'nis_nip',
         'email',
-        'avatar',
         'password',
         'role',
         'is_default_password',
         // Data profil dari API Sekolah
         'api_id',
         'birth_date',
-        'class',
-        'major',
-        'subject_taught',
         'phone',
     ];
 
@@ -74,6 +70,12 @@ class User extends Authenticatable
     public function notifications()
     {
         return $this->hasMany(Notification::class)->latest();
+    }
+
+    // Log Aktivitas & Riwayat Login
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class)->latest();
     }
 
     /*

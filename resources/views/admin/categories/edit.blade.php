@@ -5,9 +5,9 @@
         <div>
             <a
                 href="{{ route('admin.categories.show', $category) }}"
-                class="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                class="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
             >
-                ← Kembali ke detail
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke detail
             </a>
 
             <h1 class="mt-3 text-2xl font-bold text-gray-900 dark:text-white">

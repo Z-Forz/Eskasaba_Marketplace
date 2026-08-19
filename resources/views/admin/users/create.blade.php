@@ -1,4 +1,4 @@
-<x-layouts.admin>
+<x-layouts.admin title="Tambah Pengguna">
 
     <div class="mx-auto max-w-3xl space-y-6">
 
@@ -6,71 +6,89 @@
         <div>
             <a
                 href="{{ route('admin.users.index') }}"
-                class="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             >
-                ← Kembali ke pengguna
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke pengguna
             </a>
 
-            <h1 class="mt-3 text-2xl font-bold text-gray-900 dark:text-white">
-                Tambah Pengguna
+            <h1 class="mt-3 text-2xl font-black text-slate-900 dark:text-white">
+                Tambah Pengguna Baru
             </h1>
 
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Tambahkan pengguna baru ke marketplace.
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                Tambahkan pengguna baru (Siswa atau Guru) ke dalam sistem Eskasaba Marketplace.
             </p>
         </div>
+
+        @if ($errors->any())
+            <x-alert type="error" :message="$errors->first()" class="mb-4" />
+        @endif
 
         {{-- Form --}}
         <form
             action="{{ route('admin.users.store') }}"
             method="POST"
-            class="space-y-6 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 dark:border-gray-700 dark:bg-gray-900"
+            class="space-y-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-8"
         >
             @csrf
 
-            {{-- Identity --}}
             <div class="space-y-5">
 
-                <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-white">
-                        Informasi Pengguna
-                    </h2>
+                <h2 class="font-bold text-slate-900 dark:text-white text-base">
+                    Informasi Identitas & Akun
+                </h2>
 
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Data identitas pengguna marketplace.
-                    </p>
-                </div>
-
-                {{-- Name --}}
+                {{-- Username / Nama --}}
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Nama
+                    <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Nama Lengkap / Username <span class="text-red-500">*</span>
                     </label>
 
                     <input
                         type="text"
-                        name="name"
-                        value="{{ old('name') }}"
+                        name="username"
+                        value="{{ old('username') }}"
                         required
-                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                        placeholder="Contoh: Ahmad Budi"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
 
-                    @error('name')
+                    @error('username')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- NIS / NIP --}}
+                <div>
+                    <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        NIS / NIP
+                    </label>
+
+                    <input
+                        type="text"
+                        name="nis_nip"
+                        value="{{ old('nis_nip') }}"
+                        placeholder="Contoh: 12345678 / 19850101..."
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    >
+
+                    @error('nis_nip')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Email --}}
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Email
+                    <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Alamat Email
                     </label>
 
                     <input
                         type="email"
                         name="email"
                         value="{{ old('email') }}"
-                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                        placeholder="Contoh: email@smkn1bangsri.sch.id"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
 
                     @error('email')
@@ -80,25 +98,17 @@
 
                 {{-- Role --}}
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Role
+                    <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Peran (Role) <span class="text-red-500">*</span>
                     </label>
 
                     <select
                         name="role"
                         required
-                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
-                        <option value="">Pilih role</option>
-                        <option value="student" @selected(old('role') === 'student')>
-                            Student
-                        </option>
-                        <option value="teacher" @selected(old('role') === 'teacher')>
-                            Teacher
-                        </option>
-                        <option value="admin" @selected(old('role') === 'admin')>
-                            Admin
-                        </option>
+                        <option value="student" @selected(old('role') === 'student')>Siswa</option>
+                        <option value="teacher" @selected(old('role') === 'teacher')>Guru</option>
                     </select>
 
                     @error('role')
@@ -106,54 +116,87 @@
                     @enderror
                 </div>
 
-                {{-- School Profile --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {{-- Class --}}
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            Kelas (untuk Siswa)
+                        </label>
+
+                        <input
+                            type="text"
+                            name="class"
+                            value="{{ old('class') }}"
+                            placeholder="Contoh: XII RPL 1"
+                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        >
+                    </div>
+
+                    {{-- Major --}}
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            Jurusan
+                        </label>
+
+                        <input
+                            type="text"
+                            name="major"
+                            value="{{ old('major') }}"
+                            placeholder="Contoh: Rekayasa Perangkat Lunak"
+                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        >
+                    </div>
+                </div>
+
+                {{-- Phone --}}
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Profil Sekolah
+                    <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Nomor HP / WhatsApp
                     </label>
 
-                    <select
-                        name="school_profile_id"
-                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    <input
+                        type="text"
+                        name="phone"
+                        value="{{ old('phone') }}"
+                        placeholder="Contoh: 081234567890"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
-                        <option value="">Tidak ada</option>
+                </div>
 
-                        @foreach ($schoolProfiles ?? [] as $profile)
-                            <option
-                                value="{{ $profile->id }}"
-                                @selected(old('school_profile_id') == $profile->id)
-                            >
-                                {{ $profile->name }}
-                                —
-                                {{ $profile->school_number }}
-                            </option>
-                        @endforeach
-                    </select>
+                {{-- Initial Password --}}
+                <div class="border-t border-slate-100 pt-5 dark:border-slate-800">
+                    <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Password Awal Akun
+                    </label>
 
-                    @error('school_profile_id')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Default jika kosong: 'password'"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    >
+                    <p class="mt-1.5 text-xs text-slate-400">
+                        Jika dikosongkan, password awal otomatis diset ke <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700 font-bold">password</code>.
+                    </p>
                 </div>
 
             </div>
 
             {{-- Actions --}}
-            <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:justify-end dark:border-gray-800">
-
+            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end dark:border-slate-800">
                 <a
                     href="{{ route('admin.users.index') }}"
-                    class="inline-flex justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                    class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 >
                     Batal
                 </a>
 
                 <button
                     type="submit"
-                    class="rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:opacity-90 dark:bg-white dark:text-gray-900"
+                    class="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-6 py-3 text-xs font-bold text-white shadow-xs hover:bg-emerald-800"
                 >
                     Simpan Pengguna
                 </button>
-
             </div>
 
         </form>

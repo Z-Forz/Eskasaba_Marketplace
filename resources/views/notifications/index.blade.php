@@ -7,7 +7,7 @@
 
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-                    Notifikasi Saya 🔔
+                    Notifikasi Saya <i class="fa-solid fa-bell px-2"></i>
                 </h1>
 
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">

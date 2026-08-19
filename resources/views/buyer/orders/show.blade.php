@@ -47,6 +47,8 @@
                 default            => 1,
             };
 
+            $progressPercent = max(0, min(100, (($statusStep - 1) / 4) * 100));
+
             // Format WhatsApp pre-filled text with order details
             $sellerName = $order->seller?->user?->username ?? 'Penjual';
             $buyerName  = auth()->user()->username ?? 'Pembeli';
@@ -84,7 +86,7 @@
                     <div class="absolute left-0 top-1/2 -z-0 h-1 w-full -translate-y-1/2 bg-slate-100"></div>
                     <div
                         class="absolute left-0 top-1/2 -z-0 h-1 -translate-y-1/2 bg-emerald-600 transition-all duration-500"
-                        style="width: {{ (($statusStep - 1) / 4) * 100 }}%"
+                        style="width: {{ $progressPercent }}%"
                     ></div>
 
                     {{-- Step 1 --}}
@@ -364,9 +366,18 @@
 
                             <span class="text-xl font-black text-emerald-700">
                                 Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}
-                            </span>
-                        </div>
                     </div>
+
+                    @if($waUrl)
+                        <a
+                            href="{{ $waUrl }}"
+                            target="_blank"
+                            class="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3.5 text-xs font-bold text-white shadow-md transition hover:bg-emerald-700 cursor-pointer"
+                        >
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            <span>Hubungi Seller via WA (Kirim Detail)</span>
+                        </a>
+                    @endif
 
                     @if ($order->status === 'completed')
 

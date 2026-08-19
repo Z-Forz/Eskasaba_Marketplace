@@ -141,7 +141,7 @@
                                 href="{{ route('seller.orders.show', $order) }}"
                                 class="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800"
                             >
-                                Edit Lokasi & Kelola Status →
+                                Edit Lokasi & Kelola Status <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
 

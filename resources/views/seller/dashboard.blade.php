@@ -242,9 +242,9 @@
 
                     <a
                         href="{{ route('seller.orders.index') }}"
-                        class="text-xs font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400"
+                        class="text-xs font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 inline-flex items-center gap-1"
                     >
-                        Lihat semua →
+                        Lihat semua <i class="fa-solid fa-arrow-right"></i>
                     </a>
 
                 </div>

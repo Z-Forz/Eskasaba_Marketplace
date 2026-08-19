@@ -20,6 +20,8 @@ Route::middleware(['auth:admin'])
             ->name('dashboard');
 
         Route::resource('users', UserController::class);
+        Route::put('users/{user}/reset-password', [UserController::class, 'resetPassword'])
+            ->name('users.reset-password');
 
         Route::resource('categories', CategoryController::class);
 

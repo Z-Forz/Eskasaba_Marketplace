@@ -76,6 +76,9 @@ Route::middleware(['auth', 'password.changed'])->group(function () {
     Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])
         ->name('profile.edit');
 
+    Route::get('/profile/activity-logs', [\App\Http\Controllers\ProfileController::class, 'activityLogs'])
+        ->name('profile.activity-logs');
+
     Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])
         ->name('profile.update');
 

@@ -7,7 +7,7 @@
                 href="{{ route('profile.index') }}"
                 class="inline-flex items-center text-sm text-slate-500 transition hover:text-slate-900"
             >
-                ← Kembali ke Profil
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke Profil
             </a>
 
             <div class="mt-4">
@@ -134,33 +134,6 @@
                     >{{ old('reason', $seller?->reason) }}</textarea>
 
                     @error('reason')
-                        <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Rencana produk --}}
-                <div>
-                    <label
-                        for="products_plan"
-                        class="block text-sm font-medium text-slate-700"
-                    >
-                        Produk apa yang akan Anda jual?
-                        <span class="text-red-500">*</span>
-                    </label>
-
-                    <p class="mt-1 text-xs text-slate-400">
-                        Jelaskan jenis produk atau barang yang rencananya akan Anda tawarkan.
-                    </p>
-
-                    <textarea
-                        id="products_plan"
-                        name="products_plan"
-                        rows="4"
-                        placeholder="Contoh: Saya berencana menjual makanan ringan seperti keripik dan kue kering yang dibuat sendiri, serta aksesoris seperti gelang dan gantungan kunci..."
-                        class="mt-2 block w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 transition focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
-                    >{{ old('products_plan', $seller?->products_plan) }}</textarea>
-
-                    @error('products_plan')
                         <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                 </div>

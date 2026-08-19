@@ -44,6 +44,8 @@
                 default            => 1,
             };
 
+            $progressPercent = max(0, min(100, (($statusStep - 1) / 4) * 100));
+
             // Format WhatsApp pre-filled text for seller to contact buyer
             $buyerName  = $order->user?->username ?? 'Pembeli';
             $sellerName = auth()->user()->username ?? 'Penjual';
@@ -79,7 +81,7 @@
                     <div class="absolute left-0 top-1/2 -z-0 h-1 w-full -translate-y-1/2 bg-slate-100 dark:bg-slate-800"></div>
                     <div
                         class="absolute left-0 top-1/2 -z-0 h-1 -translate-y-1/2 bg-emerald-600 transition-all duration-500"
-                        style="width: {{ (($statusStep - 1) / 4) * 100 }}%"
+                        style="width: {{ $progressPercent }}%"
                     ></div>
 
                     {{-- Step 1 --}}

@@ -232,7 +232,7 @@
                         </div>
 
                         <span class="text-slate-400 transition group-hover:translate-x-1">
-                            →
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
                         </span>
 
                     </a>
@@ -261,7 +261,7 @@
                         </div>
 
                         <span class="text-slate-400 transition group-hover:translate-x-1">
-                            →
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
                         </span>
 
                     </a>
@@ -290,7 +290,7 @@
                         </div>
 
                         <span class="text-slate-400 transition group-hover:translate-x-1">
-                            →
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
                         </span>
 
                     </a>
@@ -319,7 +319,7 @@
                         </div>
 
                         <span class="text-slate-400 transition group-hover:translate-x-1">
-                            →
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
                         </span>
 
                     </a>
@@ -348,7 +348,7 @@
                         </div>
 
                         <span class="text-slate-400 transition group-hover:translate-x-1">
-                            →
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
                         </span>
 
                     </a>

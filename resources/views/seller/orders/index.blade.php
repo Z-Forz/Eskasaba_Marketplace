@@ -240,7 +240,7 @@
                                 href="{{ route('seller.orders.show', $order) }}"
                                 class="inline-flex items-center gap-1.5 rounded-2xl bg-slate-900 px-5 py-2 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800"
                             >
-                                Detail & Kelola Status →
+                                Detail & Kelola Status <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
 

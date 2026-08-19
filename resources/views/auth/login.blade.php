@@ -76,9 +76,9 @@
         <div class="mt-6 text-center">
             <a
                 href="{{ route('home') }}"
-                class="text-sm font-medium text-slate-500 transition hover:text-slate-900"
+                class="inline-flex items-center text-sm font-medium text-slate-500 transition hover:text-slate-900"
             >
-                ← Kembali ke beranda
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke beranda
             </a>
         </div>
     </div>

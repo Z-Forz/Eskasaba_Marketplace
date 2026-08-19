@@ -23,6 +23,8 @@ class HomeController extends Controller
             'category',
             'images',
         ])
+        ->withAvg('reviews', 'rating')
+        ->withCount('reviews')
         ->when($keyword, function ($query) use ($keyword) {
             $query->where('name', 'like', "%{$keyword}%");
         })
@@ -30,8 +32,23 @@ class HomeController extends Controller
         ->paginate(12)
         ->withQueryString();
 
+        // Featured / Unggulan products (e.g., items with discount or high ratings)
+        $featuredProducts = Product::with([
+            'seller.user',
+            'category',
+            'images',
+        ])
+        ->withAvg('reviews', 'rating')
+        ->withCount('reviews')
+        ->where('discount', '>', 0)
+        ->orWhere('stock', '>', 0)
+        ->latest()
+        ->take(4)
+        ->get();
+
         return view('home.index', compact(
             'products',
+            'featuredProducts',
             'categories',
             'keyword'
         ));
@@ -53,6 +70,8 @@ class HomeController extends Controller
             'category',
             'images',
         ])
+        ->withAvg('reviews', 'rating')
+        ->withCount('reviews')
         ->when($search, function ($query) use ($search) {
             $query->where('name', 'like', "%{$search}%");
         })
@@ -91,7 +110,9 @@ class HomeController extends Controller
             'category',
             'images',
             'reviews.user',
-        ]);
+        ])
+        ->loadAvg('reviews', 'rating')
+        ->loadCount('reviews');
 
         return view('products.show', compact(
             'product'

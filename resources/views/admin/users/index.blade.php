@@ -11,15 +11,15 @@
                 </h1>
 
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Kelola daftar pengguna terdaftar (Siswa, Guru, Admin) di Eskasaba Marketplace.
+                    Kelola daftar pengguna terdaftar (Siswa & Guru) dan informasi email/password di Eskasaba Marketplace.
                 </p>
             </div>
 
             <a
                 href="{{ route('admin.users.create') }}"
-                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-blue-700"
+                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
             >
-                <i class="fa-solid fa-user-plus"></i> Tambah Pengguna Baru
+                <i class="fa-solid fa-user-plus"></i> Tambah User Baru
             </a>
 
         </div>
@@ -40,15 +40,15 @@
                         type="search"
                         name="search"
                         value="{{ $search ?? request('search') }}"
-                        placeholder="Cari username, NIS/NIP, email, kelas, jurusan, mapel..."
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 pl-10 text-sm font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        placeholder="Cari nama, NIS/NIP, email, kelas, jurusan..."
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 pl-10 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
                 </div>
 
                 <button
                     type="submit"
-                    class="rounded-2xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700 flex items-center justify-center gap-1.5"
+                    class="rounded-2xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center justify-center gap-1.5"
                 >
                     <i class="fa-solid fa-magnifying-glass"></i> Cari
                 </button>
@@ -65,9 +65,10 @@
                     <thead class="border-b border-slate-100 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
 
                         <tr>
-                            <th class="px-6 py-4">Username / Email</th>
+                            <th class="px-6 py-4">Pengguna</th>
+                            <th class="px-6 py-4">Alamat Email</th>
                             <th class="px-6 py-4">NIS / NIP</th>
-                            <th class="px-6 py-4">Kelas & Jurusan / Mapel</th>
+                            <th class="px-6 py-4">Kelas & Jurusan</th>
                             <th class="px-6 py-4">Peran (Role)</th>
                             <th class="px-6 py-4 text-right">Aksi</th>
                         </tr>
@@ -82,7 +83,7 @@
 
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-900 font-bold text-white shadow-xs">
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-950 font-bold text-white shadow-xs border border-emerald-500/30">
                                             {{ strtoupper(substr($user->username, 0, 1)) }}
                                         </div>
 
@@ -90,11 +91,21 @@
                                             <p class="font-bold text-slate-900 dark:text-white">
                                                 {{ $user->username }}
                                             </p>
-                                            <p class="truncate text-xs text-slate-400">
-                                                {{ $user->email ?? '-' }}
+                                            <p class="text-xs text-slate-400">
+                                                ID API: {{ $user->api_id ?? '-' }}
                                             </p>
                                         </div>
                                     </div>
+                                </td>
+
+                                <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">
+                                    @if($user->email)
+                                        <span class="inline-flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300">
+                                            <i class="fa-solid fa-envelope text-emerald-600"></i> {{ $user->email }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-400 text-xs italic">Belum diisi</span>
+                                    @endif
                                 </td>
 
                                 <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
@@ -102,16 +113,12 @@
                                 </td>
 
                                 <td class="px-6 py-4 text-slate-600 dark:text-slate-300">
-                                    @if ($user->role === 'teacher')
-                                        <span class="font-bold text-amber-700 dark:text-amber-400 inline-flex items-center gap-1">
-                                            <i class="fa-solid fa-chalkboard-user text-xs"></i> {{ $user->subject_taught ?? $user->major ?? 'Guru Mapel' }}
-                                        </span>
-                                    @elseif ($user->class || $user->major)
-                                        <span class="font-semibold inline-flex items-center gap-1">
-                                            <i class="fa-solid fa-graduation-cap text-xs text-emerald-600"></i> {{ $user->class ?? '' }} {{ $user->major ? '• ' . $user->major : '' }}
+                                    @if ($user->class || $user->major)
+                                        <span class="font-semibold inline-flex items-center gap-1 text-xs">
+                                            <i class="fa-solid fa-graduation-cap text-emerald-600"></i> {{ $user->class ?? '' }} {{ $user->major ? '• ' . $user->major : '' }}
                                         </span>
                                     @else
-                                        -
+                                        <span class="text-slate-400 text-xs">-</span>
                                     @endif
                                 </td>
 
@@ -128,7 +135,7 @@
                                 </td>
 
                                 <td class="px-6 py-4 text-right">
-                                    <div class="flex justify-end gap-2">
+                                    <div class="flex justify-end items-center gap-2">
                                         <a
                                             href="{{ route('admin.users.show', $user) }}"
                                             class="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -138,10 +145,24 @@
 
                                         <a
                                             href="{{ route('admin.users.edit', $user) }}"
-                                            class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                                            class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800"
                                         >
                                             <i class="fa-solid fa-pen-to-square"></i> Edit
                                         </a>
+
+                                        {{-- Reset Password Quick Form --}}
+                                        <form method="POST" action="{{ route('admin.users.reset-password', $user) }}" class="inline-block" onsubmit="return confirm('Reset password untuk {{ $user->username }} menjadi \'12345678\'?')">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="new_password" value="12345678">
+                                            <button
+                                                type="submit"
+                                                title="Reset Password ke 12345678"
+                                                class="inline-flex items-center gap-1 rounded-xl border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-700 transition hover:bg-amber-100"
+                                            >
+                                                <i class="fa-solid fa-key"></i> Reset Pass
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
 
@@ -150,7 +171,7 @@
                         @empty
 
                             <tr>
-                                <td colspan="5" class="px-6 py-12 text-center text-sm text-slate-500">
+                                <td colspan="6" class="px-6 py-12 text-center text-sm text-slate-500">
                                     Belum ada data pengguna yang ditemukan.
                                 </td>
                             </tr>
@@ -173,7 +194,7 @@
                 <div class="rounded-3xl border border-slate-200/80 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
                     <div class="flex items-center gap-3">
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-900 font-bold text-white shadow-xs">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-950 font-bold text-white shadow-xs">
                             {{ strtoupper(substr($user->username, 0, 1)) }}
                         </div>
 
@@ -190,8 +211,8 @@
                                 </span>
                             </div>
 
-                            <p class="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
-                                {{ $user->email ?? '-' }}
+                            <p class="mt-0.5 truncate text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                                <i class="fa-solid fa-envelope text-emerald-600 mr-1"></i> {{ $user->email ?? 'Belum diisi' }}
                             </p>
                         </div>
                     </div>
@@ -205,17 +226,9 @@
                         </div>
 
                         <div>
-                            <p class="text-slate-400 font-semibold">
-                                {{ $user->role === 'teacher' ? 'Mapel Diampu' : 'Kelas / Jurusan' }}
-                            </p>
+                            <p class="text-slate-400 font-semibold">Kelas / Jurusan</p>
                             <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200">
-                                @if ($user->role === 'teacher')
-                                    <i class="fa-solid fa-chalkboard-user text-amber-600"></i> {{ $user->subject_taught ?? $user->major ?? 'Guru Mapel' }}
-                                @elseif ($user->class || $user->major)
-                                    <i class="fa-solid fa-graduation-cap text-emerald-600"></i> {{ $user->class ?? '' }} {{ $user->major ? '• ' . $user->major : '' }}
-                                @else
-                                    -
-                                @endif
+                                {{ $user->class ?? '' }} {{ $user->major ? '• ' . $user->major : '-' }}
                             </p>
                         </div>
                     </div>
@@ -229,10 +242,22 @@
                         </a>
                         <a
                             href="{{ route('admin.users.edit', $user) }}"
-                            class="flex-1 rounded-2xl bg-slate-900 py-2 text-center text-xs font-bold text-white dark:bg-blue-600 flex items-center justify-center gap-1"
+                            class="flex-1 rounded-2xl bg-emerald-700 py-2 text-center text-xs font-bold text-white flex items-center justify-center gap-1"
                         >
                             <i class="fa-solid fa-pen-to-square"></i> Edit
                         </a>
+
+                        <form method="POST" action="{{ route('admin.users.reset-password', $user) }}" class="flex-1" onsubmit="return confirm('Reset password untuk {{ $user->username }} menjadi \'12345678\'?')">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="new_password" value="12345678">
+                            <button
+                                type="submit"
+                                class="w-full rounded-2xl border border-amber-300 bg-amber-50 py-2 text-center text-xs font-bold text-amber-700 flex items-center justify-center gap-1"
+                            >
+                                <i class="fa-solid fa-key"></i> Reset Pass
+                            </button>
+                        </form>
                     </div>
 
                 </div>

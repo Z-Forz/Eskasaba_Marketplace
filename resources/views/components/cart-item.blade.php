@@ -1,5 +1,14 @@
 @props(['item'])
 
+@php
+    $product = $item->product;
+    $productName = $product?->name ?? 'Produk';
+    $firstImage = $product?->images?->first()?->image;
+    $unitPrice = (float) ($item->price ?? $product?->price ?? 0);
+    $stock = (int) ($product?->stock ?? 99);
+    $sellerName = $product?->seller?->user?->username;
+@endphp
+
 <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900">
 
     <div class="flex gap-4 sm:gap-5">
@@ -7,11 +16,11 @@
         {{-- Product Image --}}
         <div class="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 sm:h-28 sm:w-28">
 
-            @if($item->product?->images?->first())
+            @if($firstImage)
 
                 <img
-                    src="{{ asset('storage/' . $item->product->images->first()->image) }}"
-                    alt="{{ $item->product->name }}"
+                    src="{{ asset('storage/' . $firstImage) }}"
+                    alt="{{ $productName }}"
                     class="h-full w-full object-cover"
                 >
 
@@ -31,12 +40,18 @@
             <div>
 
                 <div class="flex items-start justify-between gap-2">
-                    <a
-                        href="{{ route('products.show', $item->product) }}"
-                        class="line-clamp-2 text-sm font-black leading-snug text-slate-900 hover:text-emerald-700 dark:text-white dark:hover:text-emerald-400 sm:text-base"
-                    >
-                        {{ $item->product->name }}
-                    </a>
+                    @if($product)
+                        <a
+                            href="{{ route('products.show', $product) }}"
+                            class="line-clamp-2 text-sm font-black leading-snug text-slate-900 hover:text-emerald-700 dark:text-white dark:hover:text-emerald-400 sm:text-base"
+                        >
+                            {{ $productName }}
+                        </a>
+                    @else
+                        <span class="line-clamp-2 text-sm font-black text-slate-900 dark:text-white sm:text-base">
+                            {{ $productName }}
+                        </span>
+                    @endif
 
                     {{-- Trigger Modal Hapus Button --}}
                     <button
@@ -66,9 +81,9 @@
                     </div>
                 @endif
 
-                @if($item->product?->seller?->user)
+                @if($sellerName)
                     <p class="mt-1.5 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
-                        <i class="fa-solid fa-store text-emerald-600 mr-1"></i> Toko: {{ $item->product->seller->user->username }}
+                        <i class="fa-solid fa-store text-emerald-600 mr-1"></i> Toko: {{ $sellerName }}
                     </p>
                 @endif
 
@@ -78,7 +93,7 @@
             <div class="mt-2">
                 <p class="text-xs font-bold text-slate-400">Harga Satuan</p>
                 <p class="text-sm font-black text-emerald-700 dark:text-emerald-400">
-                    Rp {{ number_format($item->price ?? $item->product->price, 0, ',', '.') }}
+                    Rp {{ number_format($unitPrice, 0, ',', '.') }}
                 </p>
             </div>
 
@@ -127,7 +142,7 @@
                 </span>
 
                 {{-- Increment Form --}}
-                @if($item->quantity < ($item->product->stock ?? 99))
+                @if($item->quantity < $stock)
                     <form action="{{ route('buyer.cart.update', $item->id) }}" method="POST" class="inline">
                         @csrf
                         @method('PUT')
@@ -158,7 +173,7 @@
         <div class="text-right">
             <span class="text-[10px] font-semibold text-slate-400 block">Subtotal Item</span>
             <p class="text-base font-black text-slate-900 dark:text-white sm:text-lg">
-                Rp {{ number_format(($item->price ?? $item->product->price) * $item->quantity, 0, ',', '.') }}
+                Rp {{ number_format($unitPrice * $item->quantity, 0, ',', '.') }}
             </p>
         </div>
 
@@ -189,7 +204,7 @@
                 </h3>
 
                 <p class="mt-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Apakah kamu yakin ingin mengeluarkan produk <strong class="text-slate-800 dark:text-slate-200">"{{ $item->product->name }}"</strong>
+                    Apakah kamu yakin ingin mengeluarkan produk <strong class="text-slate-800 dark:text-slate-200">"{{ $productName }}"</strong>
                     @if(!empty($item->note))
                         dengan varian <strong class="text-emerald-700 dark:text-emerald-400">({{ $item->note }})</strong>
                     @endif
@@ -222,21 +237,21 @@
 
 </div>
 
+@once
 <script>
-    if (typeof window.openDeleteCartModal !== 'function') {
-        window.openDeleteCartModal = function (itemId) {
-            const modal = document.getElementById('delete-cart-item-modal-' + itemId);
-            if (modal) {
-                modal.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden');
-            }
-        };
-        window.closeDeleteCartModal = function (itemId) {
-            const modal = document.getElementById('delete-cart-item-modal-' + itemId);
-            if (modal) {
-                modal.classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
-            }
-        };
-    }
+    window.openDeleteCartModal = function (itemId) {
+        const modal = document.getElementById('delete-cart-item-modal-' + itemId);
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+    };
+    window.closeDeleteCartModal = function (itemId) {
+        const modal = document.getElementById('delete-cart-item-modal-' + itemId);
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+    };
 </script>
+@endonce

@@ -7,6 +7,7 @@ use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -45,7 +46,17 @@ class UserController extends Controller
      */
     public function store(UserRequest $request): RedirectResponse
     {
-        User::create($request->validated());
+        $data = $request->validated();
+        
+        if (! empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            $data['password'] = Hash::make('password');
+            $data['is_default_password'] = true;
+        }
+
+        User::create($data);
+
         return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil ditambahkan.');
     }
@@ -71,9 +82,50 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, User $user): RedirectResponse
     {
-        $user->update($request->validated());
+        $data = array_filter($request->validated());
+
+        if (isset($data['password']) && ! empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+            $data['is_default_password'] = false;
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
         return redirect()->route('admin.users.index')
-            ->with('success', 'User berhasil diperbarui.');
+            ->with('success', "Data pengguna {$user->username} berhasil diperbarui.");
+    }
+
+    /**
+     * Reset password user secara langsung oleh admin jika lupa kata sandi.
+     */
+    public function resetPassword(Request $request, User $user): RedirectResponse
+    {
+        $request->validate([
+            'new_password' => ['required', 'string', 'min:6'],
+        ], [
+            'new_password.required' => 'Password baru wajib diisi.',
+            'new_password.min'      => 'Password baru minimal 6 karakter.',
+        ]);
+
+        $newPass = $request->input('new_password');
+
+        $user->update([
+            'password'            => Hash::make($newPass),
+            'is_default_password' => false,
+        ]);
+
+        \App\Models\ActivityLog::record(
+            $user->id,
+            'password_reset_admin',
+            "Password direset oleh Admin sekolah (IP: {$request->ip()})",
+            $request,
+            \Illuminate\Support\Facades\Auth::guard('admin')->id()
+        );
+
+        return redirect()->back()
+            ->with('success', "Password untuk user {$user->username} ({$user->nis_nip}) berhasil direset menjadi '{$newPass}'. Silakan sampaikan password baru ini kepada user.");
     }
 
     /**

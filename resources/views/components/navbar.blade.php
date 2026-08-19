@@ -144,7 +144,6 @@
             aria-label="Buka menu"
         >
             <i id="icon-hamburger" class="fa-solid fa-bars text-xl"></i>
-            <i id="icon-close" class="fa-solid fa-xmark text-xl hidden"></i>
         </button>
 
     </div>
@@ -203,8 +202,8 @@
                                 <p class="truncate text-sm font-bold text-slate-900">
                                     {{ auth()->user()->username }}
                                 </p>
-                                <p class="truncate text-xs font-semibold text-emerald-800">
-                                    {{ auth()->user()->role === 'teacher' ? 'Guru' : 'Siswa' }} • Profil & Dashboard →
+                                <p class="truncate text-xs font-semibold text-emerald-800 flex items-center gap-1">
+                                    {{ auth()->user()->role === 'teacher' ? 'Guru' : 'Siswa' }} • Profil & Dashboard <i class="fa-solid fa-arrow-right text-[10px]"></i>
                                 </p>
                             </div>
                         </a>

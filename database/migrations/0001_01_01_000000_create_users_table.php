@@ -44,8 +44,6 @@ return new class extends Migration
             //          role (student/teacher) sudah merangkap type (siswa/guru).
             $table->unsignedBigInteger('api_id');
             $table->date('birth_date');
-            $table->string('class')->nullable();  // nullable: guru tidak punya kelas
-            $table->string('major')->nullable();  // nullable: guru tidak punya jurusan
             $table->string('phone')->nullable();
             $table->rememberToken();
 

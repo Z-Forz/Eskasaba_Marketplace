@@ -90,9 +90,9 @@
                     </div>
                     <a
                         href="{{ route('admin.orders.index') }}"
-                        class="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                        class="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 inline-flex items-center gap-1"
                     >
-                        Lihat Semua →
+                        Lihat Semua <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
 
@@ -133,7 +133,7 @@
                 <div class="flex items-center justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <i class="fa-solid fa-bolt text-amber-500"></i> Akses Penting
+                            <i class="fa-solid fa-warning text-amber-500"></i> Akses Penting
                         </h2>
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                             Pintasan fitur pengelolaan admin.
@@ -156,7 +156,7 @@
                             <p class="text-sm font-bold text-slate-900 dark:text-white">Kelola Pengguna</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Tambahkan, edit, atau kelola user.</p>
                         </div>
-                        <span class="text-slate-400 font-bold">→</span>
+                        <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-600 transition"></i>
                     </a>
 
                     <a
@@ -170,7 +170,7 @@
                             <p class="text-sm font-bold text-slate-900 dark:text-white">Kelola Kategori</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Atur kategori produk marketplace.</p>
                         </div>
-                        <span class="text-slate-400 font-bold">→</span>
+                        <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-600 transition"></i>
                     </a>
 
                     <a
@@ -184,7 +184,7 @@
                             <p class="text-sm font-bold text-slate-900 dark:text-white">Verifikasi Seller</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Tinjau dan persetujuan seller baru.</p>
                         </div>
-                        <span class="text-slate-400 font-bold">→</span>
+                        <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-600 transition"></i>
                     </a>
 
                     <a
@@ -198,7 +198,7 @@
                             <p class="text-sm font-bold text-slate-900 dark:text-white">Pengaturan Website</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Atur profil marketplace & landing page.</p>
                         </div>
-                        <span class="text-slate-400 font-bold">→</span>
+                        <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-600 transition"></i>
                     </a>
                 </div>
 

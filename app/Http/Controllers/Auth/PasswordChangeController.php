@@ -51,6 +51,13 @@ class PasswordChangeController extends Controller
             'is_default_password' => false,
         ]);
 
+        \App\Models\ActivityLog::record(
+            $user->id,
+            'password_changed',
+            'Password akun berhasil diperbarui oleh pemilik akun',
+            $request
+        );
+
         return redirect()
             ->route('dashboard')
             ->with('success', 'Password berhasil diubah. Selamat datang!');

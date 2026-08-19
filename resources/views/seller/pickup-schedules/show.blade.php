@@ -4,8 +4,8 @@
         <div>
             <a
                 href="{{ route('seller.pickup-schedules.index') }}"
-                class="text-sm font-medium text-blue-600 hover:text-blue-700">
-                ← Kembali ke Jadwal
+                class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke Jadwal
             </a>
 
             <h1 class="mt-3 text-2xl font-bold text-gray-900 dark:text-white">

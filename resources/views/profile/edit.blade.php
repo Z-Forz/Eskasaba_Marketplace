@@ -4,9 +4,9 @@
         <div class="mb-8">
             <a
                 href="{{ route('profile.index') }}"
-                class="text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                class="text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white inline-flex items-center"
             >
-                ← Kembali ke profil
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke profil
             </a>
 
             <h1 class="mt-4 text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -42,48 +42,6 @@
         >
             @csrf
             @method('PUT')
-
-            {{-- Avatar --}}
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white">
-                    Foto Profil
-                </h2>
-
-                <div class="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center">
-
-                    <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-3xl font-bold text-white shadow-md dark:bg-slate-700">
-                        @if (auth()->user()->avatar)
-                            <img
-                                src="{{ Storage::url(auth()->user()->avatar) }}"
-                                alt="{{ auth()->user()->username }}"
-                                class="h-full w-full object-cover"
-                            >
-                        @else
-                            {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
-                        @endif
-                    </div>
-
-                    <div class="w-full">
-                        <label for="avatar" class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Upload Foto Baru
-                        </label>
-                        <input
-                            type="file"
-                            id="avatar"
-                            name="avatar"
-                            accept="image/*"
-                            class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 file:mr-4 file:rounded-xl file:border-0 file:bg-emerald-700 file:px-4 file:py-2 file:text-xs file:font-bold file:text-white hover:file:bg-emerald-800 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
-
-                        <p class="mt-2 text-xs text-slate-400">
-                            Format gambar JPG, JPEG, PNG, atau WebP (otomatis dikompresi).
-                        </p>
-                    </div>
-
-                </div>
-
-            </div>
 
             {{-- Editable Data --}}
             <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-8">

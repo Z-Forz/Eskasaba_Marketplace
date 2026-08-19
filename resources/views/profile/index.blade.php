@@ -17,13 +17,20 @@
                 </p>
             </div>
 
-            {{-- Action Buttons: Edit Profil & Logout --}}
-            <div class="flex items-center gap-3">
+            {{-- Action Buttons: Edit Profil, Ubah Password & Logout --}}
+            <div class="flex flex-wrap items-center gap-3">
                 <a
                     href="{{ route('profile.edit') }}"
                     class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
                 >
                     <i class="fa-solid fa-pen-to-square"></i> Edit Profil
+                </a>
+
+                <a
+                    href="{{ route('password.change') }}"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                >
+                    <i class="fa-solid fa-key text-emerald-600"></i> Ubah Password
                 </a>
 
                 <form method="POST" action="{{ route('logout') }}">
@@ -44,16 +51,8 @@
             {{-- Profile Card --}}
             <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex flex-col items-center text-center">
-                    <div class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-3xl font-bold text-white shadow-md dark:bg-slate-700">
-                        @if (auth()->user()->avatar)
-                            <img
-                                src="{{ Storage::url(auth()->user()->avatar) }}"
-                                alt="{{ auth()->user()->username }}"
-                                class="h-full w-full object-cover"
-                            >
-                        @else
-                            {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
-                        @endif
+                    <div class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-emerald-950 text-2xl font-black text-white shadow-md border border-emerald-500/30">
+                        {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
                     </div>
 
                     <h2 class="mt-4 text-xl font-extrabold text-slate-900 dark:text-white">
@@ -75,12 +74,6 @@
                                 Kelas {{ auth()->user()->class }}
                             </span>
                         @endif
-
-                        @if(auth()->user()->role === 'teacher' && auth()->user()->subject_taught)
-                            <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800 dark:bg-blue-950/60 dark:text-blue-300">
-                                {{ auth()->user()->subject_taught }}
-                            </span>
-                        @endif
                     </div>
                 </div>
 
@@ -91,15 +84,10 @@
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ auth()->user()->email ?? '-' }}</span>
                     </div>
 
-                    @if(auth()->user()->role === 'student')
+                    @if(auth()->user()->role === 'student' && auth()->user()->major)
                         <div class="flex justify-between">
                             <span class="text-xs font-medium text-slate-400">Jurusan</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ auth()->user()->major ?? '-' }}</span>
-                        </div>
-                    @else
-                        <div class="flex justify-between">
-                            <span class="text-xs font-medium text-slate-400">Mapel</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ auth()->user()->subject_taught ?? '-' }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ auth()->user()->major }}</span>
                         </div>
                     @endif
 
@@ -232,7 +220,7 @@
             <div class="mt-4 space-y-2 text-sm font-medium">
                 <a href="{{ route('products.index') }}" class="flex items-center justify-between rounded-2xl p-3 text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                     <span class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-bag-shopping text-emerald-600 w-5"></i> Katalog Produk</span>
-                    <span class="text-slate-400">→</span>
+                    <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
                 </a>
                 <a href="{{ route('buyer.cart.index') }}" class="flex items-center justify-between rounded-2xl p-3 text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                     <span class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-cart-shopping text-emerald-600 w-5"></i> Keranjang Belanja</span>
@@ -240,12 +228,61 @@
                 </a>
                 <a href="{{ route('buyer.orders.index') }}" class="flex items-center justify-between rounded-2xl p-3 text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                     <span class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-box text-emerald-600 w-5"></i> Riwayat Pesanan</span>
-                    <span class="text-slate-400">→</span>
+                    <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
                 </a>
                 <a href="{{ route('buyer.chats.index') }}" class="flex items-center justify-between rounded-2xl p-3 text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                     <span class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-comments text-emerald-600 w-5"></i> Chat Seller</span>
-                    <span class="text-slate-400">→</span>
+                    <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
                 </a>
+            </div>
+        </div>
+
+        {{-- Activity Logs & Login History Card --}}
+        <div class="mt-8 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-emerald-600"></i> Riwayat Login & Keamanan Akun
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Daftar perangkat & IP yang baru-baru ini mengakses atau mengubah akun Anda.
+                    </p>
+                </div>
+
+                <a href="{{ route('profile.activity-logs') }}" class="text-xs font-bold text-emerald-700 hover:underline dark:text-emerald-400 shrink-0 inline-flex items-center gap-1">
+                    Lihat Semua <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="mt-4 divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                @forelse ($recentActivityLogs ?? [] as $log)
+                    <div class="py-3 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm dark:bg-slate-800">
+                                <i class="{{ $log->icon }}"></i>
+                            </div>
+
+                            <div class="min-w-0">
+                                <p class="font-bold text-slate-900 dark:text-white text-xs truncate">
+                                    {{ $log->description }}
+                                </p>
+                                <p class="text-[11px] text-slate-400 truncate">
+                                    <i class="fa-solid fa-laptop text-[10px]"></i> {{ $log->device }} • IP: {{ $log->ip_address ?? '127.0.0.1' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="text-right shrink-0">
+                            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                                {{ $log->created_at->diffForHumans() }}
+                            </span>
+                        </div>
+                    </div>
+                @empty
+                    <p class="py-4 text-center text-xs text-slate-400">
+                        Belum ada riwayat aktivitas yang tercatat.
+                    </p>
+                @endforelse
             </div>
         </div>
 

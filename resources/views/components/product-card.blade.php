@@ -172,12 +172,8 @@
             <div class="mt-3 flex items-center justify-between pt-2">
 
                 <div class="flex min-w-0 items-center gap-2">
-                    <div class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-900 text-[10px] font-black text-white shadow-2xs border border-emerald-400/30">
-                        @if($sellerUser->avatar)
-                            <img src="{{ Storage::url($sellerUser->avatar) }}" alt="{{ $sellerUser->username }}" class="h-full w-full object-cover">
-                        @else
-                            {{ strtoupper(substr($sellerUser->username ?? 'S', 0, 1)) }}
-                        @endif
+                    <div class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-950 text-[10px] font-black text-white shadow-2xs border border-emerald-400/30">
+                        {{ strtoupper(substr($sellerUser->username ?? 'S', 0, 1)) }}
                     </div>
 
                     <div class="min-w-0">

@@ -45,15 +45,12 @@ class SellerApplicationController extends Controller
 
         $data = $request->validate([
             'whatsapp_number' => ['required', 'string', 'max:20'],
-            'reason'          => ['required', 'string', 'min:20', 'max:1000'],
-            'products_plan'   => ['required', 'string', 'min:20', 'max:1000'],
+            'reason'          => ['required', 'string', 'min:10', 'max:1000'],
             'qris_image'      => ['nullable', 'image', 'max:10240'],
         ], [
             'whatsapp_number.required' => 'Nomor WhatsApp wajib diisi.',
             'reason.required'          => 'Alasan wajib diisi.',
-            'reason.min'               => 'Alasan terlalu singkat, minimal 20 karakter.',
-            'products_plan.required'   => 'Rencana produk wajib diisi.',
-            'products_plan.min'        => 'Rencana produk terlalu singkat, minimal 20 karakter.',
+            'reason.min'               => 'Alasan terlalu singkat, minimal 10 karakter.',
             'qris_image.image'         => 'File QRIS harus berupa gambar.',
         ]);
 
@@ -74,7 +71,6 @@ class SellerApplicationController extends Controller
             $updateData = [
                 'whatsapp_number' => $data['whatsapp_number'],
                 'reason'          => $data['reason'],
-                'products_plan'   => $data['products_plan'],
                 'status'          => 'pending',
                 'rejection_note'  => null,
             ];
@@ -90,7 +86,6 @@ class SellerApplicationController extends Controller
                 'user_id'         => $user->id,
                 'whatsapp_number' => $data['whatsapp_number'],
                 'reason'          => $data['reason'],
-                'products_plan'   => $data['products_plan'],
                 'qris_image'      => $data['qris_image'] ?? null,
                 'status'          => 'pending',
             ]);
