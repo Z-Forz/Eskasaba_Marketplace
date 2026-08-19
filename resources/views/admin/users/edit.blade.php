@@ -115,36 +115,6 @@
                     @enderror
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {{-- Class --}}
-                    <div>
-                        <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Kelas
-                        </label>
-
-                        <input
-                            type="text"
-                            name="class"
-                            value="{{ old('class', $user->class) }}"
-                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
-                    </div>
-
-                    {{-- Major --}}
-                    <div>
-                        <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Jurusan
-                        </label>
-
-                        <input
-                            type="text"
-                            name="major"
-                            value="{{ old('major', $user->major) }}"
-                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
-                    </div>
-                </div>
-
                 {{-- Phone --}}
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">

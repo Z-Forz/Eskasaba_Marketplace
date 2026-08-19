@@ -68,7 +68,6 @@
                             <th class="px-6 py-4">Pengguna</th>
                             <th class="px-6 py-4">Alamat Email</th>
                             <th class="px-6 py-4">NIS / NIP</th>
-                            <th class="px-6 py-4">Kelas & Jurusan</th>
                             <th class="px-6 py-4">Peran (Role)</th>
                             <th class="px-6 py-4 text-right">Aksi</th>
                         </tr>
@@ -110,16 +109,6 @@
 
                                 <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
                                     {{ $user->nis_nip ?? '-' }}
-                                </td>
-
-                                <td class="px-6 py-4 text-slate-600 dark:text-slate-300">
-                                    @if ($user->class || $user->major)
-                                        <span class="font-semibold inline-flex items-center gap-1 text-xs">
-                                            <i class="fa-solid fa-graduation-cap text-emerald-600"></i> {{ $user->class ?? '' }} {{ $user->major ? '• ' . $user->major : '' }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-400 text-xs">-</span>
-                                    @endif
                                 </td>
 
                                 <td class="px-6 py-4">
