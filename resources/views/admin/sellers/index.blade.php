@@ -100,7 +100,7 @@
                                                 NIS/NIP: {{ $seller->user->nis_nip }}
                                             </p>
                                             <p class="text-slate-500">
-                                                {{ $seller->user->class ?? '-' }} {{ $seller->user->major ? '• ' . $seller->user->major : '' }}
+                                                {{ $seller->user->role === 'teacher' ? 'Guru Sekolah' : 'Siswa Sekolah' }}
                                             </p>
                                         @else
                                             <span class="text-slate-400">-</span>
@@ -109,13 +109,16 @@
 
                                     {{-- WhatsApp --}}
                                     <td class="px-6 py-4 text-xs">
-                                        @if ($seller->whatsapp_number)
+                                        @php
+                                            $sellerWa = $seller->whatsapp_number ?: $seller->user?->phone;
+                                        @endphp
+                                        @if ($sellerWa)
                                             <a
-                                                href="https://wa.me/{{ preg_replace('/\D/', '', $seller->whatsapp_number) }}"
+                                                href="https://wa.me/{{ preg_replace('/\D/', '', $sellerWa) }}"
                                                 target="_blank"
                                                 class="inline-flex items-center gap-1.5 font-bold text-emerald-700 hover:underline dark:text-emerald-400"
                                             >
-                                                <i class="fa-brands fa-whatsapp text-sm"></i> {{ $seller->whatsapp_number }}
+                                                <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i> {{ $sellerWa }}
                                             </a>
                                         @else
                                             <span class="text-slate-400">-</span>

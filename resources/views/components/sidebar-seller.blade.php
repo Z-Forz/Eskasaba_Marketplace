@@ -7,9 +7,6 @@
             ['route' => 'seller.pickup-schedules.index', 'pattern' => 'seller.pickup-schedules.*', 'label' => 'Jadwal Pengambilan','icon' => 'fa-solid fa-calendar-check'],
             ['route' => 'seller.profile.edit',          'pattern' => 'seller.profile.*',          'label' => 'Pengaturan Toko & QRIS', 'icon' => 'fa-solid fa-sliders'],
         ],
-        'Komunikasi' => [
-            ['route' => 'seller.chats.index',            'pattern' => 'seller.chats.*',            'label' => 'Chat Buyer',        'icon' => 'fa-solid fa-comments'],
-        ],
         'Akun' => [
             ['route' => 'profile.index',                 'pattern' => 'profile.*',                 'label' => 'Profil Saya',       'icon' => 'fa-solid fa-user-gear'],
         ],

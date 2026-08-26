@@ -56,7 +56,7 @@
 
                                     <td class="px-6 py-4">
                                         <div class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                            <i class="fa-solid fa-folder text-emerald-600 text-xs"></i> {{ $category->name }}
+                                            <i class="{{ $category->icon ?: 'fa-solid fa-folder' }} text-emerald-600"></i> {{ $category->name }}
                                         </div>
 
                                         @if ($category->description)

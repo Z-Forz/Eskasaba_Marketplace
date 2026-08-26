@@ -6,19 +6,7 @@
 >
 
     <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800 transition duration-300 group-hover:bg-emerald-800 group-hover:text-white dark:bg-emerald-950/50 dark:text-emerald-300 dark:group-hover:bg-emerald-600 sm:h-14 sm:w-14">
-        <svg
-            class="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-        >
-            <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.8"
-                d="M4 6h16M4 12h16M4 18h16"
-            />
-        </svg>
+        <i class="{{ $category->icon ?: 'fa-solid fa-layer-group' }} text-xl sm:text-2xl"></i>
     </div>
 
     <h3 class="mt-4 truncate text-sm font-bold text-slate-900 transition-colors group-hover:text-emerald-800 dark:text-white dark:group-hover:text-emerald-400 sm:text-base">

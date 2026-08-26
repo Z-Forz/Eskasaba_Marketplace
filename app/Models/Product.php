@@ -30,7 +30,7 @@ class Product extends Model
     }
 
     /**
-     * Get final calculated price after discount.
+     * Get final calculated price after discount (in Rupiah).
      */
     public function getFinalPriceAttribute(): float
     {
@@ -38,9 +38,6 @@ class Product extends Model
         $price = (float) $this->price;
 
         if ($discount > 0) {
-            if ($discount <= 100) {
-                return max(0, $price - ($price * ($discount / 100)));
-            }
             return max(0, $price - $discount);
         }
 

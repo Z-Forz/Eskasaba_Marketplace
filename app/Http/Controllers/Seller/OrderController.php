@@ -102,6 +102,9 @@ class OrderController extends Controller
                 'type'    => 'order_status_updated',
                 'link'    => route('buyer.orders.show', $order),
             ]);
+
+            // Kirim notifikasi WA ke pembeli
+            \App\Services\WhatsAppService::sendStatusUpdateNotification($order);
         }
 
         return back()->with(

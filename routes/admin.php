@@ -19,6 +19,8 @@ Route::middleware(['auth:admin'])
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
+        Route::post('users/sync', [UserController::class, 'sync'])
+            ->name('users.sync');
         Route::resource('users', UserController::class);
         Route::put('users/{user}/reset-password', [UserController::class, 'resetPassword'])
             ->name('users.reset-password');

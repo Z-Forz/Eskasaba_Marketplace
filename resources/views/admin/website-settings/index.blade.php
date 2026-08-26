@@ -77,14 +77,14 @@
             <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
 
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-feather text-emerald-600"></i> Banner Hero Beranda Utama
+                    <i class="fa-solid fa-feather text-emerald-600"></i>Beranda Utama
                 </h2>
 
                 <div class="mt-5 space-y-5">
 
                     <div>
                         <label class="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
-                            <i class="fa-solid fa-display text-slate-400 mr-1"></i> Judul Banner Utama (Hero Title)
+                            <i class="fa-solid fa-heading text-slate-400 mr-1"></i> Judul Banner Utama (Hero Title)
                         </label>
                         <input
                             type="text"

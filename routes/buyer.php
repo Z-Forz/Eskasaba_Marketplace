@@ -7,7 +7,6 @@ use App\Http\Controllers\Buyer\CartController;
 use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ReviewController;
-use App\Http\Controllers\Buyer\ChatController;
 use App\Http\Controllers\SellerApplicationController;
 use App\Http\Controllers\NotificationController;
 
@@ -35,12 +34,6 @@ Route::middleware(['auth', 'password.changed'])
 
         Route::resource('reviews', ReviewController::class)
             ->only(['store', 'update', 'destroy']);
-
-        Route::resource('chats', ChatController::class)
-            ->only(['index', 'show', 'store']);
-
-        Route::post('/chats/{chat}/message', [ChatController::class, 'storeMessage'])
-            ->name('chats.message');
 
         // Pengajuan menjadi seller
         Route::get('/apply-seller', [SellerApplicationController::class, 'create'])

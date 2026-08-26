@@ -33,7 +33,7 @@
                 {{-- WhatsApp Number --}}
                 <div>
                     <label for="whatsapp_number" class="block text-sm font-semibold text-slate-900 dark:text-white">
-                        Nomor WhatsApp Toko <span class="text-red-500">*</span>
+                        Nomor WhatsApp <span class="text-red-500">*</span>
                     </label>
                     <input
                         type="text"

@@ -43,7 +43,6 @@ return new class extends Migration
             // Catatan: nis_nip sudah merangkap school_number; username sudah merangkap name;
             //          role (student/teacher) sudah merangkap type (siswa/guru).
             $table->unsignedBigInteger('api_id');
-            $table->date('birth_date');
             $table->string('phone')->nullable();
             $table->rememberToken();
 

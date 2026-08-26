@@ -5,7 +5,7 @@
         {{-- Header --}}
         <div>
             <a
-                href="{{ route('admin.users.show', $user) }}"
+                href="{{ route('admin.users.index', $user) }}"
                 class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             >
                 <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke detail pengguna

@@ -14,9 +14,6 @@ class SchoolProfile extends Model
         'school_number',
         'name',
         'type',
-        'birth_date',
-        'class',
-        'major',
         'phone',
     ];
 }

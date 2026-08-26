@@ -137,4 +137,15 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil dihapus.');
     }
+
+    /**
+     * Sinkronisasi data pengguna dari Database/API Sekolah.
+     */
+    public function sync(Request $request, \App\Services\SchoolApiService $schoolApi): RedirectResponse
+    {
+        $count = $schoolApi->syncAllUsers();
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "Sinkronisasi berhasil! {$count} data pengguna telah diperbarui dari Database Sekolah.");
+    }
 }

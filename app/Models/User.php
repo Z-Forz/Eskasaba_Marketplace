@@ -18,7 +18,6 @@ class User extends Authenticatable
         'is_default_password',
         // Data profil dari API Sekolah
         'api_id',
-        'birth_date',
         'phone',
     ];
 
@@ -32,7 +31,6 @@ class User extends Authenticatable
         return [
             'password'            => 'hashed',
             'is_default_password' => 'boolean',
-            'birth_date'          => 'date',
         ];
     }
 

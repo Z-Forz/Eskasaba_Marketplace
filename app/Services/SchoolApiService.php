@@ -2,84 +2,136 @@
 
 namespace App\Services;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 /**
- * SchoolApiService — placeholder sampai integrasi API Sekolah nyata tersedia.
- * Saat ini mengembalikan data dummy agar alur login bisa berjalan di lokal.
- *
- * Ganti implementasi method validate() dengan HTTP call ke API Sekolah asli
- * ketika endpoint sudah tersedia.
+ * SchoolApiService — Layanan Integrasi Database API Sekolah.
+ * Melakukan validasi NIS/NIP dan sinkronisasi data pengguna dari API Sekolah.
  */
 class SchoolApiService
 {
+    protected string $baseUrl;
+
+    protected string $token;
+
     public function __construct()
     {
-        // placeholder
+        $this->baseUrl = rtrim(config('services.school_api.url', 'https://api.sekolah.example'), '/');
+        $this->token   = config('services.school_api.token', '');
     }
 
     /**
-     * Return a list of school profiles (empty placeholder).
+     * Validasi NIS/NIP pengguna ke API Sekolah.
      *
-     * @return array<int, array<string,mixed>>
+     * @param  string  $nisNip  NIS (Siswa) atau NIP (Guru)
+     * @return array<string, mixed>|null Data pengguna dari sekolah jika valid, null jika tidak ditemukan/gagal.
      */
-    public function fetchProfiles(): array
+    public function validate(string $nisNip): ?array
     {
-        return [];
+        if (empty($nisNip)) {
+            return null;
+        }
+
+        try {
+            $request = Http::timeout(5);
+
+            if (! empty($this->token)) {
+                $request->withToken($this->token);
+            }
+
+            // Memanggil endpoint API Sekolah (GET /users/{nisNip})
+            $response = $request->get("{$this->baseUrl}/users/{$nisNip}");
+
+            if ($response->successful()) {
+                $data = $response->json()['data'] ?? $response->json();
+
+                if (! empty($data['nis_nip']) || ! empty($data['id'])) {
+                    return [
+                        'id'             => $data['id'] ?? null,
+                        'nis_nip'        => $data['nis_nip'] ?? $nisNip,
+                        'nama'           => $data['nama'] ?? $data['name'] ?? $data['username'] ?? ('User ' . $nisNip),
+                        'jenis_pengguna' => strtolower($data['jenis_pengguna'] ?? $data['role'] ?? 'siswa') === 'guru' ? 'guru' : 'siswa',
+                        'telepon'        => $data['telepon'] ?? $data['phone'] ?? null,
+                        'email'          => $data['email'] ?? null,
+                    ];
+                }
+            }
+
+            Log::warning("SchoolApiService validate failed for NIS/NIP {$nisNip}: HTTP {$response->status()}");
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error("SchoolApiService exception during validate ({$nisNip}): {$e->getMessage()}");
+
+            return null;
+        }
     }
 
     /**
-     * Return a single profile by id or null if not found.
+     * Melakukan sinkronisasi seluruh data pengguna dari API Database Sekolah ke tabel users lokal.
      *
-     * @param  int  $id
-     * @return array<string,mixed>|null
+     * @return int Jumlah pengguna yang berhasil disinkronkan
      */
-    public function getProfile(int $id): ?array
+    public function syncAllUsers(): int
     {
-        return null;
-    }
+        try {
+            $request = Http::timeout(10);
 
-    /**
-     * Validate user credentials against the school system.
-     *
-     * Returns an associative array with the user's school data on success,
-     * or null if the NIS/NIP is not found in the school system.
-     *
-     * Expected keys in the returned array:
-     *   - id              (int)     — ID unik dari sistem sekolah
-     *   - nis_nip         (string)  — NIS (siswa) atau NIP (guru)
-     *   - nama            (string)  — Nama lengkap
-     *   - jenis_pengguna  (string)  — 'siswa' | 'guru'
-     *   - tanggal_lahir   (string|null) — format Y-m-d
-     *   - kelas           (string|null) — kelas (khusus siswa)
-     *   - jurusan         (string|null) — jurusan (khusus siswa)
-     *   - telepon         (string|null) — nomor HP
-     *
-     * TODO: Ganti implementasi ini dengan HTTP call ke API Sekolah asli.
-     *
-     * @param  string  $nisNip  NIS atau NIP yang diinput user
-     * @return array<string,mixed>|null  Data sekolah jika ditemukan, null jika tidak
-     */
-    public function validate(string $nisNip): array|null
-    {
-        // ---------------------------------------------------------------
-        // PLACEHOLDER — hapus blok ini dan ganti dengan panggilan API asli
-        // ---------------------------------------------------------------
-        // Contoh dummy: anggap semua NIS/NIP valid untuk keperluan development
-        return [
-            'id'             => 1,
-            'nis_nip'        => $nisNip,
-            'nama'           => 'User ' . $nisNip,
-            'jenis_pengguna' => 'siswa',
-            'tanggal_lahir'  => null,
-            'kelas'          => null,
-            'jurusan'        => null,
-            'telepon'        => null,
-        ];
+            if (! empty($this->token)) {
+                $request->withToken($this->token);
+            }
 
-        // ---------------------------------------------------------------
-        // IMPLEMENTASI NYATA (contoh dengan HTTP):
-        // ---------------------------------------------------------------
-        // $response = Http::get('https://api.sekolah.example/users/' . $nisNip);
-        // if ($response->failed()) return null;
-        // return $response->json();
+            $response = $request->get("{$this->baseUrl}/users");
+
+            if (! $response->successful()) {
+                Log::error("SchoolApiService syncAllUsers failed: HTTP {$response->status()} - {$response->body()}");
+
+                return 0;
+            }
+
+            $schoolUsers = $response->json()['data'] ?? $response->json();
+
+            if (! is_array($schoolUsers)) {
+                return 0;
+            }
+
+            $syncedCount = 0;
+
+            foreach ($schoolUsers as $item) {
+                $nisNip = $item['nis_nip'] ?? null;
+                if (! $nisNip) {
+                    continue;
+                }
+
+                $role = match (strtolower($item['jenis_pengguna'] ?? $item['role'] ?? 'siswa')) {
+                    'guru', 'teacher' => 'teacher',
+                    default           => 'student',
+                };
+
+                User::updateOrCreate(
+                    ['nis_nip' => $nisNip],
+                    [
+                        'username'            => $item['nama'] ?? $item['name'] ?? $item['username'] ?? ('User ' . $nisNip),
+                        'email'               => $item['email'] ?? ($nisNip . '@sekolah.id'),
+                        'role'                => $role,
+                        'phone'               => $item['telepon'] ?? $item['phone'] ?? null,
+                        'api_id'              => $item['id'] ?? null,
+                        'password'            => Hash::make('password'),
+                        'is_default_password' => true,
+                    ]
+                );
+
+                $syncedCount++;
+            }
+
+            return $syncedCount;
+        } catch (\Exception $e) {
+            Log::error("SchoolApiService syncAllUsers exception: {$e->getMessage()}");
+
+            return 0;
+        }
     }
 }

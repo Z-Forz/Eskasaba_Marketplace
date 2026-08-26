@@ -7,7 +7,6 @@ use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Seller\OrderController;
 use App\Http\Controllers\Seller\PaymentController;
 use App\Http\Controllers\Seller\PickupScheduleController;
-use App\Http\Controllers\Seller\ChatController;
 use App\Http\Controllers\Seller\ProfileController;
 
 Route::middleware(['auth', 'password.changed', 'seller.approved'])
@@ -34,10 +33,4 @@ Route::middleware(['auth', 'password.changed', 'seller.approved'])
 
         Route::resource('pickup-schedules', PickupScheduleController::class)
             ->only(['index', 'show', 'update']);
-
-        Route::resource('chats', ChatController::class)
-            ->only(['index', 'show', 'store']);
-
-        Route::post('/chats/{chat}/message', [ChatController::class, 'storeMessage'])
-            ->name('chats.message');
     });

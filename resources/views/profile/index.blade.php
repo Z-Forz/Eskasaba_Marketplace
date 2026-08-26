@@ -68,28 +68,22 @@
                             <i class="{{ auth()->user()->role === 'teacher' ? 'fa-solid fa-chalkboard-user' : 'fa-solid fa-graduation-cap' }} mr-1"></i>
                             {{ auth()->user()->role === 'teacher' ? 'Guru' : 'Siswa' }}
                         </span>
-
-                        @if(auth()->user()->role === 'student' && auth()->user()->class)
-                            <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                                Kelas {{ auth()->user()->class }}
-                            </span>
-                        @endif
                     </div>
                 </div>
 
                 {{-- Detail Identitas Ringkas --}}
                 <div class="mt-6 border-t border-slate-100 pt-5 space-y-3 text-sm dark:border-slate-800">
+                    @if(auth()->user()->api_id)
+                        <div class="flex justify-between">
+                            <span class="text-xs font-medium text-slate-400">ID API Sekolah</span>
+                            <span class="font-bold text-emerald-700 dark:text-emerald-400">#{{ auth()->user()->api_id }}</span>
+                        </div>
+                    @endif
+
                     <div class="flex justify-between">
                         <span class="text-xs font-medium text-slate-400">Email</span>
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ auth()->user()->email ?? '-' }}</span>
                     </div>
-
-                    @if(auth()->user()->role === 'student' && auth()->user()->major)
-                        <div class="flex justify-between">
-                            <span class="text-xs font-medium text-slate-400">Jurusan</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ auth()->user()->major }}</span>
-                        </div>
-                    @endif
 
                     <div class="flex justify-between">
                         <span class="text-xs font-medium text-slate-400">No. Telp</span>
@@ -228,10 +222,6 @@
                 </a>
                 <a href="{{ route('buyer.orders.index') }}" class="flex items-center justify-between rounded-2xl p-3 text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                     <span class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-box text-emerald-600 w-5"></i> Riwayat Pesanan</span>
-                    <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
-                </a>
-                <a href="{{ route('buyer.chats.index') }}" class="flex items-center justify-between rounded-2xl p-3 text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
-                    <span class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-comments text-emerald-600 w-5"></i> Chat Seller</span>
                     <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
                 </a>
             </div>

@@ -14,6 +14,12 @@ class NotificationController extends Controller
      */
     public function index(): View
     {
+        // Auto-clean notifications older than 7 days for the authenticated user
+        Auth::user()
+            ->notifications()
+            ->where('created_at', '<', now()->subDays(7))
+            ->delete();
+
         $notifications = Auth::user()
             ->notifications()
             ->paginate(15);

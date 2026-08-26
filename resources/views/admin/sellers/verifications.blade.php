@@ -76,6 +76,7 @@
                             <tr>
                                 <th class="px-6 py-4">Pemohon</th>
                                 <th class="px-6 py-4">Identitas Sekolah</th>
+                                <th class="px-6 py-4">No. WA Pendaftar</th>
                                 <th class="px-6 py-4">Status Pengajuan</th>
                                 <th class="px-6 py-4">Tanggal Pengajuan</th>
                                 <th class="px-6 py-4 text-right">Aksi Verifikasi</th>
@@ -113,8 +114,25 @@
                                                 NIS/NIP: {{ $seller->user->nis_nip }}
                                             </p>
                                             <p class="text-slate-500">
-                                                {{ $seller->user->class ?? '-' }} {{ $seller->user->major ? '• ' . $seller->user->major : '' }}
+                                                {{ $seller->user->role === 'teacher' ? 'Guru Sekolah' : 'Siswa Sekolah' }}
                                             </p>
+                                        @else
+                                            <span class="text-slate-400">-</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-6 py-4 text-xs">
+                                        @php
+                                            $waNum = $seller->whatsapp_number ?: $seller->user?->phone;
+                                        @endphp
+                                        @if ($waNum)
+                                            <a
+                                                href="https://wa.me/{{ preg_replace('/\D/', '', $waNum) }}"
+                                                target="_blank"
+                                                class="inline-flex items-center gap-1.5 font-bold text-emerald-700 hover:underline dark:text-emerald-400"
+                                            >
+                                                <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i> {{ $waNum }}
+                                            </a>
                                         @else
                                             <span class="text-slate-400">-</span>
                                         @endif

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
-    use HasFactory;
+    use HasFactory, MassPrunable;
 
     protected $fillable = [
         'user_id',
@@ -25,8 +27,17 @@ class Notification extends Model
         ];
     }
 
+    /**
+     * Get the prunable model query (notifications older than 7 days).
+     */
+    public function prunable(): Builder
+    {
+        return static::where('created_at', '<', now()->subDays(7));
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 }
+

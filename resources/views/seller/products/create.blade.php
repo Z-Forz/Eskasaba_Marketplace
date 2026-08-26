@@ -11,14 +11,13 @@
             </a>
 
             <h1 class="mt-4 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white flex items-center gap-2">
-                <i class="fa-solid fa-square-plus text-emerald-600"></i> Tambah Produk Baru
+                <i class="fa-solid fa-plus text-emerald-600"></i> Tambah Produk Baru
             </h1>
 
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Tambahkan produk baru yang ingin kamu jual di Eskasaba Marketplace.
             </p>
         </div>
-
 
         <form
             method="POST"
@@ -34,7 +33,7 @@
             <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs sm:p-7 dark:border-slate-800 dark:bg-slate-900">
 
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-box text-emerald-600"></i> Informasi Produk
+                    <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Informasi Produk
                 </h2>
 
                 <div class="mt-6 grid gap-5">
@@ -128,17 +127,6 @@
                                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                             >
 
-                            {{-- Quick Preset Chips --}}
-                            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
-                                <span class="text-[11px] font-bold text-slate-400 mr-1">Rekomendasi Cepat:</span>
-                                <button type="button" @click="addPreset('Cokelat')" class="rounded-xl bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-emerald-100 hover:text-emerald-800 transition dark:bg-slate-800 dark:text-slate-300">+ Cokelat</button>
-                                <button type="button" @click="addPreset('Keju')" class="rounded-xl bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-emerald-100 hover:text-emerald-800 transition dark:bg-slate-800 dark:text-slate-300">+ Keju</button>
-                                <button type="button" @click="addPreset('Strawberry')" class="rounded-xl bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-emerald-100 hover:text-emerald-800 transition dark:bg-slate-800 dark:text-slate-300">+ Strawberry</button>
-                                <button type="button" @click="addPreset('Pedas')" class="rounded-xl bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-emerald-100 hover:text-emerald-800 transition dark:bg-slate-800 dark:text-slate-300">+ Pedas</button>
-                                <button type="button" @click="addPreset('Original')" class="rounded-xl bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-emerald-100 hover:text-emerald-800 transition dark:bg-slate-800 dark:text-slate-300">+ Original</button>
-                                <button type="button" @click="addPreset('Baru')" class="rounded-xl bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:bg-emerald-100 hover:text-emerald-800 transition dark:bg-slate-800 dark:text-slate-300">+ Baru</button>
-                            </div>
-
                             {{-- Live Flavor Badges Preview --}}
                             <div class="mt-3 flex flex-wrap gap-2" x-show="flavorList.length > 0">
                                 <template x-for="(f, i) in flavorList" :key="i">
@@ -196,25 +184,37 @@
 
                 <div class="mt-6 grid gap-5 sm:grid-cols-2">
 
-                    <div>
+                    {{-- Harga Jual --}}
+                    <div x-data="{
+                        raw: '{{ old('price', '') }}',
+                        get display() {
+                            if (!this.raw && this.raw !== 0) return '';
+                            let clean = String(this.raw).replace(/\D/g, '');
+                            return clean ? Number(clean).toLocaleString('id-ID') : '';
+                        },
+                        set display(val) {
+                            this.raw = val.replace(/\D/g, '');
+                        }
+                    }">
                         <label
-                            for="price"
+                            for="price_display"
                             class="mb-2 block text-sm font-semibold text-slate-900 dark:text-white"
                         >
-                            <i class="fa-solid fa-rupiah-sign text-slate-400 mr-1"></i> Harga Jual (Rp) <span class="text-red-500">*</span>
+                            <i class="fa-solid fa-rupiah-sign text-emerald-600 mr-1"></i> Harga Jual (Rp) <span class="text-red-500">*</span>
                         </label>
 
-                        <input
-                            id="price"
-                            name="price"
-                            type="number"
-                            min="0"
-                            step="1"
-                            value="{{ old('price') }}"
-                            required
-                            placeholder="Contoh: 15000"
-                            class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 dark:text-slate-500">Rp</span>
+                            <input
+                                id="price_display"
+                                type="text"
+                                x-model="display"
+                                placeholder="15.000"
+                                required
+                                class="w-full rounded-2xl border border-slate-200 pl-11 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                            >
+                            <input type="hidden" name="price" :value="raw">
+                        </div>
 
                         @error('price')
                             <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
@@ -222,23 +222,36 @@
                     </div>
 
 
-                    <div>
+                    {{-- Potongan Diskon (Rp) --}}
+                    <div x-data="{
+                        raw: '{{ old('discount', '') }}',
+                        get display() {
+                            if (!this.raw || this.raw == '0') return '';
+                            let clean = String(this.raw).replace(/\D/g, '');
+                            return clean ? Number(clean).toLocaleString('id-ID') : '';
+                        },
+                        set display(val) {
+                            this.raw = val.replace(/\D/g, '');
+                        }
+                    }">
                         <label
-                            for="discount"
+                            for="discount_display"
                             class="mb-2 block text-sm font-semibold text-slate-900 dark:text-white"
                         >
-                            <i class="fa-solid fa-percent text-slate-400 mr-1"></i> Diskon Potongan (Rp atau %) <span class="text-xs font-normal text-slate-400">(Opsional)</span>
+                            <i class="fa-solid fa-tag text-emerald-600 mr-1"></i> Potongan Diskon (Rp) <span class="text-xs font-normal text-slate-400">(Opsional)</span>
                         </label>
 
-                        <input
-                            id="discount"
-                            name="discount"
-                            type="number"
-                            min="0"
-                            value="{{ old('discount', 0) }}"
-                            placeholder="Contoh: 2000 (Rp) atau 10 (%)"
-                            class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 dark:text-slate-500">Rp</span>
+                            <input
+                                id="discount_display"
+                                type="text"
+                                x-model="display"
+                                placeholder="2.000"
+                                class="w-full rounded-2xl border border-slate-200 pl-11 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                            >
+                            <input type="hidden" name="discount" :value="raw || 0">
+                        </div>
 
                         @error('discount')
                             <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
@@ -299,24 +312,103 @@
 
 
             {{-- Images --}}
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs sm:p-7 dark:border-slate-800 dark:bg-slate-900">
+            <div
+                class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs sm:p-7 dark:border-slate-800 dark:bg-slate-900"
+                x-data="{
+                    previews: [],
+                    dt: new DataTransfer(),
+                    errorMsg: '',
+                    maxFiles: 5,
+                    handleFiles(e) {
+                        const newFiles = Array.from(e.target.files);
+                        this.errorMsg = '';
 
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-image text-emerald-600"></i> Foto Produk
-                </h2>
+                        for (let file of newFiles) {
+                            if (this.dt.items.length >= this.maxFiles) {
+                                this.errorMsg = 'Maksimal foto produk adalah ' + this.maxFiles + ' foto.';
+                                break;
+                            }
+                            if (file.type.startsWith('image/')) {
+                                this.dt.items.add(file);
+                                this.previews.push({
+                                    name: file.name,
+                                    url: URL.createObjectURL(file)
+                                });
+                            }
+                        }
+
+                        this.$refs.fileInput.files = this.dt.files;
+                    },
+                    removeFile(index) {
+                        this.dt.items.remove(index);
+                        if (this.previews[index]) {
+                            URL.revokeObjectURL(this.previews[index].url);
+                        }
+                        this.previews.splice(index, 1);
+                        this.$refs.fileInput.files = this.dt.files;
+                        this.errorMsg = '';
+                    }
+                }"
+            >
+
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-image text-emerald-600"></i> Foto Produk
+                    </h2>
+                    <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                        <span x-text="previews.length"></span> / 5 Foto
+                    </span>
+                </div>
 
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    Upload satu atau beberapa foto produk (Otomatis dikompresi ke 300-400KB).
+                    Upload maksimal 5 foto produk. Kamu bisa menghapus & menambahkan foto sekaligus sebelum disimpan.
                 </p>
 
+                {{-- Alert Error jika lebih dari 5 --}}
+                <div x-show="errorMsg" class="mt-3 rounded-2xl bg-red-50 p-3 text-xs font-semibold text-red-600 dark:bg-red-950/40 dark:text-red-400">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> <span x-text="errorMsg"></span>
+                </div>
+
+                {{-- Preview Grid --}}
+                <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5" x-show="previews.length > 0">
+                    <template x-for="(prev, i) in previews" :key="i">
+                        <div class="group relative aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
+                            <img :src="prev.url" :alt="prev.name" class="h-full w-full object-cover">
+                            
+                            {{-- Remove Button Overlay --}}
+                            <button
+                                type="button"
+                                @click="removeFile(i)"
+                                class="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-slate-900/75 text-white shadow-lg backdrop-blur-md border border-white/40 transition-all duration-200 hover:bg-red-600 hover:border-red-500 hover:scale-110 active:scale-95 focus:outline-none"
+                                title="Hapus foto ini"
+                            >
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+
                 <div class="mt-5">
-                    <input
-                        type="file"
-                        name="images[]"
-                        accept="image/*"
-                        multiple
-                        class="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-xs file:font-bold file:text-emerald-700 hover:file:bg-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:file:bg-slate-700 dark:file:text-emerald-400"
+                    <label
+                        for="images"
+                        x-show="previews.length < maxFiles"
+                        class="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 p-6 text-center transition hover:border-emerald-500 hover:bg-emerald-50/30 dark:border-slate-700 dark:hover:border-emerald-500 dark:hover:bg-slate-800/50"
                     >
+                        <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 dark:text-slate-500"></i>
+                        <span class="mt-2 text-xs font-bold text-slate-700 dark:text-slate-300">Klik atau Pilih Foto Produk</span>
+                        <span class="mt-0.5 text-[11px] text-slate-400">PNG, JPG, WEBP (Maks 5MB per file)</span>
+
+                        <input
+                            id="images"
+                            type="file"
+                            name="images[]"
+                            x-ref="fileInput"
+                            accept="image/*"
+                            multiple
+                            @change="handleFiles($event)"
+                            class="hidden"
+                        >
+                    </label>
 
                     @error('images')
                         <p class="mt-2 text-xs text-red-600">{{ $message }}</p>

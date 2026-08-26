@@ -196,6 +196,9 @@ class CheckoutController extends Controller
             'link'    => route('buyer.orders.show', $order),
         ]);
 
+        // Send WhatsApp Notification to Seller & Buyer
+        \App\Services\WhatsAppService::sendNewOrderNotification($order);
+
         return redirect()
             ->route('buyer.orders.show', $order)
             ->with('success', 'Pesanan berhasil dibuat. Silakan hubungi penjual untuk konfirmasi pengambilan.');

@@ -10,6 +10,7 @@ use App\Models\Seller;
 use App\Services\ImageCompressor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -59,13 +60,18 @@ class ProductController extends Controller
             Auth::id()
         )->firstOrFail();
 
+        $uploadedFiles = $request->file('images') ?? [];
+        if (count($uploadedFiles) > 5) {
+            return back()->withErrors(['images' => 'Maksimal foto produk adalah 5 foto.'])->withInput();
+        }
+
         $product = Product::create([
             ...$request->validated(),
             'seller_id' => $seller->id,
         ]);
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
+        if (!empty($uploadedFiles)) {
+            foreach ($uploadedFiles as $file) {
                 $path = ImageCompressor::compressAndStore($file, 'products');
                 $product->images()->create([
                     'image' => $path,
@@ -111,8 +117,27 @@ class ProductController extends Controller
             $request->validated()
         );
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $file) {
+        // 1. Delete requested existing images
+        if ($request->has('delete_images') && is_array($request->delete_images)) {
+            $imagesToDelete = $product->images()->whereIn('id', $request->delete_images)->get();
+            foreach ($imagesToDelete as $img) {
+                if ($img->image && Storage::disk('public')->exists($img->image)) {
+                    Storage::disk('public')->delete($img->image);
+                }
+                $img->delete();
+            }
+        }
+
+        // 2. Validate total remaining + new images <= 5
+        $currentCount = $product->images()->count();
+        $uploadedFiles = $request->file('images') ?? [];
+        if ($currentCount + count($uploadedFiles) > 5) {
+            return back()->withErrors(['images' => 'Total foto produk tidak boleh melebihi 5 foto.'])->withInput();
+        }
+
+        // 3. Upload and save new images
+        if (!empty($uploadedFiles)) {
+            foreach ($uploadedFiles as $file) {
                 $path = ImageCompressor::compressAndStore($file, 'products');
                 $product->images()->create([
                     'image' => $path,

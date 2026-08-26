@@ -138,10 +138,10 @@
             <p class="mt-3 text-sm text-emerald-100">Mulai berbelanja atau berjualan di Eskasaba Marketplace sekarang.</p>
             <div class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                 <a
-                    href="{{ route('register') }}"
+                    href="{{ route('login') }}"
                     class="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50"
                 >
-                    Daftar Sekarang
+                    Masuk Sekarang
                 </a>
                 <a
                     href="{{ route('products.index') }}"

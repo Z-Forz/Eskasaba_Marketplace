@@ -43,15 +43,18 @@ class SellerApplicationController extends Controller
         $user   = Auth::user();
         $seller = $user->seller;
 
+        if (empty($user->phone)) {
+            return redirect()->route('profile.edit')
+                ->with('error', 'Nomor HP pada profil Anda belum diisi. Silakan lengkapi nomor HP terlebih dahulu sebelum mendaftar seller.');
+        }
+
         $data = $request->validate([
-            'whatsapp_number' => ['required', 'string', 'max:20'],
-            'reason'          => ['required', 'string', 'min:10', 'max:1000'],
-            'qris_image'      => ['nullable', 'image', 'max:10240'],
+            'reason'     => ['required', 'string', 'min:10', 'max:1000'],
+            'qris_image' => ['nullable', 'image', 'max:10240'],
         ], [
-            'whatsapp_number.required' => 'Nomor WhatsApp wajib diisi.',
-            'reason.required'          => 'Alasan wajib diisi.',
-            'reason.min'               => 'Alasan terlalu singkat, minimal 10 karakter.',
-            'qris_image.image'         => 'File QRIS harus berupa gambar.',
+            'reason.required'  => 'Alasan wajib diisi.',
+            'reason.min'       => 'Alasan terlalu singkat, minimal 10 karakter.',
+            'qris_image.image' => 'File QRIS harus berupa gambar.',
         ]);
 
         if ($request->hasFile('qris_image')) {
@@ -61,6 +64,8 @@ class SellerApplicationController extends Controller
             $data['qris_image'] = ImageCompressor::compressAndStore($request->file('qris_image'), 'qris');
         }
 
+        $whatsappNumber = $user->phone;
+
         if ($seller) {
             // Sudah pernah ada record (revision / rejected) → update & set pending
             if (! $seller->needsRevision() && ! $seller->isRejected()) {
@@ -69,7 +74,7 @@ class SellerApplicationController extends Controller
             }
 
             $updateData = [
-                'whatsapp_number' => $data['whatsapp_number'],
+                'whatsapp_number' => $whatsappNumber,
                 'reason'          => $data['reason'],
                 'status'          => 'pending',
                 'rejection_note'  => null,
@@ -82,14 +87,17 @@ class SellerApplicationController extends Controller
             $seller->update($updateData);
         } else {
             // Pengajuan pertama kali
-            Seller::create([
+            $seller = Seller::create([
                 'user_id'         => $user->id,
-                'whatsapp_number' => $data['whatsapp_number'],
+                'whatsapp_number' => $whatsappNumber,
                 'reason'          => $data['reason'],
                 'qris_image'      => $data['qris_image'] ?? null,
                 'status'          => 'pending',
             ]);
         }
+
+        // Kirim notifikasi WhatsApp pengajuan seller
+        \App\Services\WhatsAppService::sendSellerApplicationNotification($seller);
 
         return redirect()->route('profile.index')
             ->with('success', 'Pengajuan berhasil dikirim! Admin akan memverifikasi dalam 1×24 jam.');

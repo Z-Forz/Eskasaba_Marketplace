@@ -80,9 +80,6 @@ class SchoolLoginController extends Controller
                 'is_default_password' => true,
                 // Data profil sekolah
                 'api_id'              => $apiData['id'] ?? null,
-                'birth_date'          => $apiData['tanggal_lahir'] ?? null,
-                'class'               => $apiData['kelas'] ?? null,
-                'major'               => $apiData['jurusan'] ?? null,
                 'phone'               => $apiData['telepon'] ?? null,
             ]);
 

@@ -15,6 +15,26 @@ class ProductRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('price')) {
+            $rawPrice = preg_replace('/[^\d.]/', '', str_replace('.', '', (string) $this->price));
+            $this->merge([
+                'price' => $rawPrice !== '' ? $rawPrice : null,
+            ]);
+        }
+
+        if ($this->has('discount')) {
+            $rawDiscount = preg_replace('/[^\d.]/', '', str_replace('.', '', (string) $this->discount));
+            $this->merge([
+                'discount' => $rawDiscount !== '' ? $rawDiscount : 0,
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
@@ -65,6 +85,24 @@ class ProductRequest extends FormRequest
                 'min:0',
                 'max:999999.99',
             ],
+            'images' => [
+                'nullable',
+                'array',
+                'max:5',
+            ],
+            'images.*' => [
+                'image',
+                'mimes:jpeg,png,jpg,webp',
+                'max:5120',
+            ],
+            'delete_images' => [
+                'nullable',
+                'array',
+            ],
+            'delete_images.*' => [
+                'integer',
+                'exists:product_images,id',
+            ],
 
         ];
     }
@@ -96,6 +134,11 @@ class ProductRequest extends FormRequest
             'condition.max'      => 'Kondisi/varian maksimal 100 karakter.',
 
             'status.in' => 'Status produk tidak valid.',
+
+            'images.max'      => 'Maksimal foto produk yang dapat diunggah adalah 5 foto.',
+            'images.*.image'  => 'File yang diunggah harus berupa gambar.',
+            'images.*.mimes'  => 'Format gambar harus jpeg, png, jpg, atau webp.',
+            'images.*.max'    => 'Ukuran masing-masing foto maksimal 5 MB.',
 
         ];
     }

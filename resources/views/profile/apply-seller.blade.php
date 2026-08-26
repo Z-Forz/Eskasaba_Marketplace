@@ -46,32 +46,28 @@
             >
                 @csrf
 
-                {{-- WhatsApp Number --}}
-                <div>
-                    <label
-                        for="whatsapp_number"
-                        class="block text-sm font-medium text-slate-700"
-                    >
-                        Nomor WhatsApp Aktif
-                        <span class="text-red-500">*</span>
-                    </label>
+                {{-- WhatsApp Number (Otomatis dari Profil) --}}
+                <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                                <i class="fa-brands fa-whatsapp text-sm mr-1"></i> Nomor WhatsApp Toko Pendaftar
+                            </p>
+                            <p class="mt-1 text-sm font-extrabold text-slate-900 dark:text-white">
+                                {{ auth()->user()->phone ?? 'Belum diisi' }}
+                            </p>
+                            <p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                                Otomatis disinkronkan dengan Nomor HP pada Profil Anda.
+                            </p>
+                        </div>
 
-                    <p class="mt-1 text-xs text-slate-400">
-                        Nomor ini akan digunakan oleh pembeli untuk menghubungi toko/penjual.
-                    </p>
-
-                    <input
-                        type="text"
-                        id="whatsapp_number"
-                        name="whatsapp_number"
-                        placeholder="Contoh: 081234567890"
-                        value="{{ old('whatsapp_number', $seller?->whatsapp_number) }}"
-                        class="mt-2 block w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 transition focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
-                    />
-
-                    @error('whatsapp_number')
-                        <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
+                        <a
+                            href="{{ route('profile.edit') }}"
+                            class="inline-flex items-center justify-center gap-1 rounded-xl bg-white px-3 py-1.5 text-xs font-bold text-emerald-700 shadow-xs border border-emerald-200 hover:bg-emerald-100 dark:bg-slate-800 dark:text-emerald-300 dark:border-slate-700 shrink-0"
+                        >
+                            <i class="fa-solid fa-pen-to-square"></i> Ubah di Edit Profil
+                        </a>
+                    </div>
                 </div>
 
                 {{-- QRIS Image --}}

@@ -13,7 +13,7 @@
                         <img
                             src="{{ asset('storage/' . $settings->logo) }}"
                             alt="{{ $settings->website_name ?? 'Eskasaba Market' }}"
-                            class="h-10 w-10 rounded-2xl object-cover ring-2 ring-emerald-500/30"
+                            class="h-10 w-10 rounded-2xl object-cover ring-2 ring-emerald-500 bg-white"
                         >
                     @else
                         <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-700 text-base font-black text-white shadow-lg shadow-emerald-900/40">

@@ -50,19 +50,6 @@
 
         {{-- Top Left Badges (Stock & Variant Info) --}}
         <div class="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5 items-start">
-            @if($isOutofStock)
-                <span class="rounded-full bg-red-600/95 px-3 py-1 text-[10px] font-black tracking-wide text-white shadow-md backdrop-blur-md border border-red-400/30">
-                    Stok Habis
-                </span>
-            @elseif($stock <= 5)
-                <span class="rounded-full bg-amber-500/95 px-3 py-1 text-[10px] font-black tracking-wide text-white shadow-md backdrop-blur-md border border-amber-300/30">
-                    Sisa {{ $stock }} Pcs
-                </span>
-            @else
-                <span class="rounded-full bg-slate-950/80 px-3 py-1 text-[10px] font-extrabold tracking-wide text-white shadow-md backdrop-blur-md border border-white/20">
-                    Stok: {{ $stock }}
-                </span>
-            @endif
 
             @if(count($flavors) > 0)
                 <span class="rounded-full bg-emerald-950/85 px-2.5 py-0.5 text-[10px] font-extrabold tracking-wide text-emerald-300 shadow-md backdrop-blur-md border border-emerald-500/30 flex items-center gap-1">
@@ -71,16 +58,12 @@
             @endif
         </div>
 
-        {{-- Top Right Tilted Miring Discount Badge --}}
+        {{-- Top Right Discount Badge --}}
         @if($hasDiscount)
             <div class="pointer-events-none absolute right-3 top-3 z-20">
                 <span class="inline-flex items-center gap-1 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-500 px-3 py-1 text-xs font-black tracking-wide text-white shadow-md border border-white/20">
                     <i class="fa-solid fa-tag text-[10px]"></i>
-                    @if($product->discount <= 100)
-                        -{{ number_format($product->discount, 0) }}%
-                    @else
-                        Diskon Rp {{ number_format($product->discount, 0, ',', '.') }}
-                    @endif
+                    Diskon Rp {{ number_format($product->discount, 0, ',', '.') }}
                 </span>
             </div>
         @endif
@@ -118,7 +101,7 @@
         </div>
 
         {{-- Product Name --}}
-        <h3 class="min-h-[2.8rem] text-sm font-black text-slate-900 transition-colors duration-200 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
+        <h3 class="min-h-[1rem] text-sm font-black text-slate-900 transition-colors duration-200 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
             <a href="{{ route('products.show', $product) }}" class="line-clamp-2 leading-snug">
                 {{ $product->name }}
             </a>

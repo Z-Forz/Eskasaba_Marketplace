@@ -4,7 +4,7 @@
 
         <div>
             <a
-                href="{{ route('admin.categories.show', $category) }}"
+                href="{{ route('admin.categories.index', $category) }}"
                 class="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
             >
                 <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke detail
@@ -39,6 +39,37 @@
                 >
 
                 @error('name')
+                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                @enderror
+
+            </div>
+
+            <div>
+
+                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Icon FontAwesome
+                </label>
+
+                <div class="relative flex items-center">
+                    <input
+                        type="text"
+                        id="icon-input"
+                        name="icon"
+                        value="{{ old('icon', $category->icon) }}"
+                        class="w-full rounded-xl border border-gray-200 bg-white pl-4 pr-12 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                        placeholder="Contoh: fa-solid fa-pen-ruler"
+                        oninput="document.getElementById('icon-preview').className = (this.value || 'fa-solid fa-icons') + ' text-base'"
+                    >
+                    <div class="absolute right-3 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-emerald-600 dark:bg-slate-700 dark:text-emerald-400">
+                        <i id="icon-preview" class="{{ old('icon', $category->icon ?: 'fa-solid fa-icons') }} text-base"></i>
+                    </div>
+                </div>
+
+                <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    Ketik nama class FontAwesome (contoh: <code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-emerald-700 dark:bg-slate-800 dark:text-emerald-400">fa-solid fa-pen-ruler</code>, <code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-emerald-700 dark:bg-slate-800 dark:text-emerald-400">fa-solid fa-utensils</code>).
+                </p>
+
+                @error('icon')
                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                 @enderror
 

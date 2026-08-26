@@ -52,20 +52,11 @@
                         <i class="fa-solid fa-envelope text-emerald-600"></i> {{ $user->email ?? 'Belum ada email' }}
                     </p>
 
-                    <div class="mt-3 flex flex-wrap items-center gap-2">
-
-                        <span class="rounded-full px-3 py-1 text-xs font-bold
-                            {{ $user->role === 'teacher' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' }}"
-                        >
+                    <div class="mt-3 flex items-center justify-center gap-2">
+                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                            <i class="{{ $user->role === 'teacher' ? 'fa-solid fa-chalkboard-user' : 'fa-solid fa-graduation-cap' }} mr-1"></i>
                             {{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}
                         </span>
-
-                        @if ($user->class)
-                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                                Kelas {{ $user->class }}
-                            </span>
-                        @endif
-
                     </div>
 
                 </div>
@@ -131,22 +122,10 @@
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->nis_nip ?? '-' }}</span>
                     </div>
 
-                    <div class="flex justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                    <div class="flex justify-between">
                         <span class="text-xs font-medium text-slate-400">Nomor Telepon</span>
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->phone ?? '-' }}</span>
                     </div>
-
-                    @if ($user->role === 'student')
-                        <div class="flex justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                            <span class="text-xs font-medium text-slate-400">Kelas</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->class ?? '-' }}</span>
-                        </div>
-
-                        <div class="flex justify-between">
-                            <span class="text-xs font-medium text-slate-400">Jurusan</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->major ?? '-' }}</span>
-                        </div>
-                    @endif
 
                 </div>
 

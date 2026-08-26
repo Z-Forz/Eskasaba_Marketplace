@@ -14,7 +14,7 @@
                 </a>
 
                 <h1 class="mt-3 text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-user-check text-emerald-600"></i> Detail & Verifikasi Seller: {{ $seller->user?->username }}
+                    <i class="fa-solid fa-user-check text-emerald-600"></i> Detail & Verifikasi Seller
                 </h1>
 
             </div>
@@ -60,24 +60,53 @@
             <section class="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 lg:col-span-2 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
                 <h2 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-store text-emerald-600"></i> Informasi Toko & WhatsApp
+                    <i class="fa-solid fa-store text-emerald-600"></i> Informasi Seller
                 </h2>
 
-                <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <div class="mt-5 grid grid-cols-2 gap-5 sm:grid-cols-2">
 
                     <div>
+                        <p class="text-xs font-bold text-slate-400">Username</p>
+                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
+                            {{ $seller->user->username }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-bold text-slate-400">NIS / NIP</p>
+                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
+                            {{ $seller->user->nis_nip }}
+                        </p>
+                    </div>
+
+                    <div class="sm:col-span-1">
+
+                        <p class="text-xs font-bold text-slate-400">
+                            Deskripsi Toko
+                        </p>
+
+                        <p class="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                            {{ $seller->description ?: 'Belum ada deskripsi toko.' }}
+                        </p>
+
+                    </div>                    
+                    
+                    <div class="sm:col-span-1">
                         <p class="text-xs font-bold text-slate-400">
                             Nomor WhatsApp Toko
                         </p>
 
                         <p class="mt-1 text-sm font-bold text-slate-800 dark:text-slate-200">
-                            @if ($seller->whatsapp_number)
+                            @php
+                                $sellerWaNum = $seller->whatsapp_number ?: $seller->user?->phone;
+                            @endphp
+                            @if ($sellerWaNum)
                                 <a
-                                    href="https://wa.me/{{ preg_replace('/\D/', '', $seller->whatsapp_number) }}"
+                                    href="https://wa.me/{{ preg_replace('/\D/', '', $sellerWaNum) }}"
                                     target="_blank"
                                     class="inline-flex items-center gap-1.5 text-emerald-700 hover:underline dark:text-emerald-400"
                                 >
-                                    <i class="fa-brands fa-whatsapp text-base"></i> {{ $seller->whatsapp_number }}
+                                    <i class="fa-brands fa-whatsapp text-base"></i> {{ $sellerWaNum }}
                                 </a>
                             @else
                                 -
@@ -93,18 +122,6 @@
                         <p class="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200">
                             <i class="fa-solid fa-calendar-days text-slate-400 mr-1"></i> {{ $seller->created_at?->format('d F Y H:i') ?? '-' }}
                         </p>
-                    </div>
-
-                    <div class="sm:col-span-2">
-
-                        <p class="text-xs font-bold text-slate-400">
-                            Deskripsi Toko
-                        </p>
-
-                        <p class="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                            {{ $seller->description ?: 'Belum ada deskripsi toko.' }}
-                        </p>
-
                     </div>
 
                     @if ($seller->approved_at)
@@ -151,20 +168,6 @@
                         <p class="text-xs font-bold text-slate-400">NIS / NIP</p>
                         <p class="mt-1 text-sm font-bold dark:text-slate-200">
                             {{ $seller->user->nis_nip }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p class="text-xs font-bold text-slate-400">Kelas</p>
-                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
-                            {{ $seller->user->class ?? '-' }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p class="text-xs font-bold text-slate-400">Jurusan / Mapel</p>
-                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
-                            {{ $seller->user->major ?? '-' }}
                         </p>
                     </div>
 

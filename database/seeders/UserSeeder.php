@@ -23,7 +23,6 @@ class UserSeeder extends Seeder
                 'is_default_password' => false,
                 'role'                 => 'student',
                 'api_id'               => 1,
-                'birth_date'           => '2008-05-12',
                 'phone'                => '081234567890',
             ],
             [
@@ -34,7 +33,6 @@ class UserSeeder extends Seeder
                 'is_default_password' => false,
                 'role'                 => 'student',
                 'api_id'               => 2,
-                'birth_date'           => '2009-03-22',
                 'phone'                => '082345678901',
             ],
             [
@@ -45,7 +43,6 @@ class UserSeeder extends Seeder
                 'is_default_password' => false,
                 'role'                 => 'student',
                 'api_id'               => 3,
-                'birth_date'           => '2009-11-07',
                 'phone'                => null,
             ],
 
@@ -58,7 +55,6 @@ class UserSeeder extends Seeder
                 'is_default_password' => false,
                 'role'                 => 'teacher',
                 'api_id'               => 4,
-                'birth_date'           => '1985-01-01',
                 'phone'                => '085678901234',
             ],
             [
@@ -69,7 +65,6 @@ class UserSeeder extends Seeder
                 'is_default_password' => false,
                 'role'                 => 'teacher',
                 'api_id'               => 5,
-                'birth_date'           => '1990-02-15',
                 'phone'                => '086789012345',
             ],
         ];

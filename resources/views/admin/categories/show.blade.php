@@ -12,8 +12,8 @@
                     <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke kategori
                 </a>
 
-                <h1 class="mt-3 text-2xl font-bold text-gray-900 dark:text-white">
-                    {{ $category->name }}
+                <h1 class="mt-3 text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="{{ $category->icon ?: 'fa-solid fa-folder' }} text-emerald-600"></i> {{ $category->name }}
                 </h1>
             </div>
 

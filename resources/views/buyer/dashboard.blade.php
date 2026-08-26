@@ -296,35 +296,6 @@
                     </a>
 
 
-                    {{-- Chats --}}
-                    <a
-                        href="{{ route('buyer.chats.index') }}"
-                        class="group flex items-center gap-4 rounded-2xl border border-slate-100 p-4 transition hover:border-slate-200 hover:bg-slate-50"
-                    >
-
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100">
-                            💬
-                        </div>
-
-                        <div class="min-w-0 flex-1">
-
-                            <p class="font-semibold text-slate-900">
-                                Chat
-                            </p>
-
-                            <p class="mt-1 text-xs text-slate-500">
-                                Hubungi seller
-                            </p>
-
-                        </div>
-
-                        <span class="text-slate-400 transition group-hover:translate-x-1">
-                            <i class="fa-solid fa-arrow-right text-xs"></i>
-                        </span>
-
-                    </a>
-
-
                     {{-- Profile --}}
                     <a
                         href="{{ route('profile.index') }}"
@@ -358,89 +329,6 @@
             </div>
 
         </div>
-
-
-        {{-- =========================================================
-             RECENT CHATS
-        ========================================================== --}}
-        @if (isset($recentChats) && $recentChats->count())
-
-            <div class="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-
-                <div class="flex items-center justify-between border-b border-slate-100 px-5 py-5 sm:px-6">
-
-                    <div>
-                        <h2 class="font-bold text-slate-900">
-                            Percakapan Terbaru
-                        </h2>
-
-                        <p class="mt-1 text-xs text-slate-500">
-                            Chat terbaru dengan seller.
-                        </p>
-                    </div>
-
-                    <a
-                        href="{{ route('buyer.chats.index') }}"
-                        class="text-sm font-semibold text-slate-700 hover:text-slate-900"
-                    >
-                        Lihat semua
-                    </a>
-
-                </div>
-
-
-                <div class="divide-y divide-slate-100">
-
-                    @foreach ($recentChats as $chat)
-
-                        <a
-                            href="{{ route('buyer.chats.show', $chat) }}"
-                            class="flex gap-4 p-5 transition hover:bg-slate-50 sm:p-6"
-                        >
-
-                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 font-bold text-slate-600">
-
-                                {{ strtoupper(substr($chat->seller->user->name ?? 'S', 0, 1)) }}
-
-                            </div>
-
-                            <div class="min-w-0 flex-1">
-
-                                <div class="flex items-start justify-between gap-3">
-
-                                    <p class="truncate font-semibold text-slate-900">
-                                        {{ $chat->seller->user->name ?? 'Seller' }}
-                                    </p>
-
-                                    @if ($chat->updated_at)
-                                        <span class="shrink-0 text-xs text-slate-400">
-                                            {{ $chat->updated_at->diffForHumans() }}
-                                        </span>
-                                    @endif
-
-                                </div>
-
-                                @if ($chat->product)
-                                    <p class="mt-1 truncate text-xs text-slate-400">
-                                        {{ $chat->product->name }}
-                                    </p>
-                                @endif
-
-                                <p class="mt-1 truncate text-sm text-slate-500">
-                                    {{ $chat->latestMessage->message ?? 'Belum ada pesan.' }}
-                                </p>
-
-                            </div>
-
-                        </a>
-
-                    @endforeach
-
-                </div>
-
-            </div>
-
-        @endif
 
 
         {{-- =========================================================

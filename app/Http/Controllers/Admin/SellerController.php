@@ -131,6 +131,9 @@ class SellerController extends Controller
 
         $seller->update($updateData);
 
+        // Kirim notifikasi WA hasil verifikasi
+        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
+
         return redirect()
             ->route('admin.sellers.show', $seller)
             ->with('success', 'Data seller berhasil diperbarui.');
@@ -141,6 +144,9 @@ class SellerController extends Controller
      */
     public function destroy(Seller $seller): RedirectResponse
     {
+        // Kirim notifikasi WA pencabutan status seller
+        \App\Services\WhatsAppService::sendSellerRevokedNotification($seller);
+
         $seller->delete();
 
         return redirect()
@@ -166,6 +172,8 @@ class SellerController extends Controller
             'type'    => 'seller_approved',
             'link'    => route('seller.dashboard'),
         ]);
+
+        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
 
         return redirect()
             ->route('admin.sellers.show', $seller)
@@ -198,6 +206,8 @@ class SellerController extends Controller
             'link'    => route('profile.index'),
         ]);
 
+        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
+
         return redirect()
             ->route('admin.sellers.show', $seller)
             ->with('success', "Pengajuan {$seller->user->username} berhasil ditolak.");
@@ -227,6 +237,8 @@ class SellerController extends Controller
             'type'    => 'seller_revision',
             'link'    => route('buyer.apply-seller'),
         ]);
+
+        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
 
         return redirect()
             ->route('admin.sellers.show', $seller)
