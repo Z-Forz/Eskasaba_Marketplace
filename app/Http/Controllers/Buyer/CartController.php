@@ -36,14 +36,16 @@ class CartController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
-            'quantity'   => ['nullable', 'integer', 'min:1'],
-            'note'       => ['nullable', 'string', 'max:255'],
+            'product_id'   => ['required', 'exists:products,id'],
+            'quantity'     => ['nullable', 'integer', 'min:1'],
+            'variant_name' => ['nullable', 'string', 'max:255'],
+            'note'         => ['nullable', 'string', 'max:255'],
         ]);
 
-        $productId = $request->input('product_id');
-        $quantity = max(1, (int) $request->input('quantity', 1));
-        $note = $request->input('note');
+        $productId   = $request->input('product_id');
+        $quantity    = max(1, (int) $request->input('quantity', 1));
+        $variantName = $request->input('variant_name') ?: $request->input('note');
+        $note        = $request->input('note');
 
         $product = Product::with('seller')->findOrFail($productId);
 
@@ -52,23 +54,39 @@ class CartController extends Controller
             return back()->with('error', 'Kamu tidak dapat membeli produk dari tokomu sendiri.');
         }
 
+        // Determine correct item price based on selected variant
+        $itemPrice = $product->final_price;
+
+        if ($product->hasVariants() && !empty($variantName)) {
+            foreach ($product->variants as $var) {
+                if (isset($var['name']) && strcasecmp(trim($var['name']), trim($variantName)) === 0) {
+                    $itemPrice = (float) $var['price'];
+                    break;
+                }
+            }
+        }
+
         $cart = Cart::firstOrCreate([
             'user_id' => Auth::id(),
         ]);
 
         $cartItem = $cart->items()
             ->where('product_id', $product->id)
-            ->where('note', $note)
+            ->where(function($q) use ($variantName, $note) {
+                $q->where('variant_name', $variantName)
+                  ->orWhere('note', $note);
+            })
             ->first();
 
         if ($cartItem) {
             $cartItem->increment('quantity', $quantity);
         } else {
             $cart->items()->create([
-                'product_id' => $product->id,
-                'quantity'   => $quantity,
-                'price'      => $product->final_price,
-                'note'       => $note,
+                'product_id'   => $product->id,
+                'variant_name' => $variantName,
+                'quantity'     => $quantity,
+                'price'        => $itemPrice,
+                'note'         => $note,
             ]);
         }
 

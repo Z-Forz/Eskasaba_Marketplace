@@ -17,20 +17,13 @@
                 </p>
             </div>
 
-            {{-- Action Buttons: Edit Profil, Ubah Password & Logout --}}
+            {{-- Action Buttons: Edit Profil & Logout --}}
             <div class="flex flex-wrap items-center gap-3">
                 <a
                     href="{{ route('profile.edit') }}"
                     class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
                 >
                     <i class="fa-solid fa-pen-to-square"></i> Edit Profil
-                </a>
-
-                <a
-                    href="{{ route('password.change') }}"
-                    class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                >
-                    <i class="fa-solid fa-key text-emerald-600"></i> Ubah Password
                 </a>
 
                 <form method="POST" action="{{ route('logout') }}">

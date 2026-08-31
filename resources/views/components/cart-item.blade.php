@@ -66,17 +66,17 @@
                 </div>
 
                 {{-- Selected Flavor / Variant Describe Badge --}}
-                @if(!empty($item->note))
+                @if(!empty($item->variant_name) || !empty($item->note))
                     <div class="mt-2">
                         <span class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-900 border border-emerald-300/60 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800">
-                            <i class="fa-solid fa-utensils text-[10px] text-emerald-600 dark:text-emerald-400"></i>
-                            <span>Varian Rasa: <strong>{{ $item->note }}</strong></span>
+                            <i class="fa-solid fa-layer-group text-[10px] text-emerald-600 dark:text-emerald-400"></i>
+                            <span>Varian: <strong>{{ $item->variant_name ?: $item->note }}</strong></span>
                         </span>
                     </div>
                 @else
                     <div class="mt-1">
                         <span class="text-[11px] font-semibold text-slate-400 italic">
-                            (Tanpa varian rasa khusus)
+                            (Tanpa varian khusus)
                         </span>
                     </div>
                 @endif

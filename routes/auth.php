@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\SchoolLoginController;
 use App\Http\Controllers\Auth\AdminLoginController;
-use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\Auth\DashboardRedirectController;
 
 // Login siswa/guru (NIS/NIP, lewat API Sekolah)
@@ -52,19 +51,8 @@ Route::post('/admin/logout', [AdminLoginController::class, 'destroy'])
     ->middleware('auth:admin')
     ->name('admin.logout');
 
-// Route form ganti password
-Route::middleware('auth')->group(function () {
-
-    Route::get('/password/change', [PasswordChangeController::class, 'edit'])
-        ->name('password.change');
-
-    Route::put('/password/change', [PasswordChangeController::class, 'update'])
-        ->name('password.change.update');
-
-});
-
-// Route user terautentikasi (wajib sudah ganti password default jika is_default_password = true)
-Route::middleware(['auth', 'password.changed'])->group(function () {
+// Route user terautentikasi
+Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', DashboardRedirectController::class)
         ->name('dashboard');

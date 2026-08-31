@@ -140,6 +140,7 @@ class CheckoutController extends Controller
                     $order->items()->create([
                         'product_id'   => $item->product_id,
                         'product_name' => $product->name,
+                        'variant_name' => $item->variant_name ?: $item->note,
                         'quantity'     => $item->quantity,
                         'price'        => $item->price,
                         'note'         => $item->note,

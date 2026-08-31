@@ -270,9 +270,9 @@
                             <p class="font-bold text-slate-900 dark:text-white text-sm">
                                 {{ $item->product_name ?? $item->product?->name }}
                             </p>
-                            @if($item->note)
+                            @if($item->variant_name || $item->note)
                                 <p class="mt-1 inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                                    <i class="fa-solid fa-tag text-[10px]"></i> Varian / Rasa: {{ $item->note }}
+                                    <i class="fa-solid fa-layer-group text-[10px]"></i> Varian: {{ $item->variant_name ?: $item->note }}
                                 </p>
                             @endif
                             <p class="mt-1 text-xs text-slate-500">

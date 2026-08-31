@@ -96,12 +96,6 @@ class SchoolLoginController extends Controller
             $request
         );
 
-        // Paksa ganti password default sebelum bisa akses fitur
-        if ($localUser->is_default_password) {
-            return redirect()->route('password.change')
-                ->with('warning', 'Silakan ganti password default Anda terlebih dahulu.');
-        }
-
         return redirect()->intended(route('dashboard'));
     }
 

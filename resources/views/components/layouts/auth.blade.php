@@ -28,10 +28,17 @@
     @stack('head')
 </head>
 
-<body class="flex min-h-screen flex-col bg-slate-50 font-['Plus_Jakarta_Sans',sans-serif] text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200 selection:bg-emerald-500 selection:text-white">
+<body class="flex min-h-screen flex-col bg-emerald-800 font-['Plus_Jakarta_Sans',sans-serif] text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200 selection:bg-emerald-500 selection:text-white">
 
-    <main class="flex min-h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-slate-50 via-emerald-50/30 to-slate-100 px-4 py-8 sm:px-6 sm:py-12 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-        {{ $slot }}
+    <main class="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-900 px-4 py-8 sm:px-6 sm:py-12 dark:from-slate-950 dark:via-emerald-950/80 dark:to-slate-950">
+        <!-- Rich background glowing ambient emerald orbs -->
+        <div class="pointer-events-none absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-emerald-400/30 blur-3xl dark:bg-emerald-500/15"></div>
+        <div class="pointer-events-none absolute -bottom-24 -right-24 h-[28rem] w-[28rem] rounded-full bg-teal-300/25 blur-3xl dark:bg-teal-500/15"></div>
+        <div class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[22rem] w-[22rem] rounded-full bg-emerald-300/20 blur-2xl dark:bg-emerald-600/10"></div>
+
+        <div class="relative z-10 flex w-full flex-col items-center justify-center">
+            {{ $slot }}
+        </div>
     </main>
 
     @if(session('success'))

@@ -117,11 +117,6 @@
                             <i class="fa-solid fa-location-dot mt-0.5 text-emerald-500 shrink-0"></i>
                             <span>{{ $settings->address }}</span>
                         </div>
-                    @else
-                        <div class="flex items-start gap-2.5">
-                            <i class="fa-solid fa-location-dot mt-0.5 text-emerald-500 shrink-0"></i>
-                            <span>Jl. Parangtritis Km. 11, Sabdodadi, Bantul, Yogyakarta</span>
-                        </div>
                     @endif
 
                     @if($settings?->phone)

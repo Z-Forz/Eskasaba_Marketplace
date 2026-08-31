@@ -65,7 +65,7 @@
                                                 Penjual Toko
                                             </p>
                                             <h2 class="mt-0.5 text-base font-bold text-slate-900 dark:text-white">
-                                                🏪 {{ $items->first()->product->seller->user->username ?? 'Penjual' }}
+                                                <i class="fa-solid fa-store" style="color: {{ $items->first()->product->seller->user->color }};"></i> {{ $items->first()->product->seller->user->username ?? 'Penjual' }}
                                             </h2>
                                         </div>
 
@@ -118,7 +118,7 @@
 
                             <div class="flex items-center gap-3">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
-                                    📍
+                                    <i class="fa-solid fa-location-dot"></i>
                                 </div>
                                 <div>
                                     <h2 class="text-lg font-bold text-slate-900 dark:text-white">
@@ -155,7 +155,7 @@
                                 <div>
                                     <p class="text-xs text-slate-400">Rekomendasi titik lokasi populer disekitar sekolah:</p>
                                     <div class="mt-2 flex flex-wrap gap-2">
-                                        @foreach(['Kantin Utama', 'Gazebo RPL', 'Depan Perpustakaan', 'Lobby Utama', 'Kelas XI RPL 1', 'Lapangan Olahraga'] as $locationSpot)
+                                        @foreach(['Kantin', 'Gazebo', 'Depan Perpustakaan', 'Lobby', 'Depan Ruang Guru'] as $locationSpot)
                                             <button
                                                 type="button"
                                                 onclick="document.getElementById('pickup_location').value = '{{ $locationSpot }}'"
@@ -197,7 +197,7 @@
                                             <p class="text-xs text-slate-500 dark:text-slate-400">Bayar tunai saat barang diterima</p>
                                         </div>
                                     </div>
-                                    <span class="text-xl">💵</span>
+                                    <span class="text-xl"><i class="fa-solid fa-hand-holding-dollar"></i></span>
                                 </label>
 
                                 <label
@@ -217,7 +217,7 @@
                                             <p class="text-xs text-slate-500 dark:text-slate-400">Scan QRIS toko penjual langsung</p>
                                         </div>
                                     </div>
-                                    <span class="text-xl">📱</span>
+                                    <span class="text-xl"><i class="fa-solid fa-qrcode"></i></span>
                                 </label>
 
                             </div>
@@ -225,7 +225,7 @@
                             {{-- Dynamic QRIS Display Box --}}
                             <div id="qris-display-box" class="mt-6 hidden rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
                                 <div class="flex items-center gap-3">
-                                    <span class="text-2xl">📱</span>
+                                    <span class="text-2xl"><i class="fa-solid fa-qrcode"></i></span></span>
                                     <div>
                                         <h3 class="font-bold text-slate-900 dark:text-white text-sm">
                                             Barcode QRIS Toko Penjual ({{ $seller?->user?->username ?? 'Seller' }})

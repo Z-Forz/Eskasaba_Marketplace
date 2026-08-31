@@ -94,7 +94,7 @@
             <div>
                 <p class="font-bold text-sm">Tips Keamanan Akun</p>
                 <p class="mt-1">
-                    Jika Anda menemukan lokasi IP atau waktu login asing yang tidak Anda kenali, segera lakukan <a href="{{ route('password.change') }}" class="font-bold underline">Ubah Password</a> atau laporkan ke pihak admin sekolah agar akun Anda tetap aman.
+                    Jika Anda menemukan lokasi IP atau waktu login asing yang tidak Anda kenali, segera laporkan ke pihak admin sekolah agar akun Anda tetap aman.
                 </p>
             </div>
         </div>

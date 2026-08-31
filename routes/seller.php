@@ -9,7 +9,7 @@ use App\Http\Controllers\Seller\PaymentController;
 use App\Http\Controllers\Seller\PickupScheduleController;
 use App\Http\Controllers\Seller\ProfileController;
 
-Route::middleware(['auth', 'password.changed', 'seller.approved'])
+Route::middleware(['auth', 'seller.approved'])
     ->prefix('seller')
     ->name('seller.')
     ->group(function () {

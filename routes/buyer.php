@@ -10,7 +10,7 @@ use App\Http\Controllers\Buyer\ReviewController;
 use App\Http\Controllers\SellerApplicationController;
 use App\Http\Controllers\NotificationController;
 
-Route::middleware(['auth', 'password.changed'])
+Route::middleware(['auth'])
     ->prefix('buyer')
     ->name('buyer.')
     ->group(function () {

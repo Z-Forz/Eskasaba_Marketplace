@@ -3,14 +3,21 @@
     <div class="w-full max-w-md space-y-6">
 
         {{-- Main Card --}}
-        <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+        <div class="overflow-hidden rounded-3xl border border-white/50 bg-white/95 p-6 shadow-2xl shadow-emerald-950/35 backdrop-blur-xl sm:p-8 dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-none">
 
             {{-- Header --}}
             <div class="text-center">
-
-                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-950 text-amber-400 shadow-lg shadow-slate-950/20 border border-slate-700/50">
-                    <i class="fa-solid fa-user-shield text-2xl"></i>
-                </div>
+                @if(!empty($settings->logo))
+                    <img
+                        src="{{ asset('storage/' . $settings->logo) }}"
+                        alt="{{ $settings->website_name ?? 'Logo' }}"
+                        class="mx-auto mb-2 h-24 w-auto object-contain"
+                    >
+                @else
+                    <div class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-950 text-amber-400 shadow-lg shadow-slate-950/20 border border-slate-700/50">
+                        <i class="fa-solid fa-user-shield text-2xl"></i>
+                    </div>
+                @endif
 
                 <h1 class="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
                     Admin Login
@@ -113,7 +120,7 @@
         <div class="text-center">
             <a
                 href="{{ route('home') }}"
-                class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-100/90 transition hover:text-white dark:text-slate-400 dark:hover:text-white"
             >
                 <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
             </a>

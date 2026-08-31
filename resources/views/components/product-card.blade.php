@@ -50,8 +50,11 @@
 
         {{-- Top Left Badges (Stock & Variant Info) --}}
         <div class="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5 items-start">
-
-            @if(count($flavors) > 0)
+            @if($product->hasVariants())
+                <span class="rounded-full bg-emerald-950/85 px-2.5 py-0.5 text-[10px] font-extrabold tracking-wide text-emerald-300 shadow-md backdrop-blur-md border border-emerald-500/30 flex items-center gap-1">
+                    <i class="fa-solid fa-ruler-combined text-[9px] text-emerald-400"></i> {{ count($product->variants) }} Size / Varian
+                </span>
+            @elseif(count($flavors) > 0)
                 <span class="rounded-full bg-emerald-950/85 px-2.5 py-0.5 text-[10px] font-extrabold tracking-wide text-emerald-300 shadow-md backdrop-blur-md border border-emerald-500/30 flex items-center gap-1">
                     <i class="fa-solid fa-utensils text-[9px] text-emerald-400"></i> {{ count($flavors) }} Rasa
                 </span>
@@ -114,8 +117,19 @@
             </p>
         @endif
 
-        {{-- Flavors Chips Preview --}}
-        @if(count($flavors) > 0)
+        {{-- Size / Variant Chips Preview --}}
+        @if($product->hasVariants())
+            <div class="mt-2.5 flex flex-wrap gap-1">
+                @foreach(array_slice($product->variants, 0, 3) as $varItem)
+                    <span class="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/60">
+                        <i class="fa-solid fa-ruler-vertical text-[8px] text-emerald-600"></i> {{ $varItem['name'] ?? '' }}
+                    </span>
+                @endforeach
+                @if(count($product->variants) > 3)
+                    <span class="text-[10px] font-extrabold text-slate-400 self-center">+{{ count($product->variants) - 3 }}</span>
+                @endif
+            </div>
+        @elseif(count($flavors) > 0)
             <div class="mt-2.5 flex flex-wrap gap-1">
                 @foreach(array_slice($flavors, 0, 3) as $flv)
                     <span class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
@@ -131,14 +145,36 @@
         {{-- Price & Stock Level Detail --}}
         <div class="mt-4 flex items-baseline justify-between gap-2 border-t border-slate-100 pt-3 dark:border-slate-800/80">
             <div>
-                <p class="text-lg font-black text-emerald-800 dark:text-emerald-400 sm:text-xl">
-                    Rp {{ number_format($finalPrice, 0, ',', '.') }}
-                </p>
-
-                @if($hasDiscount)
-                    <p class="text-xs text-slate-400 line-through font-semibold">
-                        Rp {{ number_format($product->price, 0, ',', '.') }}
+                @if($product->hasVariants())
+                    @php
+                        $minP = $product->getMinPrice();
+                        $maxP = $product->getMaxPrice();
+                    @endphp
+                    <p class="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-400">
+                        <i class="fa-solid fa-tags text-[9px] mr-0.5"></i>
+                        @if($minP != $maxP)
+                            Pilihan Size (Rendah - Tinggi)
+                        @else
+                            Harga Varian
+                        @endif
                     </p>
+                    <p class="text-sm font-black text-emerald-800 dark:text-emerald-400 sm:text-base">
+                        @if($minP != $maxP)
+                            Rp {{ number_format($minP, 0, ',', '.') }} - Rp {{ number_format($maxP, 0, ',', '.') }}
+                        @else
+                            Rp {{ number_format($minP, 0, ',', '.') }}
+                        @endif
+                    </p>
+                @else
+                    <p class="text-lg font-black text-emerald-800 dark:text-emerald-400 sm:text-xl">
+                        Rp {{ number_format($finalPrice, 0, ',', '.') }}
+                    </p>
+
+                    @if($hasDiscount)
+                        <p class="text-xs text-slate-400 line-through font-semibold">
+                            Rp {{ number_format($product->price, 0, ',', '.') }}
+                        </p>
+                    @endif
                 @endif
             </div>
 

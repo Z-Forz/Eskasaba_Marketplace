@@ -32,6 +32,22 @@ class ProductRequest extends FormRequest
                 'discount' => $rawDiscount !== '' ? $rawDiscount : 0,
             ]);
         }
+
+        if ($this->has('variants') && is_array($this->variants)) {
+            $cleanedVariants = [];
+            foreach ($this->variants as $variant) {
+                if (is_array($variant) && !empty($variant['name'])) {
+                    $rawVarPrice = isset($variant['price']) ? preg_replace('/[^\d.]/', '', str_replace('.', '', (string) $variant['price'])) : 0;
+                    $cleanedVariants[] = [
+                        'name'  => trim($variant['name']),
+                        'price' => (float) ($rawVarPrice !== '' ? $rawVarPrice : 0),
+                    ];
+                }
+            }
+            $this->merge([
+                'variants' => !empty($cleanedVariants) ? $cleanedVariants : null,
+            ]);
+        }
     }
 
     /**
@@ -84,6 +100,20 @@ class ProductRequest extends FormRequest
                 'numeric',
                 'min:0',
                 'max:999999.99',
+            ],
+            'variants' => [
+                'nullable',
+                'array',
+            ],
+            'variants.*.name' => [
+                'required_with:variants',
+                'string',
+                'max:100',
+            ],
+            'variants.*.price' => [
+                'required_with:variants',
+                'numeric',
+                'min:0',
             ],
             'images' => [
                 'nullable',

@@ -104,7 +104,7 @@ class OrderController extends Controller
             ]);
 
             // Kirim notifikasi WA ke pembeli
-            \App\Services\WhatsAppService::sendStatusUpdateNotification($order);
+            \App\Services\WhatsAppService::sendOrderStatusNotification($order);
         }
 
         return back()->with(

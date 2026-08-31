@@ -99,13 +99,35 @@
                             <p class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                                 <i class="fa-solid fa-tag text-emerald-600"></i> Harga Produk
                             </p>
-                            <div class="mt-1 flex items-baseline gap-3">
-                                <p class="text-3xl font-black text-emerald-700 dark:text-emerald-400">
-                                    Rp {{ number_format($product->final_price ?? $product->price, 0, ',', '.') }}
-                                </p>
-                                @if(!empty($product->discount) && $product->discount > 0)
-                                    <p class="text-sm font-bold text-slate-400 line-through">
-                                        Rp {{ number_format($product->price, 0, ',', '.') }}
+                            <div class="mt-1 flex flex-col gap-1">
+                                <div class="flex items-baseline gap-3">
+                                    <p class="text-3xl font-black text-emerald-700 dark:text-emerald-400">
+                                        @if($product->hasVariants())
+                                            <span x-text="'Rp ' + Number(activePrice).toLocaleString('id-ID')">
+                                                @php
+                                                    $minP = $product->getMinPrice();
+                                                    $maxP = $product->getMaxPrice();
+                                                @endphp
+                                                @if($minP != $maxP)
+                                                    Rp {{ number_format($minP, 0, ',', '.') }} - Rp {{ number_format($maxP, 0, ',', '.') }}
+                                                @else
+                                                    Rp {{ number_format($minP, 0, ',', '.') }}
+                                                @endif
+                                            </span>
+                                        @else
+                                            Rp {{ number_format($product->final_price ?? $product->price, 0, ',', '.') }}
+                                        @endif
+                                    </p>
+                                    @if(!$product->hasVariants() && !empty($product->discount) && $product->discount > 0)
+                                        <p class="text-sm font-bold text-slate-400 line-through">
+                                            Rp {{ number_format($product->price, 0, ',', '.') }}
+                                        </p>
+                                    @endif
+                                </div>
+                                @if($product->hasVariants())
+                                    <p class="text-xs font-bold text-slate-500 flex items-center gap-1">
+                                        <i class="fa-solid fa-ruler-combined text-emerald-600"></i>
+                                        <span>Harga berubah sesuai ukuran / size yang dipilih.</span>
                                     </p>
                                 @endif
                             </div>
@@ -122,7 +144,16 @@
                                 </p>
                             </div>
 
-                            @if($product->condition)
+                            @if($product->hasVariants())
+                                <div class="rounded-2xl border border-slate-200/80 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+                                    <p class="text-xs font-medium text-slate-400 flex items-center gap-1">
+                                        <i class="fa-solid fa-layer-group"></i> Varian Harga
+                                    </p>
+                                    <p class="mt-1 text-sm font-bold text-emerald-700 dark:text-emerald-400">
+                                        {{ count($product->variants) }} Pilihan
+                                    </p>
+                                </div>
+                            @elseif($product->condition)
                                 <div class="rounded-2xl border border-slate-200/80 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                                     <p class="text-xs font-medium text-slate-400 flex items-center gap-1">
                                         <i class="fa-solid fa-list"></i> Varian Tersedia
@@ -181,20 +212,55 @@
 
                     </div>
 
-                    {{-- Add to Cart Form with Shopee-Style Dual-Engine Interactive Variant Selector --}}
+                    {{-- Add to Cart Form with Interactive Variant Selector --}}
                     @php
+                        $hasVariants = $product->hasVariants();
+                        $variantsList = $hasVariants ? $product->variants : [];
+                        $firstVariant = $hasVariants && count($variantsList) > 0 ? $variantsList[0] : null;
+                        $initialPrice = $firstVariant ? $firstVariant['price'] : ($product->final_price ?? $product->price);
+
                         $flavors = !empty($product->condition) ? array_values(array_filter(array_map('trim', explode(',', $product->condition)))) : [];
                         $firstFlavor = count($flavors) > 0 ? $flavors[0] : '';
                         $isOwnProduct = auth()->check() && $product->seller && $product->seller->user_id === auth()->id();
                     @endphp
 
-                    <div class="mt-8">
+                    <div class="mt-8" x-data="{
+                        activeVariant: @js($firstVariant),
+                        activePrice: @js($initialPrice),
+                        selectedFlavor: @js($firstVariant ? $firstVariant['name'] : $firstFlavor)
+                    }">
 
-                        {{-- Shopee-Style Flavor Option Buttons (Interactive Pill Chips) --}}
-                        @if(count($flavors) > 0 && ! $isOwnProduct)
+                        {{-- Variant Option Buttons (Dynamic Custom Price Variants) --}}
+                        @if($hasVariants && ! $isOwnProduct)
+                            <div
+                                class="mb-5 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
+                            >
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-layer-group text-emerald-600 mr-1.5"></i> Pilih Varian Produk:</span>
+                                    <span class="text-xs text-emerald-700 dark:text-emerald-400 font-extrabold" x-text="activeVariant ? 'Varian: ' + activeVariant.name + ' (Rp ' + Number(activeVariant.price).toLocaleString('id-ID') + ')' : ''"></span>
+                                </label>
+
+                                <div class="flex flex-wrap gap-2.5">
+                                    @foreach($variantsList as $index => $varItem)
+                                        <button
+                                            type="button"
+                                            @click="activeVariant = @js($varItem); activePrice = @js($varItem['price']); selectedFlavor = @js($varItem['name']);"
+                                            :class="activeVariant && activeVariant.name === @js($varItem['name'])
+                                                ? 'border-emerald-600 bg-emerald-50 text-emerald-900 ring-2 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900 font-bold shadow-xs'
+                                                : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 font-semibold'"
+                                            class="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs transition cursor-pointer"
+                                        >
+                                            <i class="fa-solid fa-circle-dot text-[10px]" :class="activeVariant && activeVariant.name === @js($varItem['name']) ? 'text-emerald-600' : 'text-slate-300'"></i>
+                                            <span>{{ $varItem['name'] }}</span>
+                                            <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">(Rp {{ number_format($varItem['price'], 0, ',', '.') }})</span>
+                                            <i class="fa-solid fa-check text-emerald-600 text-xs ml-1 font-bold" x-show="activeVariant && activeVariant.name === @js($varItem['name'])"></i>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @elseif(count($flavors) > 0 && ! $isOwnProduct)
                             <div
                                 id="variant-selector-wrapper"
-                                x-data="{ selectedFlavor: @js($firstFlavor) }"
                                 class="mb-5 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
                             >
                                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
@@ -259,7 +325,8 @@
                                 >
                                     @csrf
                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" id="product_variant_note_input" name="note" value="{{ $firstFlavor }}">
+                                    <input type="hidden" name="variant_name" :value="activeVariant ? activeVariant.name : selectedFlavor">
+                                    <input type="hidden" id="product_variant_note_input" name="note" :value="activeVariant ? activeVariant.name : selectedFlavor">
 
                                     @if(count($flavors) === 0)
                                         <div class="mb-4">

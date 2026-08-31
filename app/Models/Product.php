@@ -19,14 +19,54 @@ class Product extends Model
         'condition',
         'status',
         'discount',
+        'variants',
     ];
 
     protected function casts(): array
     {
         return [
-            'price' => 'decimal:2',
+            'price'    => 'decimal:2',
             'discount' => 'decimal:2',
+            'variants' => 'array',
         ];
+    }
+
+    /**
+     * Cek apakah produk memiliki varian.
+     */
+    public function hasVariants(): bool
+    {
+        return ! empty($this->variants) && is_array($this->variants);
+    }
+
+    /**
+     * Dapatkan harga minimum dari varian / base price.
+     */
+    public function getMinPrice(): float
+    {
+        if ($this->hasVariants()) {
+            $prices = array_column($this->variants, 'price');
+            if (! empty($prices)) {
+                return (float) min($prices);
+            }
+        }
+
+        return (float) $this->price;
+    }
+
+    /**
+     * Dapatkan harga maksimum dari varian / base price.
+     */
+    public function getMaxPrice(): float
+    {
+        if ($this->hasVariants()) {
+            $prices = array_column($this->variants, 'price');
+            if (! empty($prices)) {
+                return (float) max($prices);
+            }
+        }
+
+        return (float) $this->price;
     }
 
     /**

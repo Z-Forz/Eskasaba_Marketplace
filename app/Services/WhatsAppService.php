@@ -160,6 +160,14 @@ class WhatsAppService
     }
 
     /**
+     * Alias untuk sendOrderStatusNotification.
+     */
+    public static function sendStatusUpdateNotification(Order $order): void
+    {
+        self::sendOrderStatusNotification($order);
+    }
+
+    /**
      * Kirim notifikasi pengajuan akun Seller ke User & Admin.
      */
     public static function sendSellerApplicationNotification(Seller $seller): void
