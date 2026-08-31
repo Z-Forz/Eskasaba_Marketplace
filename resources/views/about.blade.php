@@ -11,11 +11,11 @@
                 </span>
 
                 <h1 class="mt-5 text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
-                    Mengenal Eskasaba Marketplace
+                    Mengenal {{ $settings->website_name ?? 'Eskasaba Marketplace' }}
                 </h1>
 
                 <p class="mt-5 text-base leading-relaxed text-slate-400 sm:text-lg">
-                    Platform marketplace resmi sekolah yang menghubungkan pelajar, guru, dan komunitas sekolah dalam satu ekosistem belanja yang aman, mudah, dan terpercaya.
+                    {{ $settings->about ?? 'Platform marketplace resmi sekolah yang menghubungkan pelajar, guru, dan komunitas sekolah dalam satu ekosistem belanja yang aman, mudah, dan terpercaya.' }}
                 </p>
             </div>
         </div>
@@ -38,8 +38,8 @@
                         </svg>
                     </div>
                     <h2 class="mb-3 text-xl font-bold text-slate-800">Visi</h2>
-                    <p class="text-sm leading-relaxed text-slate-600">
-                        Menjadi platform marketplace sekolah terdepan yang mendorong kemandirian ekonomi, kreativitas, dan kewirausahaan di lingkungan pendidikan Indonesia.
+                    <p class="text-sm leading-relaxed text-slate-600 whitespace-pre-line">
+                        {{ $settings->vision ?? 'Menjadi platform marketplace sekolah terdepan yang mendorong kemandirian ekonomi, kreativitas, dan kewirausahaan di lingkungan pendidikan Indonesia.' }}
                     </p>
                 </div>
 
@@ -51,20 +51,9 @@
                         </svg>
                     </div>
                     <h2 class="mb-3 text-xl font-bold text-slate-800">Misi</h2>
-                    <ul class="space-y-2 text-sm leading-relaxed text-slate-600">
-                        <li class="flex items-start gap-2">
-                            <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-800"></span>
-                            Menyediakan platform belanja yang aman dan terpercaya bagi komunitas sekolah.
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-800"></span>
-                            Mendorong jiwa wirausaha di kalangan pelajar dan tenaga pendidik.
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-800"></span>
-                            Membangun ekosistem ekonomi yang mandiri dalam lingkungan sekolah.
-                        </li>
-                    </ul>
+                    <div class="text-sm leading-relaxed text-slate-600 whitespace-pre-line">
+                        {{ $settings->mission ?? "• Menyediakan platform belanja yang aman dan terpercaya bagi komunitas sekolah.\n• Mendorong jiwa wirausaha di kalangan pelajar dan tenaga pendidik.\n• Membangun ekosistem ekonomi yang mandiri dalam lingkungan sekolah." }}
+                    </div>
                 </div>
 
             </div>

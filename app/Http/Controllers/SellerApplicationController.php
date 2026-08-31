@@ -96,7 +96,16 @@ class SellerApplicationController extends Controller
             ]);
         }
 
-        // Kirim notifikasi WhatsApp pengajuan seller
+        // Buat notifikasi di aplikasi untuk pendaftar
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title'   => 'Pengajuan Seller Diterima 📝',
+            'message' => 'Pengajuan Anda untuk menjadi Penjual di Eskasaba Marketplace telah berhasil dikirim dan sedang dalam proses verifikasi Admin.',
+            'type'    => 'seller_application',
+            'is_read' => false,
+        ]);
+
+        // Kirim notifikasi WhatsApp pengajuan seller ke pendaftar & admin
         \App\Services\WhatsAppService::sendSellerApplicationNotification($seller);
 
         return redirect()->route('profile.index')

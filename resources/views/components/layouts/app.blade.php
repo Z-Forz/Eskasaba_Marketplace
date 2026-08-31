@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Marketplace' }} - {{ config('app.name', 'Marketplace') }}</title>
-    
+    <title>{{ $title ?? 'Marketplace' }} - {{ $settings->website_name ?? config('app.name', 'Marketplace') }}</title>
+
+    @if(!empty($settings->logo))
+        <link rel="icon" href="{{ asset('storage/' . $settings->logo) }}">
+    @elseif(!empty($settings->favicon))
+        <link rel="icon" href="{{ asset('storage/' . $settings->favicon) }}">
+    @endif
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

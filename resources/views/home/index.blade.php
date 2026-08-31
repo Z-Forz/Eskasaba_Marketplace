@@ -28,11 +28,11 @@
                         {{ $settings->hero_description ?? 'Marketplace internal sekolah untuk memudahkan warga sekolah melakukan transaksi jual beli produk karya siswa & guru dengan aman, praktis, dan terpercaya.' }}
                     </p>
 
-                    <div class="mt-8 flex flex-col gap-3.5 sm:flex-row">
+                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
 
                         <a
                             href="{{ route('products.index') }}"
-                            class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-500 hover:shadow-emerald-600/30"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-500 hover:shadow-emerald-600/30 sm:w-auto"
                         >
                             <span>Mulai Belanja</span>
                             <i class="fa-solid fa-arrow-right text-xs"></i>
@@ -40,7 +40,7 @@
 
                         <a
                             href="{{ route('guide') }}"
-                            class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-white/5 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10 backdrop-blur-md"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-white/5 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10 backdrop-blur-md sm:w-auto"
                         >
                             <i class="fa-solid fa-book-open text-xs text-emerald-400"></i>
                             <span>Panduan COD Sekolah</span>
@@ -164,7 +164,7 @@
                             <i class="fa-solid fa-crown text-amber-500"></i> Rekomendasi Pilihan
                         </span>
                         <h2 class="mt-2 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white flex items-center gap-2">
-                            🔥 Produk Unggulan & Terlaris Sekolah
+                            <i class="fa-brands fa-gripfire text-amber-500"></i>Produk Unggulan & Terlaris Sekolah
                         </h2>
                         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                             Produk favorit pilihan siswa dan guru dengan penawaran dan ulasan terbaik.
@@ -180,8 +180,8 @@
                     </a>
                 </div>
 
-                {{-- Grid Cards --}}
-                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+                {{-- Grid Cards (1 per baris di HP) --}}
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach($featuredProducts as $featuredItem)
                         <x-product-card :product="$featuredItem" />
                     @endforeach
@@ -284,7 +284,7 @@
 
             @if($products->isNotEmpty())
 
-                <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+                <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
                     @foreach($products as $product)
 

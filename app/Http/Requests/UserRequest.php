@@ -21,6 +21,7 @@ class UserRequest extends FormRequest
             'email'          => ['nullable', 'email', 'max:255', 'unique:users,email,' . $userId],
             'password'       => [$this->isMethod('POST') ? 'required' : 'nullable', 'string', 'min:6'],
             'role'           => ['required', 'in:student,teacher'],
+            'class_room'     => ['nullable', 'string', 'max:255'],
             'phone'          => ['nullable', 'string', 'max:255'],
         ];
     }

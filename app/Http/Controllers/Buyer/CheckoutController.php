@@ -132,22 +132,54 @@ class CheckoutController extends Controller
 
                 foreach ($cart->items as $item) {
                     $product = $item->product;
+                    $variantName = $item->variant_name ?: $item->note;
 
-                    if ($product->stock < $item->quantity) {
-                        throw new \Exception("Stok produk '{$product->name}' tidak mencukupi (Sisa stok: {$product->stock}).");
+                    if ($product->hasVariants() && !empty($variantName)) {
+                        $variants = $product->variants;
+                        $variantFound = false;
+                        foreach ($variants as $idx => $var) {
+                            if (isset($var['name']) && strcasecmp(trim($var['name']), trim($variantName)) === 0) {
+                                $variantFound = true;
+                                $varStock = isset($var['stock']) ? (int) $var['stock'] : (int) $product->stock;
+                                if ($varStock < $item->quantity) {
+                                    throw new \Exception("Stok varian '{$var['name']}' untuk produk '{$product->name}' tidak mencukupi (Sisa stok: {$varStock}).");
+                                }
+                                if (isset($var['stock'])) {
+                                    $variants[$idx]['stock'] = max(0, $varStock - $item->quantity);
+                                }
+                                break;
+                            }
+                        }
+
+                        if ($variantFound) {
+                            $product->variants = $variants;
+                            if (array_filter($variants, fn($v) => isset($v['stock']))) {
+                                $product->stock = array_sum(array_column($variants, 'stock'));
+                            } else {
+                                $product->stock = max(0, $product->stock - $item->quantity);
+                            }
+                            $product->save();
+                        } else {
+                            if ($product->stock < $item->quantity) {
+                                throw new \Exception("Stok produk '{$product->name}' tidak mencukupi (Sisa stok: {$product->stock}).");
+                            }
+                            $product->decrement('stock', $item->quantity);
+                        }
+                    } else {
+                        if ($product->stock < $item->quantity) {
+                            throw new \Exception("Stok produk '{$product->name}' tidak mencukupi (Sisa stok: {$product->stock}).");
+                        }
+                        $product->decrement('stock', $item->quantity);
                     }
 
                     $order->items()->create([
                         'product_id'   => $item->product_id,
                         'product_name' => $product->name,
-                        'variant_name' => $item->variant_name ?: $item->note,
+                        'variant_name' => $variantName,
                         'quantity'     => $item->quantity,
                         'price'        => $item->price,
                         'note'         => $item->note,
                     ]);
-
-                    // Otomatis kurangi stok produk setelah pembeli berhasil checkout
-                    $product->decrement('stock', $item->quantity);
                 }
 
                 Payment::create([

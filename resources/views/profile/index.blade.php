@@ -73,6 +73,13 @@
                         </div>
                     @endif
 
+                    @if(auth()->user()->class_room || auth()->user()->role === 'student')
+                        <div class="flex justify-between">
+                            <span class="text-xs font-medium text-slate-400">Kelas / Rombel</span>
+                            <span class="font-bold text-emerald-700 dark:text-emerald-400">{{ auth()->user()->class_room ?? '-' }}</span>
+                        </div>
+                    @endif
+
                     <div class="flex justify-between">
                         <span class="text-xs font-medium text-slate-400">Email</span>
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ auth()->user()->email ?? '-' }}</span>

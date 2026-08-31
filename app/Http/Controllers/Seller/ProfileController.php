@@ -48,6 +48,13 @@ class ProfileController extends Controller
 
         $seller->update($data);
 
+        // Synchronize with user profile phone number
+        if ($seller->user && isset($data['whatsapp_number'])) {
+            $seller->user->update([
+                'phone' => $data['whatsapp_number'],
+            ]);
+        }
+
         return back()->with('success', 'Profil toko & Barcode QRIS berhasil diperbarui.');
     }
 }

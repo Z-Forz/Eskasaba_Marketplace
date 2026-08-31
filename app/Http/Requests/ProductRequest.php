@@ -20,14 +20,22 @@ class ProductRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         if ($this->has('price')) {
-            $rawPrice = preg_replace('/[^\d.]/', '', str_replace('.', '', (string) $this->price));
+            $str = trim((string) $this->price);
+            if (preg_match('/\.00$/', $str)) {
+                $str = substr($str, 0, -3);
+            }
+            $rawPrice = preg_replace('/[^\d]/', '', $str);
             $this->merge([
                 'price' => $rawPrice !== '' ? $rawPrice : null,
             ]);
         }
 
         if ($this->has('discount')) {
-            $rawDiscount = preg_replace('/[^\d.]/', '', str_replace('.', '', (string) $this->discount));
+            $str = trim((string) $this->discount);
+            if (preg_match('/\.00$/', $str)) {
+                $str = substr($str, 0, -3);
+            }
+            $rawDiscount = preg_replace('/[^\d]/', '', $str);
             $this->merge([
                 'discount' => $rawDiscount !== '' ? $rawDiscount : 0,
             ]);
@@ -37,16 +45,31 @@ class ProductRequest extends FormRequest
             $cleanedVariants = [];
             foreach ($this->variants as $variant) {
                 if (is_array($variant) && !empty($variant['name'])) {
-                    $rawVarPrice = isset($variant['price']) ? preg_replace('/[^\d.]/', '', str_replace('.', '', (string) $variant['price'])) : 0;
+                    $strV = isset($variant['price']) ? trim((string) $variant['price']) : '0';
+                    if (preg_match('/\.00$/', $strV)) {
+                        $strV = substr($strV, 0, -3);
+                    }
+                    $rawVarPrice = preg_replace('/[^\d]/', '', $strV);
+                    $rawVarStock = isset($variant['stock']) ? (int) $variant['stock'] : 0;
                     $cleanedVariants[] = [
                         'name'  => trim($variant['name']),
                         'price' => (float) ($rawVarPrice !== '' ? $rawVarPrice : 0),
+                        'stock' => max(0, $rawVarStock),
                     ];
                 }
             }
-            $this->merge([
-                'variants' => !empty($cleanedVariants) ? $cleanedVariants : null,
-            ]);
+
+            if (!empty($cleanedVariants)) {
+                $totalStock = array_sum(array_column($cleanedVariants, 'stock'));
+                $this->merge([
+                    'variants' => $cleanedVariants,
+                    'stock'    => $totalStock,
+                ]);
+            } else {
+                $this->merge([
+                    'variants' => null,
+                ]);
+            }
         }
     }
 
@@ -115,15 +138,20 @@ class ProductRequest extends FormRequest
                 'numeric',
                 'min:0',
             ],
+            'variants.*.stock' => [
+                'required_with:variants',
+                'integer',
+                'min:0',
+            ],
             'images' => [
                 'nullable',
                 'array',
                 'max:5',
             ],
             'images.*' => [
-                'image',
-                'mimes:jpeg,png,jpg,webp',
-                'max:5120',
+                'file',
+                'mimes:jpeg,png,jpg,webp,gif,bmp,jfif,heic,heif',
+                'max:10240',
             ],
             'delete_images' => [
                 'nullable',

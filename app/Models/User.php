@@ -15,6 +15,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'class_room',
         'is_default_password',
         // Data profil dari API Sekolah
         'api_id',
@@ -32,6 +33,14 @@ class User extends Authenticatable
             'password'            => 'hashed',
             'is_default_password' => 'boolean',
         ];
+    }
+
+    /**
+     * Accessor alias agar $user->kelas merujuk ke $user->class_room
+     */
+    public function getKelasAttribute(): ?string
+    {
+        return $this->class_room;
     }
 
     /*

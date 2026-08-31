@@ -54,6 +54,7 @@ class SchoolApiService
                         'nis_nip'        => $data['nis_nip'] ?? $nisNip,
                         'nama'           => $data['nama'] ?? $data['name'] ?? $data['username'] ?? ('User ' . $nisNip),
                         'jenis_pengguna' => strtolower($data['jenis_pengguna'] ?? $data['role'] ?? 'siswa') === 'guru' ? 'guru' : 'siswa',
+                        'class_room'     => $data['kelas'] ?? $data['class_room'] ?? $data['class'] ?? null,
                         'telepon'        => $data['telepon'] ?? $data['phone'] ?? null,
                         'email'          => $data['email'] ?? null,
                     ];
@@ -117,6 +118,7 @@ class SchoolApiService
                         'username'            => $item['nama'] ?? $item['name'] ?? $item['username'] ?? ('User ' . $nisNip),
                         'email'               => $item['email'] ?? ($nisNip . '@sekolah.id'),
                         'role'                => $role,
+                        'class_room'           => $item['kelas'] ?? $item['class_room'] ?? $item['class'] ?? null,
                         'phone'               => $item['telepon'] ?? $item['phone'] ?? null,
                         'api_id'              => $item['id'] ?? null,
                         'password'            => Hash::make('password'),

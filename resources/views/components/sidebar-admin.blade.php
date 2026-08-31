@@ -24,11 +24,15 @@
     {{-- Logo Header --}}
     <div class="flex h-20 items-center border-b border-slate-100 px-5 dark:border-slate-800">
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-800 text-white shadow-xs">
-                <i class="fa-solid fa-user-shield text-lg"></i>
-            </div>
+            @if(isset($settings) && !empty($settings->logo))
+                <img src="{{ asset('storage/' . $settings->logo) }}" alt="Logo" class="h-10 w-10 shrink-0 rounded-2xl object-cover shadow-xs border border-slate-200 p-0.5 dark:border-slate-700">
+            @else
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-800 text-white shadow-xs">
+                    <i class="fa-solid fa-user-shield text-lg"></i>
+                </div>
+            @endif
             <div>
-                <p class="text-sm font-black text-slate-900 dark:text-white">ESKASABA</p>
+                <p class="text-sm font-black text-slate-900 dark:text-white">{{ $settings->website_name ?? 'ESKASABA' }}</p>
                 <p class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Admin Panel</p>
             </div>
         </a>

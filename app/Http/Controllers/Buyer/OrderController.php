@@ -48,4 +48,49 @@ class OrderController extends Controller
 
         return view('buyer.orders.show', compact('order'));
     }
+
+    /**
+     * Upload proof of payment for QRIS / transfer order.
+     */
+    public function uploadProof(Request $request, Order $order)
+    {
+        abort_unless($order->user_id === Auth::id(), 403);
+
+        $request->validate([
+            'proof' => ['required', 'image', 'max:10240'],
+        ], [
+            'proof.required' => 'File gambar bukti pembayaran wajib dipilih.',
+            'proof.image'    => 'Bukti pembayaran harus berupa gambar (JPG, PNG, WEBP).',
+            'proof.max'      => 'Ukuran foto bukti pembayaran maksimal 10MB.',
+        ]);
+
+        $proofPath = \App\Services\ImageCompressor::compressAndStore($request->file('proof'), 'payment_proofs');
+
+        // Check if payment record exists or create new
+        if ($order->payment) {
+            $order->payment->update([
+                'proof'  => $proofPath,
+                'status' => 'pending',
+            ]);
+        } else {
+            \App\Models\Payment::create([
+                'order_id' => $order->id,
+                'method'   => 'qris',
+                'amount'   => $order->total_price,
+                'proof'    => $proofPath,
+                'status'   => 'pending',
+            ]);
+        }
+
+        // Notify seller via in-app notification
+        \App\Models\Notification::create([
+            'user_id' => $order->seller->user_id,
+            'title'   => 'Bukti Pembayaran Diunggah 🧾',
+            'message' => 'Pembeli ' . Auth::user()->username . ' telah mengunggah bukti pembayaran untuk pesanan #' . $order->invoice_number . '. Silakan verifikasi dana masuk.',
+            'type'    => 'payment_proof_uploaded',
+            'link'    => route('seller.orders.show', $order),
+        ]);
+
+        return back()->with('success', 'Bukti pembayaran berhasil diunggah! Penjual akan memverifikasi mutasi pembayaran Anda.');
+    }
 }

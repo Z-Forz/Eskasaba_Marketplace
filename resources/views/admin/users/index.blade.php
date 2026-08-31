@@ -80,6 +80,7 @@
                             <th class="px-6 py-4">Pengguna</th>
                             <th class="px-6 py-4">Alamat Email</th>
                             <th class="px-6 py-4">NIS / NIP</th>
+                            <th class="px-6 py-4">Kelas</th>
                             <th class="px-6 py-4">Peran (Role)</th>
                             <th class="px-6 py-4 text-right">Aksi</th>
                         </tr>
@@ -121,6 +122,10 @@
 
                                 <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
                                     {{ $user->nis_nip ?? '-' }}
+                                </td>
+
+                                <td class="px-6 py-4 font-bold text-emerald-700 dark:text-emerald-400 text-xs">
+                                    {{ $user->class_room ?? '-' }}
                                 </td>
 
                                 <td class="px-6 py-4">
@@ -227,9 +232,9 @@
                         </div>
 
                         <div>
-                            <p class="text-slate-400 font-semibold">Peran Sekolah</p>
-                            <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200">
-                                {{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}
+                            <p class="text-slate-400 font-semibold">Kelas / Rombel</p>
+                            <p class="mt-0.5 font-bold text-emerald-700 dark:text-emerald-400">
+                                {{ $user->class_room ?? '-' }}
                             </p>
                         </div>
                     </div>

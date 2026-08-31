@@ -77,6 +77,13 @@ class ProfileController extends Controller
 
         $user->update($data);
 
+        // Synchronize phone number with seller profile if user is a seller
+        if ($user->seller && isset($data['phone'])) {
+            $user->seller->update([
+                'whatsapp_number' => $data['phone'],
+            ]);
+        }
+
         ActivityLog::record(
             $user->id,
             'profile_updated',

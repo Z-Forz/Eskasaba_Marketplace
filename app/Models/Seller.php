@@ -28,6 +28,14 @@ class Seller extends Model
         ];
     }
 
+    /**
+     * Accessor untuk whatsapp_number agar selalu sinkron dengan phone milik User jika belum terisi.
+     */
+    public function getWhatsappNumberAttribute($value)
+    {
+        return $value ?: $this->user?->phone;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Relationships

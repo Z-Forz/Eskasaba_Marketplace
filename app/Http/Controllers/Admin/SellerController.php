@@ -76,14 +76,24 @@ class SellerController extends Controller
             'description'      => ['nullable', 'string'],
         ]);
 
-        Seller::create(array_merge($data, [
+        $seller = Seller::create(array_merge($data, [
             'status'      => 'approved',
             'approved_at' => now(),
         ]));
 
+        \App\Models\Notification::create([
+            'user_id' => $seller->user_id,
+            'title'   => 'Pengajuan Seller Disetujui! 🎉',
+            'message' => 'Selamat! Akun Anda telah resmi terdaftar sebagai Penjual di Eskasaba Marketplace. Anda dapat mulai menambahkan produk toko Anda.',
+            'type'    => 'seller_approval',
+            'is_read' => false,
+        ]);
+
+        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
+
         return redirect()
             ->route('admin.sellers.index')
-            ->with('success', 'Seller baru berhasil ditambahkan.');
+            ->with('success', 'Seller baru berhasil ditambahkan dan notifikasi telah dikirim.');
     }
 
     /**
@@ -130,6 +140,12 @@ class SellerController extends Controller
         }
 
         $seller->update($updateData);
+
+        if ($seller->user && !empty($updateData['whatsapp_number'])) {
+            $seller->user->update([
+                'phone' => $updateData['whatsapp_number'],
+            ]);
+        }
 
         // Kirim notifikasi WA hasil verifikasi
         \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);

@@ -16,6 +16,10 @@ Route::middleware('guest')->group(function () {
         ->middleware('throttle:login')
         ->name('login.store');
 
+    // Callback SSO API Sekolah
+    Route::match(['get', 'post'], '/auth/school/callback', [\App\Http\Controllers\Auth\SchoolCallbackController::class, 'handle'])
+        ->name('auth.school.callback');
+
 });
 
 Route::post('/logout', [SchoolLoginController::class, 'logout'])

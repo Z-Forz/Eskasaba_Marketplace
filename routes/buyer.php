@@ -29,6 +29,9 @@ Route::middleware(['auth'])
         Route::resource('orders', OrderController::class)
             ->only(['index', 'show']);
 
+        Route::post('/orders/{order}/upload-proof', [OrderController::class, 'uploadProof'])
+            ->name('orders.upload-proof');
+
         Route::get('/reviews/create/{order}', [ReviewController::class, 'create'])
             ->name('reviews.create');
 

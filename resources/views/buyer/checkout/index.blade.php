@@ -65,7 +65,7 @@
                                                 Penjual Toko
                                             </p>
                                             <h2 class="mt-0.5 text-base font-bold text-slate-900 dark:text-white">
-                                                <i class="fa-solid fa-store" style="color: {{ $items->first()->product->seller->user->color }};"></i> {{ $items->first()->product->seller->user->username ?? 'Penjual' }}
+                                                <i class="fa-solid fa-store" @style(['color: ' . ($items->first()->product->seller->user->color ?? 'inherit')])></i> {{ $items->first()->product->seller->user->username ?? 'Penjual' }}
                                             </h2>
                                         </div>
 
@@ -97,7 +97,16 @@
                                                     {{ $item->product->name }}
                                                 </h3>
 
-                                                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                                @if(!empty($item->variant_name) || !empty($item->note))
+                                                    <div class="mt-1">
+                                                        <span class="inline-flex items-center gap-1 rounded-lg bg-emerald-100 px-2.5 py-0.5 text-xs font-extrabold text-emerald-900 border border-emerald-300/60 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800">
+                                                            <i class="fa-solid fa-layer-group text-[10px] text-emerald-600 dark:text-emerald-400"></i>
+                                                            <span>Pilihan: {{ $item->variant_name ?: $item->note }}</span>
+                                                        </span>
+                                                    </div>
+                                                @endif
+
+                                                <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
                                                     {{ $item->quantity }} × Rp {{ number_format($item->price, 0, ',', '.') }}
                                                 </p>
 
@@ -113,59 +122,119 @@
 
                         @endforeach
 
-                        {{-- Manual Pickup Location Form --}}
-                        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-
+                        {{-- Manual Pickup Location & Time Form --}}
+                        <div
+                            class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-8"
+                            x-data="{
+                                spot: '{{ old('pickup_location') }}',
+                                timeOption: '',
+                                customTime: '',
+                                updateCombinedLocation() {
+                                    let combined = this.spot.trim();
+                                    let t = this.timeOption === 'custom' ? this.customTime.trim() : this.timeOption;
+                                    if (t) {
+                                        combined += (combined ? ' ' : '') + '(Waktu: ' + t + ')';
+                                    }
+                                    document.getElementById('pickup_location_final').value = combined;
+                                }
+                            }"
+                        >
                             <div class="flex items-center gap-3">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
                                     <i class="fa-solid fa-location-dot"></i>
                                 </div>
                                 <div>
                                     <h2 class="text-lg font-bold text-slate-900 dark:text-white">
-                                        Lokasi & Titik Pengambilan (COD Sekolah)
+                                        Lokasi & Waktu Pengambilan (COD Sekolah)
                                     </h2>
                                     <p class="text-xs text-slate-500 dark:text-slate-400">
-                                        Tentukan area titik temu di sekitar sekolah untuk mengambil pesanan ini.
+                                        Tentukan area titik temu dan estimasi waktu pengambilan di sekitar sekolah.
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="mt-6 space-y-4">
+                            <div class="mt-6 space-y-5">
+                                {{-- 1. Titik Temu / Lokasi --}}
                                 <div>
-                                    <label for="pickup_location" class="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
-                                        Titik Temu / Lokasi Pengambilan <span class="text-red-500">*</span>
+                                    <label for="pickup_spot" class="mb-2 block text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                        <i class="fa-solid fa-map-pin text-emerald-600"></i> 1. Titik Temu / Lokasi <span class="text-red-500">*</span>
                                     </label>
 
                                     <input
-                                        id="pickup_location"
+                                        id="pickup_spot"
                                         type="text"
-                                        name="pickup_location"
-                                        value="{{ old('pickup_location') }}"
+                                        x-model="spot"
+                                        @input="updateCombinedLocation()"
                                         required
                                         placeholder="Contoh: Kantin Utama, Gazebo RPL, Depan Perpustakaan, Lapangan Sekolah, dll."
                                         class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-emerald-500 dark:focus:ring-emerald-950"
                                     >
 
-                                    @error('pickup_location')
-                                        <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                {{-- Quick Chips Recommendations --}}
-                                <div>
-                                    <p class="text-xs text-slate-400">Rekomendasi titik lokasi populer disekitar sekolah:</p>
+                                    {{-- Quick Spot Recommendation Chips --}}
                                     <div class="mt-2 flex flex-wrap gap-2">
-                                        @foreach(['Kantin', 'Gazebo', 'Depan Perpustakaan', 'Lobby', 'Depan Ruang Guru'] as $locationSpot)
+                                        @foreach(['Kantin Utama', 'Gazebo RPL', 'Depan Perpustakaan', 'Lobby Sekolah', 'Depan Ruang Guru', 'Lab Komputer'] as $locationSpot)
                                             <button
                                                 type="button"
-                                                onclick="document.getElementById('pickup_location').value = '{{ $locationSpot }}'"
-                                                class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                                                @click="spot = '{{ $locationSpot }}'; updateCombinedLocation()"
+                                                class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer"
                                             >
                                                 + {{ $locationSpot }}
                                             </button>
                                         @endforeach
                                     </div>
                                 </div>
+
+                                {{-- 2. Estimasi Waktu / Jam Pengambilan --}}
+                                <div class="border-t border-slate-100 pt-4 dark:border-slate-800">
+                                    <label class="mb-2 block text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                        <i class="fa-solid fa-clock text-emerald-600"></i> 2. Estimasi Waktu / Jam Pengambilan:
+                                    </label>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                        @foreach([
+                                            'Jam Istirahat 1 (09:30 - 10:00)',
+                                            'Jam Istirahat 2 (12:00 - 12:30)',
+                                            'Pulang Sekolah (15:00 - 15:30)',
+                                            'Sesuai Kesepakatan WA'
+                                        ] as $timeChip)
+                                            <button
+                                                type="button"
+                                                @click="timeOption = '{{ $timeChip }}'; updateCombinedLocation()"
+                                                :class="timeOption === '{{ $timeChip }}'
+                                                    ? 'border-emerald-600 bg-emerald-50 text-emerald-950 ring-2 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 font-bold shadow-xs'
+                                                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 font-medium'"
+                                                class="flex items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-xs transition cursor-pointer text-left"
+                                            >
+                                                <i class="fa-solid fa-circle-dot text-[10px]" :class="timeOption === '{{ $timeChip }}' ? 'text-emerald-600' : 'text-slate-300'"></i>
+                                                <span>{{ $timeChip }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
+
+                                    {{-- Custom Time Option --}}
+                                    <div class="mt-3">
+                                        <input
+                                            type="text"
+                                            x-model="customTime"
+                                            @input="timeOption = 'custom'; updateCombinedLocation()"
+                                            placeholder="Atau tulis jam khusus (Misal: Jam 10:15 pas pergantian jam)"
+                                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                        >
+                                    </div>
+                                </div>
+
+                                {{-- Actual Hidden input that gets sent to Laravel --}}
+                                <input
+                                    id="pickup_location_final"
+                                    type="hidden"
+                                    name="pickup_location"
+                                    :value="spot ? (spot + (timeOption ? ' (Waktu: ' + (timeOption === 'custom' ? customTime : timeOption) + ')' : '')) : ''"
+                                    required
+                                >
+
+                                @error('pickup_location')
+                                    <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+                                @enderror
                             </div>
 
                         </div>
@@ -292,6 +361,29 @@
                             </h2>
 
                             <div class="mt-6 space-y-4 text-sm">
+
+                                {{-- Detailed item list with variant options --}}
+                                <div class="space-y-2.5 border-b border-slate-100 pb-4 dark:border-slate-800">
+                                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Rincian Item & Pilihan:</p>
+                                    @foreach($cart->items as $cItem)
+                                        <div class="flex items-start justify-between text-xs gap-2">
+                                            <div class="min-w-0">
+                                                <p class="font-bold text-slate-800 dark:text-slate-200 truncate">
+                                                    {{ $cItem->product->name }}
+                                                </p>
+                                                @if(!empty($cItem->variant_name) || !empty($cItem->note))
+                                                    <p class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                                                        <i class="fa-solid fa-layer-group text-[9px]"></i> {{ $cItem->variant_name ?: $cItem->note }}
+                                                    </p>
+                                                @endif
+                                                <p class="text-[11px] text-slate-400">{{ $cItem->quantity }}x @ Rp {{ number_format($cItem->price, 0, ',', '.') }}</p>
+                                            </div>
+                                            <span class="font-bold text-slate-900 dark:text-white shrink-0">
+                                                Rp {{ number_format($cItem->quantity * $cItem->price, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
 
                                 <div class="flex justify-between gap-4">
                                     <span class="text-slate-500 dark:text-slate-400">

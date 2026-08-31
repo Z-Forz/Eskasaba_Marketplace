@@ -23,8 +23,7 @@ class UserController extends Controller
             $query->where('username', 'like', "%{$search}%")
                 ->orWhere('nis_nip', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('class', 'like', "%{$search}%")
-                ->orWhere('major', 'like', "%{$search}%");
+                ->orWhere('class_room', 'like', "%{$search}%");
         })
         ->latest()
         ->paginate(10)

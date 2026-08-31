@@ -100,12 +100,23 @@
             </p>
         </div>
 
-        <a
-            href="{{ $href }}"
-            class="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 sm:px-5 sm:text-sm"
-        >
-            Lihat Detail Pesanan <i class="fa-solid fa-arrow-right"></i>
-        </a>
+        <div class="flex items-center gap-2">
+            @if(strtolower($order->payment?->method ?? '') === 'qris' && strtolower($order->payment?->status ?? 'pending') === 'pending' && $order->status !== 'cancelled' && $order->status !== 'completed')
+                <a
+                    href="{{ $href }}"
+                    class="inline-flex items-center gap-1.5 rounded-2xl bg-amber-500 px-3.5 py-2 text-xs font-black text-white shadow-xs transition hover:bg-amber-600 sm:px-4"
+                >
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Unggah Bukti Bayar
+                </a>
+            @endif
+
+            <a
+                href="{{ $href }}"
+                class="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 sm:px-5 sm:text-sm"
+            >
+                Lihat Detail Pesanan <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
 
     </div>
 

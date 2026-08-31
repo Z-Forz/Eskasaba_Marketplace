@@ -122,6 +122,11 @@
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->nis_nip ?? '-' }}</span>
                     </div>
 
+                    <div class="flex justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                        <span class="text-xs font-medium text-slate-400">Kelas / Rombel</span>
+                        <span class="font-bold text-emerald-700 dark:text-emerald-400">{{ $user->class_room ?? '-' }}</span>
+                    </div>
+
                     <div class="flex justify-between">
                         <span class="text-xs font-medium text-slate-400">Nomor Telepon</span>
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->phone ?? '-' }}</span>

@@ -9,12 +9,12 @@
     $sellerName = $product?->seller?->user?->username;
 @endphp
 
-<div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900">
+<div class="rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white p-3.5 sm:p-5 shadow-xs transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900">
 
-    <div class="flex gap-4 sm:gap-5">
+    <div class="flex gap-3 sm:gap-5">
 
         {{-- Product Image --}}
-        <div class="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 sm:h-28 sm:w-28">
+        <div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 sm:h-28 sm:w-28">
 
             @if($firstImage)
 
@@ -27,7 +27,7 @@
             @else
 
                 <div class="flex h-full w-full flex-col items-center justify-center text-xs text-slate-400">
-                    <i class="fa-solid fa-store text-xl opacity-40 text-emerald-600"></i>
+                    <i class="fa-solid fa-store text-lg sm:text-xl opacity-40 text-emerald-600"></i>
                 </div>
 
             @endif
@@ -39,16 +39,16 @@
 
             <div>
 
-                <div class="flex items-start justify-between gap-2">
+                <div class="flex items-start justify-between gap-1.5">
                     @if($product)
                         <a
                             href="{{ route('products.show', $product) }}"
-                            class="line-clamp-2 text-sm font-black leading-snug text-slate-900 hover:text-emerald-700 dark:text-white dark:hover:text-emerald-400 sm:text-base"
+                            class="line-clamp-2 text-xs font-black leading-snug text-slate-900 hover:text-emerald-700 dark:text-white dark:hover:text-emerald-400 sm:text-base"
                         >
                             {{ $productName }}
                         </a>
                     @else
-                        <span class="line-clamp-2 text-sm font-black text-slate-900 dark:text-white sm:text-base">
+                        <span class="line-clamp-2 text-xs font-black text-slate-900 dark:text-white sm:text-base">
                             {{ $productName }}
                         </span>
                     @endif
@@ -57,11 +57,11 @@
                     <button
                         type="button"
                         onclick="window.openDeleteCartModal({{ $item->id }})"
-                        class="inline-flex items-center gap-1.5 rounded-xl bg-red-50/80 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-100 hover:text-red-700 transition dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-900/60 cursor-pointer shrink-0 border border-red-200/60 dark:border-red-900/40"
+                        class="inline-flex items-center gap-1 rounded-lg sm:rounded-xl bg-red-50/80 px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-red-600 hover:bg-red-100 hover:text-red-700 transition dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-900/60 cursor-pointer shrink-0 border border-red-200/60 dark:border-red-900/40"
                         title="Hapus dari Keranjang"
                     >
-                        <i class="fa-solid fa-trash-can text-xs"></i>
-                        <span>Hapus</span>
+                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                        <span class="hidden sm:inline">Hapus</span>
                     </button>
                 </div>
 

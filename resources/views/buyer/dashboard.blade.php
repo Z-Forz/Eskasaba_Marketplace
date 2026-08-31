@@ -38,7 +38,7 @@
         {{-- =========================================================
              STATISTICS
         ========================================================== --}}
-        <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
             {{-- Total Orders --}}
             <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

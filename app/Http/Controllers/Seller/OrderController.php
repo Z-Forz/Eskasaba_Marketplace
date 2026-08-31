@@ -62,6 +62,23 @@ class OrderController extends Controller
     }
 
     /**
+     * Helper to send in-app notification & WhatsApp notification on status update.
+     */
+    private function notifyOrderStatusUpdate(Order $order): void
+    {
+        \App\Models\Notification::create([
+            'user_id' => $order->user_id,
+            'title'   => 'Status Pesanan Diperbarui 📦',
+            'message' => 'Status pesanan ' . ($order->invoice_number ?? '#' . $order->id) . ' telah diubah menjadi: ' . ucfirst(str_replace('_', ' ', (string) $order->status)),
+            'type'    => 'order_status_updated',
+            'link'    => route('buyer.orders.show', $order),
+        ]);
+
+        // Kirim notifikasi WA ke pembeli
+        \App\Services\WhatsAppService::sendOrderStatusNotification($order);
+    }
+
+    /**
      * Update status, payment verification, and pickup location of the order.
      */
     public function update(Request $request, Order $order): RedirectResponse
@@ -74,6 +91,8 @@ class OrderController extends Controller
             'pickup_location' => ['nullable', 'string', 'max:255'],
             'payment_status'  => ['nullable', 'in:pending,verified,rejected,paid'],
         ]);
+
+        $statusChanged = !empty($data['status']) && $data['status'] !== $order->status;
 
         $order->update(array_filter([
             'status'          => $data['status'] ?? null,
@@ -94,20 +113,11 @@ class OrderController extends Controller
             ]);
         }
 
-        if (isset($data['status'])) {
-            \App\Models\Notification::create([
-                'user_id' => $order->user_id,
-                'title'   => 'Status Pesanan Diperbarui 📦',
-                'message' => 'Status pesanan ' . ($order->invoice_number ?? '#' . $order->id) . ' telah diubah menjadi: ' . ucfirst(str_replace('_', ' ', $order->status)),
-                'type'    => 'order_status_updated',
-                'link'    => route('buyer.orders.show', $order),
-            ]);
-
-            // Kirim notifikasi WA ke pembeli
-            \App\Services\WhatsAppService::sendOrderStatusNotification($order);
+        if ($statusChanged || isset($data['status'])) {
+            $this->notifyOrderStatusUpdate($order);
         }
 
-        return back()->with(
+        return redirect()->route('seller.orders.index')->with(
             'success',
             'Status pesanan, konfirmasi pembayaran & lokasi pengambilan berhasil diperbarui.'
         );
@@ -132,7 +142,9 @@ class OrderController extends Controller
             ]);
         }
 
-        return back()->with(
+        $this->notifyOrderStatusUpdate($order);
+
+        return redirect()->route('seller.orders.index')->with(
             'success',
             'Pesanan & pembayaran QRIS berhasil dikonfirmasi.'
         );
@@ -156,7 +168,9 @@ class OrderController extends Controller
             ]);
         }
 
-        return back()->with(
+        $this->notifyOrderStatusUpdate($order);
+
+        return redirect()->route('seller.orders.index')->with(
             'success',
             'Pesanan berhasil ditolak.'
         );
@@ -174,7 +188,9 @@ class OrderController extends Controller
             'status' => 'ready_for_pickup',
         ]);
 
-        return back()->with(
+        $this->notifyOrderStatusUpdate($order);
+
+        return redirect()->route('seller.orders.index')->with(
             'success',
             'Barang siap diambil.'
         );
@@ -199,9 +215,11 @@ class OrderController extends Controller
             ]);
         }
 
-        return back()->with(
+        $this->notifyOrderStatusUpdate($order);
+
+        return redirect()->route('seller.orders.index')->with(
             'success',
-            'Pesanan berhasil diselesaikan.'
+            'Pesanan selesai & diserahterimakan.'
         );
     }
 }

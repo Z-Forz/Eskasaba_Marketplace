@@ -8,7 +8,9 @@
 
     <title>{{ $title ?? 'Login' }} - {{ $settings->website_name ?? config('app.name', 'Eskasaba Market') }}</title>
 
-    @if(isset($settings) && $settings->favicon)
+    @if(!empty($settings->logo))
+        <link rel="icon" href="{{ asset('storage/' . $settings->logo) }}">
+    @elseif(!empty($settings->favicon))
         <link rel="icon" href="{{ asset('storage/' . $settings->favicon) }}">
     @endif
 

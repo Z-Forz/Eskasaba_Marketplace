@@ -47,7 +47,14 @@
                 default            => 1,
             };
 
-            $progressPercent = max(0, min(100, (($statusStep - 1) / 4) * 100));
+            $progressWidthClass = match($statusStep) {
+                1 => 'w-0',
+                2 => 'w-1/4',
+                3 => 'w-1/2',
+                4 => 'w-3/4',
+                5 => 'w-full',
+                default => 'w-0',
+            };
 
             // Format WhatsApp pre-filled text with order details
             $sellerName = $order->seller?->user?->username ?? 'Penjual';
@@ -55,9 +62,10 @@
 
             $itemsSummary = "";
             foreach($order->items as $idx => $item) {
-                $flavor = !empty($item->note) ? " (Varian: {$item->note})" : "";
+                $opt = $item->variant_name ?: $item->note;
+                $optText = !empty($opt) ? " [Pilihan: {$opt}]" : "";
                 $price  = number_format($item->price ?? 0, 0, ',', '.');
-                $itemsSummary .= ($idx + 1) . ". {$item->product_name}{$flavor} - {$item->quantity}x @ Rp {$price}\n";
+                $itemsSummary .= ($idx + 1) . ". {$item->product_name}{$optText} - {$item->quantity}x @ Rp {$price}\n";
             }
 
             $waText = "Halo Kak {$sellerName}, saya {$buyerName} dari Eskasaba Marketplace.\n\n"
@@ -85,8 +93,7 @@
                     {{-- Progress Line --}}
                     <div class="absolute left-0 top-1/2 -z-0 h-1 w-full -translate-y-1/2 bg-slate-100"></div>
                     <div
-                        class="absolute left-0 top-1/2 -z-0 h-1 -translate-y-1/2 bg-emerald-600 transition-all duration-500"
-                        style="width: {{ $progressPercent }}%"
+                        class="absolute left-0 top-1/2 -z-0 h-1 -translate-y-1/2 bg-emerald-600 transition-all duration-500 {{ $progressWidthClass }}"
                     ></div>
 
                     {{-- Step 1 --}}
@@ -256,6 +263,66 @@
                                 <p class="mt-1 text-xs text-slate-500">Silakan hubungi penjual via WhatsApp untuk meminta barcode QRIS.</p>
                             </div>
                         @endif
+
+                        {{-- Upload / View Proof of Payment --}}
+                        <div class="mt-5 border-t border-emerald-200/80 pt-4">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-receipt text-emerald-600"></i> Bukti Pembayaran QRIS / Transfer
+                            </h3>
+
+                            @if($order->payment?->proof)
+                                <div class="mt-3 rounded-2xl bg-white p-4 border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
+                                    <img
+                                        src="{{ Storage::url($order->payment->proof) }}"
+                                        alt="Bukti Pembayaran"
+                                        class="h-24 w-24 rounded-xl border border-slate-200 object-cover shadow-xs cursor-pointer"
+                                        onclick="window.open('{{ Storage::url($order->payment->proof) }}', '_blank')"
+                                    >
+                                    <div class="flex-1 text-center sm:text-left">
+                                        <div class="flex items-center justify-center sm:justify-start gap-2">
+                                            <span class="text-xs font-bold text-slate-900">Status Pembayaran:</span>
+                                            <span class="rounded-full px-2.5 py-0.5 text-[11px] font-extrabold {{ match($order->payment->status) {
+                                                'verified', 'paid' => 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+                                                'rejected'         => 'bg-red-100 text-red-800 border border-red-300',
+                                                default            => 'bg-amber-100 text-amber-800 border border-amber-300'
+                                            } }}">
+                                                {{ match($order->payment->status) {
+                                                    'verified', 'paid' => '✓ Terverifikasi Lunas',
+                                                    'rejected'         => '✕ Bukti Ditolak Penjual',
+                                                    default            => '⏳ Menunggu Verifikasi Penjual'
+                                                } }}
+                                            </span>
+                                        </div>
+                                        <p class="mt-1 text-xs text-slate-500">Bukti pembayaran telah berhasil dikirim ke penjual.</p>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Upload Form --}}
+                            @if($order->status !== 'completed' && $order->status !== 'cancelled')
+                                <form action="{{ route('buyer.orders.upload-proof', $order) }}" method="POST" enctype="multipart/form-data" class="mt-3">
+                                    @csrf
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                        {{ $order->payment?->proof ? 'Ganti / Unggah Ulang Bukti Transfer:' : 'Unggah Struk / Screenshot Bukti Bayar:' }}
+                                    </label>
+                                    <div class="flex flex-col sm:flex-row items-center gap-2">
+                                        <input
+                                            type="file"
+                                            name="proof"
+                                            accept="image/*"
+                                            required
+                                            class="w-full text-xs text-slate-500 file:mr-3 file:rounded-xl file:border-0 file:bg-emerald-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white hover:file:bg-emerald-700 cursor-pointer"
+                                        >
+                                        <button
+                                            type="submit"
+                                            class="w-full sm:w-auto shrink-0 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800 cursor-pointer"
+                                        >
+                                            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Unggah Bukti
+                                        </button>
+                                    </div>
+                                </form>
+                            @endif
+                        </div>
                     </div>
                 @endif
 

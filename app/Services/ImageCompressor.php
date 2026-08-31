@@ -25,27 +25,38 @@ class ImageCompressor
         int $targetMin = 300,
         int $targetMax = 400
     ): string {
+        @ini_set('memory_limit', '256M');
+
         $realPath = $file->getRealPath();
-        $mime = strtolower($file->getMimeType());
-        $originalExtension = strtolower($file->getClientOriginalExtension());
+        $mime = strtolower((string) $file->getMimeType());
+        $originalExtension = strtolower((string) $file->getClientOriginalExtension());
 
         // Max target size in bytes (400 KB)
         $maxSizeBytes = $targetMax * 1024;
         $minSizeBytes = $targetMin * 1024;
 
-        // Try creating GD image instance based on mime or extension
+        // Try creating GD image instance from binary content string or extension functions
         $srcImage = null;
-        if (str_contains($mime, 'jpeg') || str_contains($mime, 'jpg') || in_array($originalExtension, ['jpg', 'jpeg'])) {
-            $srcImage = @imagecreatefromjpeg($realPath);
-        } elseif (str_contains($mime, 'png') || $originalExtension === 'png') {
-            $srcImage = @imagecreatefrompng($realPath);
-        } elseif (str_contains($mime, 'webp') || $originalExtension === 'webp') {
-            $srcImage = @imagecreatefromwebp($realPath);
-        } elseif (str_contains($mime, 'gif') || $originalExtension === 'gif') {
-            $srcImage = @imagecreatefromgif($realPath);
+        if (file_exists($realPath) && is_readable($realPath)) {
+            $contents = @file_get_contents($realPath);
+            if ($contents !== false) {
+                $srcImage = @imagecreatefromstring($contents);
+            }
         }
 
-        // Fallback: If GD cannot create image resource, store directly
+        if (!$srcImage) {
+            if (str_contains($mime, 'jpeg') || str_contains($mime, 'jpg') || in_array($originalExtension, ['jpg', 'jpeg'])) {
+                $srcImage = @imagecreatefromjpeg($realPath);
+            } elseif (str_contains($mime, 'png') || $originalExtension === 'png') {
+                $srcImage = @imagecreatefrompng($realPath);
+            } elseif (str_contains($mime, 'webp') || $originalExtension === 'webp') {
+                $srcImage = @imagecreatefromwebp($realPath);
+            } elseif (str_contains($mime, 'gif') || $originalExtension === 'gif') {
+                $srcImage = @imagecreatefromgif($realPath);
+            }
+        }
+
+        // Fallback: If GD cannot create image resource, store file directly without losing it!
         if (! $srcImage) {
             return $file->store($directory, $disk);
         }

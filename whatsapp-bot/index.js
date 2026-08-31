@@ -25,7 +25,20 @@ function clearAuthFolder() {
     }
 }
 
+let isConnecting = false;
+
 async function connectToWhatsApp() {
+    if (isConnecting) return;
+    isConnecting = true;
+
+    if (sock) {
+        try {
+            sock.ev.removeAllListeners();
+            sock.end(undefined);
+        } catch (e) {}
+        sock = null;
+    }
+
     const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
 
     sock = makeWASocket({
@@ -33,6 +46,8 @@ async function connectToWhatsApp() {
         printQRInTerminal: false,
         browser: ['Eskasaba Marketplace', 'Chrome', '1.0.0']
     });
+
+    isConnecting = false;
 
     sock.ev.on('creds.update', saveCreds);
 
@@ -56,11 +71,11 @@ async function connectToWhatsApp() {
             if (isLoggedOut) {
                 console.log('🔒 Session WhatsApp telah Keluar / Expired. Menyiapkan QR Code baru...');
                 clearAuthFolder();
-                setTimeout(() => connectToWhatsApp(), 3000);
-            } else {
-                // Untuk status code 428 / 515 / 408 / network loss: auto reconnect setelah 3 detik
-                setTimeout(() => connectToWhatsApp(), 3000);
             }
+
+            setTimeout(() => {
+                connectToWhatsApp();
+            }, 3000);
         } else if (connection === 'open') {
             isConnected = true;
             console.log('✅ Bot WhatsApp Baileys Berhasil Terhubung & Siap Digunakan!');
@@ -75,6 +90,15 @@ app.post('/send-message', async (req, res) => {
 
     if (!recipient || !message) {
         return res.status(400).json({ status: false, message: 'Nomor tujuan dan pesan wajib diisi.' });
+    }
+
+    // Tunggu toleransi hingga 2.5 detik jika koneksi sedang re-sync sebentar
+    if (!sock || !isConnected) {
+        let attempts = 0;
+        while ((!sock || !isConnected) && attempts < 25) {
+            await new Promise(r => setTimeout(r, 100));
+            attempts++;
+        }
     }
 
     if (!sock || !isConnected) {
@@ -93,12 +117,14 @@ app.post('/send-message', async (req, res) => {
         let jid = `${formattedNumber}@s.whatsapp.net`;
         let isRegistered = false;
 
-        // Cek validasi keberadaan nomor di WhatsApp via onWhatsApp()
+        // Cek validasi keberadaan nomor di WhatsApp via onWhatsApp() dengan timeout 1.5 detik agar tidak menggantung
         if (sock && sock.onWhatsApp) {
             try {
-                const [onWaResult] = await sock.onWhatsApp(formattedNumber);
-                if (onWaResult && onWaResult.exists) {
-                    jid = onWaResult.jid;
+                const onWaPromise = sock.onWhatsApp(formattedNumber);
+                const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 1500));
+                const resArray = await Promise.race([onWaPromise, timeoutPromise]);
+                if (resArray && Array.isArray(resArray) && resArray[0] && resArray[0].exists) {
+                    jid = resArray[0].jid;
                     isRegistered = true;
                 }
             } catch (err) {

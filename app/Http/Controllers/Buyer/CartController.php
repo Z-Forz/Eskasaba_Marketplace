@@ -54,16 +54,24 @@ class CartController extends Controller
             return back()->with('error', 'Kamu tidak dapat membeli produk dari tokomu sendiri.');
         }
 
-        // Determine correct item price based on selected variant
+        // Determine correct item price based on selected variant and check stock
         $itemPrice = $product->final_price;
+        $availableStock = (int) $product->stock;
 
         if ($product->hasVariants() && !empty($variantName)) {
             foreach ($product->variants as $var) {
                 if (isset($var['name']) && strcasecmp(trim($var['name']), trim($variantName)) === 0) {
                     $itemPrice = (float) $var['price'];
+                    if (isset($var['stock'])) {
+                        $availableStock = (int) $var['stock'];
+                    }
                     break;
                 }
             }
+        }
+
+        if ($availableStock <= 0) {
+            return back()->with('error', 'Stok untuk varian / produk ini sudah habis.');
         }
 
         $cart = Cart::firstOrCreate([

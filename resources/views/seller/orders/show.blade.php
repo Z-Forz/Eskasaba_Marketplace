@@ -44,7 +44,14 @@
                 default            => 1,
             };
 
-            $progressPercent = max(0, min(100, (($statusStep - 1) / 4) * 100));
+            $progressWidthClass = match($statusStep) {
+                1 => 'w-0',
+                2 => 'w-1/4',
+                3 => 'w-1/2',
+                4 => 'w-3/4',
+                5 => 'w-full',
+                default => 'w-0',
+            };
 
             // Format WhatsApp pre-filled text for seller to contact buyer
             $buyerName  = $order->user?->username ?? 'Pembeli';
@@ -80,8 +87,7 @@
                     {{-- Progress Line --}}
                     <div class="absolute left-0 top-1/2 -z-0 h-1 w-full -translate-y-1/2 bg-slate-100 dark:bg-slate-800"></div>
                     <div
-                        class="absolute left-0 top-1/2 -z-0 h-1 -translate-y-1/2 bg-emerald-600 transition-all duration-500"
-                        style="width: {{ $progressPercent }}%"
+                        class="absolute left-0 top-1/2 -z-0 h-1 -translate-y-1/2 bg-emerald-600 transition-all duration-500 {{ $progressWidthClass }}"
                     ></div>
 
                     {{-- Step 1 --}}
@@ -237,19 +243,89 @@
             </div>
 
             {{-- QRIS Preview for Seller --}}
-            @if(strtolower($order->payment?->method ?? '') === 'qris' && $order->seller?->qris_image)
-                <div class="mt-5 rounded-2xl border border-emerald-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 flex flex-col sm:flex-row items-center gap-4">
-                    <img
-                        src="{{ Storage::url($order->seller->qris_image) }}"
-                        alt="QRIS Toko"
-                        class="h-28 w-28 rounded-xl border border-slate-100 object-cover shadow-xs"
-                    >
-                    <div>
-                        <p class="text-xs font-bold text-slate-900 dark:text-white"><i class="fa-solid fa-qrcode mr-1 text-emerald-600"></i> Barcode QRIS Toko Anda yang Digunakan Pembeli</p>
-                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                            Silakan cek aplikasi mutasi m-banking/e-wallet Anda untuk memverifikasi dana sebesar <strong>Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}</strong> telah masuk sebelum mengonfirmasi pesanan.
-                        </p>
-                    </div>
+            {{-- QRIS Preview & Uploaded Proof Verification for Seller --}}
+            @if(strtolower($order->payment?->method ?? '') === 'qris')
+                <div class="mt-5 space-y-4">
+                    {{-- Uploaded Proof Card --}}
+                    @if($order->payment?->proof)
+                        <div class="rounded-3xl border-2 border-emerald-500/80 bg-emerald-50/50 p-5 dark:border-emerald-700/60 dark:bg-emerald-950/40">
+                            <div class="flex flex-col sm:flex-row items-center gap-5">
+                                <div class="relative shrink-0">
+                                    <img
+                                        src="{{ Storage::url($order->payment->proof) }}"
+                                        alt="Bukti Transfer Pembeli"
+                                        class="h-32 w-32 rounded-2xl border border-emerald-200 object-cover shadow-md cursor-pointer hover:opacity-90 transition"
+                                        onclick="window.open('{{ Storage::url($order->payment->proof) }}', '_blank')"
+                                    >
+                                    <span class="absolute bottom-2 right-2 rounded-lg bg-slate-900/80 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-xs">
+                                        🔍 Klik Perbesar
+                                    </span>
+                                </div>
+
+                                <div class="flex-1 text-center sm:text-left">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300">
+                                        <i class="fa-solid fa-shield-check text-emerald-600"></i> Bukti Transfer Diunggah Pembeli
+                                    </span>
+
+                                    <h3 class="mt-2 text-sm font-bold text-slate-900 dark:text-white">
+                                        Verifikasi Dana Masuk Sebesar: <span class="text-emerald-700 dark:text-emerald-400 font-black">Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}</span>
+                                    </h3>
+
+                                    <p class="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                        🛡️ <strong>Keamanan Pembayaran:</strong> Pastikan nama pengirim dan nominal mutasi di aplikasi m-banking / e-wallet Anda sudah sesuai dengan foto bukti transfer di atas sebelum memproses pesanan.
+                                    </p>
+
+                                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                                        <a
+                                            href="{{ Storage::url($order->payment->proof) }}"
+                                            target="_blank"
+                                            class="inline-flex items-center gap-1 rounded-xl bg-white px-3 py-1.5 text-xs font-bold text-slate-800 shadow-2xs border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700"
+                                        >
+                                            <i class="fa-solid fa-up-right-from-square text-[10px]"></i> Buka Foto Asli
+                                        </a>
+
+                                        @if($order->payment->status !== 'verified' && $order->payment->status !== 'paid')
+                                            <form action="{{ route('seller.orders.update', $order) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="payment_status" value="verified">
+                                                <button
+                                                    type="submit"
+                                                    class="inline-flex items-center gap-1 rounded-xl bg-emerald-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-800 transition cursor-pointer"
+                                                >
+                                                    <i class="fa-solid fa-check-double"></i> Konfirmasi Pembayaran Valid (Lunas)
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-900/50 dark:bg-amber-950/20 flex items-center gap-3">
+                            <i class="fa-solid fa-clock text-amber-600 text-lg"></i>
+                            <div>
+                                <p class="text-xs font-bold text-amber-900 dark:text-amber-300">Menunggu Pembeli Mengunggah Bukti Pembayaran</p>
+                                <p class="text-[11px] text-amber-700 dark:text-amber-400">Pembeli belum mengunggah struk/screenshot transfer QRIS. Anda dapat menanyakan via WhatsApp.</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($order->seller?->qris_image)
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 flex flex-col sm:flex-row items-center gap-4">
+                            <img
+                                src="{{ Storage::url($order->seller->qris_image) }}"
+                                alt="QRIS Toko"
+                                class="h-20 w-20 rounded-xl border border-slate-100 object-cover shadow-xs"
+                            >
+                            <div>
+                                <p class="text-xs font-bold text-slate-900 dark:text-white"><i class="fa-solid fa-qrcode mr-1 text-emerald-600"></i> Barcode QRIS Toko Anda</p>
+                                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    Total nominal yang harus masuk ke mutasi Anda: <strong>Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}</strong>.
+                                </p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             @endif
         </div>
@@ -396,13 +472,6 @@
                         </button>
                         <button
                             type="button"
-                            @click="locationInput = 'Ruang Lab Komputer / Praktikum'"
-                            class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                        >
-                            <i class="fa-solid fa-laptop-code mr-1"></i> Lab Komputer
-                        </button>
-                        <button
-                            type="button"
                             @click="locationInput = 'Pos Satpam Gerbang Sekolah'"
                             class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                         >
@@ -414,7 +483,7 @@
                 <div class="flex justify-end pt-2">
                     <button
                         type="submit"
-                        class="rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center gap-2 cursor-pointer"
+                        class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800 cursor-pointer"
                     >
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Konfirmasi Pesanan & Pembayaran
                     </button>

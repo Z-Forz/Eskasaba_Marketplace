@@ -115,6 +115,25 @@
                     @enderror
                 </div>
 
+                {{-- Class --}}
+                <div>
+                    <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Kelas (khusus untuk Siswa)
+                    </label>
+
+                    <input
+                        type="text"
+                        name="class_room"
+                        value="{{ old('class_room', $user->class_room) }}"
+                        placeholder="Contoh: XII RPL 1, XI TKJ 2"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    >
+
+                    @error('class_room')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 {{-- Phone --}}
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
