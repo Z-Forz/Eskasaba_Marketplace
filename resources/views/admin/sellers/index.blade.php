@@ -58,7 +58,7 @@
                             <tr>
                                 <th class="px-6 py-4">Seller / Pengguna</th>
                                 <th class="px-6 py-4">Identitas Sekolah</th>
-                                <th class="px-6 py-4">WhatsApp Toko</th>
+                                <th class="px-6 py-4">No WhatsApp</th>
                                 <th class="px-6 py-4">Jumlah Produk</th>
                                 <th class="px-6 py-4">Status</th>
                                 <th class="px-6 py-4 text-right">Aksi</th>

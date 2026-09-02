@@ -92,13 +92,6 @@
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}</span>
                     </div>
 
-                    <div class="flex justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                        <span class="text-xs font-medium text-slate-400">Status Password</span>
-                        <span class="font-bold text-xs {{ $user->is_default_password ? 'text-amber-600' : 'text-emerald-600' }}">
-                            {{ $user->is_default_password ? 'Belum diganti (Default)' : 'Sudah diganti kustom' }}
-                        </span>
-                    </div>
-
                     <div class="flex justify-between">
                         <span class="text-xs font-medium text-slate-400">Tanggal Bergabung</span>
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->created_at?->format('d F Y') ?? '-' }}</span>
@@ -135,44 +128,6 @@
                 </div>
 
             </section>
-
-        </div>
-
-        {{-- Admin Password Reset Form Box --}}
-        <div class="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 shadow-xs dark:border-amber-900/50 dark:bg-amber-950/20">
-
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h3 class="font-bold text-amber-900 dark:text-amber-300 text-base flex items-center gap-2">
-                        <i class="fa-solid fa-key"></i> Lupa Kata Sandi? Reset Password User
-                    </h3>
-
-                    <p class="mt-1 text-xs text-amber-800/80 dark:text-amber-400">
-                        Jika siswa/guru lupa password, Admin dapat mereset password pengguna ini secara instan di sini.
-                    </p>
-                </div>
-
-                <form method="POST" action="{{ route('admin.users.reset-password', $user) }}" class="flex items-center gap-2">
-                    @csrf
-                    @method('PUT')
-
-                    <input
-                        type="text"
-                        name="new_password"
-                        placeholder="Password baru..."
-                        value="12345678"
-                        required
-                        class="rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-amber-200"
-                    >
-
-                    <button
-                        type="submit"
-                        class="rounded-xl bg-amber-700 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-amber-800 shrink-0"
-                    >
-                        Reset Password Now
-                    </button>
-                </form>
-            </div>
 
         </div>
 

@@ -22,8 +22,6 @@ Route::middleware(['auth:admin'])
         Route::post('users/sync', [UserController::class, 'sync'])
             ->name('users.sync');
         Route::resource('users', UserController::class);
-        Route::put('users/{user}/reset-password', [UserController::class, 'resetPassword'])
-            ->name('users.reset-password');
 
         Route::resource('categories', CategoryController::class);
 
@@ -47,7 +45,7 @@ Route::middleware(['auth:admin'])
             ->only(['index', 'show']);
 
         Route::resource('payments', PaymentController::class)
-            ->only(['index', 'show']);
+            ->only(['index', 'show', 'update']);
 
         // Reports routes
         Route::get('/reports/products', [ReportController::class, 'products'])

@@ -86,7 +86,7 @@
                         @forelse ($recentSales as $sale)
                             <tr class="hover:bg-slate-50/60 dark:hover:bg-gray-800/50">
                                 <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
-                                    #{{ $sale->id }}
+                                    {{ $sale->id }}
                                 </td>
                                 <td class="px-6 py-4 text-xs font-semibold text-slate-800 dark:text-gray-200">
                                     {{ $sale->buyer?->username ?? '-' }}

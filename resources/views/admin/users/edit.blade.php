@@ -16,7 +16,7 @@
             </h1>
 
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                Perbarui informasi akun, email, NIS/NIP, atau reset kata sandi pengguna ini.
+                Perbarui informasi akun, email, NIS/NIP, atau kelas pengguna ini.
             </p>
         </div>
 
@@ -146,26 +146,6 @@
                         value="{{ old('phone', $user->phone) }}"
                         class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
-                </div>
-
-                {{-- Ubah Password Secara Langsung --}}
-                <div class="border-t border-slate-100 pt-5 dark:border-slate-800">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-sm">
-                        🔑 Ubah Password Pengguna (Jika Lupa Sandi)
-                    </h3>
-
-                    <p class="mt-1 text-xs text-slate-500">
-                        Isi input di bawah ini jika pengguna meminta bantuan admin untuk mengganti password baru. Kosongkan jika tidak ingin diubah.
-                    </p>
-
-                    <div class="mt-3">
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Masukkan password baru untuk pengguna ini..."
-                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
-                    </div>
                 </div>
 
             </div>

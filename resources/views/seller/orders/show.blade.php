@@ -64,7 +64,8 @@
                 $itemsSummary .= ($idx + 1) . ". {$item->product_name}{$flavor} - {$item->quantity}x @ Rp {$price}\n";
             }
 
-            $sellerWaText = "Halo Kak {$buyerName}, saya {$sellerName} dari Toko Eskasaba Marketplace.\n\n"
+            $sellerPhoneNum = $order->seller?->whatsapp_number ?: ($order->seller?->user?->phone ?: '-');
+            $sellerWaText = "Halo Kak {$buyerName}, saya {$sellerName} (No. HP Toko: {$sellerPhoneNum}) dari Toko Eskasaba Marketplace.\n\n"
                 . "📦 *INFORMASI PESANAN ANDA*\n"
                 . "• Invoice: {$order->invoice_number}\n"
                 . "• Status Pesanan: " . ucfirst(str_replace('_', ' ', $order->status)) . "\n"

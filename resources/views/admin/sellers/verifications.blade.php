@@ -212,7 +212,9 @@
             @else
 
                 <div class="p-12 text-center">
-                    <div class="text-5xl">✅</div>
+                    <div class="text-5xl">
+                        <i class="fa-solid fa-square-check text-emerald-700"></i>
+                    </div>
                     <h2 class="mt-4 text-lg font-bold text-slate-900 dark:text-white">
                         Tidak Ada Pengajuan Menunggu
                     </h2>

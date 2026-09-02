@@ -11,7 +11,7 @@
                 </h1>
 
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Kelola daftar pengguna terdaftar (Siswa & Guru) dan informasi email/password di Eskasaba Marketplace.
+                    Kelola daftar pengguna terdaftar (Siswa & Guru) di Eskasaba Marketplace.
                 </p>
             </div>
 
@@ -155,20 +155,6 @@
                                         >
                                             <i class="fa-solid fa-pen-to-square"></i> Edit
                                         </a>
-
-                                        {{-- Reset Password Quick Form --}}
-                                        <form method="POST" action="{{ route('admin.users.reset-password', $user) }}" class="inline-block" onsubmit="return confirm('Reset password untuk {{ $user->username }} menjadi \'12345678\'?')">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="new_password" value="12345678">
-                                            <button
-                                                type="submit"
-                                                title="Reset Password ke 12345678"
-                                                class="inline-flex items-center gap-1 rounded-xl border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-700 transition hover:bg-amber-100"
-                                            >
-                                                <i class="fa-solid fa-key"></i> Reset Pass
-                                            </button>
-                                        </form>
                                     </div>
                                 </td>
 
@@ -252,18 +238,6 @@
                         >
                             <i class="fa-solid fa-pen-to-square"></i> Edit
                         </a>
-
-                        <form method="POST" action="{{ route('admin.users.reset-password', $user) }}" class="flex-1" onsubmit="return confirm('Reset password untuk {{ $user->username }} menjadi \'12345678\'?')">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="new_password" value="12345678">
-                            <button
-                                type="submit"
-                                class="w-full rounded-2xl border border-amber-300 bg-amber-50 py-2 text-center text-xs font-bold text-amber-700 flex items-center justify-center gap-1"
-                            >
-                                <i class="fa-solid fa-key"></i> Reset Pass
-                            </button>
-                        </form>
                     </div>
 
                 </div>

@@ -152,23 +152,6 @@
                     >
                 </div>
 
-                {{-- Initial Password --}}
-                <div class="border-t border-slate-100 pt-5 dark:border-slate-800">
-                    <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Password Awal Akun
-                    </label>
-
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Default jika kosong: 'password'"
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                    >
-                    <p class="mt-1.5 text-xs text-slate-400">
-                        Jika dikosongkan, password awal otomatis diset ke <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700 font-bold">password</code>.
-                    </p>
-                </div>
-
             </div>
 
             {{-- Actions --}}

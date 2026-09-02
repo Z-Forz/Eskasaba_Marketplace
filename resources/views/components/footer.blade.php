@@ -23,7 +23,7 @@
 
                     <div>
                         <span class="text-lg font-black tracking-tight text-white block">
-                            Eskasaba <span class="text-emerald-400">Market</span>
+                            Eskasaba <span class="text-emerald-400">Marketplace</span>
                         </span>
                         <span class="text-[10px] font-semibold text-emerald-400/80 uppercase tracking-widest block">
                             SMKN 1 Bangsri

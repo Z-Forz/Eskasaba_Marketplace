@@ -12,7 +12,7 @@
                 </a>
 
                 <h1 class="mt-2 text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-receipt text-emerald-600"></i> Detail Invoice: #{{ $order->invoice_number ?? $order->id }}
+                    <i class="fa-solid fa-receipt text-emerald-600"></i> Detail Invoice: {{ $order->invoice_number ?? $order->id }}
                 </h1>
 
                 <p class="mt-1 text-xs text-slate-400 flex items-center gap-1">

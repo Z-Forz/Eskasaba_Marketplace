@@ -72,8 +72,8 @@
 
                             <div class="flex items-center gap-4 py-4">
 
-                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
-                                    📦
+                                <div class="flex h-12 w-12 shrink-0 items-center justify-center bg-gray-100 dark:bg-gray-800">
+                                    <img src="{{ Storage::url($product->images->first()->image) }}" alt="{{ $product->name }}" class="h-full w-full object-cover rounded-xl">
                                 </div>
 
                                 <div class="min-w-0 flex-1">

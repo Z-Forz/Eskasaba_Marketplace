@@ -83,7 +83,7 @@
 
                                 <td class="px-6 py-4">
                                     <p class="font-black text-slate-900 dark:text-white">
-                                        #PAY-{{ $payment->id }}
+                                     PAY-{{ $payment->id }}
                                     </p>
 
                                     <p class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
@@ -93,7 +93,7 @@
 
                                 <td class="px-6 py-4">
                                     <p class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                        <i class="fa-solid fa-receipt text-emerald-600 text-xs"></i> Invoice #{{ $payment->order?->invoice_number ?? $payment->order_id }}
+                                        <i class="fa-solid fa-receipt text-emerald-600 text-xs"></i> Invoice {{ $payment->order?->invoice_number ?? $payment->order_id }}
                                     </p>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
                                         <i class="fa-solid fa-user text-[10px]"></i> {{ $payment->order?->user?->username ?? 'Pembeli' }}

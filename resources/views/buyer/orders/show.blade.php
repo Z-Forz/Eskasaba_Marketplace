@@ -68,7 +68,8 @@
                 $itemsSummary .= ($idx + 1) . ". {$item->product_name}{$optText} - {$item->quantity}x @ Rp {$price}\n";
             }
 
-            $waText = "Halo Kak {$sellerName}, saya {$buyerName} dari Eskasaba Marketplace.\n\n"
+            $buyerPhoneNum = $order->user?->phone ?: '-';
+            $waText = "Halo Kak {$sellerName}, saya {$buyerName} (No. HP: {$buyerPhoneNum}) dari Eskasaba Marketplace.\n\n"
                 . "📦 *DETAIL PESANAN SAYA*\n"
                 . "• Invoice: {$order->invoice_number}\n"
                 . "• Waktu Pesanan: " . ($order->created_at?->format('d M Y, H:i') ?? '-') . "\n"

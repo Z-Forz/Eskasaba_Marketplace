@@ -107,15 +107,18 @@ class WhatsAppService
 
         $pickupLoc = $order->pickup_location ?: 'COD Sekolah';
 
-        // 1. Notifikasi ke Penjual
-        if ($order->seller?->whatsapp_number || $order->seller?->user?->phone) {
-            $sellerPhone = $order->seller->whatsapp_number ?: $order->seller->user->phone;
+        $sellerPhone = $order->seller?->whatsapp_number ?: $order->seller?->user?->phone;
+        $buyerPhone = $order->user?->phone;
 
+        // 1. Notifikasi ke Penjual
+        if ($sellerPhone) {
+            $buyerPhoneText = $buyerPhone ?: '-';
             $sellerMsg = "🛍️ *PESANAN BARU MASUK!*\n\n"
                 . "Halo *{$order->seller->user->username}*,\n"
                 . "Anda mendapatkan pesanan baru di Eskasaba Marketplace!\n\n"
                 . "📄 *Invoice:* #{$order->invoice_number}\n"
                 . "👤 *Pembeli:* {$order->user->username}\n"
+                . "📱 *No. HP/WA Pembeli:* {$buyerPhoneText}\n"
                 . "📍 *Lokasi & Waktu Pengambilan:* {$pickupLoc}\n"
                 . "💰 *Total:* Rp " . number_format($order->total_price, 0, ',', '.') . "\n\n"
                 . "📋 *Item Pesanan:*\n{$itemsList}\n"
@@ -126,12 +129,13 @@ class WhatsAppService
         }
 
         // 2. Notifikasi ke Pembeli
-        $buyerPhone = $order->user->phone;
         if ($buyerPhone) {
+            $sellerPhoneText = $sellerPhone ?: '-';
             $buyerMsg = "✅ *PESANAN BERHASIL DIBUAT!*\n\n"
                 . "Halo *{$order->user->username}*,\n"
                 . "Pesanan Anda dengan Invoice *#{$order->invoice_number}* telah berhasil dibuat.\n\n"
                 . "🏪 *Toko Penjual:* {$order->seller->user->username}\n"
+                . "📱 *No. HP/WA Penjual:* {$sellerPhoneText}\n"
                 . "💰 *Total Pembayaran:* Rp " . number_format($order->total_price, 0, ',', '.') . "\n"
                 . "📍 *Lokasi & Waktu Pengambilan:* {$pickupLoc}\n\n"
                 . "📋 *Item Pesanan:*\n{$itemsList}\n"
@@ -155,6 +159,8 @@ class WhatsAppService
             Log::warning("WhatsAppService: Nomor HP Pembeli '{$order->user?->username}' tidak diisi untuk pesanan #{$order->invoice_number}.");
             return;
         }
+
+        $sellerPhoneText = $order->seller?->whatsapp_number ?: ($order->seller?->user?->phone ?: '-');
 
         $statusLabel = match ($order->status) {
             'pending'          => 'Menunggu Konfirmasi ⏳',
@@ -186,6 +192,7 @@ class WhatsAppService
             . "Status pesanan *#{$order->invoice_number}* Anda telah diperbarui menjadi:\n"
             . "👉 *{$statusLabel}*\n\n"
             . "🏪 *Toko Penjual:* {$order->seller->user->username}\n"
+            . "📱 *No. HP/WA Penjual:* {$sellerPhoneText}\n"
             . "📍 *Titik Pengambilan:* {$pickupLoc}\n"
             . (!empty($itemsList) ? "📋 *Item:*\n{$itemsList}\n" : "")
             . "\nTerima kasih telah berbelanja di Eskasaba Marketplace!\n"

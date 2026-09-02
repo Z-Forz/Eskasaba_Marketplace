@@ -12,11 +12,11 @@
             <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                        <i class="fa-solid fa-credit-card text-emerald-600"></i> Detail Pembayaran #PAY-{{ $payment->id }}
+                        <i class="fa-solid fa-credit-card text-emerald-600"></i> Detail Pembayaran PAY-{{ $payment->id }}
                     </h1>
 
                     <p class="text-sm text-slate-500 flex items-center gap-1.5 mt-1">
-                        <i class="fa-solid fa-receipt text-emerald-600"></i> Pesanan Invoice: <strong>#{{ $payment->order?->invoice_number ?? $payment->order_id }}</strong>
+                        <i class="fa-solid fa-receipt text-emerald-600"></i> Pesanan Invoice: <strong>{{ $payment->order?->invoice_number ?? $payment->order_id }}</strong>
                     </p>
                 </div>
 
@@ -130,40 +130,5 @@
             </div>
 
         </div>
-
-        {{-- Verification Status Action Card --}}
-        <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-            <h2 class="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
-                <i class="fa-solid fa-gavel text-emerald-600"></i> Aksi Konfirmasi Status Pembayaran
-            </h2>
-
-            <div class="flex flex-wrap items-center gap-3">
-                <form action="{{ route('admin.payments.update', $payment) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="status" value="verified">
-                    <button
-                        type="submit"
-                        class="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800"
-                    >
-                        <i class="fa-solid fa-circle-check"></i> Verifikasi Pembayaran (Setujui Lunas)
-                    </button>
-                </form>
-
-                <form action="{{ route('admin.payments.update', $payment) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="status" value="rejected">
-                    <button
-                        type="submit"
-                        onclick="return confirm('Yakin ingin menolak bukti pembayaran ini?')"
-                        class="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-red-700"
-                    >
-                        <i class="fa-solid fa-circle-xmark"></i> Tolak Pembayaran
-                    </button>
-                </form>
-            </div>
-        </div>
-
     </div>
 </x-layouts.admin>

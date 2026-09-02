@@ -41,12 +41,12 @@
                         class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
                         <option value="">Semua Status</option>
-                        <option value="pending" @selected(request('status') === 'pending')>⏳ Menunggu Konfirmasi (Pending)</option>
-                        <option value="confirmed" @selected(request('status') === 'confirmed')>✅ Dikonfirmasi</option>
-                        <option value="processing" @selected(request('status') === 'processing')>🍳 Diproses Seller</option>
-                        <option value="ready_for_pickup" @selected(request('status') === 'ready_for_pickup')>📦 Siap Diambil</option>
-                        <option value="completed" @selected(request('status') === 'completed')>🎉 Selesai</option>
-                        <option value="cancelled" @selected(request('status') === 'cancelled')>❌ Dibatalkan</option>
+                        <option value="pending" @selected(request('status') === 'pending')>Menunggu Konfirmasi (Pending)</option>
+                        <option value="confirmed" @selected(request('status') === 'confirmed')>Dikonfirmasi</option>
+                        <option value="processing" @selected(request('status') === 'processing')>Diproses Seller</option>
+                        <option value="ready_for_pickup" @selected(request('status') === 'ready_for_pickup')>Siap Diambil</option>
+                        <option value="completed" @selected(request('status') === 'completed')>Selesai</option>
+                        <option value="cancelled" @selected(request('status') === 'cancelled')>Dibatalkan</option>
                     </select>
                 </div>
 
@@ -90,7 +90,7 @@
 
                                 <td class="whitespace-nowrap px-6 py-4">
                                     <p class="font-bold text-slate-900 dark:text-white flex items-center gap-1">
-                                        <i class="fa-solid fa-receipt text-emerald-600 text-xs"></i> #{{ $order->invoice_number ?? $order->id }}
+                                        <i class="fa-solid fa-receipt text-emerald-600 text-xs"></i> {{ $order->invoice_number ?? $order->id }}
                                     </p>
                                     <p class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                                         <i class="fa-solid fa-clock text-[10px]"></i> {{ $order->created_at?->format('d M Y H:i') }}
@@ -167,7 +167,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="font-bold text-slate-900 dark:text-white">
-                                    #{{ $order->invoice_number ?? $order->id }}
+                                    {{ $order->invoice_number ?? $order->id }}
                                 </p>
                                 <p class="text-xs text-slate-500">
                                     {{ $order->created_at?->format('d M Y H:i') }}

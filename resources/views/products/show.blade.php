@@ -355,42 +355,182 @@
             </div>
 
             {{-- Reviews Section --}}
-            <div class="mt-16 border-t border-slate-200/80 pt-12 dark:border-slate-800">
-                <h2 class="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl flex items-center gap-2">
-                    <i class="fa-solid fa-star text-amber-400"></i> Ulasan Pembeli ({{ $product->reviews_count ?? $product->reviews->count() }})
-                </h2>
+            <div x-data="{ selectedRating: 'all' }" class="mt-16 border-t border-slate-200/80 pt-12 dark:border-slate-800">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl flex items-center gap-2">
+                        <i class="fa-solid fa-star text-amber-400"></i> Ulasan Pembeli ({{ $product->reviews_count ?? $product->reviews->count() }})
+                    </h2>
+                </div>
 
                 @if($product->reviews && $product->reviews->isNotEmpty())
-                    <div class="mt-6 divide-y divide-slate-100 rounded-3xl border border-slate-200/80 bg-white shadow-xs dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
+                    @php
+                        $totalReviews = $product->reviews_count ?? $product->reviews->count();
+                        $avgRating = number_format($product->reviews_avg_rating ?? ($totalReviews > 0 ? $product->reviews->avg('rating') : 0), 1);
+                        
+                        $ratingCounts = [
+                            5 => $product->reviews->where('rating', 5)->count(),
+                            4 => $product->reviews->where('rating', 4)->count(),
+                            3 => $product->reviews->where('rating', 3)->count(),
+                            2 => $product->reviews->where('rating', 2)->count(),
+                            1 => $product->reviews->where('rating', 1)->count(),
+                        ];
+                    @endphp
+
+                    {{-- Summary Rating Header Card --}}
+                    <div class="mt-6 rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-6 sm:p-8 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:to-slate-900/60">
+                        <div class="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
+                            <!-- Average Score Column -->
+                            <div class="text-center md:col-span-4 md:border-r md:border-slate-200/80 md:pr-8 dark:md:border-slate-800">
+                                <p class="text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+                                    {{ $avgRating }} <span class="text-lg font-bold text-slate-400">/ 5.0</span>
+                                </p>
+                                <div class="mt-2 flex justify-center gap-1 text-amber-400 text-lg">
+                                    @for($star = 1; $star <= 5; $star++)
+                                        <i class="fa-solid fa-star {{ $star <= round($avgRating) ? 'text-amber-400' : 'text-slate-200 dark:text-slate-700' }}"></i>
+                                    @endfor
+                                </div>
+                                <p class="mt-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                    Berdasarkan {{ $totalReviews }} ulasan pembeli terverifikasi
+                                </p>
+                            </div>
+
+                            <!-- Rating Distribution Progress Bars (Clickable Filters) -->
+                            <div class="space-y-1.5 md:col-span-8">
+                                @for($star = 5; $star >= 1; $star--)
+                                    @php
+                                        $count = $ratingCounts[$star];
+                                        $percent = $totalReviews > 0 ? round(($count / $totalReviews) * 100) : 0;
+                                    @endphp
+                                    <button
+                                        type="button"
+                                        @click="selectedRating = selectedRating === '{{ $star }}' ? 'all' : '{{ $star }}'"
+                                        class="flex w-full items-center gap-3 text-xs rounded-xl px-2 py-1.5 transition hover:bg-slate-200/50 dark:hover:bg-slate-800/60 text-left group cursor-pointer"
+                                        :class="selectedRating === '{{ $star }}' ? 'bg-amber-500/10 dark:bg-amber-500/20 ring-1 ring-amber-400/50' : ''"
+                                    >
+                                        <span class="flex w-12 items-center gap-1 font-bold text-slate-700 dark:text-slate-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition">
+                                            {{ $star }} <i class="fa-solid fa-star text-[10px] text-amber-400"></i>
+                                        </span>
+                                        <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200/70 dark:bg-slate-800">
+                                            <div class="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500" style="width: {{ $percent }}%"></div>
+                                        </div>
+                                        <span class="w-16 text-right font-semibold text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200">
+                                            {{ $count }} ({{ $percent }}%)
+                                        </span>
+                                    </button>
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Rating Filter Tabs (All, 5 Star, 4 Star, etc) --}}
+                    <div class="mt-6 flex flex-wrap items-center gap-2">
+                        <span class="mr-1 text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-filter text-emerald-600"></i> Filter Rating:
+                        </span>
+
+                        <button
+                            type="button"
+                            @click="selectedRating = 'all'"
+                            class="inline-flex items-center gap-1.5 rounded-2xl px-4 py-2 text-xs font-bold transition shadow-2xs cursor-pointer"
+                            :class="selectedRating === 'all' ? 'bg-emerald-700 text-white shadow-emerald-700/20 ring-2 ring-emerald-700' : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-800 dark:hover:bg-slate-800'"
+                        >
+                            Semua Ulasan ({{ $totalReviews }})
+                        </button>
+
+                        @for($star = 5; $star >= 1; $star--)
+                            @php $count = $ratingCounts[$star]; @endphp
+                            <button
+                                type="button"
+                                @click="selectedRating = '{{ $star }}'"
+                                class="inline-flex items-center gap-1.5 rounded-2xl px-3.5 py-2 text-xs font-bold transition shadow-2xs cursor-pointer"
+                                :class="selectedRating === '{{ $star }}' ? 'bg-amber-500 text-white shadow-amber-500/20 ring-2 ring-amber-500' : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-800 dark:hover:bg-slate-800'"
+                            >
+                                <span>{{ $star }}</span>
+                                <i class="fa-solid fa-star text-[10px]" :class="selectedRating === '{{ $star }}' ? 'text-white' : 'text-amber-400'"></i>
+                                <span class="rounded-full px-1.5 py-0.5 text-[10px]" :class="selectedRating === '{{ $star }}' ? 'bg-white/25 text-white font-bold' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'">
+                                    {{ $count }}
+                                </span>
+                            </button>
+                        @endfor
+                    </div>
+
+                    {{-- Review Cards Grid --}}
+                    <div class="mt-6 grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
                         @foreach($product->reviews as $review)
-                            <div class="p-5 sm:p-6">
-                                <div class="flex items-center justify-between gap-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
-                                            {{ strtoupper(substr($review->user?->username ?? 'U', 0, 1)) }}
+                            @php
+                                $colors = [
+                                    'from-emerald-500 to-teal-600',
+                                    'from-indigo-500 to-purple-600',
+                                    'from-amber-500 to-orange-600',
+                                    'from-sky-500 to-blue-600',
+                                    'from-rose-500 to-pink-600',
+                                ];
+                                $colorClass = $colors[abs(crc32($review->user?->username ?? 'User')) % count($colors)];
+                            @endphp
+                            <div
+                                x-show="selectedRating === 'all' || selectedRating == {{ $review->rating }}"
+                                x-transition:enter="transition ease-out duration-300"
+                                x-transition:enter-start="opacity-0 transform scale-95"
+                                x-transition:enter-end="opacity-100 transform scale-100"
+                                class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-2xs transition hover:border-emerald-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+                            >
+                                <div>
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br {{ $colorClass }} font-bold text-white shadow-xs text-sm">
+                                                {{ strtoupper(substr($review->user?->username ?? 'U', 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-slate-900 dark:text-white">
+                                                    {{ $review->user?->username ?? 'Pembeli' }}
+                                                </p>
+                                                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 mt-0.5">
+                                                    <i class="fa-solid fa-circle-check text-[9px]"></i> Pembeli Terverifikasi
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-bold text-slate-900 dark:text-white">
-                                                {{ $review->user?->username ?? 'Pembeli' }}
-                                            </p>
-                                            <p class="text-[11px] font-medium text-slate-400">
-                                                {{ $review->created_at?->diffForHumans() }}
-                                            </p>
-                                        </div>
+
+                                        <span class="text-[11px] font-medium text-slate-400 shrink-0">
+                                            {{ $review->created_at?->diffForHumans() }}
+                                        </span>
                                     </div>
-                                    <div class="flex items-center gap-1 text-amber-400">
+
+                                    <div class="mt-3 flex items-center gap-1 text-amber-400">
                                         @for($i = 1; $i <= 5; $i++)
                                             <i class="fa-solid fa-star text-xs {{ $i <= $review->rating ? 'text-amber-400' : 'text-slate-200 dark:text-slate-700' }}"></i>
                                         @endfor
                                     </div>
+
+                                    @if($review->comment)
+                                        <p class="mt-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal bg-slate-50/80 dark:bg-slate-800/40 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800/80">
+                                            "{{ $review->comment }}"
+                                        </p>
+                                    @endif
                                 </div>
-                                @if($review->comment)
-                                    <p class="mt-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                                        "{{ $review->comment }}"
-                                    </p>
-                                @endif
                             </div>
                         @endforeach
+                    </div>
+
+                    {{-- Empty State when selected filter has 0 reviews --}}
+                    @php
+                        $availableRatings = $product->reviews->pluck('rating')->toArray();
+                    @endphp
+                    <div
+                        x-show="selectedRating !== 'all' && !{{ json_encode($availableRatings) }}.includes(parseInt(selectedRating))"
+                        x-cloak
+                        class="mt-6 rounded-3xl border border-slate-200/80 bg-white p-8 text-center shadow-xs dark:border-slate-800 dark:bg-slate-900"
+                    >
+                        <i class="fa-solid fa-star-half-stroke text-3xl text-amber-400/70 mb-2"></i>
+                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
+                            Belum ada ulasan untuk rating <span x-text="selectedRating" class="text-amber-500"></span> Bintang.
+                        </p>
+                        <button
+                            type="button"
+                            @click="selectedRating = 'all'"
+                            class="mt-3 inline-flex items-center gap-1.5 rounded-2xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-800 transition cursor-pointer"
+                        >
+                            <i class="fa-solid fa-rotate-left text-[10px]"></i> Tampilkan Semua Ulasan
+                        </button>
                     </div>
                 @else
                     <div class="mt-6 rounded-3xl border border-slate-200/80 bg-white p-8 text-center shadow-xs dark:border-slate-800 dark:bg-slate-900">
