@@ -18,18 +18,30 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         $search = $request->query('search');
+        $role   = $request->query('role');
 
         $users = User::when($search, function ($query) use ($search) {
-            $query->where('username', 'like', "%{$search}%")
-                ->orWhere('nis_nip', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('class_room', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                    ->orWhere('nis_nip', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('class_room', 'like', "%{$search}%");
+            });
+        })
+        ->when($role, function ($query) use ($role) {
+            $query->where('role', $role);
         })
         ->latest()
-        ->paginate(10)
+        ->paginate(15)
         ->withQueryString();
 
-        return view('admin.users.index', compact('users', 'search'));
+        $roleCounts = [
+            'all'     => User::count(),
+            'student' => User::where('role', 'student')->count(),
+            'teacher' => User::where('role', 'teacher')->count(),
+        ];
+
+        return view('admin.users.index', compact('users', 'search', 'role', 'roleCounts'));
     }
 
     /**

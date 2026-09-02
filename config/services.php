@@ -47,4 +47,10 @@ return [
         'token' => env('SCHOOL_API_TOKEN', ''),
     ],
 
+    'sipintu' => [
+        'url'           => env('SIPINTU_API_URL', 'http://localhost:8000'),
+        'client_id'     => env('SIPINTU_CLIENT_ID', 'app_v29pk53cxv31'),
+        'client_secret' => env('SIPINTU_CLIENT_SECRET', 'sec_xze4KWGaY1CMfJkM1xI0vrSALMOJmsu1'),
+    ],
+
 ];

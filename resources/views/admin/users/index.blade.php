@@ -16,13 +16,13 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <form action="{{ route('admin.users.sync') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mensinkronkan data pengguna dengan Database Sekolah?')">
+                <form action="{{ route('admin.users.sync') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mensinkronkan data pengguna dengan SiPintu Identity & API Gateway Sekolah?')">
                     @csrf
                     <button
                         type="submit"
-                        class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-600 bg-emerald-50 px-5 py-3 text-sm font-bold text-emerald-800 shadow-xs transition hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60"
+                        class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-600 bg-emerald-50 px-5 py-3 text-sm font-bold text-emerald-800 shadow-xs transition hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60 cursor-pointer"
                     >
-                        <i class="fa-solid fa-rotate text-emerald-600"></i> Sinkronisasi Database Sekolah
+                        <i class="fa-solid fa-rotate text-emerald-600"></i> Sinkronisasi SiPintu Gateway
                     </button>
                 </form>
 
@@ -40,30 +40,84 @@
             <x-alert type="success" :message="session('success')" class="mb-4" />
         @endif
 
-        {{-- Search --}}
+        {{-- Quick Role Filter Tabs --}}
+        <div class="flex flex-wrap items-center gap-2">
+            <a
+                href="{{ route('admin.users.index', array_filter(['search' => request('search')])) }}"
+                class="inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition shadow-2xs {{ empty(request('role')) ? 'bg-emerald-700 text-white shadow-emerald-700/20 ring-2 ring-emerald-700' : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-800' }}"
+            >
+                <i class="fa-solid fa-users text-[11px]"></i> Semua Pengguna
+                <span class="rounded-full px-2 py-0.5 text-[10px] {{ empty(request('role')) ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' }}">
+                    {{ $roleCounts['all'] ?? 0 }}
+                </span>
+            </a>
+
+            <a
+                href="{{ route('admin.users.index', array_filter(['role' => 'student', 'search' => request('search')])) }}"
+                class="inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition shadow-2xs {{ request('role') === 'student' ? 'bg-emerald-700 text-white shadow-emerald-700/20 ring-2 ring-emerald-700' : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-800' }}"
+            >
+                <i class="fa-solid fa-graduation-cap text-[11px]"></i> Siswa Aktif
+                <span class="rounded-full px-2 py-0.5 text-[10px] {{ request('role') === 'student' ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' }}">
+                    {{ $roleCounts['student'] ?? 0 }}
+                </span>
+            </a>
+
+            <a
+                href="{{ route('admin.users.index', array_filter(['role' => 'teacher', 'search' => request('search')])) }}"
+                class="inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold transition shadow-2xs {{ request('role') === 'teacher' ? 'bg-amber-600 text-white shadow-amber-600/20 ring-2 ring-amber-600' : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-800' }}"
+            >
+                <i class="fa-solid fa-chalkboard-user text-[11px]"></i> Dewan Guru
+                <span class="rounded-full px-2 py-0.5 text-[10px] {{ request('role') === 'teacher' ? 'bg-white/20 text-white' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300' }}">
+                    {{ $roleCounts['teacher'] ?? 0 }}
+                </span>
+            </a>
+        </div>
+
+        {{-- Search & Filter Bar --}}
         <div class="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
             <form
                 method="GET"
                 action="{{ route('admin.users.index') }}"
-                class="flex flex-col gap-2 sm:flex-row"
+                class="flex flex-col gap-3 sm:flex-row sm:items-center"
             >
                 <div class="relative flex-1">
                     <input
                         type="search"
                         name="search"
                         value="{{ $search ?? request('search') }}"
-                        placeholder="Cari nama, NIS/NIP, email, nomor HP..."
+                        placeholder="Cari nama, NIS/NIP, email, kelas..."
                         class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 pl-10 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
                 </div>
 
+                <div class="w-full sm:w-48">
+                    <select
+                        name="role"
+                        onchange="this.form.submit()"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white cursor-pointer"
+                    >
+                        <option value="">Semua Peran (Role)</option>
+                        <option value="student" @selected(request('role') === 'student')>🎓 Siswa</option>
+                        <option value="teacher" @selected(request('role') === 'teacher')>👨‍🏫 Guru</option>
+                    </select>
+                </div>
+
                 <button
                     type="submit"
-                    class="rounded-2xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center justify-center gap-1.5"
+                    class="rounded-2xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                    <i class="fa-solid fa-magnifying-glass"></i> Cari
+                    <i class="fa-solid fa-magnifying-glass"></i> Filter
                 </button>
+
+                @if(request()->hasAny(['search', 'role']))
+                    <a
+                        href="{{ route('admin.users.index') }}"
+                        class="rounded-2xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 flex items-center justify-center gap-1"
+                    >
+                        <i class="fa-solid fa-rotate-left"></i> Reset
+                    </a>
+                @endif
             </form>
         </div>
 
