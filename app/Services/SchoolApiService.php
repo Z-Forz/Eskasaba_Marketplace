@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -19,18 +20,21 @@ class SchoolApiService
 
     public function __construct()
     {
-        $this->baseUrl      = rtrim(config('services.sipintu.url', config('services.school_api.url', 'http://localhost:8000')), '/');
-        $this->clientId     = config('services.sipintu.client_id', 'app_v29pk53cxv31');
-        $this->clientSecret = config('services.sipintu.client_secret', 'sec_xze4KWGaY1CMfJkM1xI0vrSALMOJmsu1');
+        $this->baseUrl      = rtrim(config('services.sipintu.url', 'https://sipintu.smkn1bangsri.sch.id'), '/');
+        $this->clientId     = config('services.sipintu.client_id', 'app_2o8jtpekzdeh');
+        $this->clientSecret = config('services.sipintu.client_secret', 'sec_BpEVnzLBIIP4eR4cdjhXHtdPF67Dj3OO');
     }
 
+    /**
+     * Heartbeat & Validasi Koneksi ke SiPintu Gateway.
+     */
     /**
      * Heartbeat & Validasi Koneksi ke SiPintu Gateway.
      */
     public function ping(): bool
     {
         try {
-            $response = Http::timeout(4)->get("{$this->baseUrl}/api/v1/ping", [
+            $response = Http::withoutVerifying()->timeout(5)->get("{$this->baseUrl}/api/v1/ping", [
                 'client_id' => $this->clientId,
             ]);
 
@@ -54,7 +58,7 @@ class SchoolApiService
 
         try {
             // First try SiPintu Server-to-Server Gateway Students & Teachers endpoints
-            $response = Http::timeout(5)
+            $response = Http::withoutVerifying()->timeout(8)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
@@ -71,7 +75,7 @@ class SchoolApiService
             }
 
             // Try Teachers endpoint
-            $responseTeacher = Http::timeout(5)
+            $responseTeacher = Http::withoutVerifying()->timeout(8)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
@@ -94,21 +98,19 @@ class SchoolApiService
     }
 
     /**
-     * Melakukan sinkronisasi seluruh data pengguna aktif (Siswa Kelas 10, 11, 12 & Guru)
-     * dari SiPintu Gateway ke tabel users.
+     * Melakukan sinkronisasi seluruh data pengguna aktif dari SiPintu Gateway ke tabel users.
      *
      * @return int Jumlah pengguna yang berhasil disinkronkan
      */
     public function syncAllUsers(): int
     {
-        // 1. Record Heartbeat/Ping to SiPintu Gateway
         $this->ping();
 
         $allUsersData = [];
 
         try {
-            // Fetch Active Students from SiPintu Gateway
-            $respStudents = Http::timeout(8)
+            // Fetch Active Students from SiPintu Gateway Proxy
+            $respStudents = Http::withoutVerifying()->timeout(20)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
@@ -124,10 +126,12 @@ class SchoolApiService
                         $allUsersData[] = $st;
                     }
                 }
+            } else {
+                Log::warning("SiPintu Students HTTP status: " . $respStudents->status());
             }
 
-            // Fetch Active Teachers from SiPintu Gateway
-            $respTeachers = Http::timeout(8)
+            // Fetch Active Teachers from SiPintu Gateway Proxy
+            $respTeachers = Http::withoutVerifying()->timeout(20)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
@@ -143,59 +147,113 @@ class SchoolApiService
                         $allUsersData[] = $tc;
                     }
                 }
+            } else {
+                Log::warning("SiPintu Teachers HTTP status: " . $respTeachers->status());
             }
         } catch (\Exception $e) {
             Log::error("SchoolApiService syncAllUsers API exception: " . $e->getMessage());
         }
 
-        // Fallback default SIJUNA school dataset (Active Students Kelas 10, 11, 12 untuk PPLG, AKL, TO, PM, MPLB & Semua Guru SMKN 1 Bangsri)
         if (empty($allUsersData)) {
-            $allUsersData = $this->getActiveSchoolDataset();
+            Log::warning("SchoolApiService syncAllUsers: No user data returned from SiPintu Gateway.");
+            return 0;
         }
 
-        $syncedCount = 0;
-
-        foreach ($allUsersData as $index => $item) {
-            $nisNip = $item['nis_nip'] ?? $item['nis'] ?? $item['nip'] ?? null;
-            if (!$nisNip) {
-                continue;
+        // Deduplicate array by NIS/NIP
+        $uniqueUsers = [];
+        foreach ($allUsersData as $item) {
+            $rawNisNip = $item['nis_nip'] ?? $item['nis'] ?? $item['nip'] ?? null;
+            if ($rawNisNip !== null && $rawNisNip !== '') {
+                $uniqueUsers[(string) $rawNisNip] = $item;
             }
+        }
 
-            $email = $item['email'] ?? ($nisNip . '@smkn1bangsri.sch.id');
-            $role  = match (strtolower($item['jenis_pengguna'] ?? $item['role'] ?? 'siswa')) {
+        $now = now();
+        $upsertData = [];
+
+        foreach ($uniqueUsers as $nisNip => $item) {
+            $role = match (strtolower($item['jenis_pengguna'] ?? $item['role'] ?? 'siswa')) {
                 'guru', 'teacher' => 'teacher',
                 default           => 'student',
             };
 
-            $existingUser = User::where('nis_nip', (string) $nisNip)
-                ->orWhere('email', $email)
-                ->first();
-
-            if ($existingUser) {
-                $existingUser->update([
-                    'nis_nip'             => (string) $nisNip,
-                    'username'            => $item['nama'] ?? $item['name'] ?? $item['username'] ?? $existingUser->username,
-                    'email'               => $email,
-                    'role'                => $role,
-                    'class_room'          => $item['kelas'] ?? $item['class_room'] ?? $item['class'] ?? $existingUser->class_room,
-                    'phone'               => $item['telepon'] ?? $item['phone'] ?? $existingUser->phone,
-                    'api_id'              => $item['id'] ?? $existingUser->api_id,
-                ]);
-            } else {
-                User::create([
-                    'nis_nip'             => (string) $nisNip,
-                    'username'            => $item['nama'] ?? $item['name'] ?? $item['username'] ?? ('User ' . $nisNip),
-                    'email'               => $email,
-                    'role'                => $role,
-                    'class_room'          => $item['kelas'] ?? $item['class_room'] ?? $item['class'] ?? ($role === 'teacher' ? 'Dewan Guru' : 'X PPLG 1'),
-                    'phone'               => $item['telepon'] ?? $item['phone'] ?? null,
-                    'api_id'              => $item['id'] ?? ($index + 1000),
-                    'password'            => Hash::make('password'),
-                    'is_default_password' => true,
-                ]);
+            $classRoom = null;
+            if (isset($item['classroom']) && is_array($item['classroom'])) {
+                $classRoom = $item['classroom']['name'] ?? $item['classroom']['nama'] ?? null;
+            } elseif (isset($item['classroom']) && is_string($item['classroom'])) {
+                $classRoom = $item['classroom'];
+            } elseif (isset($item['kelas'])) {
+                $classRoom = $item['kelas'];
+            } elseif (isset($item['class_room'])) {
+                $classRoom = $item['class_room'];
             }
 
-            $syncedCount++;
+            // Exclude alumni students (students without active X, XI, XII classroom)
+            if ($role === 'student') {
+                if (empty($classRoom) || !preg_match('/^(X|XI|XII)\s/i', trim($classRoom))) {
+                    continue;
+                }
+            } else {
+                if (empty($classRoom)) {
+                    $classRoom = 'Dewan Guru';
+                }
+            }
+
+            $rawEmail = $item['user']['email'] ?? $item['email'] ?? null;
+            $email = $rawEmail;
+            if (empty($email)) {
+                $email = $nisNip . '@smkn1bangsri.sch.id';
+            }
+
+            $username = $item['nama'] ?? $item['name'] ?? $item['user']['name'] ?? $item['username'] ?? ('User ' . $nisNip);
+            $phone = $item['hp'] ?? $item['telepon'] ?? $item['phone'] ?? null;
+
+            $upsertData[] = [
+                'nis_nip'             => (string) $nisNip,
+                'username'            => (string) $username,
+                'email'               => (string) $email,
+                'role'                => (string) $role,
+                'class_room'          => (string) $classRoom,
+                'phone'               => $phone ? (string) $phone : null,
+                'api_id'              => $item['id'] ?? null,
+                'password'            => '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W',
+                'is_default_password' => 1,
+                'created_at'          => $now,
+                'updated_at'          => $now,
+            ];
+        }
+
+        // Deduplicate email within upsertData array to avoid email unique key constraint
+        $uniqueEmails = [];
+        $finalUpsert = [];
+        $activeNisNips = [];
+
+        foreach ($upsertData as $row) {
+            $email = $row['email'];
+            if (isset($uniqueEmails[$email])) {
+                $row['email'] = $row['nis_nip'] . '@smkn1bangsri.sch.id';
+            }
+            $uniqueEmails[$row['email']] = true;
+            $finalUpsert[] = $row;
+            $activeNisNips[] = $row['nis_nip'];
+        }
+
+        $syncedCount = count($finalUpsert);
+
+        // Perform chunked native upsert
+        foreach (array_chunk($finalUpsert, 400) as $chunk) {
+            User::upsert(
+                $chunk,
+                ['nis_nip'],
+                ['username', 'email', 'role', 'class_room', 'phone', 'api_id', 'updated_at']
+            );
+        }
+
+        // Purge alumni students from local database (students not present in active list)
+        if (!empty($activeNisNips)) {
+            User::where('role', 'student')
+                ->whereNotIn('nis_nip', $activeNisNips)
+                ->delete();
         }
 
         return $syncedCount;
@@ -204,94 +262,23 @@ class SchoolApiService
     protected function formatUserData(array $data, string $defaultRole): array
     {
         $nisNip = $data['nis_nip'] ?? $data['nis'] ?? $data['nip'] ?? null;
+        $classRoom = null;
+        if (isset($data['classroom']) && is_array($data['classroom'])) {
+            $classRoom = $data['classroom']['name'] ?? $data['classroom']['nama'] ?? null;
+        } elseif (isset($data['classroom']) && is_string($data['classroom'])) {
+            $classRoom = $data['classroom'];
+        } elseif (isset($data['kelas'])) {
+            $classRoom = $data['kelas'];
+        }
+
         return [
             'id'             => $data['id'] ?? null,
             'nis_nip'        => $nisNip,
             'nama'           => $data['nama'] ?? $data['name'] ?? $data['username'] ?? ('User ' . $nisNip),
             'jenis_pengguna' => strtolower($data['jenis_pengguna'] ?? $data['role'] ?? $defaultRole) === 'guru' ? 'guru' : 'siswa',
-            'class_room'     => $data['kelas'] ?? $data['class_room'] ?? $data['class'] ?? null,
-            'telepon'        => $data['telepon'] ?? $data['phone'] ?? null,
-            'email'          => $data['email'] ?? null,
+            'class_room'     => $classRoom,
+            'telepon'        => $data['hp'] ?? $data['telepon'] ?? $data['phone'] ?? null,
+            'email'          => $data['user']['email'] ?? $data['email'] ?? null,
         ];
-    }
-
-    /**
-     * Data Pengguna Aktif Sekolah (Siswa Kelas 10, 11, 12 untuk jurusan PPLG, AKL, TO, PM, MPLB & Semua Guru SMKN 1 Bangsri).
-     */
-    protected function getActiveSchoolDataset(): array
-    {
-        $dataset = [];
-        $idCounter = 1000;
-
-        $grades = [
-            'X'   => '242510',
-            'XI'  => '232411',
-            'XII' => '222312',
-        ];
-
-        $majors = [
-            'PPLG' => ['1', '2'],
-            'AKL'  => ['1', '2'],
-            'TO'   => ['1', '2'],
-            'PM'   => ['1', '2'],
-            'MPLB' => ['1', '2', '3'],
-        ];
-
-        $firstNames = ['Aditia', 'Anisa', 'Bagas', 'Bella', 'Candra', 'Dika', 'Dina', 'Eko', 'Fajar', 'Fani', 'Galih', 'Gita', 'Ilham', 'Indah', 'Kevin', 'Laras', 'Muhammad', 'Naufal', 'Putri', 'Rafi', 'Salsa', 'Teguh', 'Budi', 'Siti', 'Rizky', 'Nabila', 'Doni', 'Maya', 'Hendra', 'Anita'];
-        $lastNames  = ['Santoso', 'Aisyah', 'Pratama', 'Putri', 'Setiawan', 'Lestari', 'Wijaya', 'Fitriani', 'Saputra', 'Rahmawati', 'Ramadhan', 'Mariana', 'Prasetyo', 'Hidayat', 'Anggraini', 'Permana', 'Gutawa', 'Kurniadi', 'Syahputra', 'Wibowo'];
-
-        $nameIndex = 0;
-
-        foreach ($grades as $grade => $nisPrefix) {
-            $classCounter = 1;
-            foreach ($majors as $major => $sections) {
-                foreach ($sections as $section) {
-                    $className = "{$grade} {$major} {$section}";
-                    
-                    for ($s = 1; $s <= 2; $s++) {
-                        $idCounter++;
-                        $nis = $nisPrefix . sprintf('%03d', $classCounter * 2 + $s);
-                        $fname = $firstNames[$nameIndex % count($firstNames)];
-                        $lname = $lastNames[($nameIndex + $s) % count($lastNames)];
-                        $fullName = "{$fname} {$lname}";
-                        $emailSlug = strtolower(str_replace([' ', '.'], '', $fullName)) . '.' . strtolower(str_replace(' ', '', $className)) . '@smkn1bangsri.sch.id';
-                        $phone = '08' . rand(110000000, 999999999);
-
-                        $dataset[] = [
-                            'id'        => $idCounter,
-                            'nis_nip'   => $nis,
-                            'nama'      => $fullName,
-                            'email'     => $emailSlug,
-                            'role'      => 'student',
-                            'kelas'     => $className,
-                            'telepon'   => $phone,
-                        ];
-
-                        $nameIndex++;
-                    }
-                    $classCounter++;
-                }
-            }
-        }
-
-        // ── Data Semua Dewan Guru Aktif ──────────────────────────────────
-        $teachers = [
-            ['id' => 2001, 'nis_nip' => '198501012010011001', 'nama' => 'Ahmad Fauzi, S.Pd.',     'email' => 'ahmad@smkn1bangsri.sch.id',   'role' => 'teacher', 'kelas' => 'Dewan Guru (PPLG)',      'telepon' => '081299887766'],
-            ['id' => 2002, 'nis_nip' => '199002152015042002', 'nama' => 'Dewi Rahayu, M.Kom.',    'email' => 'dewi@smkn1bangsri.sch.id',    'role' => 'teacher', 'kelas' => 'Dewan Guru (Kaprog PPLG)', 'telepon' => '081299887767'],
-            ['id' => 2003, 'nis_nip' => '198203102008011003', 'nama' => 'Bambang Sugiarto, S.T.', 'email' => 'bambang@smkn1bangsri.sch.id', 'role' => 'teacher', 'kelas' => 'Dewan Guru (TO)',        'telepon' => '081299887768'],
-            ['id' => 2004, 'nis_nip' => '198811202014022004', 'nama' => 'Nurul Hidayah, S.Pd.',   'email' => 'nurul@smkn1bangsri.sch.id',   'role' => 'teacher', 'kelas' => 'Dewan Guru (AKL)',       'telepon' => '081299887769'],
-            ['id' => 2005, 'nis_nip' => '197805052003121005', 'nama' => 'Slamet Widodo, M.Pd.',   'email' => 'slamet@smkn1bangsri.sch.id',  'role' => 'teacher', 'kelas' => 'Dewan Guru (Kesiswaan)', 'telepon' => '081299887770'],
-            ['id' => 2006, 'nis_nip' => '198604122011012006', 'nama' => 'Rina Kartika, S.E.',     'email' => 'rina@smkn1bangsri.sch.id',    'role' => 'teacher', 'kelas' => 'Dewan Guru (PM)',        'telepon' => '081299887771'],
-            ['id' => 2007, 'nis_nip' => '197909252006041007', 'nama' => 'Joko Susilo, M.M.',     'email' => 'joko@smkn1bangsri.sch.id',    'role' => 'teacher', 'kelas' => 'Dewan Guru (MPLB)',      'telepon' => '081299887772'],
-            ['id' => 2008, 'nis_nip' => '199307182019031008', 'nama' => 'Eka Prasetya, S.Kom.',   'email' => 'eka@smkn1bangsri.sch.id',     'role' => 'teacher', 'kelas' => 'Dewan Guru (PPLG)',      'telepon' => '081299887773'],
-            ['id' => 2009, 'nis_nip' => '198402112009022009', 'nama' => 'Tri Haryanti, S.Pd.',   'email' => 'tri@smkn1bangsri.sch.id',     'role' => 'teacher', 'kelas' => 'Dewan Guru (Bahasa)',    'telepon' => '081299887774'],
-            ['id' => 2010, 'nis_nip' => '198710052012011010', 'nama' => 'Wahyu Hidayat, S.Pd.',  'email' => 'wahyu@smkn1bangsri.sch.id',   'role' => 'teacher', 'kelas' => 'Dewan Guru (Matematika)','telepon' => '081299887775'],
-        ];
-
-        foreach ($teachers as $teacher) {
-            $dataset[] = $teacher;
-        }
-
-        return $dataset;
     }
 }

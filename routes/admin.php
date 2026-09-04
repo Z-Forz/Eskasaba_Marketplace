@@ -21,7 +21,7 @@ Route::middleware(['auth:admin'])
 
         Route::post('users/sync', [UserController::class, 'sync'])
             ->name('users.sync');
-        Route::resource('users', UserController::class);
+        Route::resource('users', UserController::class)->except(['create', 'store']);
 
         Route::resource('categories', CategoryController::class);
 
@@ -29,7 +29,7 @@ Route::middleware(['auth:admin'])
         Route::get('sellers/verifications', [SellerController::class, 'verifications'])
             ->name('sellers.verifications');
 
-        Route::resource('sellers', SellerController::class);
+        Route::resource('sellers', SellerController::class)->except(['create', 'store']);
 
         // Verifikasi pengajuan seller actions
         Route::post('sellers/{seller}/approve', [SellerController::class, 'approve'])

@@ -25,13 +25,6 @@
                         <i class="fa-solid fa-rotate text-emerald-600"></i> Sinkronisasi SiPintu Gateway
                     </button>
                 </form>
-
-                <a
-                    href="{{ route('admin.users.create') }}"
-                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
-                >
-                    <i class="fa-solid fa-user-plus"></i> Tambah User Baru
-                </a>
             </div>
 
         </div>
@@ -91,18 +84,6 @@
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
                 </div>
 
-                <div class="w-full sm:w-48">
-                    <select
-                        name="role"
-                        onchange="this.form.submit()"
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white cursor-pointer"
-                    >
-                        <option value="">Semua Peran (Role)</option>
-                        <option value="student" @selected(request('role') === 'student')>🎓 Siswa</option>
-                        <option value="teacher" @selected(request('role') === 'teacher')>👨‍🏫 Guru</option>
-                    </select>
-                </div>
-
                 <button
                     type="submit"
                     class="rounded-2xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center justify-center gap-1.5 cursor-pointer"
@@ -110,7 +91,7 @@
                     <i class="fa-solid fa-magnifying-glass"></i> Filter
                 </button>
 
-                @if(request()->hasAny(['search', 'role']))
+                @if(request()->hasAny(['search']))
                     <a
                         href="{{ route('admin.users.index') }}"
                         class="rounded-2xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 flex items-center justify-center gap-1"

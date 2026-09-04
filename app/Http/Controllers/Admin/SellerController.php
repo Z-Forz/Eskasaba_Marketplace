@@ -56,47 +56,6 @@ class SellerController extends Controller
     }
 
     /**
-     * Show the form for creating a new seller (manual by admin).
-     */
-    public function create(): View
-    {
-        $users = User::all();
-
-        return view('admin.sellers.create', compact('users'));
-    }
-
-    /**
-     * Store a manually-created seller.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'user_id'          => ['required', 'exists:users,id'],
-            'whatsapp_number'  => ['nullable', 'string', 'max:20'],
-            'description'      => ['nullable', 'string'],
-        ]);
-
-        $seller = Seller::create(array_merge($data, [
-            'status'      => 'approved',
-            'approved_at' => now(),
-        ]));
-
-        \App\Models\Notification::create([
-            'user_id' => $seller->user_id,
-            'title'   => 'Pengajuan Seller Disetujui! 🎉',
-            'message' => 'Selamat! Akun Anda telah resmi terdaftar sebagai Penjual di Eskasaba Marketplace. Anda dapat mulai menambahkan produk toko Anda.',
-            'type'    => 'seller_approval',
-            'is_read' => false,
-        ]);
-
-        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
-
-        return redirect()
-            ->route('admin.sellers.index')
-            ->with('success', 'Seller baru berhasil ditambahkan dan notifikasi telah dikirim.');
-    }
-
-    /**
      * Display the specified seller.
      */
     public function show(Seller $seller): View

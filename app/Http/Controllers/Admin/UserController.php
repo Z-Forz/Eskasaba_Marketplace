@@ -45,29 +45,6 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for creating a new user.
-     */
-    public function create(): View
-    {
-        return view('admin.users.create');
-    }
-
-    /**
-     * Store a newly created user.
-     */
-    public function store(UserRequest $request): RedirectResponse
-    {
-        $data = $request->validated();
-        $data['password'] = Hash::make('password');
-        $data['is_default_password'] = true;
-
-        User::create($data);
-
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User berhasil ditambahkan.');
-    }
-
-    /**
      * Display the specified user.
      */
     public function show(User $user): View
