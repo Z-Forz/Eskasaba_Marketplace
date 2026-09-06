@@ -13,6 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('admin*')) {
+                return route('admin.login');
+            }
+            return route('login');
+        });
+
         $middleware->alias([
             'role'            => \App\Http\Middleware\EnsureRole::class,
             'seller.approved' => \App\Http\Middleware\EnsureSellerApproved::class,

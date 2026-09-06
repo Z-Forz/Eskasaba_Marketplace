@@ -6,8 +6,18 @@
     <section class="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-950 to-emerald-900">
 
         {{-- Background Glow Accent --}}
-        <div class="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl"></div>
-        <div class="pointer-events-none absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-700/20 blur-3xl"></div>
+        <div class="pointer-events-none absolute inset-0 overflow-hidden">
+            @if(!empty($settings?->hero_image))
+                <img
+                    src="{{ asset('storage/' . $settings->hero_image) }}"
+                    alt="{{ $settings->hero_title ?? 'Eskasaba Market' }}"
+                    class="h-full w-full object-cover opacity-20 blur-sm"
+                >
+            @else
+                <div class="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl"></div>
+                <div class="absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-700/20 blur-3xl"></div>
+            @endif        
+        </div>
 
         <div class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
 
@@ -49,43 +59,6 @@
                     </div>
 
                 </div>
-
-                {{-- Hero Image --}}
-                <div class="relative">
-
-                    <div class="overflow-hidden rounded-3xl border border-emerald-500/20 bg-slate-900/60 shadow-2xl backdrop-blur-xl">
-
-                        @if(!empty($settings?->hero_image))
-
-                            <img
-                                src="{{ asset('storage/' . $settings->hero_image) }}"
-                                alt="{{ $settings->hero_title ?? 'Eskasaba Market' }}"
-                                class="aspect-4/3 w-full object-cover"
-                            >
-
-                        @else
-
-                            <div class="flex aspect-4/3 items-center justify-center bg-gradient-to-br from-emerald-950 to-slate-900">
-                                <div class="text-center p-8">
-
-                                    <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-800/60 text-emerald-300 border border-emerald-500/30 shadow-xl">
-                                        <i class="fa-solid fa-store text-3xl"></i>
-                                    </div>
-
-                                    <h3 class="mt-4 text-lg font-black text-white">
-                                        {{ $settings->website_name ?? 'Eskasaba Market' }}
-                                    </h3>
-                                    <p class="mt-1 text-xs text-emerald-200/70">Wadah Kewirausahaan Digital SMKN 1 Bangsri</p>
-
-                                </div>
-                            </div>
-
-                        @endif
-
-                    </div>
-
-                </div>
-
             </div>
 
         </div>

@@ -22,8 +22,8 @@ class ImageCompressor
         UploadedFile $file,
         string $directory = 'uploads',
         string $disk = 'public',
-        int $targetMin = 300,
-        int $targetMax = 400
+        int $targetMin = 150,
+        int $targetMax = 250
     ): string {
         @ini_set('memory_limit', '256M');
 
@@ -31,7 +31,7 @@ class ImageCompressor
         $mime = strtolower((string) $file->getMimeType());
         $originalExtension = strtolower((string) $file->getClientOriginalExtension());
 
-        // Max target size in bytes (400 KB)
+        // Max target size in bytes (250 KB)
         $maxSizeBytes = $targetMax * 1024;
         $minSizeBytes = $targetMin * 1024;
 
@@ -64,8 +64,8 @@ class ImageCompressor
         $origWidth = imagesx($srcImage);
         $origHeight = imagesy($srcImage);
 
-        // Maximum dimension (width/height) allowed for web images
-        $maxDimension = 1600;
+        // Maximum dimension (width/height) allowed for web images (1200px max for fast loading)
+        $maxDimension = 1200;
         $newWidth = $origWidth;
         $newHeight = $origHeight;
 
@@ -89,12 +89,12 @@ class ImageCompressor
         imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
         imagedestroy($srcImage);
 
-        // Compress image dynamically to target size range (~300-400KB)
+        // Compress image dynamically to target size range (~150-250KB)
         $bestBuffer = null;
         $bestSize = 0;
 
-        // Iterate quality settings from 90 down to 30 to hit target file size (300KB-400KB)
-        for ($quality = 90; $quality >= 30; $quality -= 5) {
+        // Iterate quality settings from 85 down to 25 to hit target file size
+        for ($quality = 85; $quality >= 25; $quality -= 5) {
             ob_start();
             if (str_contains($mime, 'png') || $originalExtension === 'png') {
                 // Convert quality 0-100 to PNG compression level 0-9
@@ -111,7 +111,7 @@ class ImageCompressor
             $bestBuffer = $buffer;
             $bestSize = $bufferSize;
 
-            // Stop if compressed size is within or below the target max (400KB)
+            // Stop if compressed size is within or below the target max (250KB)
             if ($bufferSize <= $maxSizeBytes) {
                 break;
             }

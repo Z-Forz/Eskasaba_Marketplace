@@ -92,7 +92,7 @@ class WhatsAppService
      */
     public static function sendNewOrderNotification(Order $order): void
     {
-        $order->loadMissing(['seller.user', 'user', 'items.product']);
+        $order->loadMissing(['seller.user', 'user', 'items.product', 'payment']);
 
         $itemsList = "";
         foreach ($order->items as $item) {
@@ -106,6 +106,8 @@ class WhatsAppService
         }
 
         $pickupLoc = $order->pickup_location ?: 'COD Sekolah';
+        $paymentMethod = strtoupper($order->payment?->method ?? 'COD / CASH');
+        $isQris = strtolower($order->payment?->method ?? '') === 'qris';
 
         $sellerPhone = $order->seller?->whatsapp_number ?: $order->seller?->user?->phone;
         $buyerPhone = $order->user?->phone;
@@ -113,15 +115,17 @@ class WhatsAppService
         // 1. Notifikasi ke Penjual
         if ($sellerPhone) {
             $buyerPhoneText = $buyerPhone ?: '-';
-            $sellerMsg = "🛍️ *PESANAN BARU MASUK!*\n\n"
+            $sellerMsg = "🛍️ *PESANAN BARU MASUK!* (" . ($isQris ? 'QRIS' : 'CASH') . ")\n\n"
                 . "Halo *{$order->seller->user->username}*,\n"
                 . "Anda mendapatkan pesanan baru di Eskasaba Marketplace!\n\n"
                 . "📄 *Invoice:* #{$order->invoice_number}\n"
                 . "👤 *Pembeli:* {$order->user->username}\n"
                 . "📱 *No. HP/WA Pembeli:* {$buyerPhoneText}\n"
+                . "💳 *Metode Pembayaran:* {$paymentMethod}\n"
                 . "📍 *Lokasi & Waktu Pengambilan:* {$pickupLoc}\n"
                 . "💰 *Total:* Rp " . number_format($order->total_price, 0, ',', '.') . "\n\n"
                 . "📋 *Item Pesanan:*\n{$itemsList}\n"
+                . ($isQris ? "⚠️ Pembeli diinstruksikan untuk mengunggah bukti pembayaran QRIS.\n" : "")
                 . "Silakan periksa panel Seller Anda untuk memproses pesanan ini.\n\n"
                 . "🌐 *Akses Website:* http://eskamart.smkn1bangsri.sch.id/";
 
@@ -136,14 +140,82 @@ class WhatsAppService
                 . "Pesanan Anda dengan Invoice *#{$order->invoice_number}* telah berhasil dibuat.\n\n"
                 . "🏪 *Toko Penjual:* {$order->seller->user->username}\n"
                 . "📱 *No. HP/WA Penjual:* {$sellerPhoneText}\n"
+                . "💳 *Metode Pembayaran:* {$paymentMethod}\n"
                 . "💰 *Total Pembayaran:* Rp " . number_format($order->total_price, 0, ',', '.') . "\n"
                 . "📍 *Lokasi & Waktu Pengambilan:* {$pickupLoc}\n\n"
                 . "📋 *Item Pesanan:*\n{$itemsList}\n"
-                . "Silakan selesaikan pembayaran dan koordinasi pengambilan pesanan dengan penjual.\n\n"
+                . ($isQris
+                    ? "📌 *INSTRUKSI PEMBAYARAN QRIS:*\nSilakan lakukan scan QRIS / transfer sebesar *Rp " . number_format($order->total_price, 0, ',', '.') . "* dan *unggah bukti pembayaran* melalui menu Pesanan Saya di website.\n\n"
+                    : "Silakan selesaikan pembayaran dan koordinasi pengambilan pesanan dengan penjual.\n\n")
                 . "Terima kasih telah berbelanja di Eskasaba Marketplace!\n"
                 . "🌐 *Akses Website:* http://eskamart.smkn1bangsri.sch.id/";
 
             self::send($buyerPhone, $buyerMsg);
+        }
+    }
+
+    /**
+     * Kirim notifikasi saat Pembeli mengunggah bukti pembayaran QRIS.
+     */
+    public static function sendPaymentProofUploadedNotification(Order $order): void
+    {
+        $order->loadMissing(['user', 'seller.user', 'payment']);
+
+        $buyerPhone  = $order->user?->phone;
+        $sellerPhone = $order->seller?->whatsapp_number ?: $order->seller?->user?->phone;
+
+        // 1. Notifikasi ke Pembeli
+        if ($buyerPhone) {
+            $buyerMsg = "🧾 *BUKTI PEMBAYARAN QRIS DIUNGGAH*\n\n"
+                . "Halo *{$order->user->username}*,\n"
+                . "Bukti pembayaran QRIS untuk pesanan *#{$order->invoice_number}* (Total: Rp " . number_format($order->total_price, 0, ',', '.') . ") telah *berhasil diunggah*.\n\n"
+                . "Penjual (*{$order->seller->user->username}*) akan memverifikasi mutasi pembayaran Anda segera.\n"
+                . "Mohon tunggu pembaruan status dari penjual.\n\n"
+                . "🌐 *Lihat Pesanan:* http://eskamart.smkn1bangsri.sch.id/buyer/orders/{$order->id}";
+
+            self::send($buyerPhone, $buyerMsg);
+        }
+
+        // 2. Notifikasi ke Penjual
+        if ($sellerPhone) {
+            $sellerMsg = "🔔 *BUKTI PEMBAYARAN QRIS BARU DITERIMA!*\n\n"
+                . "Halo *{$order->seller->user->username}*,\n"
+                . "Pembeli *{$order->user->username}* telah mengunggah foto bukti pembayaran QRIS untuk pesanan *#{$order->invoice_number}* (Rp " . number_format($order->total_price, 0, ',', '.') . ").\n\n"
+                . "Silakan verifikasi bukti transaksi & konfirmasi pesanan di Dashboard Seller Anda:\n"
+                . "🌐 *Verifikasi Pembayaran:* http://eskamart.smkn1bangsri.sch.id/seller/orders/{$order->id}";
+
+            self::send($sellerPhone, $sellerMsg);
+        }
+    }
+
+    /**
+     * Kirim notifikasi saat Pembayaran QRIS berhasil dikonfirmasi oleh Penjual / Admin.
+     */
+    public static function sendPaymentConfirmedNotification(Order $order): void
+    {
+        $order->loadMissing(['user', 'seller.user', 'payment']);
+
+        $buyerPhone  = $order->user?->phone;
+        $sellerPhone = $order->seller?->whatsapp_number ?: $order->seller?->user?->phone;
+
+        // 1. Notifikasi ke Pembeli
+        if ($buyerPhone) {
+            $buyerMsg = "💳 *PEMBAYARAN QRIS BERHASIL DIKONFIRMASI!*\n\n"
+                . "Halo *{$order->user->username}*,\n"
+                . "Pembayaran QRIS Anda untuk pesanan *#{$order->invoice_number}* sebesar *Rp " . number_format($order->total_price, 0, ',', '.') . "* telah *BERHASIL DIKONFIRMASI* oleh Penjual (*{$order->seller->user->username}*).\n\n"
+                . "Pesanan Anda saat ini sedang diproses! 🎉\n\n"
+                . "🌐 *Pantau Status Pesanan:* http://eskamart.smkn1bangsri.sch.id/buyer/orders/{$order->id}";
+
+            self::send($buyerPhone, $buyerMsg);
+        }
+
+        // 2. Notifikasi ke Penjual
+        if ($sellerPhone) {
+            $sellerMsg = "✅ *KONFIRMASI PEMBAYARAN TERATACAT*\n\n"
+                . "Halo *{$order->seller->user->username}*,\n"
+                . "Konfirmasi pembayaran QRIS untuk pesanan *#{$order->invoice_number}* dari *{$order->user->username}* telah berhasil dicatat ke sistem.";
+
+            self::send($sellerPhone, $sellerMsg);
         }
     }
 
@@ -332,6 +404,44 @@ class WhatsAppService
                 . "Status toko untuk pengguna *{$username}* telah dicabut / dihapus oleh Admin.";
 
             self::send($adminPhone, $adminMsg);
+        }
+    }
+
+    /**
+     * Kirim notifikasi hasil sinkronisasi otomatis SiPintu Gateway ke Admin via WhatsApp.
+     */
+    public static function sendAutoSyncNotification(int $syncedCount, bool $isManual = false): void
+    {
+        $adminPhone = config('services.whatsapp.admin_number');
+        $timeNow = now()->timezone('Asia/Jakarta')->format('d M Y H:i:s');
+        $syncType = $isManual ? 'Sinkronisasi Manual' : 'Sinkronisasi Otomatis Jam 00:00 WIB';
+
+        $msg = "🔄 *NOTIFIKASI SINKRONISASI PENGGUNA!* 🤖\n\n"
+            . "Halo Admin Eskasaba Marketplace,\n"
+            . "Sistem telah berhasil menjalankan *{$syncType}* data pengguna sekolah dengan SiPintu Identity & API Gateway.\n\n"
+            . "⏰ *Waktu Eksekusi:* {$timeNow} WIB\n"
+            . "👥 *Total Data Pengguna Disinkronkan:* *{$syncedCount}* pengguna (Siswa & Guru)\n\n"
+            . "Data akun di database marketplace sudah diperbarui dan sinkron dengan sistem sekolah.\n\n"
+            . "🌐 *Akses Panel Admin:* http://eskamart.smkn1bangsri.sch.id/admin/users";
+
+        $sentPhones = [];
+
+        // 1. Kirim ke admin_number dari config jika terpasang
+        if ($adminPhone) {
+            self::send($adminPhone, $msg);
+            $sentPhones[] = self::formatPhoneNumber($adminPhone);
+        }
+
+        // 2. Kirim ke seluruh akun berkategori admin yang terdaftar nomor HP-nya
+        $adminUsers = \App\Models\User::where('role', 'admin')->whereNotNull('phone')->get();
+        foreach ($adminUsers as $admin) {
+            if ($admin->phone) {
+                $formatted = self::formatPhoneNumber($admin->phone);
+                if (!in_array($formatted, $sentPhones)) {
+                    self::send($admin->phone, $msg);
+                    $sentPhones[] = $formatted;
+                }
+            }
         }
     }
 }

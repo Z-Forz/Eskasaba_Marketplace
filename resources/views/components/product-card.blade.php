@@ -122,7 +122,7 @@
             <div class="mt-2 flex flex-wrap gap-1">
                 @foreach(array_slice($product->variants, 0, 3) as $varItem)
                     <span class="truncate max-w-[110px] inline-flex items-center gap-0.5 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/60">
-                        <i class="fa-solid fa-ruler-vertical text-[7px] text-emerald-600"></i> {{ $varItem['name'] ?? '' }}
+                        <i class="fa-solid fa-circle text-[4px] text-emerald-600"></i> {{ $varItem['name'] ?? '' }}
                     </span>
                 @endforeach
                 @if(count($product->variants) > 3)
@@ -150,7 +150,7 @@
                         $minP = $product->getMinPrice();
                         $maxP = $product->getMaxPrice();
                     @endphp
-                    <p class="text-sm sm:text-base font-black text-emerald-800 dark:text-emerald-400 leading-tight truncate">
+                    <p class="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 leading-tight truncate">
                         @if($minP != $maxP)
                             Rp {{ number_format($minP, 0, ',', '.') }} - {{ number_format($maxP, 0, ',', '.') }}
                         @else
@@ -158,7 +158,7 @@
                         @endif
                     </p>
                 @else
-                    <p class="text-sm sm:text-lg font-black text-emerald-800 dark:text-emerald-400 leading-tight">
+                    <p class="text-sm sm:text-lg font-black text-emerald-600 dark:text-emerald-400 leading-tight">
                         Rp {{ number_format($finalPrice, 0, ',', '.') }}
                     </p>
 
@@ -183,7 +183,7 @@
             <div class="mt-3 flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-slate-800/60">
 
                 <div class="flex min-w-0 items-center gap-2">
-                    <div class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-950 text-xs font-black text-white shadow-2xs border border-emerald-400/30">
+                    <div class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-600 to-teal-600 text-xs font-black text-white shadow-2xs">
                         {{ strtoupper(substr($sellerUser->username ?? 'S', 0, 1)) }}
                     </div>
 
@@ -191,7 +191,7 @@
                         <span class="truncate text-xs font-bold text-slate-800 dark:text-slate-200 block leading-tight">
                             {{ $sellerUser->username }}
                         </span>
-                        <span class="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 block leading-none">
+                        <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 block leading-none">
                             {{ $sellerUser->role === 'teacher' ? 'Guru' : 'Siswa' }}
                         </span>
                     </div>
@@ -199,7 +199,7 @@
 
                 <a
                     href="{{ route('products.show', $product) }}"
-                    class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700"
+                    class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-teal-700"
                     title="Lihat Detail Produk"
                 >
                     <span>Beli</span>

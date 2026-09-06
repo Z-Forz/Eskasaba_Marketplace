@@ -41,8 +41,21 @@ class SchoolLoginController extends Controller
             ]);
         }
 
-        // Hit API Sekolah untuk validasi NIS/NIP & ambil data pengguna terbaru
-        $apiData = $this->schoolApi->validate($credentials['nis_nip']);
+        $rawInput = strtolower(trim($credentials['nis_nip']));
+
+        // Login wajib menggunakan format email sekolah (contoh: nis@smkn1bangsri.sch.id atau nis@sijuna.com)
+        if (! str_contains($rawInput, '@')) {
+            throw ValidationException::withMessages([
+                'nis_nip' => 'Login wajib menggunakan alamat email sekolah (contoh: nis@smkn1bangsri.sch.id atau nis@sijuna.com).',
+            ]);
+        }
+
+        // 1. Cari pengguna langsung dari kolom email pada tabel users
+        $localUser = User::where('email', $rawInput)->first();
+        $nisNip = $localUser?->nis_nip ?? explode('@', $rawInput)[0];
+
+        // 2. Hit API Sekolah untuk validasi & sinkronisasi data pengguna terbaru
+        $apiData = $this->schoolApi->validate($nisNip);
 
         if ($apiData) {
             $role = match (strtolower($apiData['jenis_pengguna'] ?? 'siswa')) {
@@ -50,27 +63,37 @@ class SchoolLoginController extends Controller
                 default           => 'student',
             };
 
+            $isJunior = preg_match('/^(X|XI)\s/i', trim((string) ($apiData['class_room'] ?? '')));
+            $defaultDomain = $isJunior ? 'sijuna.com' : 'smkn1bangsri.sch.id';
+
+            $userData = [
+                'username'            => $apiData['nama'],
+                'email'               => $localUser?->email ?? $apiData['email'] ?? $rawInput ?? ($apiData['nis_nip'] . '@' . $defaultDomain),
+                'role'                => $role,
+                'class_room'          => $apiData['class_room'] ?? null,
+                'api_id'              => $apiData['id'] ?? null,
+                'password'            => Hash::make('password'),
+                'is_default_password' => true,
+            ];
+
+            if (!empty($apiData['telepon'])) {
+                $userData['phone'] = $apiData['telepon'];
+            }
+
             // Update atau buat akun lokal secara otomatis
             $localUser = User::updateOrCreate(
                 ['nis_nip' => $apiData['nis_nip']],
-                [
-                    'username'            => $apiData['nama'],
-                    'email'               => $apiData['email'] ?? ($apiData['nis_nip'] . '@sekolah.id'),
-                    'role'                => $role,
-                    'class_room'          => $apiData['class_room'] ?? null,
-                    'phone'               => $apiData['telepon'] ?? null,
-                    'api_id'              => $apiData['id'] ?? null,
-                    'password'            => Hash::make('password'),
-                    'is_default_password' => true,
-                ]
+                $userData
             );
         } else {
-            // Fallback jika API Sekolah sedang offline / bermasalah, tapi user sudah ada lokal
-            $localUser = User::where('nis_nip', $credentials['nis_nip'])->first();
+            // Fallback jika API Sekolah sedang offline / bermasalah, tapi user sudah ada di tabel lokal
+            if (! $localUser) {
+                $localUser = User::where('nis_nip', $nisNip)->first();
+            }
 
             if (! $localUser) {
                 throw ValidationException::withMessages([
-                    'nis_nip' => 'NIS/NIP tidak ditemukan di sistem sekolah.',
+                    'nis_nip' => 'Alamat email sekolah tidak ditemukan di sistem.',
                 ]);
             }
 

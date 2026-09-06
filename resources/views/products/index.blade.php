@@ -98,7 +98,7 @@
 
                         <button
                             type="submit"
-                            class="rounded-2xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center gap-1.5"
+                            class="rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-teal-700 flex items-center gap-1.5"
                         >
                             <i class="fa-solid fa-filter"></i> Terapkan Filter
                         </button>

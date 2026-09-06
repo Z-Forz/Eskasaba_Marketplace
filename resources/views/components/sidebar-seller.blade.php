@@ -80,11 +80,12 @@
 
     {{-- Logout --}}
     <div class="border-t border-slate-100 p-3 dark:border-slate-800">
-        <form method="POST" action="{{ route('logout') }}">
+        <form id="logout-seller-form-desktop" method="POST" action="{{ route('logout') }}">
             @csrf
             <button
-                type="submit"
-                class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/40"
+                type="button"
+                onclick="confirmAction({ title: 'Logout Seller', message: 'Apakah Anda yakin ingin keluar dari Panel Seller?', form: 'logout-seller-form-desktop', variant: 'warning', confirmText: 'Ya, Logout' })"
+                class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/40 cursor-pointer"
             >
                 <i class="fa-solid fa-right-from-bracket text-sm w-5 text-center"></i>
                 <span>Logout Seller</span>
@@ -163,11 +164,12 @@
         </nav>
 
         <div class="border-t border-slate-100 p-4 dark:border-slate-800">
-            <form method="POST" action="{{ route('logout') }}">
+            <form id="logout-seller-form-mobile" method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button
-                    type="submit"
-                    class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/40"
+                    type="button"
+                    onclick="confirmAction({ title: 'Logout Seller', message: 'Apakah Anda yakin ingin keluar dari Panel Seller?', form: 'logout-seller-form-mobile', variant: 'warning', confirmText: 'Ya, Logout' })"
+                    class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/40 cursor-pointer"
                 >
                     <i class="fa-solid fa-right-from-bracket text-sm w-5 text-center"></i>
                     <span>Logout Seller</span>

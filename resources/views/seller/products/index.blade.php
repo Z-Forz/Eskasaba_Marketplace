@@ -114,9 +114,6 @@
                                                 >
                                                     {{ $product->name }} <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-70"></i>
                                                 </a>
-                                                <p class="text-xs text-slate-400">
-                                                    ID: #{{ $product->id }}
-                                                </p>
                                             </div>
                                         </div>
                                     </td>
@@ -182,15 +179,17 @@
                                             </a>
 
                                             <form
+                                                id="delete-product-{{ $product->id }}"
                                                 action="{{ route('seller.products.destroy', $product) }}"
                                                 method="POST"
-                                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');"
                                             >
                                                 @csrf
                                                 @method('DELETE')
                                                 <button
-                                                    type="submit"
-                                                    class="inline-flex items-center gap-1.5 rounded-xl bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400"
+                                                    type="button"
+                                                    onclick="confirmAction({ title: 'Hapus Produk', message: 'Apakah Anda yakin ingin menghapus produk {{ addslashes($product->name) }}?', form: 'delete-product-{{ $product->id }}', variant: 'danger', confirmText: 'Ya, Hapus' })"
+                                                    class="inline-flex items-center gap-1.5 rounded-xl bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 cursor-pointer"
+                                                    title="Hapus Produk"
                                                 >
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>

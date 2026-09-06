@@ -202,7 +202,9 @@ class SchoolApiService
             $rawEmail = $item['user']['email'] ?? $item['email'] ?? null;
             $email = $rawEmail;
             if (empty($email)) {
-                $email = $nisNip . '@smkn1bangsri.sch.id';
+                $isJunior = preg_match('/^(X|XI)\s/i', trim((string) $classRoom));
+                $domain = $isJunior ? 'sijuna.com' : 'smkn1bangsri.sch.id';
+                $email = $nisNip . '@' . $domain;
             }
 
             $username = $item['nama'] ?? $item['name'] ?? $item['user']['name'] ?? $item['username'] ?? ('User ' . $nisNip);
@@ -231,7 +233,9 @@ class SchoolApiService
         foreach ($upsertData as $row) {
             $email = $row['email'];
             if (isset($uniqueEmails[$email])) {
-                $row['email'] = $row['nis_nip'] . '@smkn1bangsri.sch.id';
+                $isJunior = preg_match('/^(X|XI)\s/i', trim((string) ($row['class_room'] ?? '')));
+                $domain = $isJunior ? 'sijuna.com' : 'smkn1bangsri.sch.id';
+                $row['email'] = $row['nis_nip'] . '@' . $domain;
             }
             $uniqueEmails[$row['email']] = true;
             $finalUpsert[] = $row;

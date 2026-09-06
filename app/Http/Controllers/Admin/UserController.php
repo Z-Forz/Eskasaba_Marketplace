@@ -31,7 +31,7 @@ class UserController extends Controller
         ->when($role, function ($query) use ($role) {
             $query->where('role', $role);
         })
-        ->latest()
+        ->orderByRaw('CAST(nis_nip AS UNSIGNED) ASC, nis_nip ASC')
         ->paginate(15)
         ->withQueryString();
 
@@ -90,6 +90,9 @@ class UserController extends Controller
     public function sync(Request $request, \App\Services\SchoolApiService $schoolApi): RedirectResponse
     {
         $count = $schoolApi->syncAllUsers();
+
+        // Send WhatsApp notification to Admin
+        \App\Services\WhatsAppService::sendAutoSyncNotification($count, true);
 
         return redirect()->route('admin.users.index')
             ->with('success', "Sinkronisasi berhasil! {$count} data pengguna telah diperbarui dari Database Sekolah.");

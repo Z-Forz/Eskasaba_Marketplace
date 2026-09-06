@@ -28,6 +28,10 @@ class SchoolCallbackController extends Controller
         $nisNip = $request->input('nis_nip') ?? $request->input('nis') ?? $request->input('nip') ?? $request->input('user_id');
         $token  = $request->input('token') ?? $request->input('code');
 
+        if ($nisNip && str_contains($nisNip, '@')) {
+            $nisNip = explode('@', $nisNip)[0];
+        }
+
         if (! $nisNip) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -54,18 +58,26 @@ class SchoolCallbackController extends Controller
 
         $role = ($apiData['jenis_pengguna'] ?? 'siswa') === 'guru' ? 'teacher' : 'student';
 
+        $isJunior = preg_match('/^(X|XI)\s/i', trim((string) ($apiData['class_room'] ?? '')));
+        $defaultDomain = $isJunior ? 'sijuna.com' : 'smkn1bangsri.sch.id';
+
+        $userData = [
+            'username'            => $apiData['nama'],
+            'email'               => $apiData['email'] ?? ($apiData['nis_nip'] . '@' . $defaultDomain),
+            'role'                => $role,
+            'class_room'          => $apiData['class_room'] ?? null,
+            'api_id'              => $apiData['id'] ?? null,
+            'password'            => Hash::make('password'),
+            'is_default_password' => true,
+        ];
+
+        if (!empty($apiData['telepon'])) {
+            $userData['phone'] = $apiData['telepon'];
+        }
+
         $user = User::updateOrCreate(
             ['nis_nip' => $apiData['nis_nip']],
-            [
-                'username'            => $apiData['nama'],
-                'email'               => $apiData['email'] ?? ($apiData['nis_nip'] . '@sekolah.id'),
-                'role'                => $role,
-                'class_room'           => $apiData['class_room'] ?? null,
-                'phone'               => $apiData['telepon'] ?? null,
-                'api_id'              => $apiData['id'] ?? null,
-                'password'            => Hash::make('password'),
-                'is_default_password' => true,
-            ]
+            $userData
         );
 
         Auth::login($user, true);

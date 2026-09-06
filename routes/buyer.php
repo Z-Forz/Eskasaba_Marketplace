@@ -29,6 +29,11 @@ Route::middleware(['auth'])
         Route::resource('orders', OrderController::class)
             ->only(['index', 'show']);
 
+        // Alias URL redirect (singulir /buyer/order/{order})
+        Route::get('/order/{order}', function ($order) {
+            return redirect()->route('buyer.orders.show', $order);
+        });
+
         Route::post('/orders/{order}/upload-proof', [OrderController::class, 'uploadProof'])
             ->name('orders.upload-proof');
 

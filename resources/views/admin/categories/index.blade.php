@@ -95,16 +95,17 @@
                                             </a>
 
                                             <form
+                                                id="delete-category-{{ $category->id }}"
                                                 action="{{ route('admin.categories.destroy', $category) }}"
                                                 method="POST"
-                                                onsubmit="return confirm('Yakin ingin menghapus kategori ini?')"
                                             >
                                                 @csrf
                                                 @method('DELETE')
 
                                                 <button
-                                                    type="submit"
-                                                    class="inline-flex items-center gap-1 rounded-xl bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400"
+                                                    type="button"
+                                                    onclick="confirmAction({ title: 'Hapus Kategori', message: 'Apakah Anda yakin ingin menghapus kategori {{ addslashes($category->name) }}?', form: 'delete-category-{{ $category->id }}', variant: 'danger', confirmText: 'Ya, Hapus' })"
+                                                    class="inline-flex items-center gap-1 rounded-xl bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 cursor-pointer"
                                                 >
                                                     <i class="fa-solid fa-trash"></i> Hapus
                                                 </button>
@@ -133,7 +134,7 @@
 
                             <div>
                                 <h2 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                    <i class="fa-solid fa-folder text-emerald-600"></i> {{ $category->name }}
+                                    <i class="{{ $category->icon ?: 'fa-solid fa-folder' }} text-emerald-600"></i> {{ $category->name }}
                                 </h2>
 
                                 @if ($category->description)
@@ -170,16 +171,17 @@
                                 </a>
 
                                 <form
+                                    id="delete-category-mobile-{{ $category->id }}"
                                     action="{{ route('admin.categories.destroy', $category) }}"
                                     method="POST"
-                                    onsubmit="return confirm('Yakin ingin menghapus kategori ini?')"
                                 >
                                     @csrf
                                     @method('DELETE')
 
                                     <button
-                                        type="submit"
-                                        class="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 dark:bg-red-950/40 dark:text-red-400 flex items-center gap-1"
+                                        type="button"
+                                        onclick="confirmAction({ title: 'Hapus Kategori', message: 'Apakah Anda yakin ingin menghapus kategori {{ addslashes($category->name) }}?', form: 'delete-category-mobile-{{ $category->id }}', variant: 'danger', confirmText: 'Ya, Hapus' })"
+                                        class="inline-flex items-center gap-1 rounded-xl bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 dark:bg-red-950/40 dark:text-red-400 cursor-pointer"
                                     >
                                         <i class="fa-solid fa-trash"></i> Hapus
                                     </button>

@@ -66,6 +66,8 @@ class OrderController extends Controller
      */
     private function notifyOrderStatusUpdate(Order $order): void
     {
+        $order->loadMissing(['user', 'seller.user', 'payment']);
+
         \App\Models\Notification::create([
             'user_id' => $order->user_id,
             'title'   => 'Status Pesanan Diperbarui 📦',
@@ -74,8 +76,13 @@ class OrderController extends Controller
             'link'    => route('buyer.orders.show', $order),
         ]);
 
-        // Kirim notifikasi WA ke pembeli
-        \App\Services\WhatsAppService::sendOrderStatusNotification($order);
+        // Send specialized QRIS payment confirmed WA notification if payment is verified and order is confirmed/processing
+        if ($order->payment && strtolower($order->payment->method) === 'qris' && in_array($order->payment->status, ['verified', 'paid']) && in_array($order->status, ['confirmed', 'processing'])) {
+            \App\Services\WhatsAppService::sendPaymentConfirmedNotification($order);
+        } else {
+            // Kirim notifikasi WA reguler ke pembeli
+            \App\Services\WhatsAppService::sendOrderStatusNotification($order);
+        }
     }
 
     /**

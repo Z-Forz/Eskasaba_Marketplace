@@ -91,6 +91,9 @@ class OrderController extends Controller
             'link'    => route('seller.orders.show', $order),
         ]);
 
+        // Send WhatsApp notification to Buyer & Seller
+        \App\Services\WhatsAppService::sendPaymentProofUploadedNotification($order);
+
         return back()->with('success', 'Bukti pembayaran berhasil diunggah! Penjual akan memverifikasi mutasi pembayaran Anda.');
     }
 }

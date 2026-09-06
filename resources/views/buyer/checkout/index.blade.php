@@ -45,6 +45,8 @@
             <form
                 method="POST"
                 action="{{ route('buyer.checkout.store') }}"
+                x-data="{ isSubmitting: false }"
+                @submit="if (isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true;"
             >
                 @csrf
 
@@ -423,9 +425,17 @@
 
                             <button
                                 type="submit"
-                                class="mt-6 flex w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2"
+                                :disabled="isSubmitting"
+                                class="mt-6 flex w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                             >
-                                ✦ Buat Pesanan Sekarang
+                                <template x-if="!isSubmitting">
+                                    <span>✦ Buat Pesanan Sekarang</span>
+                                </template>
+                                <template x-if="isSubmitting">
+                                    <span class="inline-flex items-center gap-2">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i> Memproses Pesanan...
+                                    </span>
+                                </template>
                             </button>
 
                             <p class="mt-4 text-center text-xs leading-relaxed text-slate-400">
