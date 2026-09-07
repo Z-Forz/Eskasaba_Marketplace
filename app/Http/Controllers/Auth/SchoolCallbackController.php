@@ -79,11 +79,16 @@ class SchoolCallbackController extends Controller
             $isJunior = preg_match('/^(X|XI)\s/i', trim((string) ($apiData['class_room'] ?? '')));
             $defaultDomain = $isJunior ? 'sijuna.com' : 'smkn1bangsri.sch.id';
 
+            $classRoom = $apiData['class_room'] ?? null;
+            if ($role === 'teacher' && empty($classRoom)) {
+                $classRoom = 'Dewan Guru';
+            }
+
             $userData = [
                 'username'   => $apiData['nama'],
                 'email'      => $user?->email ?? $apiData['email'] ?? ($apiData['nis_nip'] . '@' . $defaultDomain),
                 'role'       => $role,
-                'class_room' => $apiData['class_room'] ?? null,
+                'class_room' => $classRoom,
                 'api_id'     => $apiData['id'] ?? null,
             ];
 

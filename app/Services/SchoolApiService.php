@@ -59,7 +59,7 @@ class SchoolApiService
         }
 
         try {
-            // First try SiPintu Server-to-Server Gateway Students & Teachers endpoints
+            // First try SiPintu Server-to-Server Gateway Students endpoints
             $response = Http::withoutVerifying()->timeout(8)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
@@ -76,7 +76,7 @@ class SchoolApiService
                 }
             }
 
-            // Try Teachers endpoint
+            // Try Teachers endpoint (with nip query parameter)
             $responseTeacher = Http::withoutVerifying()->timeout(8)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
@@ -87,6 +87,23 @@ class SchoolApiService
 
             if ($responseTeacher->successful()) {
                 $data = $responseTeacher->json()['data'] ?? $responseTeacher->json();
+                $items = is_array($data) ? ($data[0] ?? $data) : $data;
+                if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
+                    return $this->formatUserData($items, 'teacher');
+                }
+            }
+
+            // Try Teachers endpoint (with nis_nip query parameter as fallback)
+            $responseTeacherNisNip = Http::withoutVerifying()->timeout(8)
+                ->withHeaders([
+                    'X-Client-ID'     => $this->clientId,
+                    'X-Client-Secret' => $this->clientSecret,
+                    'Accept'          => 'application/json',
+                ])
+                ->get("{$this->baseUrl}/api/v1/sijuna/teachers", ['nis_nip' => $nisNip]);
+
+            if ($responseTeacherNisNip->successful()) {
+                $data = $responseTeacherNisNip->json()['data'] ?? $responseTeacherNisNip->json();
                 $items = is_array($data) ? ($data[0] ?? $data) : $data;
                 if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
                     return $this->formatUserData($items, 'teacher');
@@ -277,12 +294,15 @@ class SchoolApiService
             $classRoom = $data['kelas'];
         }
 
+        $rawRole = strtolower((string) ($data['jenis_pengguna'] ?? $data['role'] ?? $defaultRole));
+        $isTeacher = in_array($rawRole, ['guru', 'teacher', 'dewan guru']);
+
         return [
             'id'             => $data['id'] ?? null,
             'nis_nip'        => $nisNip,
             'nama'           => $data['nama'] ?? $data['name'] ?? $data['username'] ?? ('User ' . $nisNip),
-            'jenis_pengguna' => strtolower($data['jenis_pengguna'] ?? $data['role'] ?? $defaultRole) === 'guru' ? 'guru' : 'siswa',
-            'class_room'     => $classRoom,
+            'jenis_pengguna' => $isTeacher ? 'guru' : 'siswa',
+            'class_room'     => $classRoom ?? ($isTeacher ? 'Dewan Guru' : null),
             'telepon'        => $data['hp'] ?? $data['telepon'] ?? $data['phone'] ?? null,
             'email'          => $data['user']['email'] ?? $data['email'] ?? null,
         ];

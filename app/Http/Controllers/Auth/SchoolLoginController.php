@@ -43,7 +43,11 @@ class SchoolLoginController extends Controller
         // Cari NIS/NIP dan user lokal baik input berupa NIS/NIP langsung maupun Email Sekolah
         if (str_contains($rawInput, '@')) {
             $localUser = User::where('email', $rawInput)->first();
-            $nisNip = $localUser?->nis_nip ?? explode('@', $rawInput)[0];
+            $possibleNis = explode('@', $rawInput)[0];
+            if (! $localUser) {
+                $localUser = User::where('nis_nip', $possibleNis)->first();
+            }
+            $nisNip = $localUser?->nis_nip ?? $possibleNis;
         } else {
             $nisNip = $rawInput;
             $localUser = User::where('nis_nip', $nisNip)
@@ -78,11 +82,16 @@ class SchoolLoginController extends Controller
                 ?? $apiData['email']
                 ?? (str_contains($rawInput, '@') ? $rawInput : ($apiData['nis_nip'] . '@' . $defaultDomain));
 
+            $classRoom = $apiData['class_room'] ?? null;
+            if ($role === 'teacher' && empty($classRoom)) {
+                $classRoom = 'Dewan Guru';
+            }
+
             $userData = [
                 'username'            => $apiData['nama'],
                 'email'               => $userEmail,
                 'role'                => $role,
-                'class_room'          => $apiData['class_room'] ?? null,
+                'class_room'          => $classRoom,
                 'api_id'              => $apiData['id'] ?? null,
             ];
 

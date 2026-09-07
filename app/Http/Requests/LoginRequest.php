@@ -11,6 +11,18 @@ class LoginRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('nis_nip')) {
+            $input = $this->input('email') ?? $this->input('nis') ?? $this->input('nip') ?? $this->input('username');
+            if ($input) {
+                $this->merge([
+                    'nis_nip' => $input,
+                ]);
+            }
+        }
+    }
+
     public function rules(): array
     {
         return [
