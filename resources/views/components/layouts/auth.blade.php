@@ -30,7 +30,7 @@
     @stack('head')
 </head>
 
-<body class="flex min-h-screen flex-col bg-emerald-800 font-['Plus_Jakarta_Sans',sans-serif] text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200 selection:bg-emerald-500 selection:text-white">
+<body class="flex min-h-screen flex-col bg-slate-900 font-['Plus_Jakarta_Sans',sans-serif] text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200 selection:bg-emerald-500 selection:text-white">
 
     <main class="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-900 px-4 py-8 sm:px-6 sm:py-12 dark:from-slate-950 dark:via-emerald-950/80 dark:to-slate-950">
         <!-- Rich background glowing ambient emerald orbs -->
@@ -58,6 +58,8 @@
     @if(session('info'))
         <x-alert type="info" :message="session('info')" />
     @endif
+
+    <x-confirm-modal />
 
     @stack('scripts')
 

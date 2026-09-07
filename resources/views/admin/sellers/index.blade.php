@@ -29,13 +29,6 @@
                     @endif
                 </p>
             </div>
-
-            <a
-                href="{{ route('admin.sellers.create') }}"
-                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
-            >
-                <i class="fa-solid fa-plus"></i> Tambah Seller Manual
-            </a>
         </div>
 
         @if (session('success'))

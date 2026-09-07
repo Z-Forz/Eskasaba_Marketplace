@@ -16,22 +16,16 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <form action="{{ route('admin.users.sync') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mensinkronkan data pengguna dengan SiPintu Identity & API Gateway Sekolah?')">
+                <form id="sync-users-form" action="{{ route('admin.users.sync') }}" method="POST">
                     @csrf
                     <button
-                        type="submit"
+                        type="button"
+                        onclick="confirmAction({ title: 'Sinkronisasi Data Pengguna', message: 'Apakah Anda yakin ingin mensinkronkan data pengguna dengan SiPintu Identity & API Gateway Sekolah?', form: 'sync-users-form', variant: 'primary', confirmText: 'Ya, Sinkronkan' })"
                         class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-600 bg-emerald-50 px-5 py-3 text-sm font-bold text-emerald-800 shadow-xs transition hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60 cursor-pointer"
                     >
                         <i class="fa-solid fa-rotate text-emerald-600"></i> Sinkronisasi SiPintu Gateway
                     </button>
                 </form>
-
-                <a
-                    href="{{ route('admin.users.create') }}"
-                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
-                >
-                    <i class="fa-solid fa-user-plus"></i> Tambah User Baru
-                </a>
             </div>
 
         </div>
@@ -91,17 +85,9 @@
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
                 </div>
 
-                <div class="w-full sm:w-48">
-                    <select
-                        name="role"
-                        onchange="this.form.submit()"
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white cursor-pointer"
-                    >
-                        <option value="">Semua Peran (Role)</option>
-                        <option value="student" @selected(request('role') === 'student')>🎓 Siswa</option>
-                        <option value="teacher" @selected(request('role') === 'teacher')>👨‍🏫 Guru</option>
-                    </select>
-                </div>
+                @if(request('role'))
+                    <input type="hidden" name="role" value="{{ request('role') }}">
+                @endif
 
                 <button
                     type="submit"
@@ -110,7 +96,7 @@
                     <i class="fa-solid fa-magnifying-glass"></i> Filter
                 </button>
 
-                @if(request()->hasAny(['search', 'role']))
+                @if(request()->hasAny(['search']))
                     <a
                         href="{{ route('admin.users.index') }}"
                         class="rounded-2xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 flex items-center justify-center gap-1"
@@ -131,9 +117,11 @@
                     <thead class="border-b border-slate-100 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/50">
 
                         <tr>
+                            <th class="px-6 py-4 w-12 text-center">No</th>
                             <th class="px-6 py-4">Pengguna</th>
-                            <th class="px-6 py-4">Alamat Email</th>
                             <th class="px-6 py-4">NIS / NIP</th>
+                            <th class="px-6 py-4">No. HP / WA</th>
+                            <th class="px-6 py-4">Alamat Email</th>
                             <th class="px-6 py-4">Kelas</th>
                             <th class="px-6 py-4">Peran (Role)</th>
                             <th class="px-6 py-4 text-right">Aksi</th>
@@ -147,6 +135,10 @@
 
                             <tr class="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
 
+                                <td class="px-6 py-4 text-center font-semibold text-slate-500 dark:text-slate-400 text-xs">
+                                    {{ $users->firstItem() + $loop->index }}
+                                </td>
+
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-950 font-bold text-white shadow-xs border border-emerald-500/30">
@@ -157,11 +149,24 @@
                                             <p class="font-bold text-slate-900 dark:text-white">
                                                 {{ $user->username }}
                                             </p>
-                                            <p class="text-xs text-slate-400">
-                                                ID API: {{ $user->api_id ?? '-' }}
-                                            </p>
                                         </div>
                                     </div>
+                                </td>
+
+                                <td class="px-6 py-4 font-black text-slate-900 dark:text-white">
+                                    <span class="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-800 dark:bg-slate-800 dark:text-slate-200">
+                                        {{ $user->nis_nip ?? '-' }}
+                                    </span>
+                                </td>
+
+                                <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200 text-xs">
+                                    @if($user->phone)
+                                        <span class="inline-flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+                                            <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> {{ $user->phone }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-400 italic">-</span>
+                                    @endif
                                 </td>
 
                                 <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">
@@ -172,10 +177,6 @@
                                     @else
                                         <span class="text-slate-400 text-xs italic">Belum diisi</span>
                                     @endif
-                                </td>
-
-                                <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">
-                                    {{ $user->nis_nip ?? '-' }}
                                 </td>
 
                                 <td class="px-6 py-4 font-bold text-emerald-700 dark:text-emerald-400 text-xs">
@@ -217,7 +218,7 @@
                         @empty
 
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-sm text-slate-500">
+                                <td colspan="8" class="px-6 py-12 text-center text-sm text-slate-500">
                                     Belum ada data pengguna yang ditemukan.
                                 </td>
                             </tr>
@@ -240,6 +241,10 @@
                 <div class="rounded-3xl border border-slate-200/80 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
                     <div class="flex items-center gap-3">
+                        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-xs font-black text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                            {{ $users->firstItem() + $loop->index }}
+                        </span>
+
                         <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-950 font-bold text-white shadow-xs">
                             {{ strtoupper(substr($user->username, 0, 1)) }}
                         </div>
@@ -263,7 +268,7 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3 dark:border-slate-800 text-xs">
+                    <div class="mt-4 grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 dark:border-slate-800 text-xs">
                         <div>
                             <p class="text-slate-400 font-semibold">NIS / NIP</p>
                             <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200">
@@ -272,7 +277,14 @@
                         </div>
 
                         <div>
-                            <p class="text-slate-400 font-semibold">Kelas / Rombel</p>
+                            <p class="text-slate-400 font-semibold">No. HP / WA</p>
+                            <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200">
+                                {{ $user->phone ?? '-' }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-slate-400 font-semibold">Kelas</p>
                             <p class="mt-0.5 font-bold text-emerald-700 dark:text-emerald-400">
                                 {{ $user->class_room ?? '-' }}
                             </p>

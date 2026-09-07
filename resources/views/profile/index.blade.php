@@ -21,16 +21,17 @@
             <div class="flex flex-wrap items-center gap-3">
                 <a
                     href="{{ route('profile.edit') }}"
-                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
                 >
                     <i class="fa-solid fa-pen-to-square"></i> Edit Profil
                 </a>
 
-                <form method="POST" action="{{ route('logout') }}">
+                <form id="logout-user-form" method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button
-                        type="submit"
-                        class="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-100 hover:text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400"
+                        type="button"
+                        onclick="confirmAction({ title: 'Konfirmasi Keluar', message: 'Apakah Anda yakin ingin keluar dari akun Anda?', form: 'logout-user-form', variant: 'warning', confirmText: 'Ya, Keluar' })"
+                        class="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-100 hover:text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400 cursor-pointer"
                     >
                         <i class="fa-solid fa-right-from-bracket"></i> Keluar
                     </button>
@@ -44,7 +45,7 @@
             {{-- Profile Card --}}
             <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex flex-col items-center text-center">
-                    <div class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-emerald-950 text-2xl font-black text-white shadow-md border border-emerald-500/30">
+                    <div class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 text-2xl font-black text-white shadow-lg shadow-emerald-600/25 border-2 border-emerald-400/40">
                         {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
                     </div>
 
@@ -57,8 +58,8 @@
                     </p>
 
                     <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
-                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                            <i class="{{ auth()->user()->role === 'teacher' ? 'fa-solid fa-chalkboard-user' : 'fa-solid fa-graduation-cap' }} mr-1"></i>
+                        <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-extrabold text-emerald-800 border border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300">
+                            <i class="{{ auth()->user()->role === 'teacher' ? 'fa-solid fa-chalkboard-user' : 'fa-solid fa-graduation-cap' }} mr-1 text-emerald-600"></i>
                             {{ auth()->user()->role === 'teacher' ? 'Guru' : 'Siswa' }}
                         </span>
                     </div>
@@ -66,13 +67,6 @@
 
                 {{-- Detail Identitas Ringkas --}}
                 <div class="mt-6 border-t border-slate-100 pt-5 space-y-3 text-sm dark:border-slate-800">
-                    @if(auth()->user()->api_id)
-                        <div class="flex justify-between">
-                            <span class="text-xs font-medium text-slate-400">ID API Sekolah</span>
-                            <span class="font-bold text-emerald-700 dark:text-emerald-400">#{{ auth()->user()->api_id }}</span>
-                        </div>
-                    @endif
-
                     @if(auth()->user()->class_room || auth()->user()->role === 'student')
                         <div class="flex justify-between">
                             <span class="text-xs font-medium text-slate-400">Kelas / Rombel</span>
@@ -96,7 +90,7 @@
             <div class="lg:col-span-2 grid grid-cols-2 gap-4">
                 {{-- Total Orders --}}
                 <div class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-xl text-slate-700">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-xl text-emerald-700 border border-emerald-100">
                         <i class="fa-solid fa-bag-shopping"></i>
                     </div>
                     <div class="mt-4">
@@ -107,7 +101,7 @@
 
                 {{-- Pending Orders --}}
                 <div class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-xl text-amber-600 dark:bg-amber-950/40">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-xl text-amber-600 border border-amber-100 dark:bg-amber-950/40">
                         <i class="fa-solid fa-clock font-bold"></i>
                     </div>
                     <div class="mt-4">
@@ -118,7 +112,7 @@
 
                 {{-- Completed Orders --}}
                 <div class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-xl text-emerald-600 dark:bg-emerald-950/40">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-xl text-teal-600 border border-teal-100 dark:bg-teal-950/40">
                         <i class="fa-solid fa-circle-check font-bold"></i>
                     </div>
                     <div class="mt-4">
@@ -129,7 +123,7 @@
 
                 {{-- Cart Count --}}
                 <div class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-xl text-blue-600 dark:bg-blue-950/40">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-xl text-blue-600 border border-blue-100 dark:bg-blue-950/40">
                         <i class="fa-solid fa-cart-shopping"></i>
                     </div>
                     <div class="mt-4">
@@ -139,6 +133,94 @@
                 </div>
             </div>
 
+        </div>
+
+        {{-- Highly Highlighted Quick Access Grid --}}
+        <div class="mt-8">
+            <div class="mb-4 flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-emerald-600"></i> Akses Cepat & Menu Utama
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Pintas ke fitur belanja, keranjang, dan riwayat transaksi pesanan Anda.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {{-- Quick Access 1: Katalog Produk --}}
+                <a
+                    href="{{ route('products.index') }}"
+                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 p-6 shadow-xs transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md dark:border-emerald-950 dark:from-emerald-950/40 dark:via-slate-900 dark:to-emerald-950/20"
+                >
+                    <div class="flex items-center justify-between">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 transition group-hover:scale-110">
+                            <i class="fa-solid fa-store text-xl"></i>
+                        </div>
+                        <span class="text-xs font-bold text-emerald-700 opacity-80 group-hover:translate-x-1 transition dark:text-emerald-400">
+                            Buka <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </span>
+                    </div>
+
+                    <div class="mt-5">
+                        <h3 class="font-extrabold text-slate-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400 text-base">
+                            Katalog Produk
+                        </h3>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            Jelajahi berbagai makanan & produk karya warga sekolah.
+                        </p>
+                    </div>
+                </a>
+
+                {{-- Quick Access 2: Keranjang Belanja --}}
+                <a
+                    href="{{ route('buyer.cart.index') }}"
+                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-blue-200/80 bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 p-6 shadow-xs transition hover:-translate-y-1 hover:border-blue-400 hover:shadow-md dark:border-blue-950 dark:from-blue-950/40 dark:via-slate-900 dark:to-blue-950/20"
+                >
+                    <div class="flex items-center justify-between">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20 transition group-hover:scale-110">
+                            <i class="fa-solid fa-cart-shopping text-xl"></i>
+                        </div>
+                        <span class="rounded-full bg-blue-600 px-2.5 py-0.5 text-xs font-black text-white shadow-xs">
+                            {{ $cartCount ?? 0 }} Item
+                        </span>
+                    </div>
+
+                    <div class="mt-5">
+                        <h3 class="font-extrabold text-slate-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400 text-base">
+                            Keranjang Belanja
+                        </h3>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            Cek item pilihanmu sebelum checkout pesanan.
+                        </p>
+                    </div>
+                </a>
+
+                {{-- Quick Access 3: Riwayat Pesanan --}}
+                <a
+                    href="{{ route('buyer.orders.index') }}"
+                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-purple-200/80 bg-gradient-to-br from-purple-50/80 via-white to-purple-50/30 p-6 shadow-xs transition hover:-translate-y-1 hover:border-purple-400 hover:shadow-md dark:border-purple-950 dark:from-purple-950/40 dark:via-slate-900 dark:to-purple-950/20"
+                >
+                    <div class="flex items-center justify-between">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-md shadow-purple-500/20 transition group-hover:scale-110">
+                            <i class="fa-solid fa-box-open text-xl"></i>
+                        </div>
+                        <span class="text-xs font-bold text-purple-700 opacity-80 group-hover:translate-x-1 transition dark:text-purple-400">
+                            Lihat <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </span>
+                    </div>
+
+                    <div class="mt-5">
+                        <h3 class="font-extrabold text-slate-900 group-hover:text-purple-600 dark:text-white dark:group-hover:text-purple-400 text-base">
+                            Riwayat Pesanan
+                        </h3>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            Pantau status & konfirmasi lokasi pengambilan barang.
+                        </p>
+                    </div>
+                </a>
+            </div>
         </div>
 
         {{-- Seller Card or Application Banner --}}
@@ -205,26 +287,6 @@
                     </a>
                 </div>
             @endif
-        </div>
-
-        {{-- Quick Access Menu --}}
-        <div class="mt-8 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-            <h3 class="font-bold text-slate-900 dark:text-white">Akses Cepat</h3>
-
-            <div class="mt-4 space-y-2 text-sm font-medium">
-                <a href="{{ route('products.index') }}" class="flex items-center justify-between rounded-2xl p-3 text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
-                    <span class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-bag-shopping text-emerald-600 w-5"></i> Katalog Produk</span>
-                    <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
-                </a>
-                <a href="{{ route('buyer.cart.index') }}" class="flex items-center justify-between rounded-2xl p-3 text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
-                    <span class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-cart-shopping text-emerald-600 w-5"></i> Keranjang Belanja</span>
-                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">{{ $cartCount ?? 0 }}</span>
-                </a>
-                <a href="{{ route('buyer.orders.index') }}" class="flex items-center justify-between rounded-2xl p-3 text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
-                    <span class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-box text-emerald-600 w-5"></i> Riwayat Pesanan</span>
-                    <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
-                </a>
-            </div>
         </div>
 
         {{-- Activity Logs & Login History Card --}}

@@ -42,31 +42,31 @@
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
         {{ $attributes->merge([
-            'class' => "js-auto-dismiss flex items-start gap-3 rounded-2xl border p-4 shadow-sm transition-all duration-300 {$styles['wrapper']}"
+            'class' => "js-auto-dismiss flex items-start gap-2.5 sm:gap-3 rounded-2xl border p-3.5 sm:p-4 shadow-sm transition-all duration-300 {$styles['wrapper']}"
         ]) }}
         role="alert"
         data-dismiss-after="{{ (int) $dismissAfter }}"
     >
         <div class="shrink-0 mt-0.5 {{ $styles['icon'] }}">
             @if(in_array($type, ['danger', 'error']))
-                <i class="fa-solid fa-circle-xmark text-lg"></i>
+                <i class="fa-solid fa-circle-xmark text-base sm:text-lg"></i>
             @elseif($type === 'success')
-                <i class="fa-solid fa-circle-check text-lg"></i>
+                <i class="fa-solid fa-circle-check text-base sm:text-lg"></i>
             @elseif($type === 'warning')
-                <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                <i class="fa-solid fa-triangle-exclamation text-base sm:text-lg"></i>
             @else
-                <i class="fa-solid fa-circle-info text-lg"></i>
+                <i class="fa-solid fa-circle-info text-base sm:text-lg"></i>
             @endif
         </div>
 
-        <div class="min-w-0 flex-1 text-sm font-medium leading-relaxed">
+        <div class="min-w-0 flex-1 text-xs sm:text-sm font-semibold leading-relaxed">
             @if($title)
-                <p class="font-bold text-base mb-0.5">
+                <p class="font-extrabold text-sm sm:text-base mb-0.5">
                     {{ $title }}
                 </p>
             @endif
 
-            <div>
+            <div class="break-words">
                 {!! $content !!}
             </div>
         </div>
@@ -76,10 +76,10 @@
                 type="button"
                 @click="show = false"
                 onclick="const el = this.closest('[role=\'alert\']'); if(el) { el.style.opacity='0'; el.style.transform='scale(0.95)'; setTimeout(() => el.remove(), 300); }"
-                class="shrink-0 rounded-xl p-1 transition opacity-70 hover:opacity-100 {{ $styles['close'] }}"
+                class="shrink-0 rounded-xl p-1.5 transition opacity-70 hover:opacity-100 active:scale-95 min-h-[32px] min-w-[32px] flex items-center justify-center {{ $styles['close'] }}"
                 aria-label="Tutup notifikasi"
             >
-                <i class="fa-solid fa-xmark text-sm"></i>
+                <i class="fa-solid fa-xmark text-xs sm:text-sm"></i>
             </button>
         @endif
     </div>

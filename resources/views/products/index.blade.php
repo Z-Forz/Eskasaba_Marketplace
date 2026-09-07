@@ -85,23 +85,22 @@
                         </select>
                     </div>
 
-                    {{-- Submit & Reset Buttons --}}
-                    <div class="sm:col-span-2 lg:col-span-4 flex flex-wrap items-center justify-end gap-3 pt-1">
-                        @if(request()->hasAny(['search', 'category', 'sort']))
-                            <a
-                                href="{{ route('products.index') }}"
-                                class="rounded-2xl border border-slate-200 bg-slate-100 px-5 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 flex items-center gap-1"
-                            >
-                                <i class="fa-solid fa-rotate-left text-xs"></i> Reset Filter
-                            </a>
-                        @endif
-
+                    {{-- Action Buttons --}}
+                    <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
                         <button
                             type="submit"
-                            class="rounded-2xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center gap-1.5"
+                            class="w-full sm:w-auto rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-teal-700 flex items-center justify-center gap-1.5"
                         >
                             <i class="fa-solid fa-filter"></i> Terapkan Filter
                         </button>
+                        @if(request()->hasAny(['search', 'category', 'sort']))
+                            <a
+                                href="{{ route('products.index') }}"
+                                class="rounded-2xl border border-slate-200 bg-slate-100 px-5 py-3 text-xs font-bold text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 flex items-center gap-1"
+                            >
+                                <i class="fa-solid fa-rotate-left text-xs"></i> Reset
+                            </a>
+                        @endif
                     </div>
 
                 </form>
@@ -119,7 +118,7 @@
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
                         @foreach($products as $product)
                             <x-product-card :product="$product" />
                         @endforeach
