@@ -153,8 +153,8 @@
                     </a>
                 </div>
 
-                {{-- Grid Cards (1 per baris di HP) --}}
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {{-- Grid Cards (2 per baris di HP) --}}
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
                     @foreach($featuredProducts as $featuredItem)
                         <x-product-card :product="$featuredItem" />
                     @endforeach
@@ -257,7 +257,7 @@
 
             @if($products->isNotEmpty())
 
-                <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
 
                     @foreach($products as $product)
 

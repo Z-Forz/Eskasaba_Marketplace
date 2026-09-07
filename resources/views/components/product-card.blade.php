@@ -74,7 +74,7 @@
     </div>
 
     {{-- Card Body --}}
-    <div class="flex flex-1 flex-col p-4 sm:p-5">
+    <div class="flex flex-1 flex-col p-3.5 sm:p-5">
 
         {{-- Category & Rating Header --}}
         <div class="mb-1.5 flex items-center justify-between gap-1">

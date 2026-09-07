@@ -136,15 +136,51 @@
 
         </div>
 
-        {{-- Mobile Right Bar Icon Button --}}
-        <div class="flex items-center md:hidden">
+        {{-- Mobile Right Actions & Hamburger Button --}}
+        <div class="flex items-center gap-1.5 md:hidden">
+
+            @auth
+                @php
+                    $mobileCartCount = auth()->user()->cart?->items()->sum('quantity') ?? 0;
+                    $mobileUnreadCount = auth()->user()->notifications()->where('is_read', false)->count();
+                @endphp
+
+                {{-- Cart Quick Icon --}}
+                <a
+                    href="{{ route('buyer.cart.index') }}"
+                    class="relative rounded-xl p-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 active:scale-95 transition"
+                    aria-label="Keranjang Belanja"
+                >
+                    <i class="fa-solid fa-cart-shopping text-lg text-slate-700 dark:text-slate-300"></i>
+                    @if ($mobileCartCount > 0)
+                        <span class="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-extrabold text-white shadow-xs">
+                            {{ $mobileCartCount > 9 ? '9+' : $mobileCartCount }}
+                        </span>
+                    @endif
+                </a>
+
+                {{-- Notifications Quick Icon --}}
+                <a
+                    href="{{ route('buyer.notifications.index') }}"
+                    class="relative rounded-xl p-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 active:scale-95 transition"
+                    aria-label="Notifikasi"
+                >
+                    <i class="fa-solid fa-bell text-lg text-slate-700 dark:text-slate-300"></i>
+                    @if ($mobileUnreadCount > 0)
+                        <span class="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-extrabold text-white shadow-xs">
+                            {{ $mobileUnreadCount > 9 ? '9+' : $mobileUnreadCount }}
+                        </span>
+                    @endif
+                </a>
+            @endauth
+
             <button
                 type="button"
                 id="mobile-nav-toggle-btn"
-                class="inline-flex items-center justify-center rounded-xl p-2.5 text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 cursor-pointer"
+                class="inline-flex items-center justify-center rounded-xl p-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 cursor-pointer active:scale-95"
                 aria-label="Buka menu navigasi"
             >
-                <i class="fa-solid fa-bars text-2xl"></i>
+                <i class="fa-solid fa-bars text-xl"></i>
             </button>
         </div>
 
