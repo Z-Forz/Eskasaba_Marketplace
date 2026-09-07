@@ -1,0 +1,114 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Seller;
+use App\Services\ImageCompressor;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+
+class SellerApplicationController extends Controller
+{
+    /**
+     * Tampilkan form pengajuan menjadi seller.
+     */
+    public function create(): View|RedirectResponse
+    {
+        $user   = Auth::user();
+        $seller = $user->seller;
+
+        // Sudah approved → langsung ke seller panel
+        if ($seller?->isApproved()) {
+            return redirect()->route('seller.dashboard')
+                ->with('info', 'Anda sudah menjadi seller aktif.');
+        }
+
+        // Sudah pending → tidak bisa ajukan lagi
+        if ($seller?->isPending()) {
+            return redirect()->route('profile.index')
+                ->with('info', 'Pengajuan Anda sedang diproses oleh admin.');
+        }
+
+        return view('profile.apply-seller', compact('seller'));
+    }
+
+    /**
+     * Simpan pengajuan baru (pertama kali atau setelah revisi).
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $user   = Auth::user();
+        $seller = $user->seller;
+
+        if (empty($user->phone)) {
+            return redirect()->route('profile.edit')
+                ->with('error', 'Nomor HP pada profil Anda belum diisi. Silakan lengkapi nomor HP terlebih dahulu sebelum mendaftar seller.');
+        }
+
+        $data = $request->validate([
+            'reason'     => ['required', 'string', 'min:10', 'max:1000'],
+            'qris_image' => ['nullable', 'image', 'max:10240'],
+        ], [
+            'reason.required'  => 'Alasan wajib diisi.',
+            'reason.min'       => 'Alasan terlalu singkat, minimal 10 karakter.',
+            'qris_image.image' => 'File QRIS harus berupa gambar.',
+        ]);
+
+        if ($request->hasFile('qris_image')) {
+            if ($seller?->qris_image) {
+                Storage::disk('public')->delete($seller->qris_image);
+            }
+            $data['qris_image'] = ImageCompressor::compressAndStore($request->file('qris_image'), 'qris');
+        }
+
+        $whatsappNumber = $user->phone;
+
+        if ($seller) {
+            // Sudah pernah ada record (revision / rejected) → update & set pending
+            if (! $seller->needsRevision() && ! $seller->isRejected()) {
+                return redirect()->route('profile.index')
+                    ->with('error', 'Pengajuan Anda sedang diproses.');
+            }
+
+            $updateData = [
+                'whatsapp_number' => $whatsappNumber,
+                'reason'          => $data['reason'],
+                'status'          => 'pending',
+                'rejection_note'  => null,
+            ];
+
+            if (isset($data['qris_image'])) {
+                $updateData['qris_image'] = $data['qris_image'];
+            }
+
+            $seller->update($updateData);
+        } else {
+            // Pengajuan pertama kali
+            $seller = Seller::create([
+                'user_id'         => $user->id,
+                'whatsapp_number' => $whatsappNumber,
+                'reason'          => $data['reason'],
+                'qris_image'      => $data['qris_image'] ?? null,
+                'status'          => 'pending',
+            ]);
+        }
+
+        // Buat notifikasi di aplikasi untuk pendaftar
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title'   => 'Pengajuan Seller Diterima 📝',
+            'message' => 'Pengajuan Anda untuk menjadi Penjual di Eskasaba Marketplace telah berhasil dikirim dan sedang dalam proses verifikasi Admin.',
+            'type'    => 'seller_application',
+            'is_read' => false,
+        ]);
+
+        // Kirim notifikasi WhatsApp pengajuan seller ke pendaftar & admin
+        \App\Services\WhatsAppService::sendSellerApplicationNotification($seller);
+
+        return redirect()->route('profile.index')
+            ->with('success', 'Pengajuan berhasil dikirim! Admin akan memverifikasi dalam 1×24 jam.');
+    }
+}
