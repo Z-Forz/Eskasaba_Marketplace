@@ -20,8 +20,12 @@ class SchoolLoginController extends Controller
     /**
      * Display login page.
      */
-    public function create(): View
+    public function create(Request $request): View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
+        if ($request->hasAny(['nis_nip', 'nis', 'nip', 'user_id', 'id', 'code', 'token', 'access_token', 'username', 'email', 'sso_token', 'ticket'])) {
+            return app(SchoolCallbackController::class)->handle($request);
+        }
+
         return view('auth.login');
     }
 

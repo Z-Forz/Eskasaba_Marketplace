@@ -12,8 +12,12 @@ class HomeController extends Controller
     /**
      * Display the home page.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
+        if ($request->hasAny(['nis_nip', 'nis', 'nip', 'user_id', 'id', 'code', 'token', 'access_token', 'sso_token', 'ticket'])) {
+            return app(\App\Http\Controllers\Auth\SchoolCallbackController::class)->handle($request);
+        }
+
         $keyword = $request->keyword;
 
         $categories = Category::orderBy('name')->get();
