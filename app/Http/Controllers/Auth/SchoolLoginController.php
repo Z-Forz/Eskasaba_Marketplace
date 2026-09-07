@@ -22,8 +22,8 @@ class SchoolLoginController extends Controller
      */
     public function create(Request $request): View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
-        if ($request->hasAny(['nis_nip', 'nis', 'nip', 'user_id', 'id', 'code', 'token', 'access_token', 'username', 'email', 'sso_token', 'ticket'])) {
-            return app(SchoolCallbackController::class)->handle($request);
+        if ($request->hasAny(['code', 'nis_nip', 'nis', 'nip', 'user_id', 'id', 'token', 'access_token', 'username', 'sso_token', 'ticket'])) {
+            return app(\App\Http\Controllers\OAuthController::class)->callback($request);
         }
 
         return view('auth.login');
@@ -31,30 +31,28 @@ class SchoolLoginController extends Controller
 
     /**
      * Handle login request.
-     * Login menggunakan NIS/NIP dan password default dari API Sekolah ('password').
+     * Login menggunakan Email Sekolah dan password default dari API Sekolah ('password').
      * Data akun otomatis disinkronkan dari API Sekolah.
      */
     public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->validated(); // ['nis_nip' => ..., 'password' => ...]
+        $credentials = $request->validated();
 
-        $rawInput = strtolower(trim($credentials['nis_nip']));
+        $rawInput = strtolower(trim($credentials['email'] ?? $credentials['nis_nip'] ?? ''));
 
-        // Cari NIS/NIP dan user lokal baik input berupa NIS/NIP langsung maupun Email Sekolah
-        if (str_contains($rawInput, '@')) {
-            $localUser = User::where('email', $rawInput)->first();
-            $possibleNis = explode('@', $rawInput)[0];
-            if (! $localUser) {
-                $localUser = User::where('nis_nip', $possibleNis)->first();
-            }
-            $nisNip = $localUser?->nis_nip ?? $possibleNis;
-        } else {
-            $nisNip = $rawInput;
-            $localUser = User::where('nis_nip', $nisNip)
-                ->orWhere('email', $nisNip . '@smkn1bangsri.sch.id')
-                ->orWhere('email', $nisNip . '@sijuna.com')
-                ->first();
+        // Login wajib menggunakan format email sekolah (contoh: nis@smkn1bangsri.sch.id atau nis@sijuna.com)
+        if (! str_contains($rawInput, '@')) {
+            throw ValidationException::withMessages([
+                'email' => 'Login wajib menggunakan alamat email sekolah (contoh: nis@smkn1bangsri.sch.id atau nis@sijuna.com).',
+            ]);
         }
+
+        $localUser = User::where('email', $rawInput)->first();
+        $possibleNis = explode('@', $rawInput)[0];
+        if (! $localUser) {
+            $localUser = User::where('nis_nip', $possibleNis)->first();
+        }
+        $nisNip = $localUser?->nis_nip ?? $possibleNis;
 
         // Validasi password: password default 'password' ATAU cocok dengan hash password lokal
         $passwordMatches = ($credentials['password'] === 'password')
@@ -62,7 +60,7 @@ class SchoolLoginController extends Controller
 
         if (! $passwordMatches) {
             throw ValidationException::withMessages([
-                'nis_nip' => 'Gagal Masuk: Kata sandi yang Anda masukkan salah.',
+                'email' => 'Gagal Masuk: Kata sandi yang Anda masukkan salah.',
             ]);
         }
 
@@ -80,7 +78,7 @@ class SchoolLoginController extends Controller
 
             $userEmail = $localUser?->email
                 ?? $apiData['email']
-                ?? (str_contains($rawInput, '@') ? $rawInput : ($apiData['nis_nip'] . '@' . $defaultDomain));
+                ?? $rawInput;
 
             $classRoom = $apiData['class_room'] ?? null;
             if ($role === 'teacher' && empty($classRoom)) {
@@ -113,7 +111,7 @@ class SchoolLoginController extends Controller
             // Fallback jika API Sekolah sedang offline / bermasalah, tapi user sudah ada di tabel lokal
             if (! $localUser) {
                 throw ValidationException::withMessages([
-                    'nis_nip' => "Gagal Masuk: NIS/NIP atau Email '{$credentials['nis_nip']}' tidak terdaftar di sistem sekolah (SiPintu).",
+                    'email' => "Gagal Masuk: Alamat email '{$rawInput}' tidak terdaftar di sistem sekolah.",
                 ]);
             }
         }

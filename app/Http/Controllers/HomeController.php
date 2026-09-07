@@ -14,8 +14,8 @@ class HomeController extends Controller
      */
     public function index(Request $request): View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
-        if ($request->hasAny(['nis_nip', 'nis', 'nip', 'user_id', 'id', 'code', 'token', 'access_token', 'sso_token', 'ticket'])) {
-            return app(\App\Http\Controllers\Auth\SchoolCallbackController::class)->handle($request);
+        if ($request->hasAny(['code', 'nis_nip', 'nis', 'nip', 'user_id', 'id', 'token', 'access_token', 'sso_token', 'ticket'])) {
+            return app(\App\Http\Controllers\OAuthController::class)->callback($request);
         }
 
         $keyword = $request->keyword;

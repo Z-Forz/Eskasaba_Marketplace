@@ -5,8 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SchoolLoginController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\DashboardRedirectController;
+use App\Http\Controllers\OAuthController;
 
-// Login siswa/guru (NIS/NIP, lewat API Sekolah)
+// Login siswa/guru (Email Sekolah & SSO SiPintu)
 Route::middleware('guest')->group(function () {
 
     Route::get('/login', [SchoolLoginController::class, 'create'])
@@ -16,8 +17,11 @@ Route::middleware('guest')->group(function () {
         ->middleware('throttle:login')
         ->name('login.store');
 
-    // Callback SSO API Sekolah
-    Route::match(['get', 'post'], '/auth/school/callback', [\App\Http\Controllers\Auth\SchoolCallbackController::class, 'handle'])
+    // Callback SSO API Sekolah (Jalur 1: OAuth 2.0)
+    Route::get('/oauth/callback', [OAuthController::class, 'callback'])
+        ->name('oauth.callback');
+
+    Route::match(['get', 'post'], '/auth/school/callback', [OAuthController::class, 'callback'])
         ->name('auth.school.callback');
 
 });

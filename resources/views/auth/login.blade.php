@@ -25,7 +25,7 @@
                 </h1>
 
                 <p class="mt-1.5 text-xs text-slate-500 sm:text-sm dark:text-slate-400">
-                    Masuk ke Eskasaba Market dengan NIS, NIP, atau Email Sekolah
+                    Masuk ke Eskasaba Market dengan Email Sekolah
                 </p>
 
             </div>
@@ -56,29 +56,29 @@
                 >
                     @csrf
 
-                    {{-- NIS/NIP/Email Input --}}
+                    {{-- Email Sekolah Input --}}
                     <div>
                         <label class="mb-2 block text-xs font-bold text-slate-700 dark:text-slate-300">
-                            NIS / NIP / Email Sekolah <span class="text-red-500">*</span>
+                            Email Sekolah <span class="text-red-500">*</span>
                         </label>
 
                         <div class="relative flex items-center">
                             <span class="absolute left-4 text-slate-400">
-                                <i class="fa-solid fa-id-card text-sm"></i>
+                                <i class="fa-solid fa-envelope text-sm"></i>
                             </span>
 
                             <input
                                 type="text"
-                                name="nis_nip"
-                                value="{{ old('nis_nip') }}"
+                                name="email"
+                                value="{{ old('email') }}"
                                 required
                                 autofocus
                                 autocomplete="username"
-                                placeholder="Masukkan NIS, NIP, atau Email Sekolah"
-                                class="w-full rounded-2xl border bg-slate-50/50 py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800/50 dark:text-white dark:focus:border-emerald-500 @error('nis_nip') border-red-500 ring-2 ring-red-500/20 dark:border-red-500 @else border-slate-200 dark:border-slate-800 @enderror"
+                                placeholder="nis@smkn1bangsri.sch.id atau nis@sijuna.com"
+                                class="w-full rounded-2xl border bg-slate-50/50 py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800/50 dark:text-white dark:focus:border-emerald-500 @error('email') border-red-500 ring-2 ring-red-500/20 dark:border-red-500 @else border-slate-200 dark:border-slate-800 @enderror"
                             >
                         </div>
-                        @error('nis_nip')
+                        @error('email')
                             <p class="mt-1.5 text-xs font-bold text-red-600 dark:text-red-400">
                                 <i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}
                             </p>
