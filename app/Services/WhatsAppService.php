@@ -23,8 +23,8 @@ class WhatsAppService
             return false;
         }
 
-        $url   = config('services.whatsapp.url', 'http://localhost:3000/send-message');
-        $token = config('services.whatsapp.token', '');
+        $url       = config('services.whatsapp.url', 'http://localhost:3000/send-message');
+        $secretKey = config('services.whatsapp.secret_key', config('services.whatsapp.token', ''));
 
         // Format nomor ke standar internasional (62xxxx)
         $formattedTo = self::formatPhoneNumber($to);
@@ -41,7 +41,8 @@ class WhatsAppService
             // Support baik Baileys Node Bot API lokal maupun Fonnte / Gateway lain
             $response = Http::timeout(10)
                 ->withHeaders([
-                    'Authorization' => $token,
+                    'Authorization' => $secretKey,
+                    'X-Secret-Key'  => $secretKey,
                     'Content-Type'  => 'application/json',
                 ])
                 ->post($url, [

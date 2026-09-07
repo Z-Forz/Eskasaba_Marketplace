@@ -89,6 +89,14 @@ async function connectToWhatsApp() {
 
 // Endpoint HTTP POST dipanggil oleh Laravel WhatsAppService
 app.post('/send-message', async (req, res) => {
+    const secretKey = process.env.WA_GATEWAY_SECRET_KEY || process.env.WA_GATEWAY_TOKEN;
+    if (secretKey) {
+        const clientKey = req.headers['x-secret-key'] || req.headers['authorization'];
+        if (clientKey !== secretKey && clientKey !== `Bearer ${secretKey}`) {
+            return res.status(401).json({ status: false, message: 'Unauthorized: Secret Key WhatsApp Gateway tidak valid.' });
+        }
+    }
+
     const { target, number, phone, message } = req.body;
     const recipient = target || number || phone;
 

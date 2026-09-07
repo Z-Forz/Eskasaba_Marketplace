@@ -37,9 +37,10 @@ return [
 
     'whatsapp' => [
         'enabled'      => env('WA_ENABLE_NOTIFICATION', true),
-        'url'          => env('WA_GATEWAY_URL', 'http://localhost:3000/send-message'),
+        'url'          => env('WA_GATEWAY_URL', 'https://eskamart.smkn1bangsri.sch.id/send-message'),
         'token'        => env('WA_GATEWAY_TOKEN', ''),
-        'admin_number' => env('WA_ADMIN_NUMBER', '081234567890'),
+        'secret_key'   => env('WA_GATEWAY_SECRET_KEY', env('WA_GATEWAY_TOKEN', '')),
+        'admin_number' => env('WA_ADMIN_NUMBER', '088232393627'),
     ],
 
     'school_api' => [
@@ -51,6 +52,7 @@ return [
         'url'           => env('SIPINTU_API_URL', 'https://sipintu.smkn1bangsri.sch.id'),
         'client_id'     => env('SIPINTU_CLIENT_ID', 'app_2o8jtpekzdeh'),
         'client_secret' => env('SIPINTU_CLIENT_SECRET', 'sec_BpEVnzLBIIP4eR4cdjhXHtdPF67Dj3OO'),
+        'redirect_uri'  => env('SIPINTU_REDIRECT_URI', 'https://eskamart.smkn1bangsri.sch.id/auth/school/callback'),
     ],
 
 ];

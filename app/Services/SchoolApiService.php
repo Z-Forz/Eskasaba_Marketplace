@@ -17,12 +17,14 @@ class SchoolApiService
     protected string $baseUrl;
     protected string $clientId;
     protected string $clientSecret;
+    protected string $redirectUri;
 
     public function __construct()
     {
         $this->baseUrl      = rtrim(config('services.sipintu.url', 'https://sipintu.smkn1bangsri.sch.id'), '/');
         $this->clientId     = config('services.sipintu.client_id', 'app_2o8jtpekzdeh');
         $this->clientSecret = config('services.sipintu.client_secret', 'sec_BpEVnzLBIIP4eR4cdjhXHtdPF67Dj3OO');
+        $this->redirectUri  = config('services.sipintu.redirect_uri', url('/auth/school/callback'));
     }
 
     /**
