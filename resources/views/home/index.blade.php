@@ -5,18 +5,10 @@
     ========================================================== --}}
     <section class="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-950 to-emerald-900">
 
-        {{-- Background Glow Accent / Hero Image --}}
+        {{-- Background Glow Accent --}}
         <div class="pointer-events-none absolute inset-0 overflow-hidden">
-            @if(!empty($settings?->hero_image))
-                <img
-                    src="{{ asset('storage/' . $settings->hero_image) }}"
-                    alt="{{ $settings->hero_title ?? 'Eskasaba Market' }}"
-                    class="h-full w-full object-cover opacity-30"
-                >
-            @else
-                <div class="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl"></div>
-                <div class="absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-700/20 blur-3xl"></div>
-            @endif
+            <div class="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl"></div>
+            <div class="absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-700/20 blur-3xl"></div>
         </div>
 
         <div class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
@@ -59,6 +51,21 @@
                     </div>
 
                 </div>
+
+                {{-- Hero Image Right Column --}}
+                @if(!empty($settings?->hero_image))
+                    <div class="relative flex items-center justify-center">
+                        <div class="relative w-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-emerald-950/60 group">
+                            <img
+                                src="{{ asset('storage/' . $settings->hero_image) }}"
+                                alt="{{ $settings->hero_title ?? 'Eskasaba Market' }}"
+                                class="aspect-4/3 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            >
+                            <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/40 via-transparent to-transparent"></div>
+                        </div>
+                    </div>
+                @endif
+
             </div>
 
         </div>
