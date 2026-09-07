@@ -37,8 +37,16 @@
                     <x-alert type="success" :message="session('status')" class="mb-5" />
                 @endif
 
+                @if (session('error'))
+                    <x-alert type="error" :message="session('error')" :dismiss-after="10000" class="mb-5" />
+                @endif
+
+                @if (session('warning'))
+                    <x-alert type="warning" :message="session('warning')" :dismiss-after="10000" class="mb-5" />
+                @endif
+
                 @if ($errors->any())
-                    <x-alert type="error" :message="$errors->first()" class="mb-5" />
+                    <x-alert type="error" :message="$errors->first()" :dismiss-after="10000" class="mb-5" />
                 @endif
 
                 <form

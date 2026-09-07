@@ -109,14 +109,17 @@ class SchoolCallbackController extends Controller
 
         // 4. Jika user tidak ditemukan sama sekali (baik dari API maupun DB lokal)
         if (! $user) {
+            $identifierInfo = ! empty($nisNip) ? " (NIS/NIP: {$nisNip})" : "";
+            $failMessage = "Login SSO SiPintu Gagal: Akun{$identifierInfo} tidak terdaftar di sistem sekolah.";
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'status'  => false,
-                    'message' => 'Callback SSO SiPintu gagal: Akun tidak terdaftar di sistem.',
+                    'message' => $failMessage,
                 ], 404);
             }
 
-            return redirect()->route('login')->with('error', 'Callback SSO SiPintu gagal: Akun Anda tidak ditemukan.');
+            return redirect()->route('login')->with('error', $failMessage);
         }
 
         // 5. AUTO-LOGIN KAN PENGGUNA & REGENERATE SESSION

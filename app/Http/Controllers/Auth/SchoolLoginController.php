@@ -62,7 +62,7 @@ class SchoolLoginController extends Controller
 
         if (! $passwordMatches) {
             throw ValidationException::withMessages([
-                'nis_nip' => 'NIS/NIP atau password salah.',
+                'nis_nip' => 'Gagal Masuk: Kata sandi yang Anda masukkan salah.',
             ]);
         }
 
@@ -113,7 +113,7 @@ class SchoolLoginController extends Controller
             // Fallback jika API Sekolah sedang offline / bermasalah, tapi user sudah ada di tabel lokal
             if (! $localUser) {
                 throw ValidationException::withMessages([
-                    'nis_nip' => 'NIS/NIP atau Email Sekolah tidak ditemukan di sistem.',
+                    'nis_nip' => "Gagal Masuk: NIS/NIP atau Email '{$credentials['nis_nip']}' tidak terdaftar di sistem sekolah (SiPintu).",
                 ]);
             }
         }
