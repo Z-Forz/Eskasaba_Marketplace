@@ -25,7 +25,7 @@
                 </h1>
 
                 <p class="mt-1.5 text-xs text-slate-500 sm:text-sm dark:text-slate-400">
-                    Masuk ke Eskasaba Market dengan Email Sekolah
+                    Masuk ke Eskasaba Market dengan NIS, NIP, atau Email Sekolah
                 </p>
 
             </div>
@@ -48,15 +48,15 @@
                 >
                     @csrf
 
-                    {{-- Email Sekolah Input --}}
+                    {{-- NIS/NIP/Email Input --}}
                     <div>
                         <label class="mb-2 block text-xs font-bold text-slate-700 dark:text-slate-300">
-                            Email Sekolah <span class="text-red-500">*</span>
+                            NIS / NIP / Email Sekolah <span class="text-red-500">*</span>
                         </label>
 
                         <div class="relative flex items-center">
                             <span class="absolute left-4 text-slate-400">
-                                <i class="fa-solid fa-envelope text-sm"></i>
+                                <i class="fa-solid fa-id-card text-sm"></i>
                             </span>
 
                             <input
@@ -66,7 +66,7 @@
                                 required
                                 autofocus
                                 autocomplete="username"
-                                placeholder="nis@smkn1bangsri.sch.id atau nis@sijuna.com"
+                                placeholder="Masukkan NIS, NIP, atau Email Sekolah"
                                 class="w-full rounded-2xl border bg-slate-50/50 py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800/50 dark:text-white dark:focus:border-emerald-500 @error('nis_nip') border-red-500 ring-2 ring-red-500/20 dark:border-red-500 @else border-slate-200 dark:border-slate-800 @enderror"
                             >
                         </div>
