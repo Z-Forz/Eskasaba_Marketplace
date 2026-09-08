@@ -24,4 +24,4 @@ yarn-error.log
 /.zed
 
 # WhatsApp Bot Session Files
-whatsapp-bot/auth_info_baileys/
+/.whatsapp-bot/auth_info_baileys/
