@@ -15,3 +15,7 @@ Route::get('/products/{product}', [HomeController::class, 'show'])
 Route::view('/panduan', 'guide')->name('guide');
 
 Route::view('/tentang', 'about')->name('about');
+ 
+// Health Check Endpoint (SiPintu Downstream Monitoring)
+Route::get('/health', fn () => response()->json(['status' => 'ok', 'service' => config('app.name'), 'time' => now()->toIso8601String()]))
+    ->name('health');

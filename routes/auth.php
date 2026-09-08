@@ -26,8 +26,7 @@ Route::middleware('guest')->group(function () {
 Route::match(['get', 'post'], '/oauth/callback', [\App\Http\Controllers\OAuthController::class, 'callback'])
     ->name('oauth.callback');
 
-Route::post('/logout', [SchoolLoginController::class, 'logout'])
-    ->middleware('auth')
+Route::match(['get', 'post'], '/logout', [SchoolLoginController::class, 'logout'])
     ->name('logout');
 
 // Login admin (username lokal, terpisah dari API Sekolah)
