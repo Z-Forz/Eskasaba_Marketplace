@@ -22,3 +22,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# WhatsApp Bot Session Files
+whatsapp-bot/auth_info_baileys/

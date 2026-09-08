@@ -20,8 +20,20 @@ class SchoolLoginController extends Controller
     /**
      * Display login page.
      */
-    public function create(): View
+    public function create(Request $request): View|RedirectResponse
     {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
+        // Jika request membawa parameter SSO dari Portal SiPintu, proses SSO login secara otomatis
+        $ssoParams = ['code', 'token', 'sso_token', 'nis_nip', 'nis', 'nip', 'email', 'username', 'data'];
+        foreach ($ssoParams as $param) {
+            if ($request->has($param) && ! empty($request->input($param))) {
+                return app(\App\Http\Controllers\Auth\SchoolCallbackController::class)->handle($request);
+            }
+        }
+
         return view('auth.login');
     }
 

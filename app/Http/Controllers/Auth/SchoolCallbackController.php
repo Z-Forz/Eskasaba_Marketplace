@@ -25,26 +25,69 @@ class SchoolCallbackController extends Controller
      */
     public function handle(Request $request): RedirectResponse|JsonResponse
     {
-        // Jika request membawa authorization code OAuth 2.0 dari SiPintu Gateway, delegasikan ke OAuthController
-        if ($request->has('code')) {
-            return app(\App\Http\Controllers\OAuthController::class)->callback($request);
+        // 1. Tangkap semua variasi parameter SSO
+        $code = $request->input('code')
+            ?? $request->input('token')
+            ?? $request->input('sso_token')
+            ?? $request->input('data');
+
+        $nisNip = $request->input('nis_nip')
+            ?? $request->input('nis')
+            ?? $request->input('nip')
+            ?? $request->input('email')
+            ?? $request->input('username');
+
+        // Jika nis_nip dikirim tetapi nilainya adalah token string panjang / non-numerik (seperti RSsWE6WVEx...), jadikan $code
+        if (! $code && $nisNip && (strlen($nisNip) > 20 || ! is_numeric(str_replace(['@', '.', '-'], '', $nisNip)))) {
+            $code = $nisNip;
+            $nisNip = null;
         }
 
-        $nisNip = $request->input('nis_nip') ?? $request->input('nis') ?? $request->input('nip');
-        $token  = $request->input('token');
+        // Jika request membawa authorization code / SSO token, delegasikan ke OAuthController
+        if ($code) {
+            $request->merge(['code' => $code]);
+            return app(\App\Http\Controllers\OAuthController::class)->callback($request);
+        }
 
         if (! $nisNip) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'status'  => false,
-                    'message' => 'NIS/NIP is required in callback parameter.',
+                    'message' => 'Parameter NIS/NIP/Email wajib diisi untuk SSO.',
                 ], 400);
             }
 
-            return redirect()->route('login')->with('error', 'Callback API Sekolah gagal: parameter NIS/NIP tidak ditemukan.');
+            return redirect()->route('login')->with('error', 'Callback SSO SiPintu gagal: parameter NIS/NIP/Email tidak ditemukan.');
         }
 
-        $apiData = $this->schoolApi->validate($nisNip);
+        $cleanIdentifier = trim($nisNip);
+        $extractedNis = str_contains($cleanIdentifier, '@') ? explode('@', $cleanIdentifier)[0] : $cleanIdentifier;
+
+        // 2. Cek apakah pengguna sudah ada di database lokal terlebih dahulu
+        $localUser = User::where('nis_nip', (string) $cleanIdentifier)
+            ->orWhere('nis_nip', (string) $extractedNis)
+            ->orWhere('email', $cleanIdentifier)
+            ->orWhere('email', 'like', $extractedNis . '@%')
+            ->first();
+
+        if ($localUser) {
+            Auth::login($localUser, true);
+            $request->session()->regenerate();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status'   => true,
+                    'message'  => 'Login SSO berhasil.',
+                    'user'     => $localUser,
+                    'redirect' => route('dashboard'),
+                ]);
+            }
+
+            return redirect()->intended(route('dashboard'))->with('success', "Selamat datang kembali, {$localUser->username}!");
+        }
+
+        // 3. Jika belum ada di lokal, validasi ke SiPintu API / Dataset Sekolah
+        $apiData = $this->schoolApi->validate($cleanIdentifier);
 
         if (! $apiData) {
             if ($request->expectsJson()) {
@@ -54,7 +97,7 @@ class SchoolCallbackController extends Controller
                 ], 404);
             }
 
-            return redirect()->route('login')->with('error', 'Pengguna tidak ditemukan di Database Sekolah.');
+            return redirect()->route('login')->with('error', "Login SSO SiPintu Gagal: Akun ({$nisNip}) tidak terdaftar di sistem sekolah.");
         }
 
         $role = ($apiData['jenis_pengguna'] ?? 'siswa') === 'guru' ? 'teacher' : 'student';
@@ -63,9 +106,9 @@ class SchoolCallbackController extends Controller
             ['nis_nip' => $apiData['nis_nip']],
             [
                 'username'            => $apiData['nama'],
-                'email'               => $apiData['email'] ?? ($apiData['nis_nip'] . '@sekolah.id'),
+                'email'               => $apiData['email'] ?? ($apiData['nis_nip'] . '@smkn1bangsri.sch.id'),
                 'role'                => $role,
-                'class_room'           => $apiData['class_room'] ?? null,
+                'class_room'          => $apiData['class_room'] ?? null,
                 'phone'               => $apiData['telepon'] ?? null,
                 'api_id'              => $apiData['id'] ?? null,
                 'password'            => Hash::make('password'),
@@ -74,6 +117,7 @@ class SchoolCallbackController extends Controller
         );
 
         Auth::login($user, true);
+        $request->session()->regenerate();
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -84,6 +128,6 @@ class SchoolCallbackController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Berhasil masuk via Callback SSO Sekolah.');
+        return redirect()->intended(route('dashboard'))->with('success', "Selamat datang kembali, {$user->username}!");
     }
 }

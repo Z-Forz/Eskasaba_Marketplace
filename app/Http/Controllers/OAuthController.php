@@ -19,12 +19,26 @@ class OAuthController extends Controller
      */
     public function callback(Request $request): RedirectResponse|JsonResponse
     {
-        // 1. Tangkap Authorization Code yang dikirim SiPintu
-        $code = $request->input('code');
+        // 1. Tangkap Authorization Code / SSO Token yang dikirim SiPintu
+        $code = $request->input('code')
+            ?? $request->input('token')
+            ?? $request->input('sso_token')
+            ?? $request->input('data');
 
-        // Fallback untuk direct NIS/NIP callback jika code tidak ada
+        $directNis = $request->input('nis_nip')
+            ?? $request->input('nis')
+            ?? $request->input('nip')
+            ?? $request->input('email')
+            ?? $request->input('username');
+
+        // Jika nis_nip dikirim tetapi nilainya adalah token string panjang / non-numerik (seperti RSsWE6WVEx...), jadikan $code
+        if (! $code && $directNis && (strlen($directNis) > 20 || ! is_numeric(str_replace(['@', '.', '-'], '', $directNis)))) {
+            $code = $directNis;
+            $directNis = null;
+        }
+
+        // Fallback untuk direct NIS/NIP/Email callback jika code/token tidak ada
         if (! $code) {
-            $directNis = $request->input('nis_nip') ?? $request->input('nis') ?? $request->input('nip');
             if ($directNis) {
                 return app(\App\Http\Controllers\Auth\SchoolCallbackController::class)->handle($request);
             }
@@ -59,7 +73,6 @@ class OAuthController extends Controller
         } catch (\Exception $e) {
             Log::warning("SSO SiPintu connection to {$activeBaseUrl} failed: " . $e->getMessage());
 
-            // Jika base URL utama gagal (misal koneksi jaringan lokal/remote), coba fallback jika ada alternatif
             $altBaseUrl = str_contains($activeBaseUrl, 'localhost') 
                 ? 'https://sipintu.smkn1bangsri.sch.id' 
                 : 'http://localhost:8000';
@@ -101,10 +114,32 @@ class OAuthController extends Controller
             }
         }
 
+        // 2b. Fallback: jika token exchange gagal, tapi $code dapat digunakan langsung sebagai Bearer token untuk GET /api/v1/user
         if (! $tokenResponse || $tokenResponse->failed()) {
+            try {
+                $directUserResponse = Http::withToken($code)
+                    ->acceptJson()
+                    ->timeout(8)
+                    ->get("{$activeBaseUrl}/api/v1/user");
+
+                if ($directUserResponse->successful() && ! empty($directUserResponse->json())) {
+                    $sipintuUser = $directUserResponse->json('data') ?? $directUserResponse->json();
+                    if (! empty($sipintuUser['email']) || ! empty($sipintuUser['nis_nip']) || ! empty($sipintuUser['external_id'])) {
+                        return $this->processAuthenticatedUser($request, $sipintuUser);
+                    }
+                }
+            } catch (\Exception $eDirect) {
+            }
+
+            // Jika masih gagal dan ada directNis, coba handle via SchoolCallbackController
+            if ($directNis) {
+                $request->merge(['nis_nip' => $directNis]);
+                return app(\App\Http\Controllers\Auth\SchoolCallbackController::class)->handle($request);
+            }
+
             $errorMsg = $tokenResponse?->json('error_description')
                 ?? $tokenResponse?->json('message')
-                ?? 'Gagal memverifikasi token ke SiPintu Gateway. Pastikan kredensial Client ID & Client Secret sesuai.';
+                ?? 'Gagal memverifikasi token ke SiPintu Gateway. Pastikan akun terdaftar di Portal SiPintu.';
 
             Log::error("SSO Token Exchange Failed: {$errorMsg}", [
                 'client_id'    => $clientId,
@@ -140,7 +175,14 @@ class OAuthController extends Controller
 
         $sipintuUser = $userResponse->json('data') ?? $userResponse->json();
 
-        // 4. Auto-Provisioning & Pemetaan User Lokal
+        return $this->processAuthenticatedUser($request, $sipintuUser, $tokenPassword);
+    }
+
+    /**
+     * Auto-provisioning & login user dari data profil SiPintu
+     */
+    protected function processAuthenticatedUser(Request $request, array $sipintuUser, ?string $tokenPassword = null): RedirectResponse|JsonResponse
+    {
         $nisNip = $sipintuUser['external_id']
             ?? $sipintuUser['nis_nip']
             ?? $sipintuUser['nis']
@@ -149,21 +191,20 @@ class OAuthController extends Controller
             ?? null;
 
         $email = $sipintuUser['email'] ?? ($nisNip ? "{$nisNip}@smkn1bangsri.sch.id" : null);
-        $name = $sipintuUser['name'] ?? $sipintuUser['nama'] ?? $sipintuUser['username'] ?? ('User ' . ($nisNip ?? ''));
-        
+        $name  = $sipintuUser['name'] ?? $sipintuUser['nama'] ?? $sipintuUser['username'] ?? ('User ' . ($nisNip ?? ''));
+
         $roleRaw = strtolower($sipintuUser['role'] ?? $sipintuUser['jenis_pengguna'] ?? 'student');
-        $role = in_array($roleRaw, ['guru', 'teacher']) ? 'teacher' : 'student';
+        $role    = in_array($roleRaw, ['guru', 'teacher']) ? 'teacher' : 'student';
 
         $classroom = $sipintuUser['classroom'] ?? $sipintuUser['class_room'] ?? $sipintuUser['kelas'] ?? null;
-        $phone = $sipintuUser['phone'] ?? $sipintuUser['telepon'] ?? null;
-        $apiId = (int) ($sipintuUser['id'] ?? $sipintuUser['sub'] ?? ($nisNip ?: rand(1000, 9999)));
+        $phone     = $sipintuUser['phone'] ?? $sipintuUser['telepon'] ?? null;
+        $apiId     = (int) ($sipintuUser['id'] ?? $sipintuUser['sub'] ?? ($nisNip ?: rand(1000, 9999)));
 
         $passwordHash = $tokenPassword
             ?? $sipintuUser['password']
             ?? $sipintuUser['password_hash']
             ?? null;
 
-        // Cari user yang sudah ada berdasarkan NIS/NIP atau Email
         $user = null;
         if ($nisNip) {
             $user = User::where('nis_nip', (string) $nisNip)->first();
@@ -173,10 +214,9 @@ class OAuthController extends Controller
         }
 
         if ($user) {
-            // Update data user yang sudah ada
             $updateData = [
-                'username'   => $name,
-                'role'       => $role,
+                'username' => $name,
+                'role'     => $role,
             ];
 
             if ($classroom) {
@@ -192,13 +232,12 @@ class OAuthController extends Controller
                 $updateData['nis_nip'] = (string) $nisNip;
             }
             if ($passwordHash && $user->password !== $passwordHash) {
-                $updateData['password'] = $passwordHash;
+                $updateData['password']             = $passwordHash;
                 $updateData['is_default_password'] = false;
             }
 
             $user->update($updateData);
         } else {
-            // Buat user baru secara otomatis (Auto-Provisioning)
             $user = User::create([
                 'username'            => $name,
                 'nis_nip'             => $nisNip ? (string) $nisNip : null,
@@ -212,11 +251,9 @@ class OAuthController extends Controller
             ]);
         }
 
-        // 5. Loginkan pengguna ke sesi lokal aplikasi
         Auth::login($user, true);
         $request->session()->regenerate();
 
-        // Catat log aktivitas jika ada
         if (class_exists(ActivityLog::class)) {
             ActivityLog::record(
                 $user->id,
@@ -235,7 +272,6 @@ class OAuthController extends Controller
             ]);
         }
 
-        // 6. Langsung arahkan ke Dashboard (Tanpa melihat form login!)
         return redirect()->intended(route('dashboard'))->with('success', "Selamat datang kembali, {$user->username}!");
     }
 

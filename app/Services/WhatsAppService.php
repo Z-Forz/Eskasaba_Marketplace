@@ -334,4 +334,23 @@ class WhatsAppService
             self::send($adminPhone, $adminMsg);
         }
     }
+
+    /**
+     * Kirim notifikasi sinkronisasi otomatis pengguna SiPintu ke Admin.
+     */
+    public static function sendAutoSyncNotification(int $syncedCount, bool $isManual = false): void
+    {
+        $adminPhone = config('services.whatsapp.admin_number');
+        if (! $adminPhone) {
+            return;
+        }
+
+        $modeText = $isManual ? "MANUAL (via CLI/Admin)" : "OTOMATIS (Harian 00:00 WIB)";
+        $msg = "🔄 *NOTIFIKASI SINKRONISASI PENGGUNA SIPINTU*\n\n"
+            . "Mode: {$modeText}\n"
+            . "Total Pengguna Disinkronkan: *{$syncedCount} Pengguna*\n\n"
+            . "Data akun siswa aktif & dewan guru dari SiPintu Gateway telah disinkronkan ke database Eskasaba Marketplace.";
+
+        self::send($adminPhone, $msg);
+    }
 }
