@@ -39,6 +39,7 @@ class SchoolLoginController extends Controller
         // 1. Cek kredensial di database lokal terlebih dahulu (apakah password cocok dengan hash lokal)
         $localUser = User::where('nis_nip', $nisNip)
             ->orWhere('email', $nisNip)
+            ->orWhere('email', 'like', $nisNip . '@%')
             ->first();
 
         if ($localUser && Hash::check($inputPassword, $localUser->password)) {

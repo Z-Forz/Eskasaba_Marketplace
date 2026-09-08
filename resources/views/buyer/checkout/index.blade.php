@@ -131,6 +131,12 @@
                                 spot: '{{ old('pickup_location') }}',
                                 timeOption: '',
                                 customTime: '',
+                                spotNotice: '',
+                                showNotice(msg) {
+                                    this.spotNotice = msg;
+                                    clearTimeout(this._noticeTimer);
+                                    this._noticeTimer = setTimeout(() => this.spotNotice = '', 3000);
+                                },
                                 updateCombinedLocation() {
                                     let combined = this.spot.trim();
                                     let t = this.timeOption === 'custom' ? this.customTime.trim() : this.timeOption;
@@ -174,15 +180,25 @@
 
                                     {{-- Quick Spot Recommendation Chips --}}
                                     <div class="mt-2 flex flex-wrap gap-2">
-                                        @foreach(['Kantin Utama', 'Gazebo RPL', 'Depan Perpustakaan', 'Lobby Sekolah', 'Depan Ruang Guru', 'Lab Komputer'] as $locationSpot)
+                                        @foreach(['Kantin', 'Gazebo', 'Depan Perpustakaan', 'Lobby Sekolah', 'Depan Ruang Guru'] as $locationSpot)
                                             <button
                                                 type="button"
-                                                @click="spot = '{{ $locationSpot }}'; updateCombinedLocation()"
-                                                class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer"
+                                                @click="spot = '{{ $locationSpot }}'; updateCombinedLocation(); showNotice('Lokasi &quot;{{ $locationSpot }}&quot; dipilih!')"
+                                                :class="spot === '{{ $locationSpot }}'
+                                                    ? 'border-emerald-600 bg-emerald-600 text-white font-bold shadow-xs ring-2 ring-emerald-200 dark:ring-emerald-900'
+                                                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'"
+                                                class="rounded-full border px-3 py-1 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
                                             >
-                                                + {{ $locationSpot }}
+                                                <i class="fa-solid" :class="spot === '{{ $locationSpot }}' ? 'fa-check text-xs' : 'fa-plus text-[10px]'"></i>
+                                                <span>{{ $locationSpot }}</span>
                                             </button>
                                         @endforeach
+                                    </div>
+
+                                    {{-- Dynamic Notice Feedback --}}
+                                    <div x-show="spotNotice" x-transition class="mt-2.5 flex items-center gap-2 rounded-xl bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-800 border border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800 shadow-xs">
+                                        <i class="fa-solid fa-circle-check text-emerald-600 dark:text-emerald-400 text-sm"></i>
+                                        <span x-text="spotNotice"></span>
                                     </div>
                                 </div>
 

@@ -28,6 +28,15 @@
 
     $statusClass = $statusClasses[$status] ?? 'bg-slate-50 text-slate-600 ring-slate-200';
     $statusLabel = $statusLabels[$status] ?? ucfirst(str_replace('_', ' ', $status));
+
+    $firstItem = $order->items?->first();
+    $firstProductName = $firstItem?->product?->name ?? 'Produk Pesanan';
+    $itemVariant = $firstItem?->variant_name ?: $firstItem?->note;
+    $itemCount = $order->items?->count() ?? 1;
+
+    $orderTitle = $itemCount > 1
+        ? $firstProductName . ' + ' . ($itemCount - 1) . ' produk lainnya'
+        : $firstProductName;
 @endphp
 
 <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 sm:p-6">
@@ -35,23 +44,29 @@
     {{-- Header --}}
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 
-        <div class="min-w-0">
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Nomor Tagihan
-            </p>
+        <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+                <span class="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-0.5 text-[11px] font-extrabold text-emerald-800 border border-emerald-200/60 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/60">
+                    <i class="fa-solid fa-receipt text-[9px]"></i> {{ $order->invoice_number ?? '#' . $order->id }}
+                </span>
+                @if(!empty($itemVariant))
+                    <span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        <i class="fa-solid fa-layer-group text-[8px] text-emerald-600"></i> {{ $itemVariant }}
+                    </span>
+                @endif
+                @if($order->created_at)
+                    <span class="text-xs text-slate-400">
+                        • {{ $order->created_at->format('d M Y, H:i') }}
+                    </span>
+                @endif
+            </div>
 
-            <h3 class="mt-0.5 truncate text-base font-bold text-slate-900 dark:text-white sm:text-lg">
-                {{ $order->invoice_number ?? '#' . $order->id }}
+            <h3 class="truncate text-base font-bold text-slate-900 dark:text-white sm:text-lg" title="{{ $orderTitle }}">
+                {{ $orderTitle }}
             </h3>
-
-            @if($order->created_at)
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    <i class="fa-regular fa-calendar mr-1"></i> {{ $order->created_at->format('d M Y, H:i') }}
-                </p>
-            @endif
         </div>
 
-        <span class="w-fit rounded-full px-3 py-1 text-xs font-bold ring-1 {{ $statusClass }}">
+        <span class="w-fit rounded-full px-3 py-1 text-xs font-bold ring-1 {{ $statusClass }} shrink-0">
             {{ $statusLabel }}
         </span>
 

@@ -15,10 +15,21 @@ class UserRequest extends FormRequest
     {
         $userId = $this->route('user')?->id;
 
+        if ($userId) {
+            return [
+                'username'   => ['nullable', 'string', 'max:255'],
+                'nis_nip'    => ['nullable', 'string', 'max:255', 'unique:users,nis_nip,' . $userId],
+                'email'      => ['nullable', 'email', 'max:255', 'unique:users,email,' . $userId],
+                'role'       => ['nullable', 'in:student,teacher'],
+                'class_room' => ['nullable', 'string', 'max:255'],
+                'phone'      => ['nullable', 'string', 'max:255'],
+            ];
+        }
+
         return [
             'username'       => ['required', 'string', 'max:255'],
-            'nis_nip'        => ['nullable', 'string', 'max:255', 'unique:users,nis_nip,' . $userId],
-            'email'          => ['nullable', 'email', 'max:255', 'unique:users,email,' . $userId],
+            'nis_nip'        => ['nullable', 'string', 'max:255', 'unique:users,nis_nip'],
+            'email'          => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'role'           => ['required', 'in:student,teacher'],
             'class_room'     => ['nullable', 'string', 'max:255'],
             'phone'          => ['nullable', 'string', 'max:255'],

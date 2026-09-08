@@ -125,6 +125,7 @@
                         id="reason"
                         name="reason"
                         rows="4"
+                        required
                         placeholder="Contoh: Saya ingin berjualan karena memiliki keahlian membuat kerajinan tangan dan ingin memanfaatkan platform ini untuk berbagi produk saya kepada teman-teman sekolah..."
                         class="mt-2 block w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 transition focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
                     >{{ old('reason', $seller?->reason) }}</textarea>

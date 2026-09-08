@@ -46,6 +46,7 @@ class ReportController extends Controller
         $totalRevenue = Order::where('status', 'completed')->sum('total_price');
 
         $sellers = Seller::with('user')
+            ->where('status', 'approved')
             ->withCount(['orders', 'products'])
             ->get();
 

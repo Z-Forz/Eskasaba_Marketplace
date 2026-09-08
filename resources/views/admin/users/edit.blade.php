@@ -35,117 +35,104 @@
 
             <div class="space-y-5">
 
-                <h2 class="font-bold text-slate-900 dark:text-white text-base">
-                    Informasi Identitas & Akun
+                <h2 class="font-bold text-slate-900 dark:text-white text-base flex items-center justify-between">
+                    <span>Informasi Identitas & Akun</span>
+                    <span class="text-xs font-normal text-slate-400"><i class="fa-solid fa-lock text-amber-500 mr-1"></i> Data Induk Sekolah</span>
                 </h2>
 
                 {{-- Username --}}
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Nama Lengkap / Username <span class="text-red-500">*</span>
+                        Nama Lengkap / Username <span class="text-xs font-normal text-slate-400">(Terkunci)</span>
                     </label>
 
                     <input
                         type="text"
-                        name="username"
-                        value="{{ old('username', $user->username) }}"
-                        required
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        value="{{ $user->username }}"
+                        disabled
+                        class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
                     >
-
-                    @error('username')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 {{-- NIS / NIP --}}
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        NIS / NIP
+                        NIS / NIP <span class="text-xs font-normal text-slate-400">(Terkunci)</span>
                     </label>
 
                     <input
                         type="text"
-                        name="nis_nip"
-                        value="{{ old('nis_nip', $user->nis_nip) }}"
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        value="{{ $user->nis_nip ?? '-' }}"
+                        disabled
+                        class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
                     >
-
-                    @error('nis_nip')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 {{-- Email --}}
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Alamat Email (dari sistem sekolah)
+                        Alamat Email Sekolah <span class="text-xs font-normal text-slate-400">(Terkunci)</span>
                     </label>
 
                     <input
                         type="email"
-                        name="email"
-                        value="{{ old('email', $user->email) }}"
-                        placeholder="Contoh: user@smkn1bangsri.sch.id"
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        value="{{ $user->email }}"
+                        disabled
+                        class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
                     >
-
-                    @error('email')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 {{-- Role --}}
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Peran (Role) <span class="text-red-500">*</span>
+                        Peran (Role) <span class="text-xs font-normal text-slate-400">(Terkunci)</span>
                     </label>
 
                     <select
-                        name="role"
-                        required
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        disabled
+                        class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
                     >
-                        <option value="student" @selected(old('role', $user->role) === 'student')>Siswa</option>
-                        <option value="teacher" @selected(old('role', $user->role) === 'teacher')>Guru</option>
+                        <option @selected($user->role === 'student')>Siswa</option>
+                        <option @selected($user->role === 'teacher')>Guru</option>
                     </select>
-
-                    @error('role')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 {{-- Class --}}
                 <div>
                     <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Kelas (khusus untuk Siswa)
+                        Kelas <span class="text-xs font-normal text-slate-400">(Terkunci)</span>
                     </label>
 
                     <input
                         type="text"
-                        name="class_room"
-                        value="{{ old('class_room', $user->class_room) }}"
-                        placeholder="Contoh: XII RPL 1, XI TKJ 2"
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        value="{{ $user->class_room ?? '-' }}"
+                        disabled
+                        class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
                     >
-
-                    @error('class_room')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
                 </div>
 
-                {{-- Phone --}}
-                <div>
+                {{-- Phone (EDITABLE ONLY) --}}
+                <div class="border-t border-slate-100 pt-4 dark:border-slate-800">
                     <label class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Nomor HP / WhatsApp
+                        Nomor HP / WhatsApp <span class="text-emerald-600 font-bold">(Dapat Diubah)</span>
                     </label>
 
                     <input
                         type="text"
                         name="phone"
                         value="{{ old('phone', $user->phone) }}"
+                        placeholder="Contoh: 081234567890"
                         class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
+                    @error('phone')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="rounded-2xl bg-amber-50 p-4 border border-amber-200/80 dark:bg-amber-950/40 dark:border-amber-900/60">
+                    <p class="text-xs font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info text-amber-600"></i> Data identitas disinkronkan dari Database Sekolah dan tidak dapat diubah manual. Hanya Nomor HP/WhatsApp yang dapat diubah.
+                    </p>
                 </div>
 
             </div>

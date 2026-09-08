@@ -244,11 +244,11 @@
                                 <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-2xs dark:border-slate-700 dark:bg-slate-800">
                                     <div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
                                         <div>
-                                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Nama Rasa / Ukuran</label>
+                                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Rasa / Size <span class="text-red-500">*</span></label>
                                             <input type="text" :name="`variants[${i}][name]`" x-model="v.name" placeholder="Misal: Pedas Sedang, Size S" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white" :required="hasSizes">
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Harga (Rp)</label>
+                                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Harga Peritem <span class="text-red-500">*</span></label>
                                             <div class="relative">
                                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
                                                 <input type="text" :value="v.price" @input="formatVariantPrice(i, $event.target.value)" placeholder="15.000" class="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white" :required="hasSizes">
@@ -256,7 +256,7 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Stok Varian</label>
+                                            <label class="block text-[11px] font-bold text-slate-500 mb-1">Stok <span class="text-red-500">*</span></label>
                                             <input type="number" min="0" :name="`variants[${i}][stock]`" x-model="v.stock" placeholder="Misal: 10" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white" :required="hasSizes">
                                         </div>
                                     </div>
@@ -307,7 +307,7 @@
                         {{-- Stok --}}
                         <div>
                             <label for="stock" class="mb-2 block text-xs font-bold text-slate-700 dark:text-slate-300">
-                                <span x-text="hasSizes ? 'Total Stok Varian' : 'Sisa Stok'">Sisa Stok</span> <span class="text-red-500">*</span>
+                                <span x-text="hasSizes ? 'Total Stok' : 'Sisa Stok'">Sisa Stok</span> <span class="text-red-500">*</span>
                             </label>
                             <input
                                 id="stock"
@@ -330,11 +330,12 @@
                         {{-- Status --}}
                         <div>
                             <label for="status" class="mb-2 block text-xs font-bold text-slate-700 dark:text-slate-300">
-                                Status Produk
+                                Status Produk <span class="text-red-500">*</span>
                             </label>
                             <select
                                 id="status"
                                 name="status"
+                                required
                                 class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                             >
                                 <option value="active" @selected(old('status', 'active') === 'active')>Aktif (Siap Dibeli)</option>

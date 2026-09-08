@@ -5,66 +5,56 @@
     ========================================================== --}}
     <section class="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-950 to-emerald-900">
 
-        {{-- Background Glow Accent --}}
+        {{-- Background Glow Accent / Hero Image Overlay --}}
         <div class="pointer-events-none absolute inset-0 overflow-hidden">
-            <div class="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl"></div>
-            <div class="absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-700/20 blur-3xl"></div>
+            @if(!empty($settings?->hero_image))
+                <img
+                    src="{{ asset('storage/' . $settings->hero_image) }}"
+                    alt="{{ $settings->hero_title ?? 'Eskasaba Market' }}"
+                    class="h-full w-full object-cover blur-sm opacity-20"
+                >
+            @else
+                <div class="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl"></div>
+                <div class="absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-700/20 blur-3xl"></div>
+            @endif
         </div>
 
         <div class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
 
-            <div class="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+            {{-- Hero Content --}}
+            <div class="max-w-3xl">
 
-                {{-- Hero Content --}}
-                <div class="max-w-2xl">
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-300 backdrop-blur-md">
+                    <i class="fa-solid fa-graduation-cap text-emerald-400"></i> Marketplace Resmi SMKN 1 Bangsri
+                </span>
 
-                    <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-300 backdrop-blur-md">
-                        <i class="fa-solid fa-graduation-cap text-emerald-400"></i> Marketplace Resmi SMKN 1 Bangsri
-                    </span>
+                <h1 class="mt-5 text-3xl font-black leading-snug tracking-tight text-white sm:text-4xl lg:text-5xl">
+                    {{ $settings->hero_title ?? 'Selamat Datang di Eskasaba Market' }}
+                </h1>
 
-                    <h1 class="mt-5 text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-6xl">
-                        {{ $settings->hero_title ?? 'Selamat Datang di Eskasaba Market' }}
-                    </h1>
+                <p class="mt-4 max-w-2xl text-sm leading-relaxed text-emerald-100/90 sm:text-base sm:leading-7">
+                    {{ $settings->hero_description ?? 'Marketplace internal sekolah untuk memudahkan warga sekolah melakukan transaksi jual beli produk karya siswa & guru dengan aman, praktis, dan terpercaya.' }}
+                </p>
 
-                    <p class="mt-5 max-w-xl text-sm leading-6 text-emerald-100/80 sm:text-base sm:leading-7">
-                        {{ $settings->hero_description ?? 'Marketplace internal sekolah untuk memudahkan warga sekolah melakukan transaksi jual beli produk karya siswa & guru dengan aman, praktis, dan terpercaya.' }}
-                    </p>
+                <div class="mt-8 flex flex-col gap-3 sm:flex-row">
 
-                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <a
+                        href="{{ route('products.index') }}"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-500 hover:shadow-emerald-600/30 sm:w-auto"
+                    >
+                        <span>Mulai Belanja</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
 
-                        <a
-                            href="{{ route('products.index') }}"
-                            class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-950/40 transition hover:bg-emerald-500 hover:shadow-emerald-600/30 sm:w-auto"
-                        >
-                            <span>Mulai Belanja</span>
-                            <i class="fa-solid fa-arrow-right text-xs"></i>
-                        </a>
-
-                        <a
-                            href="{{ route('guide') }}"
-                            class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-white/5 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10 backdrop-blur-md sm:w-auto"
-                        >
-                            <i class="fa-solid fa-book-open text-xs text-emerald-400"></i>
-                            <span>Panduan COD Sekolah</span>
-                        </a>
-
-                    </div>
+                    <a
+                        href="{{ route('guide') }}"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-white/5 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10 backdrop-blur-md sm:w-auto"
+                    >
+                        <i class="fa-solid fa-book-open text-xs text-emerald-400"></i>
+                        <span>Panduan Pengguna</span>
+                    </a>
 
                 </div>
-
-                {{-- Hero Image Right Column --}}
-                @if(!empty($settings?->hero_image))
-                    <div class="relative flex items-center justify-center">
-                        <div class="relative w-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-emerald-950/60 group">
-                            <img
-                                src="{{ asset('storage/' . $settings->hero_image) }}"
-                                alt="{{ $settings->hero_title ?? 'Eskasaba Market' }}"
-                                class="aspect-4/3 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            >
-                            <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/40 via-transparent to-transparent"></div>
-                        </div>
-                    </div>
-                @endif
 
             </div>
 

@@ -100,15 +100,29 @@
                         {{-- Order Header --}}
                         <div class="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                    Nomor Invoice
-                                </p>
-                                <h2 class="mt-0.5 text-base font-bold text-slate-900 dark:text-white sm:text-lg">
-                                    {{ $order->invoice_number ?? '#' . $order->id }}
+                                @php
+                                    $firstItem = $order->items?->first();
+                                    $firstProductName = $firstItem?->product?->name ?? 'Produk Pesanan';
+                                    $itemCount = $order->items?->count() ?? 1;
+
+                                    $orderTitle = $itemCount > 1
+                                        ? $firstProductName . ' + ' . ($itemCount - 1) . ' produk lainnya'
+                                        : $firstProductName;
+                                @endphp
+                                <div class="flex flex-wrap items-center gap-2 mb-1">
+                                    <span class="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-0.5 text-[11px] font-extrabold text-emerald-800 border border-emerald-200/60 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/60">
+                                        <i class="fa-solid fa-receipt text-[9px]"></i> {{ $order->invoice_number ?? '#' . $order->id }}
+                                    </span>
+                                    @if($order->created_at)
+                                        <span class="text-xs text-slate-400">
+                                            • {{ $order->created_at->format('d M Y, H:i') }}
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <h2 class="text-base font-bold text-slate-900 dark:text-white sm:text-lg">
+                                    {{ $orderTitle }}
                                 </h2>
-                                <p class="mt-0.5 text-xs text-slate-500">
-                                    <i class="fa-regular fa-calendar mr-1"></i> {{ $order->created_at?->format('d M Y, H:i') }}
-                                </p>
                             </div>
 
                             <div class="flex items-center gap-2">

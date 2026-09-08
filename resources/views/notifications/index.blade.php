@@ -41,11 +41,11 @@
                     >
                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl {{ ! $notification->is_read ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' }}">
                             @if(str_contains($notification->type, 'seller'))
-                                🏪
+                                <i class="fa-solid fa-store text-sm"></i>
                             @elseif(str_contains($notification->type, 'order'))
-                                📦
+                                <i class="fa-solid fa-box text-sm"></i>
                             @else
-                                🔔
+                                <i class="fa-solid fa-bell text-sm"></i>
                             @endif
                         </div>
 

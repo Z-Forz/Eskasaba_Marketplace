@@ -221,9 +221,9 @@ class WhatsAppService
 
         // 1. Notifikasi ke Pendaftar
         if ($userPhone) {
-            $userMsg = "📝 *PENGAJUAN SELLER DITERIMA*\n\n"
+            $userMsg = "📝 *PENGAJUAN SELLER BERHASIL DIKIRIM*\n\n"
                 . "Halo *{$seller->user->username}*,\n"
-                . "Pengajuan toko Anda di Eskasaba Marketplace telah kami terima.\n"
+                . "Pengajuan toko Anda di Eskasaba Marketplace telah berhasil dikirim.\n"
                 . "Tim Admin Sekolah akan melakukan verifikasi dalam 1×24 jam.\n\n"
                 . "Status pengajuan Anda saat ini: *PENDING VERIFIKASI*.";
 

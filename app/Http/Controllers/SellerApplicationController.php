@@ -49,11 +49,10 @@ class SellerApplicationController extends Controller
         }
 
         $data = $request->validate([
-            'reason'     => ['required', 'string', 'min:10', 'max:1000'],
+            'reason'     => ['required', 'string', 'max:1000'],
             'qris_image' => ['nullable', 'image', 'max:10240'],
         ], [
             'reason.required'  => 'Alasan wajib diisi.',
-            'reason.min'       => 'Alasan terlalu singkat, minimal 10 karakter.',
             'qris_image.image' => 'File QRIS harus berupa gambar.',
         ]);
 
@@ -99,7 +98,7 @@ class SellerApplicationController extends Controller
         // Buat notifikasi di aplikasi untuk pendaftar
         \App\Models\Notification::create([
             'user_id' => $user->id,
-            'title'   => 'Pengajuan Seller Diterima 📝',
+            'title'   => 'Pengajuan Seller Berhasil Dikirim 📝',
             'message' => 'Pengajuan Anda untuk menjadi Penjual di Eskasaba Marketplace telah berhasil dikirim dan sedang dalam proses verifikasi Admin.',
             'type'    => 'seller_application',
             'is_read' => false,

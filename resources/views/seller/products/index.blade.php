@@ -77,7 +77,7 @@
                                 <th class="px-6 py-4">Kategori</th>
                                 <th class="px-6 py-4">Harga</th>
                                 <th class="px-6 py-4">Sisa Stok</th>
-                                <th class="px-6 py-4">Varian / Kondisi</th>
+                                <th class="px-6 py-4">Varian</th>
                                 <th class="px-6 py-4">Status</th>
                                 <th class="px-6 py-4 text-right">Aksi</th>
                             </tr>
@@ -150,14 +150,14 @@
                                         @endif
                                     </td>
 
-                                    {{-- Condition / Variant --}}
+                                    {{-- Varian --}}
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        @if($product->condition)
-                                            <span class="inline-flex items-center rounded-xl bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                                                {{ $product->condition }}
+                                        @if(!empty($product->variants) && count($product->variants) > 0)
+                                            <span class="inline-flex items-center rounded-xl bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                                <i class="fa-solid fa-layer-group mr-1.5 text-[10px]"></i> {{ count($product->variants) }} Varian
                                             </span>
                                         @else
-                                            <span class="text-xs text-slate-400 font-medium">-</span>
+                                            <span class="text-xs text-slate-400 font-medium">Harga Tunggal</span>
                                         @endif
                                     </td>
 

@@ -20,7 +20,7 @@
                 </h1>
 
                 <p class="mt-4 text-sm leading-relaxed text-emerald-100/80 sm:text-base sm:leading-7">
-                    Pelajari petunjuk praktis berbelanja dengan login NIS/Email, sistem notifikasi otomatis WhatsApp Bot, transaksi COD sekolah, serta tata cara pendaftaran & pengelolaan toko Seller.
+                    Pelajari petunjuk praktis berbelanja dengan login NIS@Email untuk murid dan NIP/Emai    l untuk Guru/Staff, sistem notifikasi otomatis WhatsApp Bot, transaksi COD sekolah, serta tata cara pendaftaran & pengelolaan toko Seller.
                 </p>
             </div>
         </div>
@@ -405,12 +405,12 @@
                         @click="openFaq = (openFaq === 1 ? null : 1)"
                         class="flex w-full items-center justify-between p-5 text-left font-bold text-slate-900 dark:text-white hover:text-emerald-700 transition"
                     >
-                        <span>Bagaimana format login menggunakan NIS atau Email sekolah?</span>
+                        <span>Bagaimana format login bagi Siswa dan Guru?</span>
                         <i class="fa-solid" :class="openFaq === 1 ? 'fa-chevron-up text-emerald-600' : 'fa-chevron-down text-slate-400'"></i>
                     </button>
 
                     <div x-show="openFaq === 1" x-collapse class="px-5 pb-5 text-xs leading-relaxed text-slate-600 dark:text-slate-300 border-t border-slate-200/60 dark:border-slate-800 pt-3">
-                        Anda dapat memilih login menggunakan <strong>NIS saja (contoh: 12345)</strong> atau menggunakan format email lengkap. Untuk angkatan atas menggunakan domain <code>@smkn1bangsri.sch.id</code> (contoh: <code>12345@smkn1bangsri.sch.id</code>), sedangkan untuk kelas 10/11 menggunakan domain <code>@sijuna.com</code> (contoh: <code>12345@sijuna.com</code>).
+                        Siswa dapat memilih login menggunakan <strong>Nis@Email (email yang digunakan di sijuna)</strong>, sedangkan Guru memiliki fleksibilitas login menggunakan <strong>NIP (Nomor Induk Pegawai)</strong> maupun <strong>Email</strong> sekolah resmi secara praktis.
                     </div>
                 </div>
 
@@ -425,7 +425,7 @@
                     </button>
 
                     <div x-show="openFaq === 2" x-collapse class="px-5 pb-5 text-xs leading-relaxed text-slate-600 dark:text-slate-300 border-t border-slate-200/60 dark:border-slate-800 pt-3">
-                        Ya, sangat aman. Semua seller di platform ini adalah siswa dan guru SMKN 1 Bangsri yang telah diverifikasi secara resmi oleh tim Admin Sekolah. Pengambilan barang dilakukan secara langsung di area sekolah (COD Sekolah).
+                        Ya, aman. Semua seller di platform ini adalah siswa dan guru SMKN 1 Bangsri yang telah diverifikasi secara resmi oleh tim Admin Sekolah. Pengambilan barang dilakukan secara langsung di area sekolah (COD Sekolah).
                     </div>
                 </div>
 
@@ -455,7 +455,7 @@
                     </button>
 
                     <div x-show="openFaq === 4" x-collapse class="px-5 pb-5 text-xs leading-relaxed text-slate-600 dark:text-slate-300 border-t border-slate-200/60 dark:border-slate-800 pt-3">
-                        Titik pengambilan ditentukan saat checkout berdasarkan lokasi kesepakatan di lingkungan sekolah, seperti Kantin Utama, Gazebo RPL, Depan Perpustakaan, Ruang Lab, atau Pos Satpam Gerbang Sekolah.
+                        Titik pengambilan ditentukan saat checkout berdasarkan lokasi kesepakatan di lingkungan sekolah.
                     </div>
                 </div>
 

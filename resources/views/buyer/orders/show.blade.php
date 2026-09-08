@@ -15,16 +15,29 @@
             <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        Nomor Invoice Tagihan
-                    </p>
+                    @php
+                        $firstItem = $order->items?->first();
+                        $firstProductName = $firstItem?->product?->name ?? 'Produk Pesanan';
+                        $itemCount = $order->items?->count() ?? 1;
 
-                    <h1 class="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
-                        {{ $order->invoice_number ?? '#' . $order->id }}
+                        $orderTitle = $itemCount > 1
+                            ? $firstProductName . ' + ' . ($itemCount - 1) . ' produk lainnya'
+                            : $firstProductName;
+                    @endphp
+                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span class="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-0.5 text-xs font-extrabold text-emerald-800 border border-emerald-200/60 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/60">
+                            <i class="fa-solid fa-receipt text-[10px]"></i> {{ $order->invoice_number ?? '#' . $order->id }}
+                        </span>
+                        @if($order->created_at)
+                            <span class="text-xs text-slate-400">
+                                • {{ $order->created_at->format('d M Y, H:i') }}
+                            </span>
+                        @endif
+                    </div>
+
+                    <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+                        {{ $orderTitle }}
                     </h1>
-                    <p class="mt-0.5 text-xs text-slate-400">
-                        <i class="fa-regular fa-calendar mr-1"></i> Dibuat pada: {{ $order->created_at?->format('d M Y, H:i') }}
-                    </p>
                 </div>
 
                 <x-badge :type="$order->status">

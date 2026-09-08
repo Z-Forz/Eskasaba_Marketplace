@@ -96,7 +96,7 @@
             <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:justify-end dark:border-gray-800">
 
                 <a
-                    href="{{ route('admin.categories.show', $category) }}"
+                    href="{{ route('admin.categories.index') }}"
                     class="rounded-xl border border-gray-200 px-5 py-3 text-center text-sm font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300"
                 >
                     Batal

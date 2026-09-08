@@ -201,33 +201,6 @@
                         </div>
                     @endif
 
-                    {{-- Additional Flavor Pills --}}
-                    @if(count($flavors) > 0 && ! $isOwnProduct)
-                        <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
-                                <span><i class="fa-solid fa-utensils text-emerald-600 mr-1.5"></i> Pilih Rasa / Option Tambahan:</span>
-                                <span class="text-xs text-emerald-700 dark:text-emerald-400 font-extrabold" x-text="selectedFlavor ? 'Pilihan: ' + selectedFlavor : ''"></span>
-                            </label>
-
-                            <div class="flex flex-wrap gap-2.5">
-                                @foreach($flavors as $index => $flavor)
-                                    <button
-                                        type="button"
-                                        @click="selectedFlavor = @js($flavor); if(document.getElementById('product_variant_note_input')) document.getElementById('product_variant_note_input').value = @js($flavor)"
-                                        :class="selectedFlavor === @js($flavor)
-                                            ? 'border-emerald-600 bg-emerald-50 text-emerald-900 ring-2 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900 font-bold shadow-xs'
-                                            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 font-semibold'"
-                                        class="inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-xs transition cursor-pointer"
-                                    >
-                                        <i class="fa-solid fa-circle-dot text-[10px]" :class="selectedFlavor === @js($flavor) ? 'text-emerald-600' : 'text-slate-300'"></i>
-                                        <span>{{ $flavor }}</span>
-                                        <i class="fa-solid fa-check text-emerald-600 text-xs ml-1 font-bold" x-show="selectedFlavor === @js($flavor)"></i>
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-
                     {{-- Add to Cart Form / Buy Options --}}
                     @auth
                         @if($isOwnProduct)
@@ -301,7 +274,7 @@
                                         class="flex-1 flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-white shadow-md transition focus:outline-none focus:ring-2 focus:ring-emerald-400"
                                     >
                                         <i class="fa-solid fa-cart-shopping" x-show="activeStock > 0"></i>
-                                        <span x-text="activeStock > 0 ? 'Tambah ke Keranjang' : 'Stok Varian Habis'">Tambah ke Keranjang</span>
+                                        <span x-text="activeStock > 0 ? 'Tambah ke Keranjang' : 'Stok Habis'">Tambah ke Keranjang</span>
                                     </button>
                                 </div>
                             </form>

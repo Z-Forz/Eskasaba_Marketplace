@@ -54,21 +54,20 @@
 
                     <div>
                         <label for="email" class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Alamat Email
+                            Alamat Email Sekolah <span class="text-xs font-normal text-slate-400">(Terkunci)</span>
                         </label>
                         <input
                             id="email"
                             type="email"
-                            name="email"
-                            placeholder="Masukkan email..."
-                            value="{{ old('email', auth()->user()->email) }}"
-                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                            value="{{ auth()->user()->email }}"
+                            disabled
+                            class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
                         >
                     </div>
 
                     <div>
                         <label for="phone" class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Nomor HP / WhatsApp
+                            Nomor HP / WhatsApp <span class="text-emerald-600 font-bold">(Dapat Diubah)</span>
                         </label>
                         <input
                             id="phone"
