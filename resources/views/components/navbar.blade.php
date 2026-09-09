@@ -40,30 +40,34 @@
 
             <a
                 href="{{ route('home') }}"
-                class="px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 {{ request()->routeIs('home') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
+                class="px-3.5 py-2.5 rounded-xl text-sm transition inline-flex items-center justify-center gap-2 leading-none {{ request()->routeIs('home') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
             >
-                <i class="fa-solid fa-house text-xs text-emerald-600"></i> Beranda
+                <i class="fa-solid fa-house text-sm leading-none text-emerald-600 shrink-0"></i>
+                <span class="leading-none">Beranda</span>
             </a>
 
             <a
                 href="{{ route('products.index') }}"
-                class="px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 {{ request()->routeIs('products.*') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
+                class="px-3.5 py-2.5 rounded-xl text-sm transition inline-flex items-center justify-center gap-2 leading-none {{ request()->routeIs('products.*') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
             >
-                <i class="fa-solid fa-bag-shopping text-xs text-emerald-600"></i> Produk
+                <i class="fa-solid fa-bag-shopping text-sm leading-none text-emerald-600 shrink-0"></i>
+                <span class="leading-none">Produk</span>
             </a>
 
             <a
                 href="{{ route('guide') }}"
-                class="px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 {{ request()->routeIs('guide') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
+                class="px-3.5 py-2.5 rounded-xl text-sm transition inline-flex items-center justify-center gap-2 leading-none {{ request()->routeIs('guide') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
             >
-                <i class="fa-solid fa-book-open text-xs text-emerald-600"></i> Panduan
+                <i class="fa-solid fa-book-open text-sm leading-none text-emerald-600 shrink-0"></i>
+                <span class="leading-none">Panduan</span>
             </a>
 
             <a
                 href="{{ route('about') }}"
-                class="px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 {{ request()->routeIs('about') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
+                class="px-3.5 py-2.5 rounded-xl text-sm transition inline-flex items-center justify-center gap-2 leading-none {{ request()->routeIs('about') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
             >
-                <i class="fa-solid fa-circle-info text-xs text-emerald-600"></i> Tentang
+                <i class="fa-solid fa-circle-info text-sm leading-none text-emerald-600 shrink-0"></i>
+                <span class="leading-none">Tentang</span>
             </a>
 
         </div>
@@ -104,7 +108,7 @@
                     href="{{ route('profile.index') }}"
                     class="ml-1 flex items-center gap-2.5 rounded-xl p-1.5 transition hover:bg-slate-50 {{ request()->routeIs('profile.*') ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-300 shadow-xs' : '' }}"
                 >
-                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-600 to-teal-600 text-sm font-bold text-white shadow-md shadow-emerald-600/20">
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-sm font-bold text-white shadow-xs">
                         {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
                     </div>
 
@@ -127,7 +131,7 @@
 
                 <a
                     href="{{ route('login') }}"
-                    class="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2 text-sm font-bold text-white shadow-md shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-teal-700 flex items-center gap-2"
+                    class="rounded-xl bg-emerald-700 px-5 py-2 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center gap-2"
                 >
                     <i class="fa-solid fa-right-to-bracket"></i> Masuk
                 </a>
@@ -144,34 +148,6 @@
                     $mobileCartCount = auth()->user()->cart?->items()->sum('quantity') ?? 0;
                     $mobileUnreadCount = auth()->user()->notifications()->where('is_read', false)->count();
                 @endphp
-
-                {{-- Cart Quick Icon --}}
-                <a
-                    href="{{ route('buyer.cart.index') }}"
-                    class="relative rounded-xl p-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 active:scale-95 transition"
-                    aria-label="Keranjang Belanja"
-                >
-                    <i class="fa-solid fa-cart-shopping text-lg text-slate-700 dark:text-slate-300"></i>
-                    @if ($mobileCartCount > 0)
-                        <span class="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-extrabold text-white shadow-xs">
-                            {{ $mobileCartCount > 9 ? '9+' : $mobileCartCount }}
-                        </span>
-                    @endif
-                </a>
-
-                {{-- Notifications Quick Icon --}}
-                <a
-                    href="{{ route('buyer.notifications.index') }}"
-                    class="relative rounded-xl p-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 active:scale-95 transition"
-                    aria-label="Notifikasi"
-                >
-                    <i class="fa-solid fa-bell text-lg text-slate-700 dark:text-slate-300"></i>
-                    @if ($mobileUnreadCount > 0)
-                        <span class="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-extrabold text-white shadow-xs">
-                            {{ $mobileUnreadCount > 9 ? '9+' : $mobileUnreadCount }}
-                        </span>
-                    @endif
-                </a>
             @endauth
 
             <button
@@ -195,28 +171,28 @@
 
             <a
                 href="{{ route('home') }}"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('home') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('home') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-1 border-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
             >
                 <i class="fa-solid fa-house w-5 text-center text-emerald-600"></i> Beranda
             </a>
 
             <a
                 href="{{ route('products.index') }}"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('products.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('products.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-1 border-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
             >
                 <i class="fa-solid fa-bag-shopping w-5 text-center text-emerald-600"></i> Produk Katalog
             </a>
 
             <a
                 href="{{ route('guide') }}"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('guide') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('guide') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-1 border-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
             >
                 <i class="fa-solid fa-book-open w-5 text-center text-emerald-600"></i> Panduan COD
             </a>
 
             <a
                 href="{{ route('about') }}"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('about') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('about') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-1 border-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
             >
                 <i class="fa-solid fa-circle-info w-5 text-center text-emerald-600"></i> Tentang Kami
             </a>
@@ -313,7 +289,7 @@
                 <div class="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4">
                     <a
                         href="{{ route('login') }}"
-                        class="block w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-center text-sm font-bold text-white shadow-md transition hover:from-emerald-700 hover:to-teal-700"
+                        class="block w-full rounded-xl bg-emerald-700 px-4 py-3 text-center text-sm font-bold text-white shadow-md transition hover:bg-emerald-800"
                     >
                         <i class="fa-solid fa-right-to-bracket mr-1"></i> Masuk Akun
                     </a>

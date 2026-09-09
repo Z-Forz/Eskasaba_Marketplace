@@ -13,7 +13,7 @@
                     <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke produk
                 </a>
 
-                <h1 class="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                <h1 class="mt-4 text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                     Detail Produk
                 </h1>
 
@@ -127,17 +127,6 @@
 
                     </div>
 
-                    <div class="rounded-2xl bg-slate-50 p-4">
-
-                        <p class="text-xs text-slate-500">
-                            Kondisi
-                        </p>
-
-                        <p class="mt-1 font-bold capitalize text-slate-900">
-                            {{ $product->condition }}
-                        </p>
-
-                    </div>
 
                     <div class="rounded-2xl bg-slate-50 p-4">
 

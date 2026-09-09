@@ -534,7 +534,7 @@
                         <input type="hidden" name="quantity" value="1">
                         <button
                             type="submit"
-                            class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-3 text-xs font-bold text-white shadow-md shadow-emerald-600/20 active:scale-95 transition"
+                            class="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 hover:bg-emerald-800 px-5 py-3 text-xs font-bold text-white shadow-md active:scale-95 transition"
                         >
                             <i class="fa-solid fa-cart-shopping"></i> Tambah Keranjang
                         </button>

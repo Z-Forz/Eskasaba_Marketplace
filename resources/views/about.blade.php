@@ -3,18 +3,33 @@
     {{-- =========================================================
         TENTANG HERO
     ========================================================== --}}
-    <section class="relative overflow-hidden bg-slate-950">
-        <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
-            <div class="max-w-2xl">
-                <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300">
-                    Tentang Kami
+    <section class="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-950 to-emerald-900 py-16 sm:py-20 lg:py-24 text-white">
+        {{-- Glow Accents --}}
+        <div class="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl"></div>
+        <div class="pointer-events-none absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-700/20 blur-3xl"></div>
+
+        <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl">
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold text-emerald-300 backdrop-blur-md">
+                    <i class="fa-solid fa-circle-info text-emerald-400"></i> Tentang Kami
                 </span>
 
-                <h1 class="mt-5 text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
-                    Mengenal {{ $settings->website_name ?? 'Eskasaba Marketplace' }}
+                <h1 class="mt-4 text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+                    @php
+                        $aboutText = 'Mengenal ' . ($settings->website_name ?? 'Eskasaba Marketplace');
+                        $aboutLines = explode("\n", wordwrap($aboutText, 15, "\n", false));
+                        if (count($aboutLines) > 1) {
+                            $line1 = array_shift($aboutLines);
+                            $line2 = implode(' ', $aboutLines);
+                            $formattedAboutTitle = e($line1) . '<br>' . e($line2);
+                        } else {
+                            $formattedAboutTitle = e($aboutText);
+                        }
+                    @endphp
+                    {!! $formattedAboutTitle !!}
                 </h1>
 
-                <p class="mt-5 text-base leading-relaxed text-slate-400 sm:text-lg">
+                <p class="mt-4 text-sm leading-relaxed text-emerald-100/80 sm:text-base sm:leading-7">
                     {{ $settings->about ?? 'Platform marketplace resmi sekolah yang menghubungkan pelajar, guru, dan komunitas sekolah dalam satu ekosistem belanja yang aman, mudah, dan terpercaya.' }}
                 </p>
             </div>
@@ -68,8 +83,8 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
             <div class="mb-12 text-center">
-                <h2 class="text-2xl font-bold text-slate-800 sm:text-3xl">Mengapa Eskasaba?</h2>
-                <p class="mt-3 text-sm text-slate-500">Dirancang khusus untuk kebutuhan komunitas sekolah</p>
+                <h2 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white">Mengapa Eskasaba?</h2>
+                <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Dirancang khusus untuk kebutuhan komunitas sekolah</p>
             </div>
 
             <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -123,7 +138,7 @@
     ========================================================== --}}
     <section class="bg-emerald-800 py-16">
         <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 class="text-2xl font-bold text-white sm:text-3xl">Siap Bergabung?</h2>
+            <h2 class="text-2xl font-black tracking-tight text-white sm:text-3xl">Siap Bergabung?</h2>
             <p class="mt-3 text-sm text-emerald-100">Mulai berbelanja atau berjualan di Eskasaba Marketplace sekarang.</p>
             <div class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                 <a

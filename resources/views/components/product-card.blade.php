@@ -199,7 +199,7 @@
 
                 <a
                     href="{{ route('products.show', $product) }}"
-                    class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-teal-700"
+                    class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-md transition hover:bg-emerald-800"
                     title="Lihat Detail Produk"
                 >
                     <span>Beli</span>

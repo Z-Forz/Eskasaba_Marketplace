@@ -29,7 +29,18 @@
                 </span>
 
                 <h1 class="mt-5 text-3xl font-black leading-snug tracking-tight text-white sm:text-4xl lg:text-5xl">
-                    {{ $settings->hero_title ?? 'Selamat Datang di Eskasaba Market' }}
+                    @php
+                        $heroText = $settings->hero_title ?? 'Selamat Datang di Eskasaba Market';
+                        $heroLines = explode("\n", wordwrap($heroText, 15, "\n", false));
+                        if (count($heroLines) > 1) {
+                            $line1 = array_shift($heroLines);
+                            $line2 = implode(' ', $heroLines);
+                            $formattedHeroTitle = e($line1) . '<br>' . e($line2);
+                        } else {
+                            $formattedHeroTitle = e($heroText);
+                        }
+                    @endphp
+                    {!! $formattedHeroTitle !!}
                 </h1>
 
                 <p class="mt-4 max-w-2xl text-sm leading-relaxed text-emerald-100/90 sm:text-base sm:leading-7">

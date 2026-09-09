@@ -11,7 +11,7 @@
                 <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke keranjang
             </a>
 
-            <h1 class="mt-4 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+            <h1 class="mt-4 text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                 Checkout Pesanan
             </h1>
 

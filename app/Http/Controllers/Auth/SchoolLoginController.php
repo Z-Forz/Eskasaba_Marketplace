@@ -45,14 +45,18 @@ class SchoolLoginController extends Controller
     public function login(LoginRequest $request): RedirectResponse
     {
         $credentials = $request->validated(); // ['nis_nip' => ..., 'password' => ...]
-        $nisNip = trim($credentials['nis_nip']);
+        $nisNipInput = trim($credentials['nis_nip']);
         $inputPassword = $credentials['password'];
 
-        // 1. Cek kredensial di database lokal terlebih dahulu (apakah password cocok dengan hash lokal)
-        $localUser = User::where('nis_nip', $nisNip)
-            ->orWhere('email', $nisNip)
-            ->orWhere('email', 'like', $nisNip . '@%')
-            ->first();
+        $cleanNisNip = str_contains($nisNipInput, '@') ? explode('@', $nisNipInput)[0] : $nisNipInput;
+
+        // 1. Cek kredensial di database lokal terlebih dahulu (match NIS/NIP, email persis, atau email prefix)
+        $localUser = User::where(function ($query) use ($nisNipInput, $cleanNisNip) {
+            $query->where('nis_nip', $nisNipInput)
+                ->orWhere('nis_nip', $cleanNisNip)
+                ->orWhere('email', $nisNipInput)
+                ->orWhere('email', 'like', $cleanNisNip . '@%');
+        })->first();
 
         if ($localUser && Hash::check($inputPassword, $localUser->password)) {
             Auth::login($localUser);
@@ -71,7 +75,7 @@ class SchoolLoginController extends Controller
         }
 
         // 2. Jika password default sekolah ('password') atau API sekolah terhubung, validasi ke API Gateway
-        $apiData = $this->schoolApi->validate($nisNip);
+        $apiData = $this->schoolApi->validate($nisNipInput) ?? $this->schoolApi->validate($cleanNisNip);
 
         if ($apiData && ($inputPassword === 'password' || ($localUser && Hash::check($inputPassword, $localUser->password)))) {
             $role = match (strtolower($apiData['jenis_pengguna'] ?? 'siswa')) {
@@ -79,12 +83,17 @@ class SchoolLoginController extends Controller
                 default           => 'student',
             };
 
+            $userEmail = $apiData['email'] ?? ($localUser ? $localUser->email : null);
+            if (empty($userEmail)) {
+                $userEmail = $cleanNisNip . '@sijuna.com';
+            }
+
             // Update atau buat akun lokal secara otomatis
             $localUser = User::updateOrCreate(
                 ['nis_nip' => $apiData['nis_nip']],
                 [
                     'username'            => $apiData['nama'],
-                    'email'               => $apiData['email'] ?? ($apiData['nis_nip'] . '@sekolah.id'),
+                    'email'               => $userEmail,
                     'role'                => $role,
                     'class_room'          => $apiData['class_room'] ?? null,
                     'phone'               => $apiData['telepon'] ?? null,
@@ -111,7 +120,7 @@ class SchoolLoginController extends Controller
 
         // 3. Fallback jika user tidak ditemukan atau password salah
         throw ValidationException::withMessages([
-            'nis_nip' => 'NIS/NIP atau kata sandi tidak sesuai.',
+            'email' => 'NIS/NIP, Email, atau kata sandi tidak sesuai.',
         ]);
     }
 

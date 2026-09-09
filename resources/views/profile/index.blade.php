@@ -21,7 +21,7 @@
             <div class="flex flex-wrap items-center gap-3">
                 <a
                     href="{{ route('profile.edit') }}"
-                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:shadow-lg"
                 >
                     <i class="fa-solid fa-pen-to-square"></i> Edit Profil
                 </a>
@@ -250,19 +250,69 @@
             @elseif (auth()->user()->seller?->status === 'pending')
                 {{-- Pending Verification Banner --}}
                 <div class="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 shadow-xs dark:border-amber-950 dark:bg-amber-950/20 sm:p-8">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-800 font-bold dark:bg-amber-900 dark:text-amber-200">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-800 text-xl font-bold dark:bg-amber-900 dark:text-amber-200">
                             <i class="fa-solid fa-clock"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
-                                Pengajuan Seller Sedang Diverifikasi Admin
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-0.5 text-xs font-bold text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                                Status: Menunggu Verifikasi Admin
+                            </span>
+                            <h2 class="mt-1.5 text-lg font-black text-slate-900 dark:text-white sm:text-xl">
+                                Pengajuan Seller Sedang Diproses
                             </h2>
                             <p class="mt-0.5 text-xs text-slate-600 dark:text-slate-300">
-                                Permohonan Anda untuk menjadi seller sedang ditinjau oleh pihak admin sekolah. Mohon tunggu konfirmasi.
+                                Permohonan toko Anda sedang ditinjau oleh tim admin sekolah dalam 1×24 jam. Mohon cek berkala.
                             </p>
                         </div>
                     </div>
+                </div>
+            @elseif (auth()->user()->seller?->status === 'revision')
+                {{-- Revision Required Banner --}}
+                <div class="flex flex-col justify-between gap-6 rounded-3xl border border-amber-300 bg-amber-50 p-6 shadow-xs dark:border-amber-900/80 dark:bg-amber-950/30 sm:flex-row sm:items-center sm:p-8">
+                    <div>
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-200 px-3 py-1 text-xs font-bold text-amber-900 dark:bg-amber-900 dark:text-amber-100">
+                            <i class="fa-solid fa-pen-to-square"></i> Perlu Revisi Pengajuan
+                        </span>
+                        <h2 class="mt-3 text-xl font-black text-slate-900 dark:text-white sm:text-2xl">
+                            Pengajuan Toko Memerlukan Perbaikan
+                        </h2>
+                        <p class="mt-1 text-sm font-semibold text-amber-900 dark:text-amber-300">
+                            Catatan Admin: "{{ auth()->user()->seller->rejection_note }}"
+                        </p>
+                    </div>
+
+                    <a
+                        href="{{ route('buyer.apply-seller') }}"
+                        class="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-600 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-amber-600/20 transition hover:bg-amber-700 shrink-0"
+                    >
+                        Perbaiki & Kirim Ulang <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            @elseif (auth()->user()->seller?->status === 'rejected')
+                {{-- Rejected Banner with Re-apply Option --}}
+                <div class="flex flex-col justify-between gap-6 rounded-3xl border border-rose-200 bg-rose-50/70 p-6 shadow-xs dark:border-rose-900/60 dark:bg-rose-950/20 sm:flex-row sm:items-center sm:p-8">
+                    <div>
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-800 dark:bg-rose-900 dark:text-rose-200">
+                            <i class="fa-solid fa-circle-xmark"></i> Pengajuan Sebelumnya Ditolak
+                        </span>
+                        <h2 class="mt-3 text-xl font-black text-slate-900 dark:text-white sm:text-2xl">
+                            Pengajuan Toko Anda Belum Disetujui
+                        </h2>
+                        <p class="mt-1 text-sm font-semibold text-rose-800 dark:text-rose-300">
+                            Alasan Penolakan: "{{ auth()->user()->seller->rejection_note }}"
+                        </p>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            Anda dapat memperbaiki data atau alasan di atas dan melakukan pengajuan ulang kapan saja.
+                        </p>
+                    </div>
+
+                    <a
+                        href="{{ route('buyer.apply-seller') }}"
+                        class="inline-flex items-center justify-center gap-2 rounded-2xl bg-rose-600 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-rose-600/20 transition hover:bg-rose-700 shrink-0"
+                    >
+                        <i class="fa-solid fa-rotate-right"></i> Daftar / Pengajuan Ulang
+                    </a>
                 </div>
             @else
                 {{-- Apply to be a seller banner --}}

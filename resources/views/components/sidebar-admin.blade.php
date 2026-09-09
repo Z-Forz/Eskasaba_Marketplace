@@ -19,7 +19,7 @@
 @endphp
 
 {{-- DESKTOP SIDEBAR ADMIN --}}
-<aside class="fixed inset-y-0 left-0 z-50 hidden w-56 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex">
+<aside class="fixed inset-y-0 left-0 z-50 hidden w-56 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:flex shadow-xs">
 
     {{-- Logo Header --}}
     <div class="flex h-20 items-center border-b border-slate-100 px-5 dark:border-slate-800">
@@ -45,7 +45,7 @@
         <a
             href="{{ route('admin.dashboard') }}"
             class="mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
-                {{ request()->routeIs('admin.dashboard') ? 'bg-emerald-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
+                {{ request()->routeIs('admin.dashboard') ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
         >
             <i class="fa-solid fa-gauge-high text-base w-5 text-center"></i>
             <span>Dashboard</span>
@@ -53,7 +53,7 @@
 
         @foreach ($adminMenus as $groupLabel => $items)
 
-            <p class="mb-1.5 mt-5 px-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <p class="mb-1.5 mt-5 px-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 {{ $groupLabel }}
             </p>
 
@@ -61,13 +61,13 @@
                 <a
                     href="{{ route($item['route']) }}"
                     class="mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
-                        {{ request()->routeIs($item['pattern']) ? 'bg-emerald-50 font-bold text-emerald-900 border-l-4 border-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
+                        {{ request()->routeIs($item['pattern']) ? 'bg-emerald-800 text-white font-bold shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
                 >
                     <span class="flex items-center gap-3">
                         <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
                         <span>{{ $item['label'] }}</span>
                     </span>
-                    <span class="text-slate-300 text-xs">›</span>
+                    <span class="{{ request()->routeIs($item['pattern']) ? 'text-white/80 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
                 </a>
             @endforeach
 
@@ -111,7 +111,7 @@
         class="absolute inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
     ></div>
 
-    <aside class="relative z-10 flex h-full w-[17.5rem] flex-col border-r border-slate-200/80 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+    <aside class="relative z-10 flex h-full w-[17.5rem] flex-col border-r border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
 
         <div class="flex h-16 items-center justify-between border-b border-slate-100 px-5 dark:border-slate-800">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
@@ -138,7 +138,7 @@
             <a
                 href="{{ route('admin.dashboard') }}"
                 class="mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
-                    {{ request()->routeIs('admin.dashboard') ? 'bg-emerald-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800' }}"
+                    {{ request()->routeIs('admin.dashboard') ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
             >
                 <i class="fa-solid fa-gauge-high text-base w-5 text-center"></i>
                 <span>Dashboard</span>
@@ -146,7 +146,7 @@
 
             @foreach ($adminMenus as $groupLabel => $items)
 
-                <p class="mb-1.5 mt-4 px-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <p class="mb-1.5 mt-4 px-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     {{ $groupLabel }}
                 </p>
 
@@ -154,13 +154,13 @@
                     <a
                         href="{{ route($item['route']) }}"
                         class="mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
-                            {{ request()->routeIs($item['pattern']) ? 'bg-emerald-50 font-bold text-emerald-900 border-l-4 border-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800' }}"
+                            {{ request()->routeIs($item['pattern']) ? 'bg-emerald-50 font-bold text-emerald-900 border-l-4 border-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
                     >
                         <span class="flex items-center gap-3">
                             <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
                             <span>{{ $item['label'] }}</span>
                         </span>
-                        <span class="text-slate-300 text-xs">›</span>
+                        <span class="{{ request()->routeIs($item['pattern']) ? 'text-emerald-700 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
                     </a>
                 @endforeach
 

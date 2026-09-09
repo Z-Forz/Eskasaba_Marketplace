@@ -9,7 +9,7 @@
                     <i class="fa-solid fa-box-archive text-emerald-600"></i> Katalog Produk Toko
                 </h1>
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Kelola seluruh produk jualan Anda, atur ketersediaan stok, dan ubah varian/kondisi barang.
+                    Kelola seluruh produk jualan Anda, atur ketersediaan stok, dan ubah varian produk.
                 </p>
             </div>
 

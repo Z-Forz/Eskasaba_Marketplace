@@ -14,9 +14,12 @@ class DashboardRedirectController extends Controller
      */
     public function __invoke(): RedirectResponse
     {
-        return match (Auth::user()->role) {
-            'teacher' => redirect()->route('seller.dashboard'),
-            default   => redirect()->route('buyer.dashboard'),
-        };
+        $user = Auth::user();
+
+        if ($user?->seller && $user->seller->isApproved()) {
+            return redirect()->route('seller.dashboard');
+        }
+
+        return redirect()->route('buyer.dashboard');
     }
 }

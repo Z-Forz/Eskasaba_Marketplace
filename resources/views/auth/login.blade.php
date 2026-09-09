@@ -61,7 +61,7 @@
                     {{-- NIS / NIP / Email Input --}}
                     <div>
                         <label class="mb-2 block text-xs font-bold text-slate-700 dark:text-slate-300">
-                            NIS@Email (Siswa) / NIP atau Email (Guru) <span class="text-red-500">*</span>
+                            NIS / Email (Siswa) atau NIP / Email (Guru) <span class="text-red-500">*</span>
                         </label>
 
                         <div class="relative flex items-center">
@@ -76,7 +76,7 @@
                                 required
                                 autofocus
                                 autocomplete="username"
-                                placeholder="Siswa: Email login sijuna | Guru: NIP / Email"
+                                placeholder="Siswa: NIS / Email (nis@emailsijuna) | Guru: NIP / Email"
                                 class="w-full rounded-2xl border bg-slate-50/50 py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800/50 dark:text-white dark:focus:border-emerald-500 @error('email') border-red-500 ring-2 ring-red-500/20 dark:border-red-500 @else border-slate-200 dark:border-slate-800 @enderror"
                             >
                         </div>
@@ -123,7 +123,7 @@
                         type="submit"
                         :disabled="isLoading"
                         :class="{ 'opacity-70 cursor-not-allowed pointer-events-none': isLoading }"
-                        class="w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition duration-200 hover:from-emerald-700 hover:to-teal-700 active:scale-[0.98] sm:text-base flex items-center justify-center gap-2"
+                        class="w-full rounded-2xl bg-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition duration-200 hover:bg-emerald-800 active:scale-[0.98] sm:text-base flex items-center justify-center gap-2"
                     >
                         <span x-show="!isLoading" class="inline-flex items-center gap-2">
                             <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang

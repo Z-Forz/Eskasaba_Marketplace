@@ -14,8 +14,8 @@
             <div class="mt-1 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                        Halo, {{ auth()->user()->name }} 👋
+                    <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+                        Dashboard Saya
                     </h1>
 
                     <p class="mt-2 text-sm text-slate-500">

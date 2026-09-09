@@ -58,59 +58,83 @@ class SchoolApiService
             return null;
         }
 
-        try {
-            // First try SiPintu Server-to-Server Gateway Students endpoints
-            $response = Http::withoutVerifying()->timeout(8)
-                ->withHeaders([
-                    'X-Client-ID'     => $this->clientId,
-                    'X-Client-Secret' => $this->clientSecret,
-                    'Accept'          => 'application/json',
-                ])
-                ->get("{$this->baseUrl}/api/v1/sijuna/students", ['nis' => $nisNip]);
+        $cleanNisNip = str_contains($nisNip, '@') ? explode('@', $nisNip)[0] : $nisNip;
+        $searchKeys = array_values(array_unique(array_filter([$nisNip, $cleanNisNip])));
 
-            if ($response->successful()) {
-                $data = $response->json()['data'] ?? $response->json();
-                $items = is_array($data) ? ($data[0] ?? $data) : $data;
-                if (!empty($items['nis_nip']) || !empty($items['nis']) || !empty($items['id'])) {
-                    return $this->formatUserData($items, 'student');
+        foreach ($searchKeys as $key) {
+            try {
+                // First try SiPintu Server-to-Server Gateway Students endpoints
+                $response = Http::withoutVerifying()->timeout(8)
+                    ->withHeaders([
+                        'X-Client-ID'     => $this->clientId,
+                        'X-Client-Secret' => $this->clientSecret,
+                        'Accept'          => 'application/json',
+                    ])
+                    ->get("{$this->baseUrl}/api/v1/sijuna/students", ['nis' => $key]);
+
+                if ($response->successful()) {
+                    $data = $response->json()['data'] ?? $response->json();
+                    $items = is_array($data) ? ($data[0] ?? $data) : $data;
+                    if (!empty($items['nis_nip']) || !empty($items['nis']) || !empty($items['id'])) {
+                        return $this->formatUserData($items, 'student');
+                    }
                 }
-            }
 
-            // Try Teachers endpoint (with nip query parameter)
-            $responseTeacher = Http::withoutVerifying()->timeout(8)
-                ->withHeaders([
-                    'X-Client-ID'     => $this->clientId,
-                    'X-Client-Secret' => $this->clientSecret,
-                    'Accept'          => 'application/json',
-                ])
-                ->get("{$this->baseUrl}/api/v1/sijuna/teachers", ['nip' => $nisNip]);
+                // Try Teachers endpoint (with nip query parameter)
+                $responseTeacher = Http::withoutVerifying()->timeout(8)
+                    ->withHeaders([
+                        'X-Client-ID'     => $this->clientId,
+                        'X-Client-Secret' => $this->clientSecret,
+                        'Accept'          => 'application/json',
+                    ])
+                    ->get("{$this->baseUrl}/api/v1/sijuna/teachers", ['nip' => $key]);
 
-            if ($responseTeacher->successful()) {
-                $data = $responseTeacher->json()['data'] ?? $responseTeacher->json();
-                $items = is_array($data) ? ($data[0] ?? $data) : $data;
-                if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
-                    return $this->formatUserData($items, 'teacher');
+                if ($responseTeacher->successful()) {
+                    $data = $responseTeacher->json()['data'] ?? $responseTeacher->json();
+                    $items = is_array($data) ? ($data[0] ?? $data) : $data;
+                    if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
+                        return $this->formatUserData($items, 'teacher');
+                    }
                 }
-            }
 
-            // Try Teachers endpoint (with nis_nip query parameter as fallback)
-            $responseTeacherNisNip = Http::withoutVerifying()->timeout(8)
-                ->withHeaders([
-                    'X-Client-ID'     => $this->clientId,
-                    'X-Client-Secret' => $this->clientSecret,
-                    'Accept'          => 'application/json',
-                ])
-                ->get("{$this->baseUrl}/api/v1/sijuna/teachers", ['nis_nip' => $nisNip]);
+                // Try Teachers endpoint (with nis_nip query parameter as fallback)
+                $responseTeacherNisNip = Http::withoutVerifying()->timeout(8)
+                    ->withHeaders([
+                        'X-Client-ID'     => $this->clientId,
+                        'X-Client-Secret' => $this->clientSecret,
+                        'Accept'          => 'application/json',
+                    ])
+                    ->get("{$this->baseUrl}/api/v1/sijuna/teachers", ['nis_nip' => $key]);
 
-            if ($responseTeacherNisNip->successful()) {
-                $data = $responseTeacherNisNip->json()['data'] ?? $responseTeacherNisNip->json();
-                $items = is_array($data) ? ($data[0] ?? $data) : $data;
-                if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
-                    return $this->formatUserData($items, 'teacher');
+                if ($responseTeacherNisNip->successful()) {
+                    $data = $responseTeacherNisNip->json()['data'] ?? $responseTeacherNisNip->json();
+                    $items = is_array($data) ? ($data[0] ?? $data) : $data;
+                    if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
+                        return $this->formatUserData($items, 'teacher');
+                    }
                 }
+
+                // Try Teachers endpoint with email if key is an email
+                if (str_contains($key, '@')) {
+                    $responseTeacherEmail = Http::withoutVerifying()->timeout(8)
+                        ->withHeaders([
+                            'X-Client-ID'     => $this->clientId,
+                            'X-Client-Secret' => $this->clientSecret,
+                            'Accept'          => 'application/json',
+                        ])
+                        ->get("{$this->baseUrl}/api/v1/sijuna/teachers", ['email' => $key]);
+
+                    if ($responseTeacherEmail->successful()) {
+                        $data = $responseTeacherEmail->json()['data'] ?? $responseTeacherEmail->json();
+                        $items = is_array($data) ? ($data[0] ?? $data) : $data;
+                        if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
+                            return $this->formatUserData($items, 'teacher');
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning("SchoolApiService validate exception for {$key}: " . $e->getMessage());
             }
-        } catch (\Exception $e) {
-            Log::warning("SchoolApiService validate exception for {$nisNip}: " . $e->getMessage());
         }
 
         return null;

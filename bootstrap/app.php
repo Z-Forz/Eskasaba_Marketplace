@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'payment/callback',
             'payments/callback',
             'auth/school/callback',
+            'send-message',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

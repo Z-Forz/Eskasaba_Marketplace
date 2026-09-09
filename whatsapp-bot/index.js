@@ -65,12 +65,16 @@ async function connectToWhatsApp() {
             isConnected = false;
             const statusCode = lastDisconnect?.error?.output?.statusCode;
             const isLoggedOut = statusCode === DisconnectReason.loggedOut;
+            const isReplaced = statusCode === DisconnectReason.connectionReplaced || statusCode === 440;
 
-            console.log(`⚠️ Koneksi WA terputus (Status Code: ${statusCode || 'Unknown'}). Reconnecting...`);
+            console.log(`⚠️ Koneksi WA terputus (Status Code: ${statusCode || 'Unknown'}).`);
 
             if (isLoggedOut) {
                 console.log('🔒 Session WhatsApp telah Keluar / Expired. Menyiapkan QR Code baru...');
                 clearAuthFolder();
+            } else if (isReplaced) {
+                console.log('⛔ Sesi WhatsApp terdeteksi aktif di tempat/proses lain (Status Code 440: Conflict/Replaced). Auto-reconnect dihentikan agar tidak terjadi ping-pong putus nyambung.');
+                return;
             }
 
             setTimeout(() => {
@@ -152,3 +156,12 @@ app.listen(PORT, () => {
     console.log(`Server WA Bot jalan di http://localhost:${PORT}`);
     connectToWhatsApp();
 });
+
+process.on('uncaughtException', (err) => {
+    console.error('[WA BOT UNCAUGHT EXCEPTION]', err.message);
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('[WA BOT UNHANDLED REJECTION]', reason);
+});
+

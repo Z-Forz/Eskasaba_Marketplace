@@ -19,8 +19,7 @@ class EnsureSellerApproved
         $seller = $user?->seller;
 
         if (! $seller || ! $seller->isApproved()) {
-            return redirect()->route('profile.index')
-                ->with('warning', 'Anda belum terdaftar sebagai seller aktif. Silakan ajukan pendaftaran terlebih dahulu.');
+            return redirect()->route('buyer.dashboard');
         }
 
         return $next($request);

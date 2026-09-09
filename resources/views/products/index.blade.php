@@ -89,7 +89,7 @@
                     <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
                         <button
                             type="submit"
-                            class="w-full sm:w-auto rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-teal-700 flex items-center justify-center gap-1.5"
+                            class="w-full sm:w-auto rounded-2xl bg-emerald-700 px-6 py-3 text-xs font-bold text-white shadow-md transition hover:bg-emerald-800 flex items-center justify-center gap-1.5"
                         >
                             <i class="fa-solid fa-filter"></i> Terapkan Filter
                         </button>

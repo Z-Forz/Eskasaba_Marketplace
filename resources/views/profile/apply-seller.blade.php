@@ -11,11 +11,11 @@
             </a>
 
             <div class="mt-4">
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                     Ajukan Menjadi Seller
                 </h1>
 
-                <p class="mt-2 text-sm text-slate-500">
+                <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
                     Isi formulir berikut untuk mendaftar sebagai penjual di Eskasaba Marketplace.
                     Admin akan memverifikasi pengajuan Anda.
                 </p>
@@ -26,12 +26,18 @@
             <x-alert type="error" :message="$errors->first()" class="mb-6" />
         @endif
 
-        {{-- Catatan revisi (jika sedang revisi) --}}
+        {{-- Catatan revisi / penolakan (jika sedang revisi atau ditolak) --}}
         @if ($seller?->needsRevision())
             <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-                <p class="text-sm font-semibold text-amber-800">📋 Catatan dari Admin</p>
+                <p class="text-sm font-semibold text-amber-800">📋 Catatan Revisi dari Admin</p>
                 <p class="mt-1 text-sm text-amber-700">{{ $seller->rejection_note }}</p>
-                <p class="mt-2 text-xs text-amber-500">Perbaiki pengajuan sesuai catatan di atas, lalu kirim ulang.</p>
+                <p class="mt-2 text-xs text-amber-600">Perbaiki pengajuan sesuai catatan di atas, lalu kirim ulang.</p>
+            </div>
+        @elseif ($seller?->isRejected())
+            <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-5">
+                <p class="text-sm font-semibold text-rose-800">❌ Catatan Penolakan Sebelumnya dari Admin</p>
+                <p class="mt-1 text-sm text-rose-700">{{ $seller->rejection_note }}</p>
+                <p class="mt-2 text-xs text-rose-600">Silakan perbaiki alasan atau ganti foto QRIS di bawah ini untuk melakukan pengajuan ulang.</p>
             </div>
         @endif
 
@@ -154,7 +160,7 @@
                         type="submit"
                         class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
                     >
-                        {{ $seller?->needsRevision() ? 'Kirim Ulang Pengajuan' : 'Ajukan Sekarang' }}
+                        {{ $seller?->needsRevision() ? 'Kirim Revisi Pengajuan' : ($seller?->isRejected() ? 'Kirim Pengajuan Ulang' : 'Ajukan Sekarang') }}
                     </button>
                 </div>
 

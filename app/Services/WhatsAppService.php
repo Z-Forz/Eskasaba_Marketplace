@@ -34,34 +34,80 @@ class WhatsAppService
             return false;
         }
 
+        $payload = [
+            'target'  => $formattedTo,
+            'number'  => $formattedTo,
+            'phone'   => $formattedTo,
+            'message' => $message,
+        ];
+
+        $fallbackUrl = 'http://localhost:3000/send-message';
+
         try {
             // Beri jeda 300ms untuk memastikan pengiriman beruntun berjalan mulus
             usleep(300000);
 
             // Support baik Baileys Node Bot API lokal maupun Fonnte / Gateway lain
-            $response = Http::timeout(10)
+            $response = Http::withoutVerifying()
+                ->timeout(10)
                 ->withHeaders([
                     'Authorization' => $token,
                     'Content-Type'  => 'application/json',
                 ])
-                ->post($url, [
-                    'target'  => $formattedTo,
-                    'number'  => $formattedTo,
-                    'phone'   => $formattedTo,
-                    'message' => $message,
-                ]);
+                ->post($url, $payload);
 
             if ($response->successful()) {
-                Log::info("WhatsApp message sent to {$formattedTo}");
+                Log::info("WhatsApp message sent to {$formattedTo} via {$url}");
                 return true;
             }
 
-            Log::error("WhatsAppService failed: HTTP {$response->status()} - {$response->body()}");
+            Log::warning("WhatsAppService primary gateway URL ({$url}) failed: HTTP {$response->status()} - {$response->body()}");
+
+            if ($url !== $fallbackUrl) {
+                Log::info("Attempting fallback to local WhatsApp bot: {$fallbackUrl}");
+                $fallbackResponse = Http::withoutVerifying()
+                    ->timeout(10)
+                    ->withHeaders([
+                        'Authorization' => $token,
+                        'Content-Type'  => 'application/json',
+                    ])
+                    ->post($fallbackUrl, $payload);
+
+                if ($fallbackResponse->successful()) {
+                    Log::info("WhatsApp message sent to {$formattedTo} via fallback {$fallbackUrl}");
+                    return true;
+                }
+
+                Log::error("WhatsAppService fallback failed: HTTP {$fallbackResponse->status()} - {$fallbackResponse->body()}");
+            }
+
             return false;
         } catch (\Exception $e) {
-            Log::error("WhatsAppService error sending to {$formattedTo}: {$e->getMessage()}");
+            Log::error("WhatsAppService error sending to {$formattedTo} via {$url}: {$e->getMessage()}");
+
+            if ($url !== $fallbackUrl) {
+                try {
+                    Log::info("Attempting fallback to local WhatsApp bot after exception: {$fallbackUrl}");
+                    $fallbackResponse = Http::withoutVerifying()
+                        ->timeout(10)
+                        ->withHeaders([
+                            'Authorization' => $token,
+                            'Content-Type'  => 'application/json',
+                        ])
+                        ->post($fallbackUrl, $payload);
+
+                    if ($fallbackResponse->successful()) {
+                        Log::info("WhatsApp message sent to {$formattedTo} via fallback {$fallbackUrl}");
+                        return true;
+                    }
+                } catch (\Exception $fallbackEx) {
+                    Log::error("WhatsAppService fallback exception for {$formattedTo}: {$fallbackEx->getMessage()}");
+                }
+            }
+
             return false;
         }
+
     }
 
     /**

@@ -67,12 +67,13 @@
 
                     <div>
                         <label for="phone" class="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Nomor HP / WhatsApp <span class="text-emerald-600 font-bold">(Dapat Diubah)</span>
+                            Nomor HP / WhatsApp <span class="text-red-500">*</span> <span class="text-emerald-600 font-bold">(Wajib Diisi)</span>
                         </label>
                         <input
                             id="phone"
                             type="text"
                             name="phone"
+                            required
                             placeholder="Contoh: 081234567890"
                             value="{{ old('phone', auth()->user()->phone) }}"
                             class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
