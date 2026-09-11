@@ -31,7 +31,7 @@ class UserController extends Controller
         ->when($role, function ($query) use ($role) {
             $query->where('role', $role);
         })
-        ->latest()
+        ->orderBy('nis_nip', 'asc')
         ->paginate(15)
         ->withQueryString();
 

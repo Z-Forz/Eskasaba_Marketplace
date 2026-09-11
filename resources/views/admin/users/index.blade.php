@@ -123,7 +123,11 @@
                         <tr>
                             <th class="px-6 py-4 w-12 text-center">No</th>
                             <th class="px-6 py-4">Pengguna</th>
-                            <th class="px-6 py-4">NIS / NIP</th>
+                            <th class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-extrabold">
+                                    NIS / NIP <i class="fa-solid fa-arrow-down-1-9 text-[11px]"></i>
+                                </span>
+                            </th>
                             <th class="px-6 py-4">No. HP / WA</th>
                             <th class="px-6 py-4">Alamat Email</th>
                             <th class="px-6 py-4">Kelas</th>

@@ -58,6 +58,13 @@ class SchoolLoginController extends Controller
                 ->orWhere('email', 'like', $cleanNisNip . '@%');
         })->first();
 
+        // Bagi akun siswa, login WAJIB menggunakan format email (contoh: nis@sijuna.com), tidak boleh hanya NIS saja.
+        if ($localUser && $localUser->role === 'student' && !str_contains($nisNipInput, '@')) {
+            throw ValidationException::withMessages([
+                'email' => 'Siswa wajib menggunakan Email Sekolah (contoh: NIS@sijuna.com atau NIS@smkn1bangsri.sch.id), bukan NIS saja.',
+            ]);
+        }
+
         if ($localUser && Hash::check($inputPassword, $localUser->password)) {
             Auth::login($localUser);
             $request->session()->regenerate();
@@ -77,45 +84,54 @@ class SchoolLoginController extends Controller
         // 2. Jika password default sekolah ('password') atau API sekolah terhubung, validasi ke API Gateway
         $apiData = $this->schoolApi->validate($nisNipInput) ?? $this->schoolApi->validate($cleanNisNip);
 
-        if ($apiData && ($inputPassword === 'password' || ($localUser && Hash::check($inputPassword, $localUser->password)))) {
+        if ($apiData) {
             $role = match (strtolower($apiData['jenis_pengguna'] ?? 'siswa')) {
                 'guru', 'teacher' => 'teacher',
                 default           => 'student',
             };
 
-            $userEmail = $apiData['email'] ?? ($localUser ? $localUser->email : null);
-            if (empty($userEmail)) {
-                $userEmail = $cleanNisNip . '@sijuna.com';
+            // Bagi akun siswa dari API Gateway, login WAJIB menggunakan format email (contoh: nis@sijuna.com)
+            if ($role === 'student' && !str_contains($nisNipInput, '@')) {
+                throw ValidationException::withMessages([
+                    'email' => 'Siswa wajib menggunakan Email Sekolah (contoh: NIS@sijuna.com atau NIS@smkn1bangsri.sch.id), bukan NIS saja.',
+                ]);
             }
 
-            // Update atau buat akun lokal secara otomatis
-            $localUser = User::updateOrCreate(
-                ['nis_nip' => $apiData['nis_nip']],
-                [
-                    'username'            => $apiData['nama'],
-                    'email'               => $userEmail,
-                    'role'                => $role,
-                    'class_room'          => $apiData['class_room'] ?? null,
-                    'phone'               => $apiData['telepon'] ?? null,
-                    'api_id'              => $apiData['id'] ?? ($localUser ? $localUser->api_id : rand(1000, 9999)),
-                    'password'            => $localUser ? $localUser->password : Hash::make('password'),
-                    'is_default_password' => $localUser ? $localUser->is_default_password : true,
-                ]
-            );
+            if ($inputPassword === 'password' || ($localUser && Hash::check($inputPassword, $localUser->password))) {
+                $userEmail = $apiData['email'] ?? ($localUser ? $localUser->email : null);
+                if (empty($userEmail)) {
+                    $userEmail = $cleanNisNip . '@sijuna.com';
+                }
 
-            Auth::login($localUser);
-            $request->session()->regenerate();
-
-            if (class_exists(\App\Models\ActivityLog::class)) {
-                \App\Models\ActivityLog::record(
-                    $localUser->id,
-                    'login',
-                    "Login berhasil dari IP {$request->ip()}",
-                    $request
+                // Update atau buat akun lokal secara otomatis
+                $localUser = User::updateOrCreate(
+                    ['nis_nip' => $apiData['nis_nip']],
+                    [
+                        'username'            => $apiData['nama'],
+                        'email'               => $userEmail,
+                        'role'                => $role,
+                        'class_room'          => $apiData['class_room'] ?? null,
+                        'phone'               => $apiData['telepon'] ?? null,
+                        'api_id'              => $apiData['id'] ?? ($localUser ? $localUser->api_id : rand(1000, 9999)),
+                        'password'            => $localUser ? $localUser->password : Hash::make('password'),
+                        'is_default_password' => $localUser ? $localUser->is_default_password : true,
+                    ]
                 );
-            }
 
-            return redirect()->intended(route('dashboard'));
+                Auth::login($localUser);
+                $request->session()->regenerate();
+
+                if (class_exists(\App\Models\ActivityLog::class)) {
+                    \App\Models\ActivityLog::record(
+                        $localUser->id,
+                        'login',
+                        "Login berhasil dari IP {$request->ip()}",
+                        $request
+                    );
+                }
+
+                return redirect()->intended(route('dashboard'));
+            }
         }
 
         // 3. Fallback jika user tidak ditemukan atau password salah
