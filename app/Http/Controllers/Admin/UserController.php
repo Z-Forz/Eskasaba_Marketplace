@@ -114,6 +114,11 @@ class UserController extends Controller
     {
         $count = $schoolApi->syncAllUsers();
 
+        if ($count === 0) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Gagal mensinkronisasi data pengguna. Gateway SiPintu tidak merespons atau koneksi mengalami timeout. Silakan coba beberapa saat lagi.');
+        }
+
         return redirect()->route('admin.users.index')
             ->with('success', "Sinkronisasi berhasil! {$count} data pengguna telah diperbarui dari Database Sekolah.");
     }

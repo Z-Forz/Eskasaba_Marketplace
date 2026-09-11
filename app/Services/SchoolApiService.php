@@ -147,17 +147,22 @@ class SchoolApiService
      */
     public function syncAllUsers(): int
     {
+        set_time_limit(180);
         $this->ping();
 
         $allUsersData = [];
 
+        // Fetch Active Students from SiPintu Gateway Proxy
         try {
-            // Fetch Active Students from SiPintu Gateway Proxy
-            $respStudents = Http::withoutVerifying()->timeout(20)
+            $respStudents = Http::withoutVerifying()
+                ->withOptions(['connect_timeout' => 30])
+                ->timeout(90)
+                ->retry(3, 2000)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
                     'Accept'          => 'application/json',
+                    'Accept-Encoding' => 'gzip, deflate',
                 ])
                 ->get("{$this->baseUrl}/api/v1/sijuna/students");
 
@@ -172,13 +177,21 @@ class SchoolApiService
             } else {
                 Log::warning("SiPintu Students HTTP status: " . $respStudents->status());
             }
+        } catch (\Exception $e) {
+            Log::error("SchoolApiService syncAllUsers students API exception: " . $e->getMessage());
+        }
 
-            // Fetch Active Teachers from SiPintu Gateway Proxy
-            $respTeachers = Http::withoutVerifying()->timeout(20)
+        // Fetch Active Teachers from SiPintu Gateway Proxy
+        try {
+            $respTeachers = Http::withoutVerifying()
+                ->withOptions(['connect_timeout' => 30])
+                ->timeout(90)
+                ->retry(3, 2000)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
                     'Accept'          => 'application/json',
+                    'Accept-Encoding' => 'gzip, deflate',
                 ])
                 ->get("{$this->baseUrl}/api/v1/sijuna/teachers");
 
@@ -194,7 +207,7 @@ class SchoolApiService
                 Log::warning("SiPintu Teachers HTTP status: " . $respTeachers->status());
             }
         } catch (\Exception $e) {
-            Log::error("SchoolApiService syncAllUsers API exception: " . $e->getMessage());
+            Log::error("SchoolApiService syncAllUsers teachers API exception: " . $e->getMessage());
         }
 
         if (empty($allUsersData)) {

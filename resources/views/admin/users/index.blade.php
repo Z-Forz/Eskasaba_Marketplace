@@ -34,6 +34,10 @@
             <x-alert type="success" :message="session('success')" class="mb-4" />
         @endif
 
+        @if (session('error'))
+            <x-alert type="danger" :message="session('error')" class="mb-4" />
+        @endif
+
         {{-- Quick Role Filter Tabs --}}
         <div class="flex flex-wrap items-center gap-2">
             <a
