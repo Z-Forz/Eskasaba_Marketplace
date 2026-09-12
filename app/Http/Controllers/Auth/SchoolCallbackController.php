@@ -102,6 +102,20 @@ class SchoolCallbackController extends Controller
 
         $role = ($apiData['jenis_pengguna'] ?? 'siswa') === 'guru' ? 'teacher' : 'student';
 
+        if ($role === 'student') {
+            $classRoom = $apiData['class_room'] ?? null;
+            if (empty($classRoom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'Hanya siswa aktif (Kelas 10, 11, dan 12) yang dapat mengakses sistem.',
+                    ], 403);
+                }
+
+                return redirect()->route('login')->with('error', 'Hanya siswa aktif (Kelas 10, 11, dan 12) yang dapat mengakses sistem.');
+            }
+        }
+
         $user = User::updateOrCreate(
             ['nis_nip' => $apiData['nis_nip']],
             [

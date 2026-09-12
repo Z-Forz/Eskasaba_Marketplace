@@ -47,9 +47,10 @@ class UserController extends Controller
     /**
      * Show the form for creating a new user.
      */
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('admin.users.create');
+        return redirect()->route('admin.users.index')
+            ->with('error', 'Pengguna disinkronkan langsung dari SiPintu Gateway dan tidak dapat ditambah secara manual.');
     }
 
     /**
@@ -57,14 +58,8 @@ class UserController extends Controller
      */
     public function store(UserRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['password'] = Hash::make('password');
-        $data['is_default_password'] = true;
-
-        User::create($data);
-
         return redirect()->route('admin.users.index')
-            ->with('success', 'User berhasil ditambahkan.');
+            ->with('error', 'Pengguna disinkronkan langsung dari SiPintu Gateway dan tidak dapat ditambah secara manual.');
     }
 
     /**
@@ -102,9 +97,8 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
-        $user->delete();
         return redirect()->route('admin.users.index')
-            ->with('success', 'User berhasil dihapus.');
+            ->with('error', 'Pengguna disinkronkan langsung dari SiPintu Gateway dan tidak dapat dihapus secara manual.');
     }
 
     /**

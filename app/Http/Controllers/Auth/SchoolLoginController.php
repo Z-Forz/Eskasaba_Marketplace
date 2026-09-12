@@ -47,19 +47,22 @@ class SchoolLoginController extends Controller
         $credentials = $request->validated(); // ['nis_nip' => ..., 'password' => ...]
         $nisNipInput = trim($credentials['nis_nip']);
         $inputPassword = $credentials['password'];
+        $isEmailInput = str_contains($nisNipInput, '@');
 
-        $cleanNisNip = str_contains($nisNipInput, '@') ? explode('@', $nisNipInput)[0] : $nisNipInput;
-
-        // 1. Cek kredensial di database lokal terlebih dahulu (match NIS/NIP, email persis, atau email prefix)
-        $localUser = User::where(function ($query) use ($nisNipInput, $cleanNisNip) {
-            $query->where('nis_nip', $nisNipInput)
-                ->orWhere('nis_nip', $cleanNisNip)
-                ->orWhere('email', $nisNipInput)
-                ->orWhere('email', 'like', $cleanNisNip . '@%');
+        // 1. Cek kredensial di database lokal terlebih dahulu
+        // Jika input mengandung '@', HANYA cocokkan persis ke kolom email ($user->email).
+        // Jangan pernah memotong domain dan mencocokkan ke NIS/NIP agar 4716@gmail.com tidak bisa masuk ke akun 4716@smkn1bangsri.sch.id.
+        $localUser = User::where(function ($query) use ($nisNipInput, $isEmailInput) {
+            if ($isEmailInput) {
+                $query->where('email', $nisNipInput);
+            } else {
+                $query->where('nis_nip', $nisNipInput)
+                    ->orWhere('username', $nisNipInput);
+            }
         })->first();
 
-        // Bagi akun siswa, login WAJIB menggunakan format email (contoh: nis@sijuna.com), tidak boleh hanya NIS saja.
-        if ($localUser && $localUser->role === 'student' && !str_contains($nisNipInput, '@')) {
+        // Bagi akun siswa, login WAJIB menggunakan format email sekolah resmi yang terdaftar, tidak boleh hanya NIS saja.
+        if ($localUser && $localUser->role === 'student' && !$isEmailInput) {
             throw ValidationException::withMessages([
                 'email' => 'Siswa wajib menggunakan Email Sekolah (contoh: NIS@sijuna.com atau NIS@smkn1bangsri.sch.id), bukan NIS saja.',
             ]);
@@ -81,8 +84,9 @@ class SchoolLoginController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
-        // 2. Jika password default sekolah ('password') atau API sekolah terhubung, validasi ke API Gateway
-        $apiData = $this->schoolApi->validate($nisNipInput) ?? $this->schoolApi->validate($cleanNisNip);
+        // 2. Jika user lokal belum ada atau password default, validasi ke API Gateway
+        $cleanNisNip = $isEmailInput ? explode('@', $nisNipInput)[0] : $nisNipInput;
+        $apiData = $this->schoolApi->validate($nisNipInput) ?? ($isEmailInput ? null : $this->schoolApi->validate($cleanNisNip));
 
         if ($apiData) {
             $role = match (strtolower($apiData['jenis_pengguna'] ?? 'siswa')) {
@@ -90,10 +94,27 @@ class SchoolLoginController extends Controller
                 default           => 'student',
             };
 
-            // Bagi akun siswa dari API Gateway, login WAJIB menggunakan format email (contoh: nis@sijuna.com)
-            if ($role === 'student' && !str_contains($nisNipInput, '@')) {
+            // Bagi akun siswa dari API Gateway, login WAJIB menggunakan format email
+            if ($role === 'student' && !$isEmailInput) {
                 throw ValidationException::withMessages([
                     'email' => 'Siswa wajib menggunakan Email Sekolah (contoh: NIS@sijuna.com atau NIS@smkn1bangsri.sch.id), bukan NIS saja.',
+                ]);
+            }
+
+            // Hanya siswa aktif (Kelas 10, 11, dan 12) yang dapat mengakses sistem
+            if ($role === 'student') {
+                $classRoom = $apiData['class_room'] ?? null;
+                if (empty($classRoom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
+                    throw ValidationException::withMessages([
+                        'email' => 'Hanya siswa aktif (Kelas 10, 11, dan 12) yang dapat mengakses sistem.',
+                    ]);
+                }
+            }
+
+            // Jika memasukkan email, email input HARUS cocok persis dengan email resmi dari API
+            if ($isEmailInput && !empty($apiData['email']) && strtolower($apiData['email']) !== strtolower($nisNipInput)) {
+                throw ValidationException::withMessages([
+                    'email' => 'Email atau kata sandi tidak sesuai.',
                 ]);
             }
 

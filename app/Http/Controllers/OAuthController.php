@@ -205,6 +205,12 @@ class OAuthController extends Controller
             ?? $sipintuUser['password_hash']
             ?? null;
 
+        if ($role === 'student') {
+            if (empty($classroom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classroom))) {
+                return redirect()->route('login')->with('error', 'Hanya siswa aktif (Kelas 10, 11, dan 12) yang dapat mengakses sistem.');
+            }
+        }
+
         $user = null;
         if ($nisNip) {
             $user = User::where('nis_nip', (string) $nisNip)->first();

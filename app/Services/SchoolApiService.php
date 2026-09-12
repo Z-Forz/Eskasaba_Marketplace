@@ -76,7 +76,11 @@ class SchoolApiService
                     $data = $response->json()['data'] ?? $response->json();
                     $items = is_array($data) ? ($data[0] ?? $data) : $data;
                     if (!empty($items['nis_nip']) || !empty($items['nis']) || !empty($items['id'])) {
-                        return $this->formatUserData($items, 'student');
+                        $userFormatted = $this->formatUserData($items, 'student');
+                        $c = $userFormatted['class_room'] ?? null;
+                        if (!empty($c) && preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $c))) {
+                            return $userFormatted;
+                        }
                     }
                 }
 
@@ -151,24 +155,30 @@ class SchoolApiService
         $this->ping();
 
         $allUsersData = [];
+        $studentsFetched = false;
 
         // Fetch Active Students from SiPintu Gateway Proxy
         try {
             $respStudents = Http::withoutVerifying()
-                ->withOptions(['connect_timeout' => 30])
-                ->timeout(90)
-                ->retry(3, 2000)
+                ->withOptions([
+                    'connect_timeout' => 30,
+                    'curl'            => [
+                        CURLOPT_ENCODING  => '',
+                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                    ],
+                ])
+                ->timeout(180)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
                     'Accept'          => 'application/json',
-                    'Accept-Encoding' => 'gzip, deflate',
                 ])
                 ->get("{$this->baseUrl}/api/v1/sijuna/students");
 
             if ($respStudents->successful()) {
                 $students = $respStudents->json()['data'] ?? $respStudents->json();
-                if (is_array($students)) {
+                if (is_array($students) && !empty($students)) {
+                    $studentsFetched = true;
                     foreach ($students as $st) {
                         $st['role'] = 'student';
                         $allUsersData[] = $st;
@@ -184,14 +194,18 @@ class SchoolApiService
         // Fetch Active Teachers from SiPintu Gateway Proxy
         try {
             $respTeachers = Http::withoutVerifying()
-                ->withOptions(['connect_timeout' => 30])
-                ->timeout(90)
-                ->retry(3, 2000)
+                ->withOptions([
+                    'connect_timeout' => 30,
+                    'curl'            => [
+                        CURLOPT_ENCODING  => '',
+                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                    ],
+                ])
+                ->timeout(180)
                 ->withHeaders([
                     'X-Client-ID'     => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
                     'Accept'          => 'application/json',
-                    'Accept-Encoding' => 'gzip, deflate',
                 ])
                 ->get("{$this->baseUrl}/api/v1/sijuna/teachers");
 
@@ -244,9 +258,9 @@ class SchoolApiService
                 $classRoom = $item['class_room'];
             }
 
-            // Exclude alumni students (students without active X, XI, XII classroom)
+            // Exclude alumni and non-active students (only keep active students of grade 10, 11, 12)
             if ($role === 'student') {
-                if (empty($classRoom) || !preg_match('/^(X|XI|XII)\s/i', trim($classRoom))) {
+                if (empty($classRoom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
                     continue;
                 }
             } else {
@@ -258,7 +272,7 @@ class SchoolApiService
             $rawEmail = $item['user']['email'] ?? $item['email'] ?? null;
             $email = $rawEmail;
             if (empty($email)) {
-                $isJunior = preg_match('/^(X|XI)\s/i', trim((string) $classRoom));
+                $isJunior = preg_match('/^(kelas\s+|kls\s+)?(X|XI)(\s+|-|:|$)/i', trim((string) $classRoom));
                 $domain = $isJunior ? 'sijuna.com' : 'smkn1bangsri.sch.id';
                 $email = $nisNip . '@' . $domain;
             }
@@ -284,18 +298,30 @@ class SchoolApiService
         // Deduplicate email within upsertData array to avoid email unique key constraint
         $uniqueEmails = [];
         $finalUpsert = [];
-        $activeNisNips = [];
+        $activeStudentNisNips = [];
 
         foreach ($upsertData as $row) {
-            $email = $row['email'];
+            $nisNip = $row['nis_nip'];
+            $email = strtolower(trim((string) $row['email']));
+
             if (isset($uniqueEmails[$email])) {
-                $isJunior = preg_match('/^(X|XI)\s/i', trim((string) ($row['class_room'] ?? '')));
+                $isJunior = preg_match('/^(kelas\s+|kls\s+)?(X|XI)(\s+|-|:|$)/i', trim((string) ($row['class_room'] ?? '')));
                 $domain = $isJunior ? 'sijuna.com' : 'smkn1bangsri.sch.id';
-                $row['email'] = $row['nis_nip'] . '@' . $domain;
+                $email = $nisNip . '@' . $domain;
+
+                $counter = 1;
+                while (isset($uniqueEmails[$email])) {
+                    $email = $nisNip . '_' . $counter . '@' . $domain;
+                    $counter++;
+                }
             }
-            $uniqueEmails[$row['email']] = true;
+
+            $row['email'] = $email;
+            $uniqueEmails[$email] = true;
             $finalUpsert[] = $row;
-            $activeNisNips[] = $row['nis_nip'];
+            if ($row['role'] === 'student') {
+                $activeStudentNisNips[] = (string) $row['nis_nip'];
+            }
         }
 
         $syncedCount = count($finalUpsert);
@@ -309,10 +335,10 @@ class SchoolApiService
             );
         }
 
-        // Purge alumni students from local database (students not present in active list)
-        if (!empty($activeNisNips)) {
+        // Clean up non-active/alumni students from local database so only active grade 10, 11, 12 students remain
+        if (!empty($activeStudentNisNips)) {
             User::where('role', 'student')
-                ->whereNotIn('nis_nip', $activeNisNips)
+                ->whereNotIn('nis_nip', $activeStudentNisNips)
                 ->delete();
         }
 
