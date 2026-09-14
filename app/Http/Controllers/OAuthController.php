@@ -19,132 +19,52 @@ class OAuthController extends Controller
      */
     public function callback(Request $request): RedirectResponse|JsonResponse
     {
-        // 1. Tangkap Authorization Code / SSO Token yang dikirim SiPintu
-        $code = $request->input('code')
-            ?? $request->input('token')
-            ?? $request->input('sso_token')
-            ?? $request->input('data');
+        // 1. Tangkap Authorization Code yang dikirim SiPintu
+        $code = $request->query('code') ?? $request->input('code');
 
-        $directNis = $request->input('nis_nip')
-            ?? $request->input('nis')
-            ?? $request->input('nip')
-            ?? $request->input('email')
-            ?? $request->input('username');
-
-        // Jika nis_nip dikirim tetapi nilainya adalah token string panjang / non-numerik (seperti RSsWE6WVEx...), jadikan $code
-        if (! $code && $directNis && (strlen($directNis) > 20 || ! is_numeric(str_replace(['@', '.', '-'], '', $directNis)))) {
-            $code = $directNis;
-            $directNis = null;
-        }
-
-        // Fallback untuk direct NIS/NIP/Email callback jika code/token tidak ada
         if (! $code) {
-            if ($directNis) {
-                return app(\App\Http\Controllers\Auth\SchoolCallbackController::class)->handle($request);
-            }
-
+            $errorMsg = 'Otorisasi SSO SiPintu gagal: Kode otorisasi (code) tidak ditemukan.';
             if ($request->expectsJson()) {
                 return response()->json([
                     'status'  => false,
-                    'message' => 'Otorisasi SSO SiPintu gagal: Kode otorisasi tidak ditemukan.',
+                    'message' => $errorMsg,
                 ], 400);
             }
 
-            return redirect()->route('login')->with('error', 'Otorisasi SSO SiPintu gagal: Kode otorisasi tidak ditemukan.');
+            return redirect()->route('login')->with('error', $errorMsg);
         }
 
-        $baseUrl      = rtrim(env('SIPINTU_BASE_URL', config('services.sipintu.base_url', config('services.sipintu.url', 'https://sipintu.smkn1bangsri.sch.id'))), '/');
-        $clientId     = env('SIPINTU_CLIENT_ID', config('services.sipintu.client_id'));
-        $clientSecret = env('SIPINTU_CLIENT_SECRET', config('services.sipintu.client_secret'));
-        $redirectUri  = env('SIPINTU_REDIRECT_URI', config('services.sipintu.redirect_uri', url('/oauth/callback')));
+        $baseUrl      = rtrim(config('services.sipintu.base_url', env('SIPINTU_BASE_URL', 'https://sipintu.smkn1bangsri.sch.id')), '/');
+        $clientId     = config('services.sipintu.client_id', env('SIPINTU_CLIENT_ID', ''));
+        $clientSecret = config('services.sipintu.client_secret', env('SIPINTU_CLIENT_SECRET', ''));
+        $redirectUri  = config('services.sipintu.redirect_uri', env('SIPINTU_REDIRECT_URI', url('/oauth/callback')));
 
         // 2. Tukar Code dengan Access Token (Backend-to-Backend HTTP POST)
         $tokenResponse = null;
-        $activeBaseUrl = $baseUrl;
 
         try {
-            $tokenResponse = Http::asForm()->acceptJson()->timeout(10)->post("{$activeBaseUrl}/oauth/token", [
-                'grant_type'    => 'authorization_code',
-                'client_id'     => $clientId,
-                'client_secret' => $clientSecret,
-                'redirect_uri'  => $redirectUri,
-                'code'          => $code,
-            ]);
+            $tokenResponse = Http::asForm()
+                ->acceptJson()
+                ->timeout(10)
+                ->post("{$baseUrl}/oauth/token", [
+                    'grant_type'    => 'authorization_code',
+                    'client_id'     => $clientId,
+                    'client_secret' => $clientSecret,
+                    'redirect_uri'  => $redirectUri,
+                    'code'          => $code,
+                ]);
         } catch (\Exception $e) {
-            Log::warning("SSO SiPintu connection to {$activeBaseUrl} failed: " . $e->getMessage());
-
-            $altBaseUrl = str_contains($activeBaseUrl, 'localhost') 
-                ? 'https://sipintu.smkn1bangsri.sch.id' 
-                : 'http://localhost:8000';
-
-            try {
-                $tokenResponse = Http::asForm()->acceptJson()->timeout(5)->post("{$altBaseUrl}/oauth/token", [
-                    'grant_type'    => 'authorization_code',
-                    'client_id'     => $clientId,
-                    'client_secret' => $clientSecret,
-                    'redirect_uri'  => $redirectUri,
-                    'code'          => $code,
-                ]);
-                if ($tokenResponse->successful()) {
-                    $activeBaseUrl = $altBaseUrl;
-                }
-            } catch (\Exception $eAlt) {
-                Log::error("SSO SiPintu fallback connection to {$altBaseUrl} also failed: " . $eAlt->getMessage());
-            }
+            Log::error('SSO Token Exchange Connection Exception: ' . $e->getMessage());
         }
 
         if (! $tokenResponse || $tokenResponse->failed()) {
-            $altBaseUrl = str_contains($activeBaseUrl, 'localhost') 
-                ? 'https://sipintu.smkn1bangsri.sch.id' 
-                : 'http://localhost:8000';
-
-            try {
-                $altResponse = Http::asForm()->acceptJson()->timeout(5)->post("{$altBaseUrl}/oauth/token", [
-                    'grant_type'    => 'authorization_code',
-                    'client_id'     => $clientId,
-                    'client_secret' => $clientSecret,
-                    'redirect_uri'  => $redirectUri,
-                    'code'          => $code,
-                ]);
-                if ($altResponse->successful()) {
-                    $tokenResponse = $altResponse;
-                    $activeBaseUrl = $altBaseUrl;
-                }
-            } catch (\Exception $eAlt) {
-            }
-        }
-
-        // 2b. Fallback: jika token exchange gagal, tapi $code dapat digunakan langsung sebagai Bearer token untuk GET /api/v1/user
-        if (! $tokenResponse || $tokenResponse->failed()) {
-            try {
-                $directUserResponse = Http::withToken($code)
-                    ->acceptJson()
-                    ->timeout(8)
-                    ->get("{$activeBaseUrl}/api/v1/user");
-
-                if ($directUserResponse->successful() && ! empty($directUserResponse->json())) {
-                    $sipintuUser = $directUserResponse->json('data') ?? $directUserResponse->json();
-                    if (! empty($sipintuUser['email']) || ! empty($sipintuUser['nis_nip']) || ! empty($sipintuUser['external_id'])) {
-                        return $this->processAuthenticatedUser($request, $sipintuUser);
-                    }
-                }
-            } catch (\Exception $eDirect) {
-            }
-
-            // Jika masih gagal dan ada directNis, coba handle via SchoolCallbackController
-            if ($directNis) {
-                $request->merge(['nis_nip' => $directNis]);
-                return app(\App\Http\Controllers\Auth\SchoolCallbackController::class)->handle($request);
-            }
-
             $errorMsg = $tokenResponse?->json('error_description')
                 ?? $tokenResponse?->json('message')
-                ?? 'Gagal memverifikasi token ke SiPintu Gateway. Pastikan akun terdaftar di Portal SiPintu.';
+                ?? 'Otorisasi SSO gagal: Kode otorisasi tidak valid atau telah kadaluarsa.';
 
             Log::error("SSO Token Exchange Failed: {$errorMsg}", [
                 'client_id'    => $clientId,
                 'redirect_uri' => $redirectUri,
-                'response'     => $tokenResponse?->json(),
             ]);
 
             if ($request->expectsJson()) {
@@ -155,106 +75,107 @@ class OAuthController extends Controller
         }
 
         $accessToken = $tokenResponse->json('access_token');
-        $tokenPassword = $tokenResponse->json('password') ?? $tokenResponse->json('password_hash');
+        if (! $accessToken) {
+            $errorMsg = 'Otorisasi SSO gagal: Access token tidak ditemukan dari server SiPintu.';
+            if ($request->expectsJson()) {
+                return response()->json(['status' => false, 'message' => $errorMsg], 400);
+            }
+
+            return redirect()->route('login')->with('error', $errorMsg);
+        }
 
         // 3. Ambil data profil pengguna dari SiPintu Gateway
         try {
             $userResponse = Http::withToken($accessToken)
                 ->acceptJson()
                 ->timeout(10)
-                ->get("{$activeBaseUrl}/api/v1/user");
+                ->get("{$baseUrl}/api/v1/user");
         } catch (\Exception $e) {
-            Log::error("SSO User Fetch Exception: " . $e->getMessage());
+            Log::error('SSO User Fetch Exception: ' . $e->getMessage());
+
+            if ($request->expectsJson()) {
+                return response()->json(['status' => false, 'message' => 'Gagal menghubungi endpoint profil pengguna SiPintu.'], 500);
+            }
+
             return redirect()->route('login')->with('error', 'Gagal menghubungi endpoint profil pengguna SiPintu.');
         }
 
         if ($userResponse->failed()) {
             $userError = $userResponse->json('message') ?? 'Gagal mengambil data akun dari SiPintu Gateway.';
+
+            if ($request->expectsJson()) {
+                return response()->json(['status' => false, 'message' => $userError], 400);
+            }
+
             return redirect()->route('login')->with('error', $userError);
         }
 
         $sipintuUser = $userResponse->json('data') ?? $userResponse->json();
 
-        return $this->processAuthenticatedUser($request, $sipintuUser, $tokenPassword);
+        return $this->processAuthenticatedUser($request, $sipintuUser);
     }
 
     /**
-     * Auto-provisioning & login user dari data profil SiPintu
+     * Pencocokan user SiPintu dengan database lokal & login session
      */
-    protected function processAuthenticatedUser(Request $request, array $sipintuUser, ?string $tokenPassword = null): RedirectResponse|JsonResponse
+    protected function processAuthenticatedUser(Request $request, array $sipintuUser): RedirectResponse|JsonResponse
     {
-        $nisNip = $sipintuUser['external_id']
-            ?? $sipintuUser['nis_nip']
+        $externalId = $sipintuUser['external_id'] ?? null;
+        $nisNip     = $sipintuUser['nis_nip']
             ?? $sipintuUser['nis']
             ?? $sipintuUser['nip']
+            ?? $externalId
             ?? $sipintuUser['username']
             ?? null;
 
-        $email = $sipintuUser['email'] ?? ($nisNip ? "{$nisNip}@smkn1bangsri.sch.id" : null);
-        $name  = $sipintuUser['name'] ?? $sipintuUser['nama'] ?? $sipintuUser['username'] ?? ('User ' . ($nisNip ?? ''));
+        $email = $sipintuUser['email'] ?? null;
 
-        $roleRaw = strtolower($sipintuUser['role'] ?? $sipintuUser['jenis_pengguna'] ?? 'student');
-        $role    = in_array($roleRaw, ['guru', 'teacher']) ? 'teacher' : 'student';
+        // Cocokkan user yang SUDAH ADA di database lokal berdasarkan nis_nip atau email
+        $user = User::query()
+            ->when($nisNip, function ($query) use ($nisNip) {
+                $query->where('nis_nip', (string) $nisNip);
+            })
+            ->when($email, function ($query) use ($email) {
+                $query->orWhere('email', $email);
+            })
+            ->first();
 
+        // Jika user tidak ditemukan, tolak login SSO
+        if (! $user) {
+            $identifier = $nisNip ?? $email ?? 'Pengguna';
+            $errorMsg   = "Akun SiPintu Anda ({$identifier}) belum terdaftar pada aplikasi Eskasaba Marketplace. Silakan hubungi administrator.";
+
+            Log::warning("SSO Login Rejected: User {$identifier} not found in local database.");
+
+            if ($request->expectsJson()) {
+                return response()->json(['status' => false, 'message' => $errorMsg], 403);
+            }
+
+            return redirect()->route('login')->with('error', $errorMsg);
+        }
+
+        // Perbarui data profil non-sensitif jika ada perubahan dari SiPintu
+        $updateData = [];
+        if (! empty($sipintuUser['name']) || ! empty($sipintuUser['nama'])) {
+            $updateData['username'] = $sipintuUser['name'] ?? $sipintuUser['nama'];
+        }
         $classroom = $sipintuUser['classroom'] ?? $sipintuUser['class_room'] ?? $sipintuUser['kelas'] ?? null;
-        $phone     = $sipintuUser['phone'] ?? $sipintuUser['telepon'] ?? null;
-        $apiId     = (int) ($sipintuUser['id'] ?? $sipintuUser['sub'] ?? ($nisNip ?: rand(1000, 9999)));
-
-        $passwordHash = $tokenPassword
-            ?? $sipintuUser['password']
-            ?? $sipintuUser['password_hash']
-            ?? null;
-
-        if ($role === 'student') {
-            if (empty($classroom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classroom))) {
-                return redirect()->route('login')->with('error', 'Hanya siswa aktif (Kelas 10, 11, dan 12) yang dapat mengakses sistem.');
-            }
+        if ($classroom) {
+            $updateData['class_room'] = $classroom;
+        }
+        $phone = $sipintuUser['phone'] ?? $sipintuUser['telepon'] ?? null;
+        if ($phone) {
+            $updateData['phone'] = $phone;
+        }
+        if ($email && $user->email !== $email) {
+            $updateData['email'] = $email;
+        }
+        if ($nisNip && ! $user->nis_nip) {
+            $updateData['nis_nip'] = (string) $nisNip;
         }
 
-        $user = null;
-        if ($nisNip) {
-            $user = User::where('nis_nip', (string) $nisNip)->first();
-        }
-        if (! $user && $email) {
-            $user = User::where('email', $email)->first();
-        }
-
-        if ($user) {
-            $updateData = [
-                'username' => $name,
-                'role'     => $role,
-            ];
-
-            if ($classroom) {
-                $updateData['class_room'] = $classroom;
-            }
-            if ($phone) {
-                $updateData['phone'] = $phone;
-            }
-            if ($email && $user->email !== $email) {
-                $updateData['email'] = $email;
-            }
-            if ($nisNip && ! $user->nis_nip) {
-                $updateData['nis_nip'] = (string) $nisNip;
-            }
-            if ($passwordHash && $user->password !== $passwordHash) {
-                $updateData['password']             = $passwordHash;
-                $updateData['is_default_password'] = false;
-            }
-
+        if (! empty($updateData)) {
             $user->update($updateData);
-        } else {
-            $user = User::create([
-                'username'            => $name,
-                'nis_nip'             => $nisNip ? (string) $nisNip : null,
-                'email'               => $email ?: ($nisNip ? "{$nisNip}@smkn1bangsri.sch.id" : "user_{$apiId}@sekolah.id"),
-                'role'                => $role,
-                'class_room'          => $classroom ?? ($role === 'teacher' ? 'Dewan Guru' : null),
-                'phone'               => $phone,
-                'api_id'              => $apiId,
-                'password'            => $passwordHash ?? bcrypt(Str::random(24)),
-                'is_default_password' => false,
-            ]);
         }
 
         Auth::login($user, true);

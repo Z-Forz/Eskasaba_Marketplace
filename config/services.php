@@ -50,9 +50,9 @@ return [
     'sipintu' => [
         'base_url'      => env('SIPINTU_BASE_URL', env('SIPINTU_API_URL', 'https://sipintu.smkn1bangsri.sch.id')),
         'url'           => env('SIPINTU_BASE_URL', env('SIPINTU_API_URL', 'https://sipintu.smkn1bangsri.sch.id')),
-        'client_id'     => env('SIPINTU_CLIENT_ID', 'app_fsxwvuwfppgv'),
-        'client_secret' => env('SIPINTU_CLIENT_SECRET', 'sec_iHRjJdexrdgBExuPUdLi7ZsIRRQFLGxT'),
-        'redirect_uri'  => env('SIPINTU_REDIRECT_URI', 'http://localhost:8001/oauth/callback'),
+        'client_id'     => env('SIPINTU_CLIENT_ID', ''),
+        'client_secret' => env('SIPINTU_CLIENT_SECRET', ''),
+        'redirect_uri'  => env('SIPINTU_REDIRECT_URI', env('APP_URL', 'http://localhost:8000') . '/oauth/callback'),
     ],
 
 ];

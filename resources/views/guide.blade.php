@@ -406,7 +406,7 @@
                     </button>
 
                     <div x-show="openFaq === 1" x-collapse class="px-5 pb-5 text-xs leading-relaxed text-slate-600 dark:text-slate-300 border-t border-slate-200/60 dark:border-slate-800 pt-3">
-                        Siswa dapat memilih login menggunakan <strong>Nis@Email (email yang digunakan di sijuna)</strong>, sedangkan Guru memiliki fleksibilitas login menggunakan <strong>NIP (Nomor Induk Pegawai)</strong> maupun <strong>Email</strong> sekolah resmi secara praktis.
+                        Siswa dapat login menggunakan <strong>akun Sijuna (NIS dengan domain email sekolah)</strong>, sedangkan Guru dapat login menggunakan <strong>NIP (Nomor Induk Pegawai)</strong> maupun <strong>email sekolah resmi</strong> secara praktis.
                     </div>
                 </div>
 
