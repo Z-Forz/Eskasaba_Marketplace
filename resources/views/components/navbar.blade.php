@@ -20,7 +20,7 @@
                     class="h-9 w-9 shrink-0 rounded-xl object-cover sm:h-10 sm:w-10"
                 >
             @else
-                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-sm font-bold text-white sm:h-10 sm:w-10 shadow-md shadow-emerald-600/20">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-sm font-bold text-white sm:h-10 sm:w-10 shadow-md shadow-emerald-600/20">
                     <i class="fa-solid fa-shop"></i>
                 </div>
             @endif

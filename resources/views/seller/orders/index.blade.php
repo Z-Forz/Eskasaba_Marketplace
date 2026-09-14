@@ -19,10 +19,6 @@
             </div>
         </div>
 
-        @if (session('success'))
-            <x-alert type="success" :message="session('success')" class="mb-4" />
-        @endif
-
         {{-- Status Filter Tabs --}}
         <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
             @php

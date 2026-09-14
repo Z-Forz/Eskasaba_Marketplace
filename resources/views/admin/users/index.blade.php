@@ -16,27 +16,43 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <form id="sync-users-form" action="{{ route('admin.users.sync') }}" method="POST">
+                <form
+                    id="sync-users-form"
+                    action="{{ route('admin.users.sync') }}"
+                    method="POST"
+                    x-data="{ isSyncing: false }"
+                    @submit="isSyncing = true"
+                >
                     @csrf
                     <button
                         type="button"
-                        onclick="confirmAction({ title: 'Sinkronisasi Data Pengguna', message: 'Apakah Anda yakin ingin mensinkronkan data pengguna dengan SiPintu Identity & API Gateway Sekolah?', form: 'sync-users-form', variant: 'primary', confirmText: 'Ya, Sinkronkan' })"
+                        id="sync-btn"
+                        :disabled="isSyncing"
+                        :class="{ 'opacity-70 cursor-wait': isSyncing }"
+                        onclick="confirmAction({
+                            title: 'Sinkronisasi Data Pengguna',
+                            message: 'Apakah Anda yakin ingin mensinkronkan data pengguna dengan SiPintu Identity & API Gateway Sekolah?',
+                            form: 'sync-users-form',
+                            variant: 'primary',
+                            confirmText: 'Ya, Sinkronkan',
+                            callback: function() {
+                                const btn = document.getElementById('sync-btn');
+                                const icon = document.getElementById('sync-icon');
+                                const label = document.getElementById('sync-label');
+                                if (btn) { btn.disabled = true; btn.classList.add('opacity-75', 'cursor-wait'); }
+                                if (icon) { icon.classList.add('fa-spin'); }
+                                if (label) { label.textContent = 'Mensinkronkan Data...'; }
+                            }
+                        })"
                         class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-600 bg-emerald-50 px-5 py-3 text-sm font-bold text-emerald-800 shadow-xs transition hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60 cursor-pointer"
                     >
-                        <i class="fa-solid fa-rotate text-emerald-600"></i> Sinkronisasi SiPintu Gateway
+                        <i id="sync-icon" class="fa-solid fa-rotate text-emerald-600" :class="{ 'fa-spin': isSyncing }"></i>
+                        <span id="sync-label" x-text="isSyncing ? 'Mensinkronkan Data...' : 'Sinkronisasi SiPintu Gateway'">Sinkronisasi SiPintu Gateway</span>
                     </button>
                 </form>
             </div>
 
         </div>
-
-        @if (session('success'))
-            <x-alert type="success" :message="session('success')" class="mb-4" />
-        @endif
-
-        @if (session('error'))
-            <x-alert type="danger" :message="session('error')" class="mb-4" />
-        @endif
 
         {{-- Quick Role Filter Tabs --}}
         <div class="flex flex-wrap items-center gap-2">

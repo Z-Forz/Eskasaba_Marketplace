@@ -11,10 +11,6 @@
             </p>
         </div>
 
-        @if (session('success'))
-            <x-alert type="success" :message="session('success')" class="mb-4" />
-        @endif
-
         <form
             action="{{ route('admin.website-settings.update') }}"
             method="POST"

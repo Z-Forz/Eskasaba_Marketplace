@@ -3,11 +3,7 @@
     {{-- =========================================================
         PANDUAN HERO
     ========================================================== --}}
-    <section class="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-950 to-emerald-900 py-16 sm:py-20 lg:py-24 text-white">
-
-        {{-- Glow Accents --}}
-        <div class="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl"></div>
-        <div class="pointer-events-none absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-700/20 blur-3xl"></div>
+    <section class="relative overflow-hidden bg-slate-900 py-16 sm:py-20 lg:py-24 text-white dark:bg-slate-950">
 
         <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl">

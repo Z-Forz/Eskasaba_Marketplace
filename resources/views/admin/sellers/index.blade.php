@@ -31,10 +31,6 @@
             </div>
         </div>
 
-        @if (session('success'))
-            <x-alert type="success" :message="session('success')" class="mb-4" />
-        @endif
-
 
 
         {{-- Table Container --}}

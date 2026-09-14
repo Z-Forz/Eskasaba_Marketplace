@@ -24,11 +24,6 @@
 
         </div>
 
-        {{-- Alert --}}
-        @if (session('success'))
-            <x-alert type="success" :message="session('success')" class="mb-4" />
-        @endif
-
         {{-- Categories Table --}}
         <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 

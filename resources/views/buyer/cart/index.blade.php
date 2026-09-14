@@ -16,22 +16,6 @@
             </p>
         </div>
 
-        @if (session('success'))
-            <x-alert
-                type="success"
-                :message="session('success')"
-                class="mb-6"
-            />
-        @endif
-
-        @if (session('error'))
-            <x-alert
-                type="error"
-                :message="session('error')"
-                class="mb-6"
-            />
-        @endif
-
         @if ($cart && $cart->items->count())
 
             <div class="grid gap-6 lg:grid-cols-3">

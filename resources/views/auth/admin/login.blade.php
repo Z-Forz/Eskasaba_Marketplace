@@ -3,7 +3,7 @@
     <div class="w-full max-w-md space-y-6">
 
         {{-- Main Card --}}
-        <div class="overflow-hidden rounded-3xl border border-white/50 bg-white/95 p-6 shadow-2xl shadow-emerald-950/35 backdrop-blur-xl sm:p-8 dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-none">
+        <div class="overflow-hidden rounded-3xl border border-emerald-100 bg-white p-6 shadow-xl shadow-emerald-950/10 backdrop-blur-xl sm:p-8 dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-none">
 
             {{-- Header --}}
             <div class="text-center">
@@ -14,7 +14,7 @@
                         class="mx-auto mb-2 h-24 w-auto object-contain"
                     >
                 @else
-                    <div class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-950 text-amber-400 shadow-lg shadow-slate-950/20 border border-slate-700/50">
+                    <div class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20">
                         <i class="fa-solid fa-user-shield text-2xl"></i>
                     </div>
                 @endif
@@ -66,7 +66,7 @@
                                 autofocus
                                 autocomplete="username"
                                 placeholder="Masukkan username admin"
-                                class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/10 dark:border-slate-800 dark:bg-slate-800/50 dark:text-white dark:focus:border-amber-500"
+                                class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-800 dark:bg-slate-800/50 dark:text-white dark:focus:border-emerald-500"
                             >
                         </div>
                     </div>
@@ -88,7 +88,7 @@
                                 required
                                 autocomplete="current-password"
                                 placeholder="Masukkan kata sandi admin"
-                                class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-3.5 pl-11 pr-12 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/10 dark:border-slate-800 dark:bg-slate-800/50 dark:text-white dark:focus:border-amber-500"
+                                class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-3.5 pl-11 pr-12 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:border-slate-800 dark:bg-slate-800/50 dark:text-white dark:focus:border-emerald-500"
                             >
 
                             <button
@@ -105,9 +105,9 @@
                     {{-- Submit Button --}}
                     <button
                         type="submit"
-                        class="w-full rounded-2xl bg-slate-900 py-3.5 text-sm font-bold text-amber-400 shadow-lg shadow-slate-900/25 transition duration-200 hover:bg-slate-800 active:scale-[0.98] sm:text-base dark:bg-emerald-700 dark:text-white dark:hover:bg-emerald-800"
+                        class="w-full rounded-2xl bg-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition duration-200 hover:bg-emerald-800 active:scale-[0.98] sm:text-base flex items-center justify-center gap-2"
                     >
-                        <i class="fa-solid fa-shield-halved mr-2"></i> Masuk ke Panel Admin
+                        <i class="fa-solid fa-shield-halved"></i> Masuk ke Panel Admin
                     </button>
 
                 </form>
@@ -120,7 +120,7 @@
         <div class="text-center">
             <a
                 href="{{ route('home') }}"
-                class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-100/90 transition hover:text-white dark:text-slate-400 dark:hover:text-white"
+                class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300 transition hover:text-white dark:text-slate-400 dark:hover:text-white"
             >
                 <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
             </a>

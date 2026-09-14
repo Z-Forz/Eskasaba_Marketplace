@@ -22,15 +22,20 @@
 
         onConfirm() {
             this.open = false;
+            if (typeof this.callback === 'function') {
+                this.callback();
+            }
             if (this.targetForm) {
                 if (typeof this.targetForm === 'string') {
                     const f = document.getElementById(this.targetForm);
-                    if (f) f.submit();
+                    if (f) {
+                        f.dispatchEvent(new CustomEvent('submit', { cancelable: true, bubbles: true }));
+                        f.submit();
+                    }
                 } else if (this.targetForm instanceof HTMLFormElement) {
+                    this.targetForm.dispatchEvent(new CustomEvent('submit', { cancelable: true, bubbles: true }));
                     this.targetForm.submit();
                 }
-            } else if (typeof this.callback === 'function') {
-                this.callback();
             }
         }
     }"

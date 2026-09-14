@@ -3,7 +3,7 @@
     <div class="w-full max-w-md space-y-6">
 
         {{-- Main Card --}}
-        <div class="overflow-hidden rounded-3xl border border-white/50 bg-white/95 p-6 shadow-2xl shadow-emerald-950/35 backdrop-blur-xl sm:p-8 dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-none">
+        <div class="overflow-hidden rounded-3xl border border-emerald-100 bg-white p-6 shadow-xl shadow-emerald-950/10 backdrop-blur-xl sm:p-8 dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-none">
 
             {{-- Header & Branding --}}
             <div class="text-center">
@@ -15,7 +15,7 @@
                         class="mx-auto mb-2 h-24 w-auto object-contain"
                     >
                 @else
-                    <div class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-600/20">
+                    <div class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20">
                         <i class="fa-solid fa-store text-2xl"></i>
                     </div>
                 @endif
@@ -151,7 +151,7 @@
         <div class="text-center">
             <a
                 href="{{ route('home') }}"
-                class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-100/90 transition hover:text-white dark:text-slate-400 dark:hover:text-white"
+                class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300 transition hover:text-white dark:text-slate-400 dark:hover:text-white"
             >
                 <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
             </a>

@@ -64,7 +64,7 @@
                         {{-- Diskon Badge Overlay --}}
                         @if(!$hasVariants && !empty($product->discount) && $product->discount > 0)
                             <div class="absolute right-4 top-4 z-10">
-                                <span class="inline-flex items-center gap-1 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 px-3 py-1.5 text-xs font-black text-white shadow-md border border-white/20">
+                                <span class="inline-flex items-center gap-1 rounded-2xl bg-red-600 px-3 py-1.5 text-xs font-black text-white shadow-md border border-white/20">
                                     <i class="fa-solid fa-tag text-[10px]"></i> Hemat Rp {{ number_format($product->discount, 0, ',', '.') }}
                                 </span>
                             </div>
@@ -129,7 +129,7 @@
                     </div>
 
                     {{-- Price Card Showcase --}}
-                    <div class="rounded-3xl border border-slate-200/90 bg-gradient-to-br from-white via-slate-50/50 to-emerald-50/30 p-5 sm:p-6 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/20">
+                    <div class="rounded-3xl border border-slate-200/90 bg-slate-50 p-5 sm:p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <p class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                             <i class="fa-solid fa-tags text-emerald-600"></i> Harga Produk
                         </p>
@@ -350,7 +350,7 @@
                     @endphp
 
                     {{-- Summary Rating Header Card --}}
-                    <div class="mt-6 rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/60 p-6 sm:p-8 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:to-slate-900/60">
+                    <div class="mt-6 rounded-3xl border border-slate-200/80 bg-slate-50 p-6 sm:p-8 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div class="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
                             <!-- Average Score Column -->
                             <div class="text-center md:col-span-4 md:border-r md:border-slate-200/80 md:pr-8 dark:md:border-slate-800">
@@ -384,7 +384,7 @@
                                             {{ $star }} <i class="fa-solid fa-star text-[10px] text-amber-400"></i>
                                         </span>
                                         <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200/70 dark:bg-slate-800">
-                                            <div class="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500" style="width: {{ $percent }}%;"></div>
+                                            <div class="h-full rounded-full bg-amber-400 transition-all duration-500" style="width: {{ $percent }}%;"></div>
                                         </div>
                                         <span class="w-16 text-right font-semibold text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200">
                                             {{ $count }} ({{ $percent }}%)
@@ -450,7 +450,7 @@
                                 <div>
                                     <div class="flex items-start justify-between gap-3">
                                         <div class="flex items-center gap-3">
-                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br {{ $colorClass }} font-bold text-white shadow-xs text-sm">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 font-bold text-white shadow-xs text-sm">
                                                 {{ strtoupper(substr($review->user?->username ?? 'U', 0, 1)) }}
                                             </div>
                                             <div>

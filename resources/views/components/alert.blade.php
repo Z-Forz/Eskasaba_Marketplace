@@ -3,7 +3,7 @@
     'title' => null,
     'message' => null,
     'dismissible' => true,
-    'dismissAfter' => 4000,
+    'dismissAfter' => 5000,
 ])
 
 @php

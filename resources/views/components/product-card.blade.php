@@ -38,7 +38,7 @@
                     class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                 >
             @else
-                <div class="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-emerald-50 via-slate-50 to-slate-100 text-slate-400 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dark:text-slate-500">
+                <div class="flex h-full w-full flex-col items-center justify-center bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
                     <i class="fa-solid fa-store text-2xl sm:text-3xl opacity-40 text-emerald-600"></i>
                     <span class="mt-1 text-xs font-semibold text-slate-400">Foto Belum Tersedia</span>
                 </div>
@@ -64,7 +64,7 @@
         {{-- Top Right Discount Badge --}}
         @if($hasDiscount)
             <div class="pointer-events-none absolute right-3 top-3 z-20">
-                <span class="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 px-2.5 py-1 text-xs font-black tracking-wide text-white shadow-xs border border-white/20">
+                <span class="inline-flex items-center gap-1 rounded-xl bg-red-600 px-2.5 py-1 text-xs font-black tracking-wide text-white shadow-xs border border-white/20">
                     <i class="fa-solid fa-tag text-[9px]"></i>
                     -Rp {{ number_format($product->discount, 0, ',', '.') }}
                 </span>
@@ -183,7 +183,7 @@
             <div class="mt-3 flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-slate-800/60">
 
                 <div class="flex min-w-0 items-center gap-2">
-                    <div class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-600 to-teal-600 text-xs font-black text-white shadow-2xs">
+                    <div class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-600 text-xs font-black text-white shadow-2xs">
                         {{ strtoupper(substr($sellerUser->username ?? 'S', 0, 1)) }}
                     </div>
 

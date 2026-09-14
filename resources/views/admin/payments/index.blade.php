@@ -13,10 +13,6 @@
             </div>
         </div>
 
-        @if (session('success'))
-            <x-alert type="success" :message="session('success')" class="mb-4" />
-        @endif
-
         {{-- Status Filter Tabs Bar --}}
         <div class="flex flex-wrap gap-2 rounded-3xl border border-slate-200/80 bg-white p-2 shadow-xs dark:border-slate-800 dark:bg-slate-900">
             @php

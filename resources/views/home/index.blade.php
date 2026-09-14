@@ -3,19 +3,17 @@
     {{-- =========================================================
         HERO SECTION
     ========================================================== --}}
-    <section class="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-950 to-emerald-900">
+    <section class="relative overflow-hidden bg-slate-950 text-white">
 
-        {{-- Background Glow Accent / Hero Image Overlay --}}
+        {{-- Background Hero Image Overlay (Matching Screenshot) --}}
         <div class="pointer-events-none absolute inset-0 overflow-hidden">
             @if(!empty($settings?->hero_image))
                 <img
                     src="{{ asset('storage/' . $settings->hero_image) }}"
                     alt="{{ $settings->hero_title ?? 'Eskasaba Market' }}"
-                    class="h-full w-full object-cover blur-sm opacity-20"
+                    class="h-full w-full object-cover blur-sm scale-102 opacity-75"
                 >
-            @else
-                <div class="absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl"></div>
-                <div class="absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-700/20 blur-3xl"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/60 to-slate-950/50"></div>
             @endif
         </div>
 
@@ -43,7 +41,7 @@
                     {!! $formattedHeroTitle !!}
                 </h1>
 
-                <p class="mt-4 max-w-2xl text-sm leading-relaxed text-emerald-100/90 sm:text-base sm:leading-7">
+                <p class="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base sm:leading-7">
                     {{ $settings->hero_description ?? 'Marketplace internal sekolah untuk memudahkan warga sekolah melakukan transaksi jual beli produk karya siswa & guru dengan aman, praktis, dan terpercaya.' }}
                 </p>
 
@@ -135,7 +133,7 @@
         FEATURED PRODUCTS SHOWCASE (PRODUK UNGGULAN REVISED)
     ========================================================== --}}
     @if(isset($featuredProducts) && $featuredProducts->isNotEmpty())
-        <section class="relative overflow-hidden bg-gradient-to-b from-emerald-900/10 via-slate-50 to-white py-14 sm:py-16 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-950">
+        <section class="relative overflow-hidden bg-slate-50 py-14 sm:py-16 dark:bg-slate-900">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
                 {{-- Header --}}

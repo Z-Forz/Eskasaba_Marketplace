@@ -171,15 +171,20 @@
                                 type="button"
                                 @click="toggleSizes(false)"
                                 :class="!hasSizes
-                                    ? 'border-emerald-600 bg-emerald-50/70 text-emerald-950 ring-2 ring-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-emerald-900 font-bold shadow-xs'
+                                    ? 'border-emerald-600 bg-emerald-50/80 text-emerald-950 ring-2 ring-emerald-500/20 dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-emerald-800 font-bold shadow-xs'
                                     : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 font-semibold'"
-                                class="flex items-center gap-3 rounded-2xl border p-4 text-left transition cursor-pointer"
+                                class="relative flex items-center gap-3 rounded-2xl border p-4 text-left transition cursor-pointer"
                             >
                                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-400">
                                     <i class="fa-solid fa-money-bill-wave"></i>
                                 </div>
-                                <div>
-                                    <p class="text-sm font-extrabold">Harga Tunggal</p>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <p class="text-sm font-extrabold">Harga Tunggal</p>
+                                        <span x-show="!hasSizes" class="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-xs">
+                                            <i class="fa-solid fa-circle-check"></i> Terpilih
+                                        </span>
+                                    </div>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 font-normal">Satu harga untuk semua item (tanpa pilihan size)</p>
                                 </div>
                             </button>
@@ -189,15 +194,20 @@
                                 type="button"
                                 @click="toggleSizes(true)"
                                 :class="hasSizes
-                                    ? 'border-emerald-600 bg-emerald-50/70 text-emerald-950 ring-2 ring-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-emerald-900 font-bold shadow-xs'
+                                    ? 'border-emerald-600 bg-emerald-50/80 text-emerald-950 ring-2 ring-emerald-500/20 dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-emerald-800 font-bold shadow-xs'
                                     : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 font-semibold'"
-                                class="flex items-center gap-3 rounded-2xl border p-4 text-left transition cursor-pointer"
+                                class="relative flex items-center gap-3 rounded-2xl border p-4 text-left transition cursor-pointer"
                             >
                                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-400">
                                     <i class="fa-solid fa-layer-group"></i>
                                 </div>
-                                <div>
-                                    <p class="text-sm font-extrabold">Berdasarkan Rasa / Ukuran</p>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <p class="text-sm font-extrabold">Berdasarkan Rasa / Ukuran</p>
+                                        <span x-show="hasSizes" class="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-xs">
+                                            <i class="fa-solid fa-circle-check"></i> Terpilih
+                                        </span>
+                                    </div>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 font-normal">Setiap rasa/ukuran memiliki harga tersendiri (misal: Pedas, Manis, Size S, M, L)</p>
                                 </div>
                             </button>

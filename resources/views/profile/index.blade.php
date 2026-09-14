@@ -45,7 +45,7 @@
             {{-- Profile Card --}}
             <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex flex-col items-center text-center">
-                    <div class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 text-2xl font-black text-white shadow-lg shadow-emerald-600/25 border-2 border-emerald-400/40">
+                    <div class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-emerald-600 text-2xl font-black text-white shadow-lg shadow-emerald-600/25 border-2 border-emerald-400/40">
                         {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
                     </div>
 
@@ -152,10 +152,10 @@
                 {{-- Quick Access 1: Katalog Produk --}}
                 <a
                     href="{{ route('products.index') }}"
-                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/80 via-white to-emerald-50/30 p-6 shadow-xs transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md dark:border-emerald-950 dark:from-emerald-950/40 dark:via-slate-900 dark:to-emerald-950/20"
+                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-emerald-200/80 bg-white p-6 shadow-xs transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md dark:border-emerald-950 dark:bg-slate-900"
                 >
                     <div class="flex items-center justify-between">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20 transition group-hover:scale-110">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20 transition group-hover:scale-110">
                             <i class="fa-solid fa-store text-xl"></i>
                         </div>
                         <span class="text-xs font-bold text-emerald-700 opacity-80 group-hover:translate-x-1 transition dark:text-emerald-400">
@@ -176,10 +176,10 @@
                 {{-- Quick Access 2: Keranjang Belanja --}}
                 <a
                     href="{{ route('buyer.cart.index') }}"
-                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-blue-200/80 bg-gradient-to-br from-blue-50/80 via-white to-blue-50/30 p-6 shadow-xs transition hover:-translate-y-1 hover:border-blue-400 hover:shadow-md dark:border-blue-950 dark:from-blue-950/40 dark:via-slate-900 dark:to-blue-950/20"
+                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-blue-200/80 bg-white p-6 shadow-xs transition hover:-translate-y-1 hover:border-blue-400 hover:shadow-md dark:border-blue-950 dark:bg-slate-900"
                 >
                     <div class="flex items-center justify-between">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20 transition group-hover:scale-110">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/20 transition group-hover:scale-110">
                             <i class="fa-solid fa-cart-shopping text-xl"></i>
                         </div>
                         <span class="rounded-full bg-blue-600 px-2.5 py-0.5 text-xs font-black text-white shadow-xs">
@@ -200,10 +200,10 @@
                 {{-- Quick Access 3: Riwayat Pesanan --}}
                 <a
                     href="{{ route('buyer.orders.index') }}"
-                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-purple-200/80 bg-gradient-to-br from-purple-50/80 via-white to-purple-50/30 p-6 shadow-xs transition hover:-translate-y-1 hover:border-purple-400 hover:shadow-md dark:border-purple-950 dark:from-purple-950/40 dark:via-slate-900 dark:to-purple-950/20"
+                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-purple-200/80 bg-white p-6 shadow-xs transition hover:-translate-y-1 hover:border-purple-400 hover:shadow-md dark:border-purple-950 dark:bg-slate-900"
                 >
                     <div class="flex items-center justify-between">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-md shadow-purple-500/20 transition group-hover:scale-110">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-md shadow-purple-500/20 transition group-hover:scale-110">
                             <i class="fa-solid fa-box-open text-xl"></i>
                         </div>
                         <span class="text-xs font-bold text-purple-700 opacity-80 group-hover:translate-x-1 transition dark:text-purple-400">
