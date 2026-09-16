@@ -1,6 +1,6 @@
 <x-layouts.seller title="Dashboard Seller">
 
-    <div class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-8">
+    <div class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
         {{-- Header --}}
         <div>
@@ -126,196 +126,219 @@
 
 
         {{-- Operations Quick Stats --}}
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+                <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Status Operasional & Pesanan Toko
+            </h2>
 
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
-                    <i class="fa-solid fa-boxes-stacked text-base"></i>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+                        <i class="fa-solid fa-boxes-stacked text-base"></i>
+                    </div>
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Total Katalog Produk
+                    </p>
+                    <p class="mt-1 text-xl font-black text-slate-900 dark:text-white">
+                        {{ $totalProducts ?? 0 }} Produk
+                    </p>
                 </div>
-                <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                    Total Katalolog Produk
-                </p>
-                <p class="mt-1 text-xl font-black text-slate-900 dark:text-white">
-                    {{ $totalProducts ?? 0 }} Produk
-                </p>
-            </div>
 
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40">
-                    <i class="fa-solid fa-clock-rotate-left text-base"></i>
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40">
+                        <i class="fa-solid fa-clock-rotate-left text-base"></i>
+                    </div>
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Pesanan Pending
+                    </p>
+                    <p class="mt-1 text-xl font-black text-amber-600 dark:text-amber-400">
+                        {{ $pendingOrders ?? 0 }} Pesanan
+                    </p>
                 </div>
-                <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                    Pesanan Pending
-                </p>
-                <p class="mt-1 text-xl font-black text-amber-600 dark:text-amber-400">
-                    {{ $pendingOrders ?? 0 }} Pesanan
-                </p>
-            </div>
 
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/40">
-                    <i class="fa-solid fa-receipt text-base"></i>
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/40">
+                        <i class="fa-solid fa-receipt text-base"></i>
+                    </div>
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Total Pesanan Masuk
+                    </p>
+                    <p class="mt-1 text-xl font-black text-slate-900 dark:text-white">
+                        {{ $totalOrders ?? 0 }} Pesanan
+                    </p>
                 </div>
-                <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                    Total Pesanan Masuk
-                </p>
-                <p class="mt-1 text-xl font-black text-slate-900 dark:text-white">
-                    {{ $totalOrders ?? 0 }} Pesanan
-                </p>
-            </div>
 
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40">
-                    <i class="fa-solid fa-circle-check text-base"></i>
+                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40">
+                        <i class="fa-solid fa-circle-check text-base"></i>
+                    </div>
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Pesanan Selesai
+                    </p>
+                    <p class="mt-1 text-xl font-black text-emerald-700 dark:text-emerald-400">
+                        {{ $completedOrders ?? 0 }} Selesai
+                    </p>
                 </div>
-                <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                    Pesanan Selesai
-                </p>
-                <p class="mt-1 text-xl font-black text-emerald-700 dark:text-emerald-400">
-                    {{ $completedOrders ?? 0 }} Selesai
-                </p>
-            </div>
 
+            </div>
         </div>
 
 
         {{-- =========================================================
             MAIN SECTION: TOP SELLING PRODUCTS & RECENT SALES REPORT
         ========================================================== --}}
-        <div class="grid gap-6 lg:grid-cols-3">
+        <div class="grid gap-6 lg:grid-cols-3 items-stretch">
 
             {{-- Top Selling Products Report --}}
-            <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-6 lg:col-span-1">
-                <div class="border-b border-slate-100 pb-4 dark:border-slate-800">
-                    <h2 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-                        <i class="fa-solid fa-fire text-amber-500"></i> Laporan Produk Terlaris
-                    </h2>
-                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                        Top 5 produk jualanmu dengan jumlah terbeli tertinggi.
-                    </p>
-                </div>
-
-                <div class="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
-                    @forelse($topProducts ?? [] as $index => $top)
-                        <div class="flex items-center justify-between py-3">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-black {{ $index === 0 ? 'bg-amber-400 text-slate-950' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' }}">
-                                    {{ $index + 1 }}
-                                </span>
-
-                                <div class="min-w-0">
-                                    <p class="truncate text-xs font-bold text-slate-900 dark:text-white">
-                                        {{ $top->product_name ?? $top->product?->name ?? 'Produk' }}
-                                    </p>
-                                    <p class="text-[11px] text-slate-400 font-medium">
-                                        Terjual: <strong class="text-emerald-700 dark:text-emerald-400 font-extrabold">{{ $top->total_sold }} Pcs</strong>
-                                    </p>
-                                </div>
-                            </div>
-
-                            <p class="text-xs font-black text-slate-900 dark:text-white shrink-0 ml-2">
-                                Rp {{ number_format($top->total_revenue ?? 0, 0, ',', '.') }}
-                            </p>
-                        </div>
-                    @empty
-                        <div class="py-8 text-center text-xs text-slate-400">
-                            Belum ada data penjualan produk terlaris.
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-
-            {{-- Recent Sales Transactions Report --}}
-            <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900 lg:col-span-2">
-
-                <div class="flex items-center justify-between border-b border-slate-100 px-5 py-5 dark:border-slate-800 sm:px-6">
-
-                    <div>
+            <div class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-6 lg:col-span-1 h-full min-h-[300px]">
+                <div>
+                    <div class="border-b border-slate-100 pb-4 dark:border-slate-800">
                         <h2 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-emerald-600"></i> Laporan Transaksi Pesanan Masuk
+                            <i class="fa-solid fa-fire text-amber-500"></i> Laporan Produk Terlaris
                         </h2>
-
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                            Daftar pesanan terbaru pembeli beserta varian rasa & total pembayaran.
+                            Top 5 produk jualanmu dengan jumlah terbeli tertinggi.
                         </p>
                     </div>
 
-                    <a
-                        href="{{ route('seller.orders.index') }}"
-                        class="text-xs font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 inline-flex items-center gap-1"
-                    >
-                        Lihat semua <i class="fa-solid fa-arrow-right"></i>
-                    </a>
+                    <div class="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
+                        @forelse($topProducts ?? [] as $index => $top)
+                            <div class="flex items-center justify-between py-3">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-black {{ $index === 0 ? 'bg-amber-400 text-slate-950' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' }}">
+                                        {{ $index + 1 }}
+                                    </span>
 
-                </div>
-
-                @if (isset($recentOrders) && $recentOrders->count())
-
-                    <div class="divide-y divide-slate-100 dark:divide-slate-800">
-
-                        @foreach ($recentOrders as $order)
-
-                            <a
-                                href="{{ route('seller.orders.show', $order) }}"
-                                class="block p-5 transition hover:bg-slate-50 dark:hover:bg-slate-800/60 sm:p-6"
-                            >
-
-                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-                                    <div>
-                                        <p class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 text-sm">
-                                            <i class="fa-solid fa-receipt text-emerald-600 text-xs"></i> {{ $order->invoice_number ?? '#' . $order->id }}
+                                    <div class="min-w-0">
+                                        <p class="truncate text-xs font-bold text-slate-900 dark:text-white">
+                                            {{ $top->product_name ?? $top->product?->name ?? 'Produk' }}
                                         </p>
-
-                                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                            <i class="fa-solid fa-user mr-1 text-slate-400"></i> Pembeli: <strong>{{ $order->user?->username ?? 'Buyer' }}</strong>
-                                            • <i class="fa-solid fa-clock mr-1 text-slate-400"></i> {{ $order->created_at?->format('d M Y, H:i') }}
+                                        <p class="text-[11px] text-slate-400 font-medium">
+                                            Terjual: <strong class="text-emerald-700 dark:text-emerald-400 font-extrabold">{{ $top->total_sold }} Pcs</strong>
                                         </p>
-
-                                        {{-- Order Items Preview with Flavor Note --}}
-                                        @if($order->items->count())
-                                            <div class="mt-2 flex flex-wrap gap-1.5">
-                                                @foreach($order->items as $item)
-                                                    <span class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                                                        <span>{{ $item->quantity }}x {{ $item->product_name ?? $item->product?->name }}</span>
-                                                        @if(!empty($item->note))
-                                                            <span class="text-emerald-700 dark:text-emerald-400 font-bold">({{ $item->note }})</span>
-                                                        @endif
-                                                    </span>
-                                                @endforeach
-                                            </div>
-                                        @endif
                                     </div>
-
-                                    <div class="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-center">
-
-                                        <span class="text-base font-black text-emerald-700 dark:text-emerald-400">
-                                            Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}
-                                        </span>
-
-                                        <x-badge :type="$order->status">
-                                            {{ ucfirst(str_replace('_', ' ', $order->status)) }}
-                                        </x-badge>
-
-                                    </div>
-
                                 </div>
 
-                            </a>
+                                <p class="text-xs font-black text-slate-900 dark:text-white shrink-0 ml-2">
+                                    Rp {{ number_format($top->total_revenue ?? 0, 0, ',', '.') }}
+                                </p>
+                            </div>
+                        @empty
+                            {{-- Handled below --}}
+                        @endforelse
+                    </div>
+                </div>
 
-                        @endforeach
+                @if(empty($topProducts) || (is_iterable($topProducts) && count($topProducts) === 0))
+                    <div class="my-auto py-10 text-center flex flex-col items-center justify-center">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500 dark:bg-amber-950/40">
+                            <i class="fa-solid fa-fire text-xl"></i>
+                        </div>
+                        <p class="mt-3 text-sm font-bold text-slate-700 dark:text-slate-300">Belum Ada Produk Terlaris</p>
+                        <p class="mt-1 text-xs text-slate-400 max-w-[220px] leading-relaxed">
+                            Data produk terlaris akan tampil otomatis setelah ada transaksi penjualan.
+                        </p>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Recent Sales Transactions Report --}}
+            <div class="flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900 lg:col-span-2 h-full min-h-[300px]">
+
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-5 dark:border-slate-800 sm:px-6">
+
+                        <div>
+                            <h2 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-emerald-600"></i> Laporan Transaksi Pesanan Masuk
+                            </h2>
+
+                            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                Daftar pesanan terbaru pembeli beserta varian rasa & total pembayaran.
+                            </p>
+                        </div>
+
+                        <a
+                            href="{{ route('seller.orders.index') }}"
+                            class="text-xs font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 inline-flex items-center gap-1 whitespace-nowrap shrink-0"
+                        >
+                            Lihat semua <i class="fa-solid fa-arrow-right"></i>
+                        </a>
 
                     </div>
 
-                @else
+                    @if (isset($recentOrders) && $recentOrders->count())
 
-                    <div class="px-5 py-10 sm:px-6 text-center">
-                        <x-empty-state
-                            title="Belum ada transaksi"
-                            description="Transaksi penjualan toko akan muncul di sini."
-                        />
+                        <div class="divide-y divide-slate-100 dark:divide-slate-800">
+
+                            @foreach ($recentOrders as $order)
+
+                                <a
+                                    href="{{ route('seller.orders.show', $order) }}"
+                                    class="block p-5 transition hover:bg-slate-50 dark:hover:bg-slate-800/60 sm:p-6"
+                                >
+
+                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+                                        <div>
+                                            <p class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 text-sm">
+                                                <i class="fa-solid fa-receipt text-emerald-600 text-xs"></i> {{ $order->invoice_number ?? '#' . $order->id }}
+                                            </p>
+
+                                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                                <i class="fa-solid fa-user mr-1 text-slate-400"></i> Pembeli: <strong>{{ $order->user?->username ?? 'Buyer' }}</strong>
+                                                • <i class="fa-solid fa-clock mr-1 text-slate-400"></i> {{ $order->created_at?->format('d M Y, H:i') }}
+                                            </p>
+
+                                            {{-- Order Items Preview with Flavor Note --}}
+                                            @if($order->items->count())
+                                                <div class="mt-2 flex flex-wrap gap-1.5">
+                                                    @foreach($order->items as $item)
+                                                        <span class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                                            <span>{{ $item->quantity }}x {{ $item->product_name ?? $item->product?->name }}</span>
+                                                            @if(!empty($item->note))
+                                                                <span class="text-emerald-700 dark:text-emerald-400 font-bold">({{ $item->note }})</span>
+                                                            @endif
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-center">
+
+                                            <span class="text-base font-black text-emerald-700 dark:text-emerald-400">
+                                                Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}
+                                            </span>
+
+                                            <x-badge :type="$order->status">
+                                                {{ ucfirst(str_replace('_', ' ', $order->status)) }}
+                                            </x-badge>
+
+                                        </div>
+
+                                    </div>
+
+                                </a>
+
+                            @endforeach
+
+                        </div>
+
+                    @endif
+                </div>
+
+                @if (!isset($recentOrders) || !$recentOrders->count())
+                    <div class="my-auto px-5 py-12 text-center flex flex-col items-center justify-center sm:px-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40">
+                            <i class="fa-solid fa-receipt text-xl"></i>
+                        </div>
+                        <p class="mt-3 text-sm font-bold text-slate-700 dark:text-slate-300">Belum Ada Transaksi</p>
+                        <p class="mt-1 text-xs text-slate-400 max-w-xs leading-relaxed">
+                            Transaksi penjualan toko akan muncul di sini secara realtime.
+                        </p>
                     </div>
-
                 @endif
 
             </div>

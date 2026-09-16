@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SellerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WebsiteSettingController;
+use App\Http\Controllers\Admin\WhatsAppController;
 
 Route::middleware(['auth:admin'])
     ->prefix('admin')
@@ -59,4 +60,18 @@ Route::middleware(['auth:admin'])
 
         Route::put('/website-settings', [WebsiteSettingController::class, 'update'])
             ->name('website-settings.update');
+
+        // WhatsApp Bot Control Routes
+        Route::get('/whatsapp', [WhatsAppController::class, 'index'])
+            ->name('whatsapp.index');
+        Route::get('/whatsapp/status', [WhatsAppController::class, 'status'])
+            ->name('whatsapp.status');
+        Route::post('/whatsapp/start', [WhatsAppController::class, 'start'])
+            ->name('whatsapp.start');
+        Route::post('/whatsapp/stop', [WhatsAppController::class, 'stop'])
+            ->name('whatsapp.stop');
+        Route::post('/whatsapp/disconnect', [WhatsAppController::class, 'disconnect'])
+            ->name('whatsapp.disconnect');
+        Route::post('/whatsapp/reset-session', [WhatsAppController::class, 'resetSession'])
+            ->name('whatsapp.reset-session');
     });

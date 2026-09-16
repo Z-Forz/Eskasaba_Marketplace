@@ -192,7 +192,7 @@
 
                 <a
                     href="{{ route('products.index') }}"
-                    class="hidden text-sm font-bold text-emerald-800 hover:text-emerald-900 sm:inline-flex items-center gap-1 dark:text-emerald-400 dark:hover:text-emerald-300"
+                    class="hidden text-sm font-bold text-emerald-800 hover:text-emerald-900 sm:inline-flex items-center gap-1 dark:text-emerald-400 dark:hover:text-emerald-300 whitespace-nowrap shrink-0"
                 >
                     <span>Lihat Semua</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>

@@ -45,8 +45,8 @@
                     <x-alert type="warning" :message="session('warning')" :dismiss-after="10000" class="mb-5" />
                 @endif
 
-                @if ($errors->any())
-                    <x-alert type="error" :message="$errors->first()" :dismiss-after="10000" class="mb-5" />
+                @if ($errors->has('general'))
+                    <x-alert type="error" :message="$errors->first('general')" :dismiss-after="10000" class="mb-5" />
                 @endif
 
                 <form

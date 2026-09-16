@@ -41,7 +41,8 @@
                     activeVariant: @js($firstVariant),
                     activePrice: @js($initialPrice),
                     activeStock: @js($initialStock),
-                    selectedFlavor: @js($firstVariant ? $firstVariant['name'] : $firstFlavor)
+                    selectedFlavor: @js($firstVariant ? $firstVariant['name'] : $firstFlavor),
+                    qty: 1
                 }"
             >
 
@@ -254,17 +255,39 @@
                                 @endif
 
                                 <div class="flex flex-col gap-3 sm:flex-row">
-                                    <div class="w-full sm:w-36">
+                                    <div class="w-full sm:w-auto">
                                         <label for="quantity" class="sr-only">Jumlah</label>
-                                        <input
-                                            id="quantity"
-                                            name="quantity"
-                                            type="number"
-                                            min="1"
-                                            :max="activeStock"
-                                            value="1"
-                                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-center text-sm font-bold outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                                        >
+                                        <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-800">
+                                            <button
+                                                type="button"
+                                                @click="if(qty > 1) qty--"
+                                                :disabled="qty <= 1"
+                                                :class="qty <= 1 ? 'opacity-40 cursor-not-allowed text-slate-300 dark:text-slate-600' : 'hover:bg-slate-100 hover:text-emerald-700 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer'"
+                                                class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 transition font-bold dark:bg-slate-700/60"
+                                                title="Kurangi 1"
+                                            >
+                                                <i class="fa-solid fa-minus text-xs"></i>
+                                            </button>
+                                            <input
+                                                id="quantity"
+                                                name="quantity"
+                                                type="number"
+                                                min="1"
+                                                :max="activeStock"
+                                                x-model.number="qty"
+                                                class="w-14 text-center text-sm font-black text-slate-900 outline-none dark:text-white bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            >
+                                            <button
+                                                type="button"
+                                                @click="if(qty < activeStock) qty++"
+                                                :disabled="qty >= activeStock"
+                                                :class="qty >= activeStock ? 'opacity-40 cursor-not-allowed text-slate-300 dark:text-slate-600' : 'hover:bg-slate-100 hover:text-emerald-700 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer'"
+                                                class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 transition font-bold dark:bg-slate-700/60"
+                                                title="Tambah 1"
+                                            >
+                                                <i class="fa-solid fa-plus text-xs"></i>
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <button

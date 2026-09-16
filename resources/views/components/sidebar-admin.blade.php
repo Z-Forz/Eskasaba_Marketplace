@@ -13,6 +13,7 @@
             ['route' => 'admin.reports.sales',          'pattern' => 'admin.reports.sales',      'label' => 'Laporan Penjualan',   'icon' => 'fa-solid fa-chart-line'],
         ],
         'Pengaturan' => [
+            ['route' => 'admin.whatsapp.index',         'pattern' => 'admin.whatsapp.*',         'label' => 'WhatsApp Bot',        'icon' => 'fa-brands fa-whatsapp'],
             ['route' => 'admin.website-settings.index', 'pattern' => 'admin.website-settings.*', 'label' => 'Pengaturan Website',  'icon' => 'fa-solid fa-gear'],
         ],
     ];

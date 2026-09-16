@@ -61,18 +61,18 @@
                             <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
 
                                 <div class="border-b border-slate-100 bg-slate-50/50 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40 sm:px-6">
-                                    <div class="flex items-center justify-between gap-4">
-                                        <div>
+                                    <div class="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                                        <div class="min-w-0">
                                             <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
                                                 Penjual Toko
                                             </p>
-                                            <h2 class="mt-0.5 text-base font-bold text-slate-900 dark:text-white">
+                                            <h2 class="mt-0.5 text-base font-bold text-slate-900 dark:text-white break-words">
                                                 <i class="fa-solid fa-store" @style(['color: ' . ($items->first()->product->seller->user->color ?? 'inherit')])></i> {{ $items->first()->product->seller->user->username ?? 'Penjual' }}
                                             </h2>
                                         </div>
 
-                                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
-                                            Penjual Terverifikasi
+                                        <span class="inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 shrink-0 self-start sm:self-auto">
+                                            <i class="fa-solid fa-circle-check text-[10px]"></i> Penjual Terverifikasi
                                         </span>
                                     </div>
                                 </div>

@@ -195,11 +195,11 @@ class OAuthController extends Controller
                 'status'   => true,
                 'message'  => "Login SSO berhasil. Selamat datang kembali, {$user->username}!",
                 'user'     => $user,
-                'redirect' => route('dashboard'),
+                'redirect' => route('profile.index'),
             ]);
         }
 
-        return redirect()->intended(route('dashboard'))->with('success', "Selamat datang kembali, {$user->username}!");
+        return redirect()->intended(route('profile.index'))->with('success', "Berhasil login! Selamat datang kembali, {$user->username}!");
     }
 
     /**

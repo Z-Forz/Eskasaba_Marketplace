@@ -13,6 +13,7 @@ class Product extends Model
         'seller_id',
         'category_id',
         'name',
+        'slug',
         'price',
         'stock',
         'description',
@@ -21,6 +22,57 @@ class Product extends Model
         'discount',
         'variants',
     ];
+
+    /**
+     * Boot model events for automatic slug generation.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Product $product) {
+            if (empty($product->slug)) {
+                $product->slug = static::generateUniqueSlug($product->name);
+            }
+        });
+
+        static::updating(function (Product $product) {
+            if ($product->isDirty('name') && empty($product->slug)) {
+                $product->slug = static::generateUniqueSlug($product->name);
+            }
+        });
+    }
+
+    /**
+     * Generate a unique slug for product.
+     */
+    public static function generateUniqueSlug(string $name): string
+    {
+        $baseSlug = \Illuminate\Support\Str::slug($name) ?: 'produk';
+        $slug = $baseSlug . '-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6));
+
+        while (static::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6));
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Use slug as default route key name for URLs.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
+     * Resolve route model binding by slug or fallback numeric ID.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where($field ?? 'slug', $value)
+            ->orWhere('id', $value)
+            ->firstOrFail();
+    }
 
     protected function casts(): array
     {

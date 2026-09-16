@@ -155,7 +155,7 @@
 
                     <a
                         href="{{ route('buyer.orders.index') }}"
-                        class="text-sm font-semibold text-slate-700 transition hover:text-slate-900"
+                        class="text-sm font-semibold text-slate-700 transition hover:text-slate-900 whitespace-nowrap shrink-0"
                     >
                         Lihat semua
                     </a>

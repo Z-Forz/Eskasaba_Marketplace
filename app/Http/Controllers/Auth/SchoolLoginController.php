@@ -64,7 +64,7 @@ class SchoolLoginController extends Controller
         // Bagi akun siswa, login WAJIB menggunakan format email sekolah resmi yang terdaftar, tidak boleh hanya NIS saja.
         if ($localUser && $localUser->role === 'student' && !$isEmailInput) {
             throw ValidationException::withMessages([
-                'email' => 'Siswa wajib menggunakan Email Sekolah (contoh: NIS@sijuna.com atau NIS@smkn1bangsri.sch.id), bukan NIS saja.',
+                'email' => 'Siswa wajib menggunakan Email Sekolah ( email atau nis yang digunakan saat login sijuna ).',
             ]);
         }
 
@@ -81,7 +81,7 @@ class SchoolLoginController extends Controller
                 );
             }
 
-            return redirect()->intended(route('dashboard'));
+            return redirect()->route('profile.index')->with('success', 'Berhasil login! Selamat datang kembali, ' . $localUser->username . '.');
         }
 
         // 2. Jika user lokal belum ada atau password default, validasi ke API Gateway
@@ -151,7 +151,7 @@ class SchoolLoginController extends Controller
                     );
                 }
 
-                return redirect()->intended(route('dashboard'));
+                return redirect()->route('profile.index')->with('success', 'Berhasil login! Selamat datang kembali, ' . $localUser->username . '.');
             }
         }
 

@@ -17,9 +17,7 @@ class WebsiteSetting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        $settings = Cache::rememberForever('website_settings', function () {
-            return self::all()->pluck('value', 'key');
-        });
+        $settings = self::allSettings();
 
         return $settings[$key] ?? $default;
     }
@@ -42,9 +40,17 @@ class WebsiteSetting extends Model
      */
     public static function allSettings(): array
     {
-        return Cache::rememberForever('website_settings', function () {
+        $settings = Cache::rememberForever('website_settings', function () {
             return self::all()->pluck('value', 'key')->toArray();
         });
+
+        if (! is_array($settings)) {
+            Cache::forget('website_settings');
+            $settings = self::all()->pluck('value', 'key')->toArray();
+            Cache::forever('website_settings', $settings);
+        }
+
+        return $settings;
     }
 
     /**

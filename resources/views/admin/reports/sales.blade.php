@@ -46,7 +46,7 @@
             </h2>
 
             <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ($sellers as $sel)
+                @forelse ($sellers as $sel)
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex items-center gap-3">
                             <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-sm font-bold text-white shadow-xs">
@@ -58,7 +58,15 @@
                             </div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="col-span-full rounded-2xl border border-dashed border-slate-200 p-8 text-center dark:border-slate-800">
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                            <i class="fa-solid fa-store text-xl"></i>
+                        </div>
+                        <p class="mt-3 text-sm font-bold text-slate-700 dark:text-slate-300">Belum Ada Data Seller</p>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Belum ada seller aktif yang terdaftar untuk menampilkan performa penjualan.</p>
+                    </div>
+                @endforelse
             </div>
         </div>
 

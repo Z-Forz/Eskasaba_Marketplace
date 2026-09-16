@@ -293,23 +293,23 @@
                     </div>
 
                     <div class="mt-4 grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 dark:border-slate-800 text-xs">
-                        <div>
-                            <p class="text-slate-400 font-semibold">NIS / NIP</p>
-                            <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200">
+                        <div class="min-w-0">
+                            <p class="text-slate-400 font-semibold truncate">NIS / NIP</p>
+                            <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200 break-all">
                                 {{ $user->nis_nip ?? '-' }}
                             </p>
                         </div>
 
-                        <div>
-                            <p class="text-slate-400 font-semibold">No. HP / WA</p>
-                            <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200">
+                        <div class="min-w-0">
+                            <p class="text-slate-400 font-semibold truncate">No. HP / WA</p>
+                            <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200 break-all">
                                 {{ $user->phone ?? '-' }}
                             </p>
                         </div>
 
-                        <div>
-                            <p class="text-slate-400 font-semibold">Kelas</p>
-                            <p class="mt-0.5 font-bold text-emerald-700 dark:text-emerald-400">
+                        <div class="min-w-0">
+                            <p class="text-slate-400 font-semibold truncate">Kelas</p>
+                            <p class="mt-0.5 font-bold text-emerald-700 dark:text-emerald-400 truncate">
                                 {{ $user->class_room ?? '-' }}
                             </p>
                         </div>

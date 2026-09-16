@@ -1,6 +1,7 @@
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const express = require('express');
-const qrcode = require('qrcode-terminal');
+const qrcodeTerminal = require('qrcode-terminal');
+const QRCode = require('qrcode');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -11,6 +12,16 @@ app.use(cors());
 
 let sock = null;
 let isConnected = false;
+let isConnecting = false;
+let botEnabled = true;
+
+let botStatus = 'menjalankan'; // 'nonaktif', 'menjalankan', 'menunggu_qr', 'menghubungkan', 'terhubung', 'terputus', 'error'
+let qrCodeDataUrl = null;
+let connectedNumber = null;
+let connectedName = null;
+let lastConnectedAt = null;
+let lastDisconnectedAt = null;
+let lastError = null;
 
 const AUTH_DIR = path.join(__dirname, 'auth_info_baileys');
 
@@ -25,9 +36,13 @@ function clearAuthFolder() {
     }
 }
 
-let isConnecting = false;
-
 async function connectToWhatsApp() {
+    if (!botEnabled) {
+        botStatus = 'nonaktif';
+        isConnecting = false;
+        return;
+    }
+
     if (isConnecting) return;
     isConnecting = true;
 
@@ -39,61 +54,243 @@ async function connectToWhatsApp() {
         sock = null;
     }
 
-    const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+    if (botStatus !== 'menunggu_qr') {
+        botStatus = 'menghubungkan';
+    }
 
-    sock = makeWASocket({
-        auth: state,
-        printQRInTerminal: false,
-        browser: ['Eskasaba Marketplace', 'Chrome', '1.0.0']
-    });
+    try {
+        const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
 
-    isConnecting = false;
+        sock = makeWASocket({
+            auth: state,
+            printQRInTerminal: false,
+            browser: ['Eskasaba Marketplace', 'Chrome', '1.0.0'],
+            connectTimeoutMs: 60000,
+            defaultQueryTimeoutMs: 60000,
+            keepAliveIntervalMs: 10000,
+        });
 
-    sock.ev.on('creds.update', saveCreds);
+        sock.ev.on('creds.update', saveCreds);
 
-    sock.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect, qr } = update;
+        sock.ev.on('connection.update', async (update) => {
+            const { connection, lastDisconnect, qr } = update;
 
-        if (qr) {
-            console.log('\n======================================================');
-            console.log('📱 SCAN QR CODE DI BAWAH INI DENGAN WHATSAPP ANDA');
-            console.log('======================================================\n');
-            qrcode.generate(qr, { small: true });
-        }
-
-        if (connection === 'close') {
-            isConnected = false;
-            const statusCode = lastDisconnect?.error?.output?.statusCode;
-            const isLoggedOut = statusCode === DisconnectReason.loggedOut;
-            const isReplaced = statusCode === DisconnectReason.connectionReplaced || statusCode === 440;
-
-            console.log(`⚠️ Koneksi WA terputus (Status Code: ${statusCode || 'Unknown'}).`);
-
-            if (isLoggedOut) {
-                console.log('🔒 Session WhatsApp telah Keluar / Expired. Menyiapkan QR Code baru...');
-                clearAuthFolder();
-            } else if (isReplaced) {
-                console.log('⛔ Sesi WhatsApp terdeteksi aktif di tempat/proses lain (Status Code 440: Conflict/Replaced). Auto-reconnect dihentikan agar tidak terjadi ping-pong putus nyambung.');
-                return;
+            if (qr) {
+                isConnecting = false;
+                botStatus = 'menunggu_qr';
+                try {
+                    qrCodeDataUrl = await QRCode.toDataURL(qr, { margin: 2, scale: 6 });
+                } catch (e) {
+                    qrCodeDataUrl = null;
+                }
+                console.log('\n======================================================');
+                console.log('📱 SCAN QR CODE DI BAWAH INI DENGAN WHATSAPP ANDA');
+                console.log('======================================================\n');
+                qrcodeTerminal.generate(qr, { small: true });
             }
 
-            setTimeout(() => {
-                connectToWhatsApp();
-            }, 3000);
-        } else if (connection === 'open') {
-            isConnected = true;
-            console.log('✅ Bot WhatsApp Baileys Berhasil Terhubung & Siap Digunakan!');
-        }
-    });
+            if (connection === 'connecting') {
+                if (botStatus !== 'menunggu_qr') {
+                    botStatus = 'menghubungkan';
+                }
+            }
+
+            if (connection === 'close') {
+                isConnected = false;
+                isConnecting = false;
+                qrCodeDataUrl = null;
+                const statusCode = lastDisconnect?.error?.output?.statusCode;
+                const errMsg = lastDisconnect?.error?.message || '';
+                const isLoggedOut = statusCode === DisconnectReason.loggedOut || statusCode === 401;
+                const isReplaced = statusCode === DisconnectReason.connectionReplaced || statusCode === 440;
+                const isQrTimeout = errMsg.includes('QR refs attempts ended');
+
+                lastDisconnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+                lastError = errMsg || `Koneksi terputus (Status ${statusCode || 'Unknown'})`;
+
+                console.log(`⚠️ Koneksi WA terputus (Status: ${statusCode || 'Unknown'}, Reason: ${errMsg}).`);
+
+                if (!botEnabled) {
+                    botStatus = 'nonaktif';
+                    return;
+                }
+
+                if (isLoggedOut || isQrTimeout) {
+                    console.log('🔒 Sesi / QR Code Expired. Menyiapkan QR Code baru...');
+                    botStatus = 'terputus';
+                    clearAuthFolder();
+                    setTimeout(() => {
+                        if (botEnabled) {
+                            botStatus = 'menjalankan';
+                            connectToWhatsApp();
+                        }
+                    }, 2000);
+                } else if (isReplaced) {
+                    console.log('⛔ Sesi WhatsApp terdeteksi aktif di tempat/proses lain.');
+                    botStatus = 'error';
+                    lastError = 'Sesi WhatsApp aktif di perangkat/proses lain (Conflict 440).';
+                    return;
+                } else {
+                    botStatus = 'menghubungkan';
+                    setTimeout(() => {
+                        if (botEnabled) {
+                            connectToWhatsApp();
+                        }
+                    }, 3000);
+                }
+            } else if (connection === 'open') {
+                isConnected = true;
+                isConnecting = false;
+                botStatus = 'terhubung';
+                qrCodeDataUrl = null;
+                lastConnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+                lastError = null;
+
+                if (sock.user && sock.user.id) {
+                    const rawJid = sock.user.id.split(':')[0] || sock.user.id.split('@')[0];
+                    connectedNumber = rawJid.replace(/[^0-9]/g, '');
+                    connectedName = sock.user.name || sock.user.notify || 'Eskasaba Bot';
+                }
+
+                console.log(`✅ Bot WhatsApp Baileys Berhasil Terhubung (+${connectedNumber}) & Siap Digunakan!`);
+            }
+        });
+    } catch (err) {
+        isConnecting = false;
+        botStatus = 'error';
+        lastError = err.message;
+        console.error('Error saat connectToWhatsApp:', err.message);
+    }
 }
 
-// Endpoint HTTP POST dipanggil oleh Laravel WhatsAppService
+// GET /status - Endpoint Polling untuk Admin Panel
+app.get('/status', (req, res) => {
+    return res.json({
+        status: botStatus,
+        bot_enabled: botEnabled,
+        is_connected: isConnected,
+        qr_code: qrCodeDataUrl,
+        connected_number: connectedNumber,
+        connected_name: connectedName,
+        last_connected_at: lastConnectedAt,
+        last_disconnected_at: lastDisconnectedAt,
+        last_error: lastError
+    });
+});
+
+// POST /start - Aktifkan Bot
+app.post('/start', async (req, res) => {
+    botEnabled = true;
+    isConnecting = false;
+    if (!isConnected) {
+        botStatus = 'menjalankan';
+        if (sock) {
+            try {
+                sock.ev.removeAllListeners();
+                sock.end(undefined);
+            } catch (e) {}
+            sock = null;
+        }
+        connectToWhatsApp();
+    }
+    return res.json({
+        status: true,
+        message: 'Bot WhatsApp diaktifkan',
+        bot_status: botStatus
+    });
+});
+
+// POST /stop - Menonaktifkan Bot
+app.post('/stop', async (req, res) => {
+    botEnabled = false;
+    botStatus = 'nonaktif';
+    isConnecting = false;
+    isConnected = false;
+    qrCodeDataUrl = null;
+    if (sock) {
+        try {
+            sock.ev.removeAllListeners();
+            sock.end(undefined);
+        } catch (e) {}
+        sock = null;
+    }
+    return res.json({
+        status: true,
+        message: 'Bot WhatsApp dinonaktifkan',
+        bot_status: botStatus
+    });
+});
+
+// POST /disconnect - Memutuskan koneksi WA (Logout)
+app.post('/disconnect', async (req, res) => {
+    if (sock) {
+        try {
+            await sock.logout();
+        } catch (e) {
+            try {
+                sock.end(undefined);
+            } catch (err) {}
+        }
+        sock = null;
+    }
+    isConnected = false;
+    isConnecting = false;
+    botStatus = 'terputus';
+    qrCodeDataUrl = null;
+    connectedNumber = null;
+    connectedName = null;
+    lastDisconnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+    return res.json({
+        status: true,
+        message: 'Koneksi WhatsApp diputuskan',
+        bot_status: botStatus
+    });
+});
+
+// POST /reset-session - Reset Sesi & Hapus folder Auth
+app.post('/reset-session', async (req, res) => {
+    botEnabled = false;
+    isConnecting = false;
+    isConnected = false;
+    qrCodeDataUrl = null;
+    connectedNumber = null;
+    connectedName = null;
+    if (sock) {
+        try {
+            sock.ev.removeAllListeners();
+            sock.end(undefined);
+        } catch (e) {}
+        sock = null;
+    }
+    clearAuthFolder();
+
+    botEnabled = true;
+    botStatus = 'menjalankan';
+    setTimeout(() => {
+        connectToWhatsApp();
+    }, 1000);
+
+    return res.json({
+        status: true,
+        message: 'Sesi WhatsApp berhasil di-reset. Menyiapkan QR Code baru...',
+        bot_status: botStatus
+    });
+});
+
+// POST /send-message - Endpoint HTTP POST dipanggil oleh Laravel WhatsAppService
 app.post('/send-message', async (req, res) => {
     const { target, number, phone, message } = req.body;
     const recipient = target || number || phone;
 
     if (!recipient || !message) {
         return res.status(400).json({ status: false, message: 'Nomor tujuan dan pesan wajib diisi.' });
+    }
+
+    if (!botEnabled) {
+        return res.status(503).json({
+            status: false,
+            message: 'Bot WhatsApp sedang dinonaktifkan dari Admin Panel.'
+        });
     }
 
     // Tunggu toleransi hingga 2.5 detik jika koneksi sedang re-sync sebentar
@@ -108,7 +305,7 @@ app.post('/send-message', async (req, res) => {
     if (!sock || !isConnected) {
         return res.status(503).json({
             status: false,
-            message: 'Bot WhatsApp belum terhubung/online. Silakan scan QR Code di terminal terlebih dahulu.'
+            message: 'Bot WhatsApp belum terhubung/online. Silakan hubungkan & scan QR Code di Admin Panel.'
         });
     }
 
@@ -121,7 +318,6 @@ app.post('/send-message', async (req, res) => {
         let jid = `${formattedNumber}@s.whatsapp.net`;
         let isRegistered = false;
 
-        // Cek validasi keberadaan nomor di WhatsApp via onWhatsApp() dengan timeout 1.5 detik agar tidak menggantung
         if (sock && sock.onWhatsApp) {
             try {
                 const onWaPromise = sock.onWhatsApp(formattedNumber);
@@ -164,4 +360,3 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason) => {
     console.error('[WA BOT UNHANDLED REJECTION]', reason);
 });
-

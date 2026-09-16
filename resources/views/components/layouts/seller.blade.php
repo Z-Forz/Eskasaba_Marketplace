@@ -63,7 +63,7 @@
 
     {{-- Flash Toast Messages --}}
     @if(session('success') || session('error') || session('warning') || session('info'))
-        <div class="fixed bottom-5 right-5 z-50 max-w-md w-full px-4 space-y-2 pointer-events-none">
+        <div class="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-5 sm:w-full sm:max-w-md z-50 space-y-2 pointer-events-none">
             @if(session('success'))
                 <x-alert type="success" :message="session('success')" class="pointer-events-auto shadow-lg" />
             @endif

@@ -54,14 +54,18 @@
             </h2>
 
             <div class="mt-4 flex flex-wrap gap-3">
-                @foreach ($categories as $cat)
+                @forelse ($categories as $cat)
                     <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 dark:border-gray-700 dark:bg-gray-800">
                         <span class="text-sm font-semibold text-slate-800 dark:text-gray-200">{{ $cat->name }}</span>
                         <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
                             {{ $cat->products_count }} Produk
                         </span>
                     </div>
-                @endforeach
+                @empty
+                    <div class="w-full rounded-2xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                        Belum ada kategori produk yang terdaftar.
+                    </div>
+                @endforelse
             </div>
         </div>
 

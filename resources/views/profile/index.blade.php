@@ -351,7 +351,7 @@
                     </p>
                 </div>
 
-                <a href="{{ route('profile.activity-logs') }}" class="text-xs font-bold text-emerald-700 hover:underline dark:text-emerald-400 shrink-0 inline-flex items-center gap-1">
+                <a href="{{ route('profile.activity-logs') }}" class="text-xs font-bold text-emerald-700 hover:underline dark:text-emerald-400 shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
                     Lihat Semua <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>

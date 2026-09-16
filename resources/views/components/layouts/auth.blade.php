@@ -50,20 +50,21 @@
         </div>
     </main>
 
-    @if(session('success'))
-        <x-alert type="success" :message="session('success')" />
-    @endif
-
-    @if(session('error'))
-        <x-alert type="error" :message="session('error')" />
-    @endif
-
-    @if(session('warning'))
-        <x-alert type="warning" :message="session('warning')" />
-    @endif
-
-    @if(session('info'))
-        <x-alert type="info" :message="session('info')" />
+    @if(session('success') || session('error') || session('warning') || session('info'))
+        <div class="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-5 sm:w-full sm:max-w-md z-50 space-y-2 pointer-events-none">
+            @if(session('success'))
+                <x-alert type="success" :message="session('success')" class="pointer-events-auto shadow-lg" />
+            @endif
+            @if(session('error'))
+                <x-alert type="error" :message="session('error')" class="pointer-events-auto shadow-lg" />
+            @endif
+            @if(session('warning'))
+                <x-alert type="warning" :message="session('warning')" class="pointer-events-auto shadow-lg" />
+            @endif
+            @if(session('info'))
+                <x-alert type="info" :message="session('info')" class="pointer-events-auto shadow-lg" />
+            @endif
+        </div>
     @endif
 
     <x-confirm-modal />

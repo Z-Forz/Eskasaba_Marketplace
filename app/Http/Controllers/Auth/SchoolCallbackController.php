@@ -77,13 +77,13 @@ class SchoolCallbackController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'status'   => true,
-                    'message'  => 'Login SSO berhasil.',
+                    'message'  => 'Berhasil login.',
                     'user'     => $localUser,
-                    'redirect' => route('dashboard'),
+                    'redirect' => route('profile.index'),
                 ]);
             }
 
-            return redirect()->intended(route('dashboard'))->with('success', "Selamat datang kembali, {$localUser->username}!");
+            return redirect()->route('profile.index')->with('success', "Berhasil login! Selamat datang kembali, {$localUser->username}.");
         }
 
         // 3. Jika belum ada di lokal, validasi ke SiPintu API / Dataset Sekolah
@@ -136,12 +136,12 @@ class SchoolCallbackController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'status'   => true,
-                'message'  => 'Login callback berhasil.',
+                'message'  => 'Berhasil login.',
                 'user'     => $user,
-                'redirect' => route('dashboard'),
+                'redirect' => route('profile.index'),
             ]);
         }
 
-        return redirect()->intended(route('dashboard'))->with('success', "Selamat datang kembali, {$user->username}!");
+        return redirect()->route('profile.index')->with('success', "Berhasil login! Selamat datang kembali, {$user->username}.");
     }
 }

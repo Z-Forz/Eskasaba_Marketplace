@@ -90,7 +90,7 @@
                     </div>
                     <a
                         href="{{ route('admin.orders.index') }}"
-                        class="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 inline-flex items-center gap-1"
+                        class="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 inline-flex items-center gap-1 whitespace-nowrap shrink-0"
                     >
                         Lihat Semua <i class="fa-solid fa-arrow-right"></i>
                     </a>

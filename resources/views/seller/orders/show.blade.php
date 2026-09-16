@@ -75,6 +75,9 @@
                 . "Pesanan kakak sedang disiapkan. Silakan konfirmasi titik pengambilan ya. Terima kasih!";
 
             $buyerPhone = preg_replace('/[^0-9]/', '', $order->user?->phone ?? '');
+            if (!empty($buyerPhone) && str_starts_with($buyerPhone, '0')) {
+                $buyerPhone = '62' . substr($buyerPhone, 1);
+            }
             $sellerWaUrl = !empty($buyerPhone) ? "https://wa.me/{$buyerPhone}?text=" . urlencode($sellerWaText) : null;
         @endphp
 
