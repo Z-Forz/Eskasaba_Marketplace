@@ -140,6 +140,24 @@ class OAuthController extends Controller
             })
             ->first();
 
+        $roleRaw = strtolower((string) ($sipintuUser['jenis_pengguna'] ?? $sipintuUser['role'] ?? 'student'));
+        $isTeacher = in_array($roleRaw, ['guru', 'teacher', 'dewan guru']);
+
+        // Jika akun siswa berstatus Alumni (graduates=true / is_graduated=true), tolak login SSO & hapus akun lokal jika ada
+        if (!$isTeacher && \App\Services\SchoolApiService::isAlumni($sipintuUser)) {
+            if ($user) {
+                $user->delete();
+            }
+            $errorMsg = "Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.";
+            Log::warning("SSO Login Rejected: User {$nisNip} is an alumni.");
+
+            if ($request->expectsJson()) {
+                return response()->json(['status' => false, 'message' => $errorMsg], 403);
+            }
+
+            return redirect()->route('login')->with('error', $errorMsg);
+        }
+
         // Jika user tidak ditemukan, tolak login SSO
         if (! $user) {
             $identifier = $nisNip ?? $email ?? 'Pengguna';
@@ -243,6 +261,14 @@ class OAuthController extends Controller
 
         $roleRaw = strtolower($userData['role'] ?? 'student');
         $role = in_array($roleRaw, ['guru', 'teacher']) ? 'teacher' : 'student';
+
+        // Jika data siswa dari Webhook SiPintu berstatus Alumni, hapus akun jika ada & abaikan sinkronisasi
+        if ($role === 'student' && \App\Services\SchoolApiService::isAlumni($userData)) {
+            if ($user) {
+                $user->delete();
+            }
+            return response()->json(['status' => 'success', 'message' => 'Siswa berstatus alumni diabaikan/dihapus dari marketplace'], 200);
+        }
 
         // 3. Siapkan data pembaruan
         $updateFields = [

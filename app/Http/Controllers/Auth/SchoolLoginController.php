@@ -68,6 +68,14 @@ class SchoolLoginController extends Controller
             ]);
         }
 
+        // Tolak jika akun siswa lokal berstatus alumni
+        if ($localUser && $localUser->role === 'student' && \App\Services\SchoolApiService::isAlumni($localUser->toArray())) {
+            $localUser->delete();
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
+            ]);
+        }
+
         if ($localUser && Hash::check($inputPassword, $localUser->password)) {
             Auth::login($localUser);
             $request->session()->regenerate();
@@ -93,6 +101,16 @@ class SchoolLoginController extends Controller
                 'guru', 'teacher' => 'teacher',
                 default           => 'student',
             };
+
+            // Jika dari API Gateway siswa berstatus alumni (graduates=true), tolak login & hapus akun lokal jika ada
+            if ($role === 'student' && (!empty($apiData['is_graduated']) || \App\Services\SchoolApiService::isAlumni($apiData))) {
+                if ($localUser) {
+                    $localUser->delete();
+                }
+                throw ValidationException::withMessages([
+                    'email' => 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
+                ]);
+            }
 
             // Bagi akun siswa dari API Gateway, login WAJIB menggunakan format email
             if ($role === 'student' && !$isEmailInput) {

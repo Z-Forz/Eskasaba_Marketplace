@@ -76,7 +76,14 @@ class SchoolApiService
                     $data = $response->json()['data'] ?? $response->json();
                     $items = is_array($data) ? ($data[0] ?? $data) : $data;
                     if (!empty($items['nis_nip']) || !empty($items['nis']) || !empty($items['id'])) {
+                        if (self::isAlumni($items)) {
+                            Log::info("SchoolApiService validate: Ignored alumni student " . ($items['nis'] ?? $items['nis_nip'] ?? $key));
+                            continue;
+                        }
                         $userFormatted = $this->formatUserData($items, 'student');
+                        if (!empty($userFormatted['is_graduated'])) {
+                            continue;
+                        }
                         $c = $userFormatted['class_room'] ?? null;
                         if (!empty($c) && preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $c))) {
                             return $userFormatted;
@@ -260,6 +267,11 @@ class SchoolApiService
 
             // Exclude alumni and non-active students (only keep active students of grade 10, 11, 12)
             if ($role === 'student') {
+                if (self::isAlumni($item)) {
+                    Log::info("SchoolApiService syncAllUsers: Excluded alumni student " . ($nisNip ?? 'unknown'));
+                    continue;
+                }
+
                 if (empty($classRoom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
                     continue;
                 }
@@ -345,6 +357,55 @@ class SchoolApiService
         return $syncedCount;
     }
 
+    /**
+     * Memeriksa apakah data pengguna dari SiPintu Gateway berstatus Alumni / Lulus.
+     * SiPintu alumni ditandai dengan classroom_id null / tidak mempunyai kelas aktif (Grade 10, 11, 12).
+     */
+    public static function isAlumni(array $item): bool
+    {
+        // Guru tidak pernah berstatus alumni
+        $role = strtolower((string) ($item['role'] ?? $item['jenis_pengguna'] ?? ''));
+        if (in_array($role, ['guru', 'teacher', 'dewan guru'])) {
+            return false;
+        }
+
+        // Status alumni eksplisit tanpa kelas aktif
+        $statusStr = strtolower(trim((string) ($item['status'] ?? '')));
+        if ($statusStr === 'alumni' && empty($item['classroom_id'])) {
+            return true;
+        }
+
+        // SiPintu API Gateway: Alumni asli tidak memiliki classroom_id (null / empty)
+        if (array_key_exists('classroom_id', $item)) {
+            if (empty($item['classroom_id'])) {
+                return true;
+            }
+        }
+
+        // Ambil nama kelas/class_room
+        $classRoom = null;
+        if (isset($item['classroom']) && is_array($item['classroom'])) {
+            $classRoom = $item['classroom']['name'] ?? $item['classroom']['nama'] ?? null;
+        } elseif (isset($item['classroom']) && is_string($item['classroom'])) {
+            $classRoom = $item['classroom'];
+        } elseif (isset($item['kelas'])) {
+            $classRoom = $item['kelas'];
+        } elseif (isset($item['class_room'])) {
+            $classRoom = $item['class_room'];
+        }
+
+        if (empty($classRoom)) {
+            return true;
+        }
+
+        // Jika memiliki kelas aktif (X, XI, XII atau 10, 11, 12), maka SISWA AKTIF (bukan alumni)
+        if (preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
+            return false;
+        }
+
+        return true;
+    }
+
     protected function formatUserData(array $data, string $defaultRole): array
     {
         $nisNip = $data['nis_nip'] ?? $data['nis'] ?? $data['nip'] ?? null;
@@ -368,6 +429,7 @@ class SchoolApiService
             'class_room'     => $classRoom ?? ($isTeacher ? 'Dewan Guru' : null),
             'telepon'        => $data['hp'] ?? $data['telepon'] ?? $data['phone'] ?? null,
             'email'          => $data['user']['email'] ?? $data['email'] ?? null,
+            'is_graduated'   => self::isAlumni($data),
         ];
     }
 }

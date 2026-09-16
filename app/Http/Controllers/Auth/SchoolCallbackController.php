@@ -71,6 +71,17 @@ class SchoolCallbackController extends Controller
             ->first();
 
         if ($localUser) {
+            if ($localUser->role === 'student' && \App\Services\SchoolApiService::isAlumni($localUser->toArray())) {
+                $localUser->delete();
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
+                    ], 403);
+                }
+                return redirect()->route('login')->with('error', 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.');
+            }
+
             Auth::login($localUser, true);
             $request->session()->regenerate();
 
@@ -93,16 +104,26 @@ class SchoolCallbackController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'status'  => false,
-                    'message' => 'Pengguna tidak terdaftar pada API Sekolah.',
+                    'message' => 'Pengguna tidak terdaftar pada API Sekolah atau akun Anda berstatus Alumni (Lulus).',
                 ], 404);
             }
 
-            return redirect()->route('login')->with('error', "Login SSO SiPintu Gagal: Akun ({$nisNip}) tidak terdaftar di sistem sekolah.");
+            return redirect()->route('login')->with('error', "Login SSO SiPintu Gagal: Akun ({$nisNip}) tidak terdaftar atau berstatus Alumni.");
         }
 
         $role = ($apiData['jenis_pengguna'] ?? 'siswa') === 'guru' ? 'teacher' : 'student';
 
         if ($role === 'student') {
+            if (!empty($apiData['is_graduated']) || \App\Services\SchoolApiService::isAlumni($apiData)) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
+                    ], 403);
+                }
+                return redirect()->route('login')->with('error', 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.');
+            }
+
             $classRoom = $apiData['class_room'] ?? null;
             if (empty($classRoom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
                 if ($request->expectsJson()) {
