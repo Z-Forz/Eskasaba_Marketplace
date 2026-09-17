@@ -1,4 +1,4 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, jidNormalizedUser } = require('@whiskeysockets/baileys');
 const express = require('express');
 const qrcodeTerminal = require('qrcode-terminal');
 const QRCode = require('qrcode');
@@ -29,7 +29,7 @@ function clearAuthFolder() {
     try {
         if (fs.existsSync(AUTH_DIR)) {
             fs.rmSync(AUTH_DIR, { recursive: true, force: true });
-            console.log('🧹 Session WhatsApp lama/expired berhasil dibersihkan.');
+            console.log('🧹 Session WhatsApp (auth_info_baileys) berhasil dibersihkan.');
         }
     } catch (err) {
         console.error('Gagal menghapus folder session:', err.message);
@@ -99,11 +99,12 @@ async function connectToWhatsApp() {
                 isConnected = false;
                 isConnecting = false;
                 qrCodeDataUrl = null;
+
                 const statusCode = lastDisconnect?.error?.output?.statusCode;
                 const errMsg = lastDisconnect?.error?.message || '';
                 const isLoggedOut = statusCode === DisconnectReason.loggedOut || statusCode === 401;
                 const isReplaced = statusCode === DisconnectReason.connectionReplaced || statusCode === 440;
-                const isQrTimeout = errMsg.includes('QR refs attempts ended');
+                const isQrTimeout = errMsg.includes('QR refs attempts ended') || statusCode === 408;
 
                 lastDisconnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
                 lastError = errMsg || `Koneksi terputus (Status ${statusCode || 'Unknown'})`;
@@ -115,25 +116,26 @@ async function connectToWhatsApp() {
                     return;
                 }
 
-                if (isLoggedOut || isQrTimeout) {
-                    console.log('🔒 Sesi / QR Code Expired. Menyiapkan QR Code baru...');
+                if (isLoggedOut) {
+                    console.log('🔒 Sesi WhatsApp terdeteksi Logged Out. Membersihkan sesi...');
                     botStatus = 'terputus';
+                    lastError = 'Sesi WhatsApp telah di-logout dari HP atau expired. Silakan klik Hubungkan / Refresh QR.';
+                    connectedNumber = null;
+                    connectedName = null;
                     clearAuthFolder();
-                    setTimeout(() => {
-                        if (botEnabled) {
-                            botStatus = 'menjalankan';
-                            connectToWhatsApp();
-                        }
-                    }, 2000);
+                } else if (isQrTimeout) {
+                    console.log('⏳ QR Code expired tanpa dipindai. Menyiapkan sesi ulang...');
+                    botStatus = 'terputus';
+                    lastError = 'Waktu scan QR Code habis (Expired). Silakan klik Refresh QR Code.';
+                    clearAuthFolder();
                 } else if (isReplaced) {
-                    console.log('⛔ Sesi WhatsApp terdeteksi aktif di tempat/proses lain.');
+                    console.log('⛔ Sesi WhatsApp terdeteksi aktif di perangkat/proses lain.');
                     botStatus = 'error';
                     lastError = 'Sesi WhatsApp aktif di perangkat/proses lain (Conflict 440).';
-                    return;
                 } else {
                     botStatus = 'menghubungkan';
                     setTimeout(() => {
-                        if (botEnabled) {
+                        if (botEnabled && !isConnected) {
                             connectToWhatsApp();
                         }
                     }, 3000);
@@ -146,10 +148,16 @@ async function connectToWhatsApp() {
                 lastConnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
                 lastError = null;
 
-                if (sock.user && sock.user.id) {
-                    const rawJid = sock.user.id.split(':')[0] || sock.user.id.split('@')[0];
-                    connectedNumber = rawJid.replace(/[^0-9]/g, '');
-                    connectedName = sock.user.name || sock.user.notify || 'Eskasaba Bot';
+                if (sock && sock.user && sock.user.id) {
+                    try {
+                        const userJid = jidNormalizedUser(sock.user.id);
+                        connectedNumber = userJid.split('@')[0].replace(/[^0-9]/g, '');
+                        connectedName = sock.user.name || sock.user.notify || 'Eskasaba Bot';
+                    } catch (e) {
+                        const rawJid = sock.user.id.split(':')[0] || sock.user.id.split('@')[0];
+                        connectedNumber = rawJid.replace(/[^0-9]/g, '');
+                        connectedName = 'Eskasaba Bot';
+                    }
                 }
 
                 console.log(`✅ Bot WhatsApp Baileys Berhasil Terhubung (+${connectedNumber}) & Siap Digunakan!`);
@@ -181,16 +189,8 @@ app.get('/status', (req, res) => {
 // POST /start - Aktifkan Bot
 app.post('/start', async (req, res) => {
     botEnabled = true;
-    isConnecting = false;
-    if (!isConnected) {
+    if (!isConnected && !isConnecting) {
         botStatus = 'menjalankan';
-        if (sock) {
-            try {
-                sock.ev.removeAllListeners();
-                sock.end(undefined);
-            } catch (e) {}
-            sock = null;
-        }
         connectToWhatsApp();
     }
     return res.json({
@@ -233,6 +233,7 @@ app.post('/disconnect', async (req, res) => {
         }
         sock = null;
     }
+    clearAuthFolder();
     isConnected = false;
     isConnecting = false;
     botStatus = 'terputus';
@@ -242,7 +243,7 @@ app.post('/disconnect', async (req, res) => {
     lastDisconnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
     return res.json({
         status: true,
-        message: 'Koneksi WhatsApp diputuskan',
+        message: 'Koneksi WhatsApp diputuskan dan sesi dibersihkan',
         bot_status: botStatus
     });
 });

@@ -10,17 +10,69 @@ use Illuminate\Support\Facades\Log;
 class WhatsAppBotService
 {
     /**
-     * URL dasar Baileys Node Bot (contoh: http://localhost:3000)
+     * URL dasar Baileys Node Bot (contoh: http://127.0.0.1:3000)
      */
     protected static function getBaseUrl(): string
     {
-        $gatewayUrl = config('services.whatsapp.url', 'http://localhost:3000/send-message');
+        $gatewayUrl = config('services.whatsapp.url', 'http://127.0.0.1:3000/send-message');
         $parsed = parse_url($gatewayUrl);
         $scheme = $parsed['scheme'] ?? 'http';
-        $host   = $parsed['host'] ?? 'localhost';
+        $host   = $parsed['host'] ?? '127.0.0.1';
         $port   = isset($parsed['port']) ? ':' . $parsed['port'] : ':3000';
 
+        if ($host !== 'localhost' && $host !== '127.0.0.1' && !filter_var($host, FILTER_VALIDATE_IP)) {
+            $host = '127.0.0.1';
+        }
+
         return "{$scheme}://{$host}{$port}";
+    }
+
+    /**
+     * Periksa apakah proses node whatsapp-bot sedang berjalan di OS & merespons HTTP.
+     */
+    public static function isNodeProcessRunning(): bool
+    {
+        $baseUrl = self::getBaseUrl();
+
+        // 1. Direct HTTP health check to Express
+        try {
+            $response = Http::withoutVerifying()->timeout(1)->get("{$baseUrl}/status");
+            if ($response->successful()) {
+                return true;
+            }
+        } catch (\Exception $e) {
+            // Node server HTTP offline
+        }
+
+        // 2. PID File check
+        $pidFile = storage_path('app/whatsapp-bot.pid');
+        if (File::exists($pidFile)) {
+            $pid = trim((string) File::get($pidFile));
+            if (!empty($pid) && is_numeric($pid)) {
+                if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+                    $output = [];
+                    exec("tasklist /FI \"PID eq {$pid}\"", $output);
+                    if (count($output) > 1 && str_contains(implode("\n", $output), (string) $pid)) {
+                        return true;
+                    }
+                } else {
+                    if (function_exists('posix_kill')) {
+                        if (@posix_kill((int) $pid, 0)) {
+                            return true;
+                        }
+                    } else {
+                        $execOut = shell_exec("kill -0 {$pid} 2>&1");
+                        if (empty($execOut)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            // Clean up stale PID file if process is dead
+            File::delete($pidFile);
+        }
+
+        return false;
     }
 
     /**
@@ -38,18 +90,23 @@ class WhatsAppBotService
             if ($response->successful()) {
                 $data = $response->json();
                 
-                // Pastikan sync dengan WebsiteSetting
+                // Sync dengan WebsiteSetting DB
                 $enabledSetting = WebsiteSetting::get('wa_bot_enabled', '1');
                 $data['setting_enabled'] = ($enabledSetting === '1' || $enabledSetting === 1 || $enabledSetting === true);
 
                 return $data;
             }
         } catch (\Exception $e) {
-            // Node server mati/offline
+            // Node server offline
         }
 
         $enabledSetting = WebsiteSetting::get('wa_bot_enabled', '0');
         $isBotEnabled = ($enabledSetting === '1' || $enabledSetting === 1 || $enabledSetting === true);
+
+        // Jika setting aktif tapi service mati, coba spawn secara otomatis
+        if ($isBotEnabled && !self::isNodeProcessRunning()) {
+            self::spawnNodeProcess();
+        }
 
         return [
             'status'               => 'nonaktif',
@@ -86,7 +143,7 @@ class WhatsAppBotService
 
         if (! $isServiceUp) {
             self::spawnNodeProcess();
-            usleep(1500000); // Tunggu 1.5 detik agar Express boot up
+            usleep(1500000); // Jeda 1.5 detik agar Express server boot up
         }
 
         try {
@@ -126,10 +183,9 @@ class WhatsAppBotService
                 ->timeout(4)
                 ->post("{$baseUrl}/stop");
         } catch (\Exception $e) {
-            // Abaikan error jika server sudah mati
+            // Abaikan jika server sudah mati
         }
 
-        // Hentikan proses jika perlu
         self::killNodeProcess();
 
         return [
@@ -193,13 +249,13 @@ class WhatsAppBotService
             Log::error("WhatsAppBotService resetSession HTTP error: " . $e->getMessage());
         }
 
-        // Fallback jika HTTP tidak dapat dijangkau: Hapus folder auth_info_baileys secara manual
+        // Fallback jika HTTP tidak dapat dijangkau: Hapus folder auth_info_baileys
         $authDir = base_path('whatsapp-bot/auth_info_baileys');
         if (File::exists($authDir)) {
             File::deleteDirectory($authDir);
         }
 
-        // Restart bot process
+        self::killNodeProcess();
         self::spawnNodeProcess();
 
         return [
@@ -210,18 +266,52 @@ class WhatsAppBotService
     }
 
     /**
-     * Jalankan proses `node whatsapp-bot/index.js` di background.
+     * Cari lokasi binary node di OS (termasuk NVM).
+     */
+    protected static function getNodeBinary(): string
+    {
+        if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+            return 'node';
+        }
+
+        $which = trim((string) shell_exec('which node 2>/dev/null'));
+        if (!empty($which) && File::exists($which)) {
+            return escapeshellarg($which);
+        }
+
+        $commonPaths = [
+            '/home/muhammad/.nvm/versions/node/v22.13.1/bin/node',
+            '/usr/local/bin/node',
+            '/usr/bin/node',
+        ];
+
+        foreach ($commonPaths as $path) {
+            if (File::exists($path)) {
+                return escapeshellarg($path);
+            }
+        }
+
+        return 'node';
+    }
+
+    /**
+     * Jalankan proses `node whatsapp-bot/index.js` di background jika belum berjalan.
      */
     protected static function spawnNodeProcess(): void
     {
+        if (self::isNodeProcessRunning()) {
+            return;
+        }
+
+        $nodeBin = self::getNodeBinary();
         $botDir  = base_path('whatsapp-bot');
         $logFile = storage_path('logs/whatsapp-bot.log');
         $pidFile = storage_path('app/whatsapp-bot.pid');
 
         if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
-            pclose(popen("start /B node {$botDir}/index.js > {$logFile} 2>&1", "r"));
+            pclose(popen("start /B {$nodeBin} {$botDir}/index.js > {$logFile} 2>&1", "r"));
         } else {
-            $command = "cd " . escapeshellarg($botDir) . " && nohup node index.js > " . escapeshellarg($logFile) . " 2>&1 & echo $! > " . escapeshellarg($pidFile);
+            $command = "cd " . escapeshellarg($botDir) . " && (nohup {$nodeBin} index.js > " . escapeshellarg($logFile) . " 2>&1 < /dev/null &) && pgrep -f 'node.*whatsapp-bot/index.js' > " . escapeshellarg($pidFile);
             exec($command);
         }
     }
@@ -234,12 +324,12 @@ class WhatsAppBotService
         $pidFile = storage_path('app/whatsapp-bot.pid');
 
         if (File::exists($pidFile)) {
-            $pid = trim(File::get($pidFile));
+            $pid = trim((string) File::get($pidFile));
             if (!empty($pid) && is_numeric($pid)) {
                 if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
                     exec("taskkill /F /PID {$pid}");
                 } else {
-                    exec("kill -9 {$pid}");
+                    exec("kill -9 {$pid} 2>/dev/null");
                 }
             }
             File::delete($pidFile);
@@ -247,7 +337,7 @@ class WhatsAppBotService
 
         // Pkill fallback di Linux
         if (strncasecmp(PHP_OS, 'WIN', 3) !== 0) {
-            exec("pkill -f 'node.*whatsapp-bot/index.js'");
+            exec("pkill -f 'node.*whatsapp-bot/index.js' 2>/dev/null");
         }
     }
 }

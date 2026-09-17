@@ -74,7 +74,9 @@ class AppServiceProvider extends ServiceProvider
                 'copyright' => null,
             ];
 
-            $settingsArray = array_merge($defaults, WebsiteSetting::allSettings());
+            $allSettings = WebsiteSetting::allSettings();
+            $allSettings = is_array($allSettings) ? $allSettings : [];
+            $settingsArray = array_merge($defaults, $allSettings);
             $settings = (object) $settingsArray;
 
             View::share('settings', $settings);

@@ -567,8 +567,10 @@
                 if (isExecuting) return;
                 isExecuting = true;
 
+                const allActionBtns = document.querySelectorAll('#btn-start-bot, #btn-stop-bot, #btn-disconnect-bot, #btn-refresh-qr, #btn-reset-session-trigger');
+                allActionBtns.forEach(b => b.disabled = true);
+
                 const originalHTML = btnElement.innerHTML;
-                btnElement.disabled = true;
                 btnElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> ${loadingText}`;
 
                 try {
@@ -589,8 +591,8 @@
                 } catch (err) {
                     alert('Gagal memproses aksi: ' + err.message);
                 } finally {
-                    btnElement.disabled = false;
                     btnElement.innerHTML = originalHTML;
+                    allActionBtns.forEach(b => b.disabled = false);
                     isExecuting = false;
                 }
             };

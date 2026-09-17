@@ -36,10 +36,9 @@ return [
     ],
 
     'whatsapp' => [
-        'enabled'      => env('WA_ENABLE_NOTIFICATION', true),
-        'url'          => env('WA_GATEWAY_URL', 'http://localhost:3000/send-message'),
-        'token'        => env('WA_GATEWAY_TOKEN', ''),
-        'admin_number' => env('WA_ADMIN_NUMBER', '081234567890'),
+        'enabled' => env('WA_ENABLE_NOTIFICATION', true),
+        'url'     => env('WA_GATEWAY_URL', 'http://localhost:3000/send-message'),
+        'token'   => env('WA_GATEWAY_TOKEN', ''),
     ],
 
     'school_api' => [

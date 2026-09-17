@@ -256,6 +256,14 @@ class WhatsAppService
     }
 
     /**
+     * Dapatkan nomor HP admin dari database.
+     */
+    public static function getAdminPhone(): ?string
+    {
+        return \App\Models\User::where('role', 'admin')->whereNotNull('phone')->first()?->phone;
+    }
+
+    /**
      * Kirim notifikasi pengajuan akun Seller ke User & Admin.
      */
     public static function sendSellerApplicationNotification(Seller $seller): void
@@ -263,7 +271,7 @@ class WhatsAppService
         $seller->loadMissing('user');
 
         $userPhone  = $seller->user?->phone ?: $seller->whatsapp_number;
-        $adminPhone = config('services.whatsapp.admin_number');
+        $adminPhone = self::getAdminPhone();
 
         // 1. Notifikasi ke Pendaftar
         if ($userPhone) {
@@ -296,7 +304,7 @@ class WhatsAppService
         $seller->loadMissing('user');
 
         $userPhone  = $seller->user?->phone ?: $seller->whatsapp_number;
-        $adminPhone = config('services.whatsapp.admin_number');
+        $adminPhone = self::getAdminPhone();
 
         if (! $userPhone && ! $adminPhone) {
             return;
@@ -360,7 +368,7 @@ class WhatsAppService
         $seller->loadMissing('user');
 
         $userPhone  = $seller->user?->phone ?: $seller->whatsapp_number;
-        $adminPhone = config('services.whatsapp.admin_number');
+        $adminPhone = self::getAdminPhone();
 
         $username = $seller->user?->username ?? 'User';
 
@@ -386,7 +394,7 @@ class WhatsAppService
      */
     public static function sendAutoSyncNotification(int $syncedCount, bool $isManual = false): void
     {
-        $adminPhone = config('services.whatsapp.admin_number');
+        $adminPhone = self::getAdminPhone();
         if (! $adminPhone) {
             return;
         }

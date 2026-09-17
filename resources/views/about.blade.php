@@ -80,7 +80,7 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
             <div class="mb-12 text-center">
-                <h2 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white">Mengapa Eskasaba?</h2>
+                <h2 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white">Mengapa Eskasaba Marketplace?</h2>
                 <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Dirancang khusus untuk kebutuhan komunitas sekolah</p>
             </div>
 
