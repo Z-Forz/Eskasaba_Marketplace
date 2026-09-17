@@ -135,7 +135,7 @@
     ========================================================== --}}
     <section class="bg-emerald-800 py-16">
         <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 class="text-2xl font-black tracking-tight text-white sm:text-3xl">Siap Bergabung?</h2>
+            <h2 class="text-2xl font-black tracking-tight text-white sm:text-3xl">Siap Bergabung Dengan Eskasaba Marketplace?</h2>
             <p class="mt-3 text-sm text-emerald-100">Mulai berbelanja atau berjualan di Eskasaba Marketplace sekarang.</p>
             <div class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                 <a

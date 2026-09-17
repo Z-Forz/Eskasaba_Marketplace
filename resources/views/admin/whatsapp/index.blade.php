@@ -69,7 +69,17 @@
 
 <x-layouts.admin title="Kelola WhatsApp Bot - Admin Panel">
 
-    <div class="space-y-8">
+    <div
+        class="space-y-8"
+        id="whatsapp-admin-config"
+        data-status-url="{{ route('admin.whatsapp.status', [], false) }}"
+        data-start-url="{{ route('admin.whatsapp.start', [], false) }}"
+        data-stop-url="{{ route('admin.whatsapp.stop', [], false) }}"
+        data-disconnect-url="{{ route('admin.whatsapp.disconnect', [], false) }}"
+        data-reset-url="{{ route('admin.whatsapp.reset-session', [], false) }}"
+        data-csrf="{{ csrf_token() }}"
+        data-initial='@json($status)'
+    >
 
         {{-- Page Header --}}
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -287,8 +297,7 @@
                         type="button"
                         id="btn-start-bot"
                         onclick="executeAction('start', this, 'Mengaktifkan...')"
-                        style="display: {{ ($statusKey === 'nonaktif' || !$isBotEnabled) ? 'inline-flex' : 'none' }};"
-                        class="inline-flex items-center gap-2 rounded-2xl bg-emerald-800 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="{{ ($statusKey === 'nonaktif' || !$isBotEnabled) ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-emerald-800 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <i class="fa-solid fa-play"></i>
                         <span>Aktifkan Bot</span>
@@ -299,8 +308,7 @@
                         type="button"
                         id="btn-refresh-qr"
                         onclick="executeAction('start', this, 'Menyiapkan QR...')"
-                        style="display: {{ ($isBotEnabled && !$isConnected) ? 'inline-flex' : 'none' }};"
-                        class="inline-flex items-center gap-2 rounded-2xl bg-amber-600 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="{{ ($isBotEnabled && !$isConnected) ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-amber-600 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <i class="fa-solid fa-qrcode"></i>
                         <span>Minta QR Code Baru</span>
@@ -311,8 +319,7 @@
                         type="button"
                         id="btn-stop-bot"
                         onclick="executeAction('stop', this, 'Menonaktifkan...')"
-                        style="display: {{ ($statusKey !== 'nonaktif' && $isBotEnabled) ? 'inline-flex' : 'none' }};"
-                        class="inline-flex items-center gap-2 rounded-2xl bg-slate-800 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="{{ ($statusKey !== 'nonaktif' && $isBotEnabled) ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-slate-800 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <i class="fa-solid fa-stop"></i>
                         <span>Nonaktifkan Bot</span>
@@ -323,8 +330,7 @@
                         type="button"
                         id="btn-disconnect-bot"
                         onclick="executeAction('disconnect', this, 'Memutuskan...')"
-                        style="display: {{ ($isConnected || $statusKey === 'terhubung') ? 'inline-flex' : 'none' }};"
-                        class="inline-flex items-center gap-2 rounded-2xl bg-orange-600 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="{{ ($isConnected || $statusKey === 'terhubung') ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-orange-600 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Memutuskan Koneksi</span>
@@ -388,15 +394,24 @@
     {{-- SCRIPT MANAGEMENT & POLLING --}}
     <script>
         (function () {
-            const STATUS_URL = "{{ route('admin.whatsapp.status') }}";
-            const ACTIONS = {
-                start: "{{ route('admin.whatsapp.start') }}",
-                stop: "{{ route('admin.whatsapp.stop') }}",
-                disconnect: "{{ route('admin.whatsapp.disconnect') }}",
-                reset: "{{ route('admin.whatsapp.reset-session') }}"
-            };
+            const configEl = document.getElementById('whatsapp-admin-config');
+            if (!configEl) return;
 
-            const INITIAL_STATUS = @json($status);
+            const STATUS_URL = configEl.dataset.statusUrl;
+            const ACTIONS = {
+                start: configEl.dataset.startUrl,
+                stop: configEl.dataset.stopUrl,
+                disconnect: configEl.dataset.disconnectUrl,
+                reset: configEl.dataset.resetUrl
+            };
+            const CSRF_TOKEN = configEl.dataset.csrf;
+            let INITIAL_STATUS = {};
+            try {
+                INITIAL_STATUS = JSON.parse(configEl.dataset.initial || '{}');
+            } catch (e) {
+                INITIAL_STATUS = {};
+            }
+
             let isExecuting = false;
 
             // Mapping tampilan status
@@ -579,7 +594,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': CSRF_TOKEN,
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     });
