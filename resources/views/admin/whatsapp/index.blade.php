@@ -61,7 +61,7 @@
 
     $cfg = $configs[$statusKey] ?? $configs['nonaktif'];
 
-    $showQrPanel = ($statusKey === 'menunggu_qr' && !empty($qrCode));
+    $showQrPanel = ($statusKey === 'menunggu_qr' || (!empty($qrCode) && !$isConnected));
     $showConnPanel = ($statusKey === 'terhubung' || $isConnected);
     $showInactivePanel = ($statusKey === 'nonaktif' || (!$isBotEnabled && empty($status['setting_enabled'])));
     $showConnectingPanel = (!$showQrPanel && !$showConnPanel && !$showInactivePanel);
@@ -95,16 +95,19 @@
                 </p>
             </div>
 
-            <div class="flex items-center gap-3">
-                <button
-                    type="button"
-                    onclick="fetchBotStatus()"
-                    id="btn-refresh-status"
-                    class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 shadow-xs cursor-pointer"
-                >
-                    <i class="fa-solid fa-rotate text-emerald-600" id="icon-refresh-status"></i>
-                    <span>Refresh Status</span>
-                </button>
+            <div class="flex items-center gap-2.5">
+                <div class="inline-flex items-center gap-2 rounded-2xl border border-emerald-200/80 bg-emerald-50/80 px-4 py-2.5 text-xs font-bold text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300 shadow-xs">
+                    <span class="relative flex h-2 w-2">
+                        <span id="sync-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span>Realtime Auto-Sync</span>
+                </div>
+
+                <div class="hidden sm:inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 shadow-xs" title="Engine: Baileys Multi-Device">
+                    <i class="fa-solid fa-server text-slate-400 text-xs"></i>
+                    <span>Baileys Gateway</span>
+                </div>
             </div>
         </div>
 
@@ -468,8 +471,8 @@
             };
 
             window.fetchBotStatus = async function () {
-                const refreshIcon = document.getElementById('icon-refresh-status');
-                if (refreshIcon) refreshIcon.classList.add('fa-spin');
+                const syncPing = document.getElementById('sync-ping');
+                if (syncPing) syncPing.classList.add('opacity-100');
 
                 try {
                     const response = await fetch(STATUS_URL, {
@@ -483,8 +486,6 @@
                     renderUI(data);
                 } catch (err) {
                     console.warn('Status poll fetch failed:', err);
-                } finally {
-                    if (refreshIcon) refreshIcon.classList.remove('fa-spin');
                 }
             };
 
@@ -547,7 +548,7 @@
                 if (panelInactive) panelInactive.classList.add('hidden');
                 if (panelConnecting) panelConnecting.classList.add('hidden');
 
-                if (statusKey === 'menunggu_qr' && data.qr_code) {
+                if ((statusKey === 'menunggu_qr' || data.qr_code) && !data.is_connected && data.qr_code) {
                     if (qrImg) qrImg.src = data.qr_code;
                     if (panelQr) panelQr.classList.remove('hidden');
                     if (panelQr) panelQr.classList.add('flex');
@@ -572,10 +573,21 @@
                 const btnDisconnect = document.getElementById('btn-disconnect-bot');
                 const btnRefreshQr = document.getElementById('btn-refresh-qr');
 
-                if (btnStart) btnStart.style.display = (statusKey === 'nonaktif' || !data.bot_enabled) ? 'inline-flex' : 'none';
-                if (btnStop) btnStop.style.display = (statusKey !== 'nonaktif' && data.bot_enabled) ? 'inline-flex' : 'none';
-                if (btnDisconnect) btnDisconnect.style.display = (data.is_connected || statusKey === 'terhubung') ? 'inline-flex' : 'none';
-                if (btnRefreshQr) btnRefreshQr.style.display = (data.bot_enabled && !data.is_connected) ? 'inline-flex' : 'none';
+                function toggleBtnVisibility(el, visible) {
+                    if (!el) return;
+                    if (visible) {
+                        el.classList.remove('hidden');
+                        el.classList.add('inline-flex');
+                    } else {
+                        el.classList.add('hidden');
+                        el.classList.remove('inline-flex');
+                    }
+                }
+
+                toggleBtnVisibility(btnStart, (statusKey === 'nonaktif' || !data.bot_enabled));
+                toggleBtnVisibility(btnStop, (statusKey !== 'nonaktif' && data.bot_enabled));
+                toggleBtnVisibility(btnDisconnect, (data.is_connected || statusKey === 'terhubung'));
+                toggleBtnVisibility(btnRefreshQr, (data.bot_enabled && !data.is_connected));
             }
 
             window.executeAction = async function (actionType, btnElement, loadingText) {

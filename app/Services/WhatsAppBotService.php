@@ -152,10 +152,11 @@ class WhatsAppBotService
                 ->post("{$baseUrl}/start");
 
             if ($response->successful()) {
+                usleep(500000); // Jeda 0.5s agar QR code sempat ter-generate
                 return [
                     'success' => true,
                     'message' => 'Bot WhatsApp berhasil diaktifkan.',
-                    'data'    => $response->json()
+                    'data'    => self::getStatus()
                 ];
             }
         } catch (\Exception $e) {
@@ -208,10 +209,11 @@ class WhatsAppBotService
                 ->post("{$baseUrl}/disconnect");
 
             if ($response->successful()) {
+                usleep(500000);
                 return [
                     'success' => true,
                     'message' => 'Koneksi WhatsApp berhasil diputuskan.',
-                    'data'    => $response->json()
+                    'data'    => self::getStatus()
                 ];
             }
         } catch (\Exception $e) {
@@ -239,10 +241,11 @@ class WhatsAppBotService
                 ->post("{$baseUrl}/reset-session");
 
             if ($response->successful()) {
+                usleep(1000000);
                 return [
                     'success' => true,
                     'message' => 'Sesi WhatsApp berhasil di-reset. QR Code baru disiapkan.',
-                    'data'    => $response->json()
+                    'data'    => self::getStatus()
                 ];
             }
         } catch (\Exception $e) {
@@ -257,6 +260,7 @@ class WhatsAppBotService
 
         self::killNodeProcess();
         self::spawnNodeProcess();
+        usleep(1000000);
 
         return [
             'success' => true,
@@ -279,10 +283,23 @@ class WhatsAppBotService
             return escapeshellarg($which);
         }
 
+        $homeDir = $_SERVER['HOME'] ?? getenv('HOME') ?: '/root';
+        $globPaths = array_merge(
+            glob('/usr/local/nvm/versions/node/*/bin/node') ?: [],
+            glob('/home/*/.nvm/versions/node/*/bin/node') ?: [],
+            glob($homeDir . '/.nvm/versions/node/*/bin/node') ?: []
+        );
+
+        foreach ($globPaths as $path) {
+            if (File::exists($path)) {
+                return escapeshellarg($path);
+            }
+        }
+
         $commonPaths = [
-            '/home/muhammad/.nvm/versions/node/v22.13.1/bin/node',
             '/usr/local/bin/node',
             '/usr/bin/node',
+            '/bin/node',
         ];
 
         foreach ($commonPaths as $path) {

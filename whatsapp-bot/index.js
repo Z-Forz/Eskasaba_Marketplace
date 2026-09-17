@@ -108,6 +108,7 @@ async function connectToWhatsApp() {
             }
 
             if (connection === 'close') {
+                const wasConnected = isConnected;
                 isConnected = false;
                 isConnecting = false;
                 qrCodeDataUrl = null;
@@ -117,29 +118,43 @@ async function connectToWhatsApp() {
                 const isLoggedOut = statusCode === DisconnectReason.loggedOut || statusCode === 401;
                 const isReplaced = statusCode === DisconnectReason.connectionReplaced || statusCode === 440;
                 const isQrTimeout = errMsg.includes('QR refs attempts ended') || statusCode === 408;
+                const isRestartRequired = statusCode === DisconnectReason.restartRequired || statusCode === 515;
 
                 lastDisconnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
                 lastError = errMsg || `Koneksi terputus (Status ${statusCode || 'Unknown'})`;
 
-                console.log(`⚠️ Koneksi WA terputus (Status: ${statusCode || 'Unknown'}, Reason: ${errMsg}).`);
+                console.log(`⚠️ Koneksi WA terputus (Status: ${statusCode || 'Unknown'}, Reason: ${errMsg}, WasConnected: ${wasConnected}).`);
 
                 if (!botEnabled) {
                     botStatus = 'nonaktif';
                     return;
                 }
 
-                if (isLoggedOut) {
-                    console.log('🔒 Sesi WhatsApp terdeteksi Logged Out. Membersihkan sesi...');
-                    botStatus = 'terputus';
-                    lastError = 'Sesi WhatsApp telah di-logout dari HP atau expired. Silakan klik Hubungkan / Refresh QR.';
+                if (isRestartRequired) {
+                    console.log('🔄 Baileys pairing / restart required (Status 515). Reconnecting with saved session...');
+                    botStatus = 'menghubungkan';
+                    setTimeout(() => {
+                        if (botEnabled && !isConnected) {
+                            isConnecting = false;
+                            connectToWhatsApp();
+                        }
+                    }, 500);
+                } else if (isLoggedOut || isQrTimeout) {
+                    console.log('🔒 Sesi WA Logged Out / QR Expired. Membersihkan auth folder & menyiapkan QR baru...');
+                    botStatus = 'menghubungkan';
+                    lastError = isLoggedOut
+                        ? 'Sesi WhatsApp telah di-logout dari HP. Menyiapkan QR Code baru...'
+                        : 'Waktu scan QR Code habis (Expired). Menyiapkan QR Code baru...';
                     connectedNumber = null;
                     connectedName = null;
                     clearAuthFolder();
-                } else if (isQrTimeout) {
-                    console.log('⏳ QR Code expired tanpa dipindai. Menyiapkan sesi ulang...');
-                    botStatus = 'terputus';
-                    lastError = 'Waktu scan QR Code habis (Expired). Silakan klik Refresh QR Code.';
-                    clearAuthFolder();
+
+                    setTimeout(() => {
+                        if (botEnabled) {
+                            isConnecting = false;
+                            connectToWhatsApp();
+                        }
+                    }, 1000);
                 } else if (isReplaced) {
                     console.log('⛔ Sesi WhatsApp terdeteksi aktif di perangkat/proses lain.');
                     botStatus = 'error';
@@ -148,9 +163,10 @@ async function connectToWhatsApp() {
                     botStatus = 'menghubungkan';
                     setTimeout(() => {
                         if (botEnabled && !isConnected) {
+                            isConnecting = false;
                             connectToWhatsApp();
                         }
-                    }, 3000);
+                    }, 2000);
                 }
             } else if (connection === 'open') {
                 isConnected = true;
@@ -201,8 +217,9 @@ app.get('/status', (req, res) => {
 // POST /start - Aktifkan Bot
 app.post('/start', async (req, res) => {
     botEnabled = true;
-    if (!isConnected && !isConnecting) {
-        botStatus = 'menjalankan';
+    if (!isConnected) {
+        isConnecting = false;
+        botStatus = 'menghubungkan';
         connectToWhatsApp();
     }
     return res.json({
@@ -233,36 +250,48 @@ app.post('/stop', async (req, res) => {
     });
 });
 
-// POST /disconnect - Memutuskan koneksi WA (Logout)
+// POST /disconnect - Memutuskan koneksi WA (Logout & Siapkan QR Baru)
 app.post('/disconnect', async (req, res) => {
+    botEnabled = true;
     if (sock) {
         try {
-            await sock.logout();
-        } catch (e) {
-            try {
-                sock.end(undefined);
-            } catch (err) {}
-        }
+            sock.ev.removeAllListeners();
+            await Promise.race([
+                sock.logout().catch(() => {}),
+                new Promise(r => setTimeout(r, 1000))
+            ]);
+        } catch (e) {}
+        try {
+            sock.end(undefined);
+        } catch (err) {}
         sock = null;
     }
     clearAuthFolder();
     isConnected = false;
     isConnecting = false;
-    botStatus = 'terputus';
+    botStatus = 'menghubungkan';
     qrCodeDataUrl = null;
     connectedNumber = null;
     connectedName = null;
     lastDisconnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+
+    setTimeout(() => {
+        if (botEnabled) {
+            isConnecting = false;
+            connectToWhatsApp();
+        }
+    }, 500);
+
     return res.json({
         status: true,
-        message: 'Koneksi WhatsApp diputuskan dan sesi dibersihkan',
+        message: 'Koneksi WhatsApp diputuskan dan menyiapkan QR Code baru',
         bot_status: botStatus
     });
 });
 
 // POST /reset-session - Reset Sesi & Hapus folder Auth
 app.post('/reset-session', async (req, res) => {
-    botEnabled = false;
+    botEnabled = true;
     isConnecting = false;
     isConnected = false;
     qrCodeDataUrl = null;
@@ -277,11 +306,15 @@ app.post('/reset-session', async (req, res) => {
     }
     clearAuthFolder();
 
-    botEnabled = true;
-    botStatus = 'menjalankan';
+    botStatus = 'menghubungkan';
+    lastDisconnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+
     setTimeout(() => {
-        connectToWhatsApp();
-    }, 1000);
+        if (botEnabled) {
+            isConnecting = false;
+            connectToWhatsApp();
+        }
+    }, 500);
 
     return res.json({
         status: true,
