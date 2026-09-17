@@ -1,4 +1,15 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, jidNormalizedUser } = require('@whiskeysockets/baileys');
+let makeWASocket, useMultiFileAuthState, DisconnectReason, jidNormalizedUser;
+
+async function loadBaileys() {
+    if (!makeWASocket) {
+        const baileys = await import('@whiskeysockets/baileys');
+        makeWASocket = baileys.default || baileys.makeWASocket || baileys;
+        useMultiFileAuthState = baileys.useMultiFileAuthState;
+        DisconnectReason = baileys.DisconnectReason;
+        jidNormalizedUser = baileys.jidNormalizedUser;
+    }
+}
+
 const express = require('express');
 const qrcodeTerminal = require('qrcode-terminal');
 const QRCode = require('qrcode');
@@ -37,6 +48,7 @@ function clearAuthFolder() {
 }
 
 async function connectToWhatsApp() {
+    await loadBaileys();
     if (!botEnabled) {
         botStatus = 'nonaktif';
         isConnecting = false;
