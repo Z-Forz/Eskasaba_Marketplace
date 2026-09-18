@@ -49,24 +49,28 @@ class WhatsAppBotService
         if (File::exists($pidFile)) {
             $pid = trim((string) File::get($pidFile));
             if (!empty($pid) && is_numeric($pid)) {
-                if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
-                    $output = [];
-                    exec("tasklist /FI \"PID eq {$pid}\"", $output);
-                    if (count($output) > 1 && str_contains(implode("\n", $output), (string) $pid)) {
-                        return true;
-                    }
-                } else {
-                    if (function_exists('posix_kill')) {
-                        if (@posix_kill((int) $pid, 0)) {
-                            return true;
+                try {
+                    if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+                        if (function_exists('exec')) {
+                            $output = [];
+                            @exec("tasklist /FI \"PID eq {$pid}\"", $output);
+                            if (count($output) > 1 && str_contains(implode("\n", $output), (string) $pid)) {
+                                return true;
+                            }
                         }
                     } else {
-                        $execOut = shell_exec("kill -0 {$pid} 2>&1");
-                        if (empty($execOut)) {
-                            return true;
+                        if (function_exists('posix_kill')) {
+                            if (@posix_kill((int) $pid, 0)) {
+                                return true;
+                            }
+                        } elseif (function_exists('shell_exec')) {
+                            $execOut = @shell_exec("kill -0 {$pid} 2>&1");
+                            if (empty($execOut)) {
+                                return true;
+                            }
                         }
                     }
-                }
+                } catch (\Throwable $e) {}
             }
             // Clean up stale PID file if process is dead
             File::delete($pidFile);
@@ -278,9 +282,13 @@ class WhatsAppBotService
             return 'node';
         }
 
-        $which = trim((string) shell_exec('which node 2>/dev/null'));
-        if (!empty($which) && File::exists($which)) {
-            return escapeshellarg($which);
+        if (function_exists('shell_exec')) {
+            try {
+                $which = trim((string) @shell_exec('which node 2>/dev/null'));
+                if (!empty($which) && File::exists($which)) {
+                    return escapeshellarg($which);
+                }
+            } catch (\Throwable $e) {}
         }
 
         $homeDir = $_SERVER['HOME'] ?? getenv('HOME') ?: '/root';
@@ -320,16 +328,24 @@ class WhatsAppBotService
             return;
         }
 
-        $nodeBin = self::getNodeBinary();
-        $botDir  = base_path('whatsapp-bot');
-        $logFile = storage_path('logs/whatsapp-bot.log');
-        $pidFile = storage_path('app/whatsapp-bot.pid');
+        try {
+            $nodeBin = self::getNodeBinary();
+            $botDir  = base_path('whatsapp-bot');
+            $logFile = storage_path('logs/whatsapp-bot.log');
+            $pidFile = storage_path('app/whatsapp-bot.pid');
 
-        if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
-            pclose(popen("start /B {$nodeBin} {$botDir}/index.js > {$logFile} 2>&1", "r"));
-        } else {
-            $command = "cd " . escapeshellarg($botDir) . " && (nohup {$nodeBin} index.js > " . escapeshellarg($logFile) . " 2>&1 < /dev/null &) && pgrep -f 'node.*whatsapp-bot/index.js' > " . escapeshellarg($pidFile);
-            exec($command);
+            if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+                if (function_exists('popen') && function_exists('pclose')) {
+                    @pclose(@popen("start /B {$nodeBin} {$botDir}/index.js > {$logFile} 2>&1", "r"));
+                }
+            } else {
+                if (function_exists('exec')) {
+                    $command = "cd " . escapeshellarg($botDir) . " && (nohup {$nodeBin} index.js > " . escapeshellarg($logFile) . " 2>&1 < /dev/null &) && pgrep -f 'node.*whatsapp-bot/index.js' > " . escapeshellarg($pidFile);
+                    @exec($command);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning("WhatsAppBotService spawnNodeProcess error: " . $e->getMessage());
         }
     }
 
@@ -340,21 +356,22 @@ class WhatsAppBotService
     {
         $pidFile = storage_path('app/whatsapp-bot.pid');
 
-        if (File::exists($pidFile)) {
-            $pid = trim((string) File::get($pidFile));
-            if (!empty($pid) && is_numeric($pid)) {
-                if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
-                    exec("taskkill /F /PID {$pid}");
-                } else {
-                    exec("kill -9 {$pid} 2>/dev/null");
+        try {
+            if (File::exists($pidFile)) {
+                $pid = trim((string) File::get($pidFile));
+                if (!empty($pid) && is_numeric($pid) && function_exists('exec')) {
+                    if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+                        @exec("taskkill /F /PID {$pid}");
+                    } else {
+                        @exec("kill -9 {$pid} 2>/dev/null");
+                    }
                 }
+                File::delete($pidFile);
             }
-            File::delete($pidFile);
-        }
 
-        // Pkill fallback di Linux
-        if (strncasecmp(PHP_OS, 'WIN', 3) !== 0) {
-            exec("pkill -f 'node.*whatsapp-bot/index.js' 2>/dev/null");
-        }
+            if (strncasecmp(PHP_OS, 'WIN', 3) !== 0 && function_exists('exec')) {
+                @exec("pkill -f 'node.*whatsapp-bot/index.js' 2>/dev/null");
+            }
+        } catch (\Throwable $e) {}
     }
 }

@@ -610,13 +610,16 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     });
-                    const result = await response.json();
-                    if (result.data) {
-                        renderUI(result.data);
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.data) {
+                            renderUI(result.data);
+                        }
                     }
-                    setTimeout(fetchBotStatus, 1000);
+                    setTimeout(fetchBotStatus, 800);
                 } catch (err) {
-                    alert('Gagal memproses aksi: ' + err.message);
+                    console.warn('Execute action error:', err);
+                    setTimeout(fetchBotStatus, 500);
                 } finally {
                     btnElement.innerHTML = originalHTML;
                     allActionBtns.forEach(b => b.disabled = false);
