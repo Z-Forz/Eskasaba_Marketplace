@@ -33,8 +33,45 @@ let connectedName = null;
 let lastConnectedAt = null;
 let lastDisconnectedAt = null;
 let lastError = null;
+let lastDisconnectReason = null;
+let lastDisconnectSource = null; // 'WHATSAPP_APP', 'ADMIN_PANEL', 'NETWORK_TEMPORARY', 'SESSION_CONFLICT', 'QR_TIMEOUT', 'BAD_SESSION'
+let lastDisconnectCode = null;
+
+let disconnectHistory = [];
 
 const AUTH_DIR = path.join(__dirname, 'auth_info_baileys');
+
+function hasSavedSession() {
+    try {
+        const credsPath = path.join(AUTH_DIR, 'creds.json');
+        return fs.existsSync(credsPath);
+    } catch (e) {
+        return false;
+    }
+}
+
+function addDisconnectLog(source, code, reason) {
+    const entry = {
+        time: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+        source: source,
+        code: code || 'N/A',
+        reason: reason
+    };
+    disconnectHistory.unshift(entry);
+    if (disconnectHistory.length > 20) {
+        disconnectHistory.pop();
+    }
+    
+    // Write log entry to file for debugging
+    try {
+        const logDir = path.join(__dirname, 'logs');
+        if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
+        }
+        const logLine = `[${entry.time}] [${entry.source}] (Code ${entry.code}) ${entry.reason}\n`;
+        fs.appendFileSync(path.join(logDir, 'disconnect_history.log'), logLine);
+    } catch (e) {}
+}
 
 function clearAuthFolder() {
     try {
@@ -79,7 +116,9 @@ async function connectToWhatsApp() {
             browser: ['Eskasaba Marketplace', 'Chrome', '1.0.0'],
             connectTimeoutMs: 60000,
             defaultQueryTimeoutMs: 60000,
-            keepAliveIntervalMs: 10000,
+            keepAliveIntervalMs: 15000,
+            syncFullHistory: false,
+            markOnlineOnConnect: true,
         });
 
         sock.ev.on('creds.update', saveCreds);
@@ -109,29 +148,40 @@ async function connectToWhatsApp() {
 
             if (connection === 'close') {
                 const wasConnected = isConnected;
+                const sessionExists = hasSavedSession();
                 isConnected = false;
                 isConnecting = false;
                 qrCodeDataUrl = null;
 
                 const statusCode = lastDisconnect?.error?.output?.statusCode;
-                const errMsg = lastDisconnect?.error?.message || '';
+                const errMsg = lastDisconnect?.error?.message || lastDisconnect?.error?.output?.payload?.message || '';
+                
                 const isLoggedOut = statusCode === DisconnectReason.loggedOut || statusCode === 401;
                 const isReplaced = statusCode === DisconnectReason.connectionReplaced || statusCode === 440;
-                const isQrTimeout = errMsg.includes('QR refs attempts ended') || statusCode === 408;
                 const isRestartRequired = statusCode === DisconnectReason.restartRequired || statusCode === 515;
+                const isBadSession = statusCode === DisconnectReason.badSession || statusCode === 500;
+                
+                // QR Timeout hanya berlaku jika bot sedang menunggu QR dan belum pernah terhubung/belum punya sesi
+                const isQrTimeout = (!wasConnected && !sessionExists) && (errMsg.includes('QR refs attempts ended') || statusCode === 408);
 
                 lastDisconnectedAt = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
-                lastError = errMsg || `Koneksi terputus (Status ${statusCode || 'Unknown'})`;
+                lastDisconnectCode = statusCode || 'UNKNOWN';
 
-                console.log(`⚠️ Koneksi WA terputus (Status: ${statusCode || 'Unknown'}, Reason: ${errMsg}, WasConnected: ${wasConnected}).`);
+                console.log(`⚠️ Connection Closed (Status: ${statusCode || 'Unknown'}, Reason: ${errMsg}, WasConnected: ${wasConnected}, SessionExists: ${sessionExists}).`);
 
                 if (!botEnabled) {
                     botStatus = 'nonaktif';
+                    lastDisconnectSource = 'ADMIN_PANEL';
+                    lastDisconnectReason = 'Bot dinonaktifkan dari Admin Panel.';
+                    addDisconnectLog('ADMIN_PANEL', statusCode, lastDisconnectReason);
                     return;
                 }
 
                 if (isRestartRequired) {
-                    console.log('🔄 Baileys pairing / restart required (Status 515). Reconnecting with saved session...');
+                    lastDisconnectSource = 'BAILEYS_RESTART';
+                    lastDisconnectReason = 'Sinkronisasi awal / Restart Baileys (Status 515). Reconnecting otomatis...';
+                    console.log(`🔄 ${lastDisconnectReason}`);
+                    addDisconnectLog('BAILEYS_RESTART', 515, lastDisconnectReason);
                     botStatus = 'menghubungkan';
                     setTimeout(() => {
                         if (botEnabled && !isConnected) {
@@ -139,12 +189,31 @@ async function connectToWhatsApp() {
                             connectToWhatsApp();
                         }
                     }, 500);
-                } else if (isLoggedOut || isQrTimeout) {
-                    console.log('🔒 Sesi WA Logged Out / QR Expired. Membersihkan auth folder & menyiapkan QR baru...');
+                } else if (isLoggedOut) {
+                    // DI-LOGOUT DARI HP WHATSAPP - Pihak WhatsApp/HP yang memutuskan!
+                    lastDisconnectSource = 'WHATSAPP_APP';
+                    lastDisconnectReason = 'Sesi WhatsApp di-logout dari aplikasi WhatsApp di HP (Code 401). Menyiapkan QR Code baru...';
+                    lastError = lastDisconnectReason;
+                    console.log(`🔒 ${lastDisconnectReason}`);
+                    addDisconnectLog('WHATSAPP_APP', 401, lastDisconnectReason);
                     botStatus = 'menghubungkan';
-                    lastError = isLoggedOut
-                        ? 'Sesi WhatsApp telah di-logout dari HP. Menyiapkan QR Code baru...'
-                        : 'Waktu scan QR Code habis (Expired). Menyiapkan QR Code baru...';
+                    connectedNumber = null;
+                    connectedName = null;
+                    clearAuthFolder();
+
+                    setTimeout(() => {
+                        if (botEnabled) {
+                            isConnecting = false;
+                            connectToWhatsApp();
+                        }
+                    }, 1000);
+                } else if (isQrTimeout) {
+                    lastDisconnectSource = 'QR_TIMEOUT';
+                    lastDisconnectReason = 'Waktu scan QR Code habis (Expired Code 408). Menyiapkan QR Code baru...';
+                    lastError = lastDisconnectReason;
+                    console.log(`⏳ ${lastDisconnectReason}`);
+                    addDisconnectLog('QR_TIMEOUT', 408, lastDisconnectReason);
+                    botStatus = 'menghubungkan';
                     connectedNumber = null;
                     connectedName = null;
                     clearAuthFolder();
@@ -156,17 +225,45 @@ async function connectToWhatsApp() {
                         }
                     }, 1000);
                 } else if (isReplaced) {
-                    console.log('⛔ Sesi WhatsApp terdeteksi aktif di perangkat/proses lain.');
+                    lastDisconnectSource = 'SESSION_CONFLICT';
+                    lastDisconnectReason = 'Sesi WhatsApp aktif di perangkat/proses lain (Conflict Code 440).';
+                    console.log(`⛔ ${lastDisconnectReason}`);
+                    addDisconnectLog('SESSION_CONFLICT', 440, lastDisconnectReason);
                     botStatus = 'error';
-                    lastError = 'Sesi WhatsApp aktif di perangkat/proses lain (Conflict 440).';
-                } else {
+                    lastError = lastDisconnectReason;
+                } else if (isBadSession && !sessionExists) {
+                    lastDisconnectSource = 'BAD_SESSION';
+                    lastDisconnectReason = 'File sesi terkorupsi (Code 500). Menyiapkan QR Code baru...';
+                    console.log(`❌ ${lastDisconnectReason}`);
+                    addDisconnectLog('BAD_SESSION', 500, lastDisconnectReason);
                     botStatus = 'menghubungkan';
+                    connectedNumber = null;
+                    connectedName = null;
+                    clearAuthFolder();
+
+                    setTimeout(() => {
+                        if (botEnabled) {
+                            isConnecting = false;
+                            connectToWhatsApp();
+                        }
+                    }, 1000);
+                } else {
+                    // GANGGUAN JARINGAN / SOCKET SEMENTARA - JANGAN HAPUS FOLDER AUTH!
+                    lastDisconnectSource = 'NETWORK_TEMPORARY';
+                    const codeText = statusCode ? ` (Code ${statusCode})` : '';
+                    lastDisconnectReason = `Jaringan / Socket WhatsApp terputus sementara${codeText}: ${errMsg || 'Koneksi terputus'}. Reconnecting otomatis...`;
+                    lastError = `Koneksi terputus sementara${codeText}. Menghubungkan kembali...`;
+                    console.log(`📡 ${lastDisconnectReason}`);
+                    addDisconnectLog('NETWORK_TEMPORARY', statusCode || 'NET_ERR', lastDisconnectReason);
+
+                    botStatus = 'menghubungkan';
+
                     setTimeout(() => {
                         if (botEnabled && !isConnected) {
                             isConnecting = false;
                             connectToWhatsApp();
                         }
-                    }, 2000);
+                    }, 3000);
                 }
             } else if (connection === 'open') {
                 isConnected = true;
@@ -210,7 +307,11 @@ app.get('/status', (req, res) => {
         connected_name: connectedName,
         last_connected_at: lastConnectedAt,
         last_disconnected_at: lastDisconnectedAt,
-        last_error: lastError
+        last_error: lastError,
+        last_disconnect_reason: lastDisconnectReason,
+        last_disconnect_source: lastDisconnectSource,
+        last_disconnect_code: lastDisconnectCode,
+        disconnect_logs: disconnectHistory.slice(0, 5)
     });
 });
 
@@ -236,6 +337,9 @@ app.post('/stop', async (req, res) => {
     isConnecting = false;
     isConnected = false;
     qrCodeDataUrl = null;
+    lastDisconnectSource = 'ADMIN_PANEL';
+    lastDisconnectReason = 'Bot dinonaktifkan oleh Admin dari Admin Panel.';
+    addDisconnectLog('ADMIN_PANEL', 'OFF', lastDisconnectReason);
     if (sock) {
         try {
             sock.ev.removeAllListeners();
@@ -253,6 +357,10 @@ app.post('/stop', async (req, res) => {
 // POST /disconnect - Memutuskan koneksi WA (Logout & Siapkan QR Baru)
 app.post('/disconnect', async (req, res) => {
     botEnabled = true;
+    lastDisconnectSource = 'ADMIN_PANEL';
+    lastDisconnectReason = 'Koneksi WhatsApp diputuskan secara manual oleh Admin dari Admin Panel.';
+    addDisconnectLog('ADMIN_PANEL', 'MANUAL_DISCONNECT', lastDisconnectReason);
+
     if (sock) {
         try {
             sock.ev.removeAllListeners();

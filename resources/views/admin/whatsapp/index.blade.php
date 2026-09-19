@@ -198,9 +198,15 @@
                         <span class="text-slate-400 font-medium">Terputus:</span>
                         <span id="text-last-disconnected" class="font-bold">{{ $status['last_disconnected_at'] ?? '-' }}</span>
                     </div>
+                    <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 font-medium">Sumber Pemutus:</span>
+                        <span id="badge-disconnect-source" class="font-bold text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                            {{ $status['last_disconnect_source'] ?? 'Belum ada record' }}
+                        </span>
+                    </div>
                 </div>
-                <div id="wrapper-last-error" class="mt-2.5 {{ $lastError ? '' : 'hidden' }} rounded-xl bg-red-50 p-2 text-[11px] text-red-700 dark:bg-red-950/40 dark:text-red-300 font-medium truncate">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> <span id="text-last-error">{{ $lastError ?? '-' }}</span>
+                <div id="wrapper-last-error" class="mt-2.5 {{ $lastError ? '' : 'hidden' }} rounded-xl bg-amber-50 p-2.5 text-[11px] text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 font-medium break-words">
+                    <i class="fa-solid fa-circle-info mr-1"></i> <span id="text-last-error">{{ $lastError ?? '-' }}</span>
                 </div>
             </div>
 
@@ -353,6 +359,25 @@
                 </div>
             </div>
 
+        </div>
+
+        {{-- SECTION DIAGNOSA KONEKSI TERPUTUS --}}
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-emerald-600"></i> Riwayat Diagnosa Disconnect
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Memantau apakah koneksi terputus dari pihak WhatsApp (HP/Logout), Admin Panel, atau Gangguan Jaringan.
+                    </p>
+                </div>
+                <span class="text-[11px] font-bold text-slate-400">5 Record Terakhir</span>
+            </div>
+
+            <div id="disconnect-log-list" class="space-y-2 text-xs">
+                <p class="text-slate-400 italic text-center py-2">Belum ada riwayat disconnect tercatat.</p>
+            </div>
         </div>
 
     </div>
@@ -525,6 +550,42 @@
                 const lastDiscEl = document.getElementById('text-last-disconnected');
                 if (lastConnEl) lastConnEl.textContent = data.last_connected_at || '-';
                 if (lastDiscEl) lastDiscEl.textContent = data.last_disconnected_at || '-';
+
+                // Disconnect Source Badge & History Mapping
+                const SOURCE_MAP = {
+                    'WHATSAPP_APP': { label: 'Di-logout dari HP WhatsApp', class: 'bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300' },
+                    'ADMIN_PANEL': { label: 'Diputuskan oleh Admin', class: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300' },
+                    'NETWORK_TEMPORARY': { label: 'Gangguan Jaringan (Auto-Reconnect)', class: 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300' },
+                    'SESSION_CONFLICT': { label: 'Konflik Sesi Perangkat Lain', class: 'bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300' },
+                    'QR_TIMEOUT': { label: 'Waktu Scan QR Expired', class: 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300' },
+                    'BAILEYS_RESTART': { label: 'Sinkronisasi Baileys (Status 515)', class: 'bg-sky-100 text-sky-800 dark:bg-sky-950/80 dark:text-sky-300' }
+                };
+
+                const badgeSource = document.getElementById('badge-disconnect-source');
+                if (badgeSource) {
+                    const srcObj = SOURCE_MAP[data.last_disconnect_source] || { label: data.last_disconnect_source || 'Belum ada record', class: 'bg-slate-100 text-slate-700' };
+                    badgeSource.textContent = srcObj.label;
+                    badgeSource.className = `font-bold text-[11px] px-2.5 py-0.5 rounded-full ${srcObj.class}`;
+                }
+
+                // Render Disconnect History List
+                const logListContainer = document.getElementById('disconnect-log-list');
+                if (logListContainer && data.disconnect_logs && data.disconnect_logs.length > 0) {
+                    logListContainer.innerHTML = data.disconnect_logs.map(log => {
+                        const srcObj = SOURCE_MAP[log.source] || { label: log.source || 'N/A', class: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' };
+                        return `
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 gap-2">
+                                <div class="flex items-center gap-2 overflow-hidden">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${srcObj.class}">${srcObj.label}</span>
+                                    <span class="font-medium text-slate-700 dark:text-slate-300 truncate">${log.reason}</span>
+                                </div>
+                                <span class="text-[11px] text-slate-400 shrink-0 font-semibold">${log.time}</span>
+                            </div>
+                        `;
+                    }).join('');
+                } else if (logListContainer) {
+                    logListContainer.innerHTML = `<p class="text-slate-400 italic text-center py-2">Belum ada riwayat disconnect tercatat.</p>`;
+                }
 
                 // Last Error
                 const errWrapper = document.getElementById('wrapper-last-error');
