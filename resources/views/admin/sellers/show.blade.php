@@ -7,7 +7,7 @@
             <div>
 
                 <a
-                    href="{{ route('admin.sellers.index') }}"
+                    href="{{ route('admin.sellers.verifications', request()->query()) }}"
                     class="text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-1.5"
                 >
                     <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar Seller
@@ -330,6 +330,9 @@
             <form
                 method="POST"
                 action="{{ route('admin.sellers.approve', $seller) }}"
+                x-data="{ isLoading: false }"
+                @submit="if (isLoading) { $event.preventDefault(); return false; } isLoading = true;"
+                :class="{ 'pointer-events-none opacity-80': isLoading }"
                 class="mt-6 flex justify-end gap-3"
             >
                 @csrf
@@ -343,9 +346,16 @@
 
                 <button
                     type="submit"
+                    :disabled="isLoading"
+                    :class="{ 'opacity-70 cursor-not-allowed pointer-events-none': isLoading }"
                     class="rounded-2xl bg-emerald-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-xs flex items-center gap-1.5"
                 >
-                    <i class="fa-solid fa-check"></i> Ya, Setujui
+                    <span x-show="!isLoading" class="inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> Ya, Setujui
+                    </span>
+                    <span x-show="isLoading" style="display: none;" class="inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...
+                    </span>
                 </button>
             </form>
         </div>
@@ -371,6 +381,9 @@
             <form
                 method="POST"
                 action="{{ route('admin.sellers.revision', $seller) }}"
+                x-data="{ isLoading: false }"
+                @submit="if (isLoading) { $event.preventDefault(); return false; } isLoading = true;"
+                :class="{ 'pointer-events-none opacity-80': isLoading }"
                 class="mt-5 space-y-4"
             >
                 @csrf
@@ -394,9 +407,16 @@
 
                     <button
                         type="submit"
+                        :disabled="isLoading"
+                        :class="{ 'opacity-70 cursor-not-allowed pointer-events-none': isLoading }"
                         class="rounded-2xl bg-amber-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-amber-700 shadow-xs flex items-center gap-1.5"
                     >
-                        <i class="fa-solid fa-paper-plane"></i> Kirim Permintaan Revisi
+                        <span x-show="!isLoading" class="inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-paper-plane"></i> Kirim Permintaan Revisi
+                        </span>
+                        <span x-show="isLoading" style="display: none;" class="inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Mengirim...
+                        </span>
                     </button>
                 </div>
 
@@ -424,6 +444,9 @@
             <form
                 method="POST"
                 action="{{ route('admin.sellers.reject', $seller) }}"
+                x-data="{ isLoading: false }"
+                @submit="if (isLoading) { $event.preventDefault(); return false; } isLoading = true;"
+                :class="{ 'pointer-events-none opacity-80': isLoading }"
                 class="mt-5 space-y-4"
             >
                 @csrf
@@ -447,9 +470,16 @@
 
                     <button
                         type="submit"
+                        :disabled="isLoading"
+                        :class="{ 'opacity-70 cursor-not-allowed pointer-events-none': isLoading }"
                         class="rounded-2xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-red-700 shadow-xs flex items-center gap-1.5"
                     >
-                        <i class="fa-solid fa-ban"></i> Tolak Pengajuan
+                        <span x-show="!isLoading" class="inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-ban"></i> Tolak Pengajuan
+                        </span>
+                        <span x-show="isLoading" style="display: none;" class="inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...
+                        </span>
                     </button>
                 </div>
 
@@ -477,6 +507,9 @@
             <form
                 method="POST"
                 action="{{ route('admin.sellers.reject', $seller) }}"
+                x-data="{ isLoading: false }"
+                @submit="if (isLoading) { $event.preventDefault(); return false; } isLoading = true;"
+                :class="{ 'pointer-events-none opacity-80': isLoading }"
                 class="mt-6 space-y-4"
             >
                 @csrf
@@ -493,9 +526,16 @@
 
                     <button
                         type="submit"
+                        :disabled="isLoading"
+                        :class="{ 'opacity-70 cursor-not-allowed pointer-events-none': isLoading }"
                         class="rounded-2xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-red-700 shadow-xs flex items-center gap-1.5"
                     >
-                        <i class="fa-solid fa-user-slash"></i> Ya, Cabut Status
+                        <span x-show="!isLoading" class="inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-slash"></i> Ya, Cabut Status
+                        </span>
+                        <span x-show="isLoading" style="display: none;" class="inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...
+                        </span>
                     </button>
                 </div>
             </form>

@@ -88,7 +88,13 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('admin.users.index')
+        $queryParams = array_filter([
+            'search' => $request->input('search', $request->query('search')),
+            'role'   => $request->input('role', $request->query('role')),
+            'page'   => $request->input('page', $request->query('page')),
+        ]);
+
+        return redirect()->route('admin.users.index', $queryParams)
             ->with('success', "Data pengguna {$user->username} berhasil diperbarui.");
     }
 

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\Seller;
+use App\Models\SellerRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -143,12 +144,10 @@ class WhatsAppService
         $itemsList = "";
         foreach ($order->items as $item) {
             $pName = $item->product_name ?: $item->product?->name ?: 'Produk';
-            $optionInfo = "";
             $opt = $item->variant_name ?: $item->note;
-            if (!empty($opt)) {
-                $optionInfo = " [Pilihan: {$opt}]";
-            }
-            $itemsList .= "• {$pName}{$optionInfo} (x{$item->quantity})\n";
+            $qty = $item->quantity;
+            $subTitle = !empty($opt) ? "{$opt} / {$qty} Pcs" : "{$qty} Pcs";
+            $itemsList .= "• *{$pName}*\n  └ {$subTitle}\n";
         }
 
         $pickupLoc = $order->pickup_location ?: 'COD Sekolah';
@@ -224,12 +223,10 @@ class WhatsAppService
         if ($order->items && $order->items->isNotEmpty()) {
             foreach ($order->items as $item) {
                 $pName = $item->product_name ?: $item->product?->name ?: 'Produk';
-                $optionInfo = "";
                 $opt = $item->variant_name ?: $item->note;
-                if (!empty($opt)) {
-                    $optionInfo = " [Pilihan: {$opt}]";
-                }
-                $itemsList .= "• {$pName}{$optionInfo} (x{$item->quantity})\n";
+                $qty = $item->quantity;
+                $subTitle = !empty($opt) ? "{$opt} / {$qty} Pcs" : "{$qty} Pcs";
+                $itemsList .= "• *{$pName}*\n  └ {$subTitle}\n";
             }
         }
 
@@ -406,5 +403,56 @@ class WhatsAppService
             . "Data akun siswa aktif & dewan guru dari SiPintu Gateway telah disinkronkan ke database Eskasaba Marketplace.";
 
         self::send($adminPhone, $msg);
+    }
+
+    /**
+     * Kirim notifikasi pengajuan Request Kategori / Fitur dari Seller ke Admin via WA.
+     */
+    public static function sendSellerRequestSubmittedNotification(SellerRequest $sellerRequest): void
+    {
+        $adminPhone = self::getAdminPhone();
+        if (! $adminPhone) {
+            return;
+        }
+
+        $sellerRequest->loadMissing('seller.user');
+        $sellerName = $sellerRequest->seller?->user?->username ?? 'Seller';
+        $typeText   = $sellerRequest->typeLabel();
+
+        $msg = "📬 *REQUEST SELLER BARU! (Kategori / Fitur)*\n\n"
+            . "Halo Admin, toko *{$sellerName}* baru saja mengirimkan request baru:\n\n"
+            . "📌 *Tipe:* {$typeText}\n"
+            . "🏷️ *Nama Kategori / Judul:* {$sellerRequest->title}\n"
+            . ($sellerRequest->description ? "📝 *Keterangan:* {$sellerRequest->description}\n\n" : "\n")
+            . "Silakan periksa dan beri tanggapan melalui Panel Admin Eskasaba Marketplace.\n"
+            . "🌐 http://eskamart.smkn1bangsri.sch.id/admin/seller-requests";
+
+        self::send($adminPhone, $msg);
+    }
+
+    /**
+     * Kirim notifikasi konfirmasi / balasan Admin atas Request Kategori / Fitur ke Seller via WA.
+     */
+    public static function sendSellerRequestResponseNotification(SellerRequest $sellerRequest): void
+    {
+        $sellerRequest->loadMissing('seller.user');
+
+        $sellerPhone = $sellerRequest->seller?->whatsapp_number ?: $sellerRequest->seller?->user?->phone;
+        if (! $sellerPhone) {
+            return;
+        }
+
+        $sellerName  = $sellerRequest->seller?->user?->username ?? 'Seller';
+        $statusText  = $sellerRequest->status === 'completed' ? 'DISETUJUI / SELESAI DIBUAT ✅' : 'DITOLAK / DITINJAU ❌';
+
+        $msg = "💬 *TANGGAPAN ADMIN ATAS REQUEST SELLER*\n\n"
+            . "Halo *{$sellerName}*,\n"
+            . "Request Anda mengenai: *\"{$sellerRequest->title}\"* telah diperbarui oleh Admin menjadi status:\n"
+            . "👉 *{$statusText}*\n\n"
+            . ($sellerRequest->admin_response ? "📋 *Catatan Balasan Admin:*\n_\"{$sellerRequest->admin_response}\"_\n\n" : "")
+            . "Terima kasih telah aktif mengembangkan katalog toko Anda di Eskasaba Marketplace!\n"
+            . "🌐 *Panel Seller:* http://eskamart.smkn1bangsri.sch.id/seller/seller-requests";
+
+        self::send($sellerPhone, $msg);
     }
 }

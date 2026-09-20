@@ -25,7 +25,10 @@
             action="{{ route('seller.products.store') }}"
             enctype="multipart/form-data"
             class="space-y-6"
+            :class="{ 'pointer-events-none opacity-80': isSubmitting }"
+            @submit="if (isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true;"
             x-data="{
+                isSubmitting: false,
                 hasSizes: @js(!empty(old('variants', []))),
                 variants: @js(old('variants', [])).map(v => ({
                     name: v.name || '',
@@ -444,9 +447,16 @@
 
                 <button
                     type="submit"
+                    :disabled="isSubmitting"
+                    :class="{ 'opacity-70 cursor-not-allowed pointer-events-none': isSubmitting }"
                     class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
                 >
-                    <i class="fa-solid fa-check"></i> Simpan Produk
+                    <span x-show="!isSubmitting" class="inline-flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Simpan Produk
+                    </span>
+                    <span x-show="isSubmitting" style="display: none;" class="inline-flex items-center gap-2">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan Produk...
+                    </span>
                 </button>
             </div>
 

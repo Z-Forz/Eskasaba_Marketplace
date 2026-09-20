@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SellerController;
+use App\Http\Controllers\Admin\SellerRequestController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WebsiteSettingController;
 use App\Http\Controllers\Admin\WhatsAppController;
@@ -41,6 +42,16 @@ Route::middleware(['auth:admin'])
 
         Route::post('sellers/{seller}/revision', [SellerController::class, 'requestRevision'])
             ->name('sellers.revision');
+
+        // Seller Requests Management
+        Route::get('seller-requests', [SellerRequestController::class, 'index'])
+            ->name('seller-requests.index');
+        Route::get('seller-requests/{sellerRequest}', [SellerRequestController::class, 'show'])
+            ->name('seller-requests.show');
+        Route::post('seller-requests/{sellerRequest}/confirm', [SellerRequestController::class, 'confirm'])
+            ->name('seller-requests.confirm');
+        Route::post('seller-requests/{sellerRequest}/reject', [SellerRequestController::class, 'reject'])
+            ->name('seller-requests.reject');
 
         Route::resource('orders', OrderController::class)
             ->only(['index', 'show']);

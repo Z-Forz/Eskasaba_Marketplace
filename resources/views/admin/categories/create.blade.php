@@ -35,7 +35,7 @@
                 <input
                     type="text"
                     name="name"
-                    value="{{ old('name') }}"
+                    value="{{ old('name', request('name')) }}"
                     required
                     autofocus
                     class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"

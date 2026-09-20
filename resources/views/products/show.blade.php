@@ -239,20 +239,7 @@
                                 <input type="hidden" name="variant_name" :value="activeVariant ? activeVariant.name : selectedFlavor">
                                 <input type="hidden" id="product_variant_note_input" name="note" :value="activeVariant ? activeVariant.name : selectedFlavor">
 
-                                @if(count($flavors) === 0 && !$hasVariants)
-                                    <div>
-                                        <label for="note" class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
-                                            <i class="fa-solid fa-pen-to-square text-emerald-600"></i> Catatan Pesanan (Opsional):
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="note"
-                                            name="note"
-                                            placeholder="Contoh: Rasa Cokelat, Extra Pedas, Pedas Sedang"
-                                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                                        >
-                                    </div>
-                                @endif
+
 
                                 <div class="flex flex-col gap-3 sm:flex-row">
                                     <div class="w-full sm:w-auto">
@@ -307,7 +294,7 @@
                             href="{{ route('login') }}"
                             class="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-slate-800"
                         >
-                            <i class="fa-solid fa-right-to-bracket"></i> Login untuk Membeli
+                            <i class="fa-solid fa-right-to-bracket"></i> Masuk untuk Membeli
                         </a>
                     @endauth
 
@@ -567,7 +554,7 @@
                         href="{{ route('login') }}"
                         class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-xs font-bold text-white active:scale-95 transition"
                     >
-                        <i class="fa-solid fa-right-to-bracket"></i> Login Membeli
+                        <i class="fa-solid fa-right-to-bracket"></i> Masuk untuk Membeli
                     </a>
                 @endauth
             </div>

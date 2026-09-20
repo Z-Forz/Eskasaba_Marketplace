@@ -15,6 +15,22 @@ class Category extends Model
         'description',
     ];
 
+    /**
+     * Check whether the category is newly created (within the last 7 days).
+     */
+    public function isNew(): bool
+    {
+        return $this->created_at && $this->created_at->greaterThanOrEqualTo(now()->subDays(7));
+    }
+
+    /**
+     * Accessor for $category->is_new attribute.
+     */
+    public function getIsNewAttribute(): bool
+    {
+        return $this->isNew();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Relationships

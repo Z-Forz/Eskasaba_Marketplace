@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Login' }} - {{ $settings->website_name ?? config('app.name', 'Eskasaba Market') }}</title>
+    <title>{{ $title ?? 'Masuk' }} - {{ $settings->website_name ?? config('app.name', 'Eskasaba Market') }}</title>
 
     @if(!empty($settings->logo))
         <link rel="icon" href="{{ asset('storage/' . $settings->logo) }}">

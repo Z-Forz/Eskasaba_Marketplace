@@ -29,13 +29,13 @@
         {{-- Catatan revisi / penolakan (jika sedang revisi atau ditolak) --}}
         @if ($seller?->needsRevision())
             <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-                <p class="text-sm font-semibold text-amber-800">📋 Catatan Revisi dari Admin</p>
+                <p class="text-sm font-semibold text-amber-800 flex items-center gap-1.5"><i class="fa-solid fa-clipboard-list text-amber-600"></i> Catatan Revisi dari Admin</p>
                 <p class="mt-1 text-sm text-amber-700">{{ $seller->rejection_note }}</p>
                 <p class="mt-2 text-xs text-amber-600">Perbaiki pengajuan sesuai catatan di atas, lalu kirim ulang.</p>
             </div>
         @elseif ($seller?->isRejected())
             <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-5">
-                <p class="text-sm font-semibold text-rose-800">❌ Catatan Penolakan Sebelumnya dari Admin</p>
+                <p class="text-sm font-semibold text-rose-800 flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-rose-600"></i> Catatan Penolakan Sebelumnya dari Admin</p>
                 <p class="mt-1 text-sm text-rose-700">{{ $seller->rejection_note }}</p>
                 <p class="mt-2 text-xs text-rose-600">Silakan perbaiki alasan atau ganti foto QRIS di bawah ini untuk melakukan pengajuan ulang.</p>
             </div>
@@ -48,6 +48,9 @@
                 method="POST"
                 action="{{ route('buyer.apply-seller.store') }}"
                 enctype="multipart/form-data"
+                x-data="{ isSubmitting: false }"
+                @submit="if (isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true;"
+                :class="{ 'pointer-events-none opacity-80': isSubmitting }"
                 class="space-y-6"
             >
                 @csrf
@@ -119,22 +122,33 @@
                         for="reason"
                         class="block text-sm font-medium text-slate-700"
                     >
-                        Mengapa Anda ingin menjadi seller?
+                        Alasan & Motivasi Mendaftar Seller
                         <span class="text-red-500">*</span>
                     </label>
 
                     <p class="mt-1 text-xs text-slate-400">
-                        Ceritakan motivasi dan tujuan Anda berjualan di marketplace ini.
+                        Ceritakan motivasi dan latar belakang singkat Anda ingin menjadi penjual di Eskasaba Marketplace.
                     </p>
 
                     <textarea
                         id="reason"
                         name="reason"
-                        rows="4"
+                        rows="3"
                         required
-                        placeholder="Contoh: Saya ingin berjualan karena memiliki keahlian membuat kerajinan tangan dan ingin memanfaatkan platform ini untuk berbagi produk saya kepada teman-teman sekolah..."
+                        placeholder="Contoh: Saya ingin berjualan kerajinan tangan dan makanan ringan karya sendiri untuk belajar wirausaha di sekolah..."
                         class="mt-2 block w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 transition focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
                     >{{ old('reason', $seller?->reason) }}</textarea>
+
+                    {{-- Info Box Tambahan Mengenai Request Kategori --}}
+                    <div class="mt-3 flex items-start gap-2.5 rounded-2xl border border-sky-200 bg-sky-50/80 p-3.5 text-xs text-sky-800 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-300">
+                        <i class="fa-solid fa-lightbulb text-sky-600 dark:text-sky-400 text-sm shrink-0 mt-0.5"></i>
+                        <div class="space-y-1">
+                            <p class="font-bold">Butuh Kategori Produk Khusus?</p>
+                            <p class="leading-relaxed text-sky-700 dark:text-sky-300">
+                                Form ini hanya untuk pendaftaran awal. Jika nantinya akun Anda telah disetujui dan butuh kategori produk baru yang belum ada di sistem, Anda bisa langsung mengirim **Request Kategori** ke Admin kapan saja melalui menu khusus di **Panel Seller**.
+                            </p>
+                        </div>
+                    </div>
 
                     @error('reason')
                         <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
@@ -158,9 +172,16 @@
 
                     <button
                         type="submit"
+                        :disabled="isSubmitting"
+                        :class="{ 'opacity-70 cursor-not-allowed pointer-events-none': isSubmitting }"
                         class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
                     >
-                        {{ $seller?->needsRevision() ? 'Kirim Revisi Pengajuan' : ($seller?->isRejected() ? 'Kirim Pengajuan Ulang' : 'Ajukan Sekarang') }}
+                        <span x-show="!isSubmitting" class="inline-flex items-center gap-2">
+                            {{ $seller?->needsRevision() ? 'Kirim Revisi Pengajuan' : ($seller?->isRejected() ? 'Kirim Pengajuan Ulang' : 'Ajukan Sekarang') }}
+                        </span>
+                        <span x-show="isSubmitting" style="display: none;" class="inline-flex items-center gap-2">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Memproses Pengajuan...
+                        </span>
                     </button>
                 </div>
 

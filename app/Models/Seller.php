@@ -57,6 +57,11 @@ class Seller extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function requests()
+    {
+        return $this->hasMany(SellerRequest::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Helpers

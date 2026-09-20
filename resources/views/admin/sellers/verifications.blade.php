@@ -158,7 +158,7 @@
 
                                     <td class="px-6 py-4 text-right">
                                         <a
-                                            href="{{ route('admin.sellers.show', $seller) }}"
+                                            href="{{ route('admin.sellers.show', array_merge(['seller' => $seller->id], request()->query())) }}"
                                             class="inline-flex items-center gap-1 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-800 shadow-xs"
                                         >
                                             Tinjau & Verifikasi <i class="fa-solid fa-arrow-right"></i>
@@ -200,7 +200,7 @@
                             </div>
 
                             <a
-                                href="{{ route('admin.sellers.show', $seller) }}"
+                                href="{{ route('admin.sellers.show', array_merge(['seller' => $seller->id], request()->query())) }}"
                                 class="block w-full rounded-xl bg-emerald-700 py-2.5 text-center text-xs font-semibold text-white shadow-xs"
                             >
                                 Tinjau & Verifikasi <i class="fa-solid fa-arrow-right"></i>

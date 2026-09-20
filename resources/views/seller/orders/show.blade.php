@@ -7,7 +7,7 @@
 
             <div>
                 <a
-                    href="{{ route('seller.orders.index') }}"
+                    href="{{ route('seller.orders.index', request()->query()) }}"
                     class="mb-2 inline-flex items-center gap-1 text-xs font-bold text-emerald-700 transition hover:text-emerald-800 dark:text-emerald-400">
                     <i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Pesanan
                 </a>
@@ -59,9 +59,11 @@
 
             $itemsSummary = "";
             foreach($order->items as $idx => $item) {
-                $flavor = !empty($item->note) ? " (Varian: {$item->note})" : "";
-                $price  = number_format($item->price ?? 0, 0, ',', '.');
-                $itemsSummary .= ($idx + 1) . ". {$item->product_name}{$flavor} - {$item->quantity}x @ Rp {$price}\n";
+                $pName = $item->product_name ?: $item->product?->name ?: 'Produk';
+                $opt = $item->variant_name ?: $item->note;
+                $qty = $item->quantity;
+                $subTitle = !empty($opt) ? "{$opt} / {$qty} Pcs" : "{$qty} Pcs";
+                $itemsSummary .= ($idx + 1) . ". *{$pName}*\n   └ {$subTitle}\n";
             }
 
             $sellerPhoneNum = $order->seller?->whatsapp_number ?: ($order->seller?->user?->phone ?: '-');
@@ -345,22 +347,24 @@
 
             <div class="divide-y divide-slate-100 dark:divide-slate-800">
                 @foreach($order->items as $item)
+                    @php
+                        $opt = $item->variant_name ?: $item->note;
+                        $subTitle = !empty($opt) ? "{$opt} / {$item->quantity} Pcs" : "{$item->quantity} Pcs";
+                    @endphp
                     <div class="flex items-center justify-between p-5">
                         <div>
-                            <p class="font-bold text-slate-900 dark:text-white text-sm">
+                            <p class="font-bold text-slate-900 dark:text-white text-base">
                                 {{ $item->product_name ?? $item->product?->name }}
                             </p>
-                            @if($item->variant_name || $item->note)
-                                <p class="mt-1 inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                                    <i class="fa-solid fa-layer-group text-[10px]"></i> Varian: {{ $item->variant_name ?: $item->note }}
-                                </p>
-                            @endif
-                            <p class="mt-1 text-xs text-slate-500">
-                                {{ $item->quantity }} × Rp {{ number_format($item->price ?? $item->unit_price ?? 0, 0, ',', '.') }}
+                            <p class="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                <i class="fa-solid fa-layer-group text-[10px]"></i> {{ $subTitle }}
+                            </p>
+                            <p class="mt-1 text-xs text-slate-400">
+                                Harga Satuan: Rp {{ number_format($item->price ?? $item->unit_price ?? 0, 0, ',', '.') }}
                             </p>
                         </div>
 
-                        <p class="font-extrabold text-slate-900 dark:text-white text-sm">
+                        <p class="font-extrabold text-slate-900 dark:text-white text-base">
                             Rp {{ number_format(($item->quantity) * ($item->price ?? $item->unit_price ?? 0), 0, ',', '.') }}
                         </p>
                     </div>

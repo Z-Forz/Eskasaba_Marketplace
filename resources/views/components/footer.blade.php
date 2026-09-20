@@ -93,12 +93,12 @@
                     </li>
                     <li>
                         <a href="{{ route('guide') }}" class="text-slate-400 transition hover:text-white flex items-center gap-2">
-                            <i class="fa-solid fa-chevron-right text-[9px] text-emerald-500"></i> Panduan COD Sekolah
+                            <i class="fa-solid fa-chevron-right text-[9px] text-emerald-500"></i> Panduan Pengguna
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('about') }}" class="text-slate-400 transition hover:text-white flex items-center gap-2">
-                            <i class="fa-solid fa-chevron-right text-[9px] text-emerald-500"></i> Tentang Marketplace
+                            <i class="fa-solid fa-chevron-right text-[9px] text-emerald-500"></i> Tentang
                         </a>
                     </li>
                 </ul>

@@ -5,10 +5,10 @@
         {{-- Header --}}
         <div>
             <a
-                href="{{ route('admin.users.index', $user) }}"
+                href="{{ route('admin.users.index', request()->query()) }}"
                 class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             >
-                <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke detail pengguna
+                <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke kelola pengguna
             </a>
 
             <h1 class="mt-3 text-2xl font-black text-slate-900 dark:text-white">
@@ -26,12 +26,22 @@
 
         {{-- Form Edit Data --}}
         <form
-            action="{{ route('admin.users.update', $user) }}"
+            action="{{ route('admin.users.update', array_merge(['user' => $user->id], request()->query())) }}"
             method="POST"
             class="space-y-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-8"
         >
             @csrf
             @method('PUT')
+
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+            @if(request('role'))
+                <input type="hidden" name="role" value="{{ request('role') }}">
+            @endif
+            @if(request('page'))
+                <input type="hidden" name="page" value="{{ request('page') }}">
+            @endif
 
             <div class="space-y-5">
 
@@ -140,7 +150,7 @@
             {{-- Actions --}}
             <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end dark:border-slate-800">
                 <a
-                    href="{{ route('admin.users.show', $user) }}"
+                    href="{{ route('admin.users.index', request()->query()) }}"
                     class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 >
                     Batal

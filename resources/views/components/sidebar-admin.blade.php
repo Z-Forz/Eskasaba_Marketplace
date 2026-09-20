@@ -1,9 +1,12 @@
 @php
+    $unreadSellerRequestsCount = \App\Models\SellerRequest::where('is_read', false)->count();
+
     $adminMenus = [
         'Data Master & Kelola' => [
             ['route' => 'admin.users.index',            'pattern' => 'admin.users.*',            'label' => 'Kelola User',         'icon' => 'fa-solid fa-users'],
             ['route' => 'admin.sellers.index',          'pattern' => 'admin.sellers.index',      'label' => 'Seller Aktif',        'icon' => 'fa-solid fa-store'],
             ['route' => 'admin.sellers.verifications',  'pattern' => 'admin.sellers.verifications', 'label' => 'Verifikasi Seller', 'icon' => 'fa-solid fa-user-check'],
+            ['route' => 'admin.seller-requests.index',  'pattern' => 'admin.seller-requests.*',  'label' => 'Request Seller',     'icon' => 'fa-solid fa-folder-plus', 'badge' => $unreadSellerRequestsCount],
             ['route' => 'admin.categories.index',       'pattern' => 'admin.categories.*',       'label' => 'Kelola Kategori',     'icon' => 'fa-solid fa-layer-group'],
             ['route' => 'admin.orders.index',           'pattern' => 'admin.orders.*',           'label' => 'Kelola Pesanan',      'icon' => 'fa-solid fa-receipt'],
             ['route' => 'admin.payments.index',         'pattern' => 'admin.payments.*',         'label' => 'Kelola Pembayaran',   'icon' => 'fa-solid fa-credit-card'],
@@ -68,7 +71,14 @@
                         <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
                         <span>{{ $item['label'] }}</span>
                     </span>
-                    <span class="{{ request()->routeIs($item['pattern']) ? 'text-white/80 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
+                    <div class="flex items-center gap-1.5">
+                        @if (!empty($item['badge']) && $item['badge'] > 0)
+                            <span class="inline-flex items-center justify-center rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-black text-white shadow-xs animate-pulse">
+                                {{ $item['badge'] }}
+                            </span>
+                        @endif
+                        <span class="{{ request()->routeIs($item['pattern']) ? 'text-white/80 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
+                    </div>
                 </a>
             @endforeach
 
@@ -161,7 +171,14 @@
                             <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
                             <span>{{ $item['label'] }}</span>
                         </span>
-                        <span class="{{ request()->routeIs($item['pattern']) ? 'text-emerald-700 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
+                        <div class="flex items-center gap-1.5">
+                            @if (!empty($item['badge']) && $item['badge'] > 0)
+                                <span class="inline-flex items-center justify-center rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-black text-white shadow-xs animate-pulse">
+                                    {{ $item['badge'] }}
+                                </span>
+                            @endif
+                            <span class="{{ request()->routeIs($item['pattern']) ? 'text-emerald-700 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
+                        </div>
                     </a>
                 @endforeach
 

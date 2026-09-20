@@ -8,6 +8,7 @@ use App\Http\Controllers\Seller\OrderController;
 use App\Http\Controllers\Seller\PaymentController;
 use App\Http\Controllers\Seller\PickupScheduleController;
 use App\Http\Controllers\Seller\ProfileController;
+use App\Http\Controllers\Seller\SellerRequestController;
 
 Route::middleware(['auth', 'seller.approved'])
     ->prefix('seller')
@@ -33,4 +34,7 @@ Route::middleware(['auth', 'seller.approved'])
 
         Route::resource('pickup-schedules', PickupScheduleController::class)
             ->only(['index', 'show', 'update']);
+
+        Route::resource('seller-requests', SellerRequestController::class)
+            ->only(['index', 'create', 'store', 'show']);
     });

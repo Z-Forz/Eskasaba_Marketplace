@@ -5,6 +5,7 @@
             ['route' => 'seller.orders.index',           'label' => 'Pesanan Toko',      'icon' => 'fa-solid fa-receipt'],
             ['route' => 'seller.payments.index',         'label' => 'Pembayaran',        'icon' => 'fa-solid fa-credit-card'],
             ['route' => 'seller.pickup-schedules.index', 'label' => 'Jadwal Pengambilan','icon' => 'fa-solid fa-calendar-check'],
+            ['route' => 'seller.seller-requests.index',  'label' => 'Request Kategori',  'icon' => 'fa-solid fa-folder-plus'],
             ['route' => 'seller.profile.edit',          'label' => 'Pengaturan Toko',   'icon' => 'fa-solid fa-sliders'],
         ],
         'Akun' => [

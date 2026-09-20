@@ -76,7 +76,7 @@
                         <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 font-black text-lg mb-4 dark:bg-emerald-950 dark:text-emerald-300">
                             1
                         </div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Login via NIS / Email Sekolah</h3>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Masuk via NIS / Email Sekolah</h3>
                         <p class="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                             Masuk email terdaftar contoh <code>12345@gmail.com (email yang digunakan di sijuna)</code>
                         </p>
@@ -277,7 +277,7 @@
                             class="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-800"
                         >
                             <i class="fa-solid fa-right-to-bracket text-base"></i>
-                            <span>Login Terlebih Dahulu untuk Mendaftar Seller</span>
+                            <span>Masuk Terlebih Dahulu untuk Mendaftar Seller</span>
                         </a>
                     </div>
                 @endauth
@@ -401,7 +401,7 @@
                         @click="openFaq = (openFaq === 1 ? null : 1)"
                         class="flex w-full items-center justify-between p-5 text-left font-bold text-slate-900 dark:text-white hover:text-emerald-700 transition"
                     >
-                        <span>Bagaimana format login bagi Siswa dan Guru?</span>
+                        <span>Bagaimana format masuk bagi Siswa dan Guru?</span>
                         <i class="fa-solid" :class="openFaq === 1 ? 'fa-chevron-up text-emerald-600' : 'fa-chevron-down text-slate-400'"></i>
                     </button>
 

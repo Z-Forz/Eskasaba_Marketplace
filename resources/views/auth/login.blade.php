@@ -1,4 +1,4 @@
-<x-layouts.auth title="Login - Eskasaba Market">
+<x-layouts.auth title="Masuk - Eskasaba Market">
 
     <div class="w-full max-w-md space-y-6">
 
@@ -53,7 +53,8 @@
                     method="POST"
                     action="{{ route('login.store') }}"
                     x-data="{ isLoading: false }"
-                    @submit="isLoading = true"
+                    @submit="if (isLoading) { $event.preventDefault(); return false; } isLoading = true;"
+                    :class="{ 'pointer-events-none opacity-80': isLoading }"
                     class="space-y-4 sm:space-y-5"
                 >
                     @csrf

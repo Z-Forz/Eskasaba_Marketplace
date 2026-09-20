@@ -1,4 +1,4 @@
-<x-layouts.auth title="Admin Login - Panel Admin">
+<x-layouts.auth title="Masuk Admin - Panel Admin">
 
     <div class="w-full max-w-md space-y-6">
 
@@ -20,7 +20,7 @@
                 @endif
 
                 <h1 class="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
-                    Admin Login
+                    Masuk Panel Admin
                 </h1>
 
                 <p class="mt-1.5 text-xs text-slate-500 sm:text-sm dark:text-slate-400">
@@ -43,6 +43,9 @@
                 <form
                     method="POST"
                     action="{{ route('admin.login.store') }}"
+                    x-data="{ isLoading: false }"
+                    @submit="if (isLoading) { $event.preventDefault(); return false; } isLoading = true;"
+                    :class="{ 'pointer-events-none opacity-80': isLoading }"
                     class="space-y-4 sm:space-y-5"
                 >
                     @csrf
@@ -105,9 +108,16 @@
                     {{-- Submit Button --}}
                     <button
                         type="submit"
+                        :disabled="isLoading"
+                        :class="{ 'opacity-70 cursor-not-allowed pointer-events-none': isLoading }"
                         class="w-full rounded-2xl bg-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition duration-200 hover:bg-emerald-800 active:scale-[0.98] sm:text-base flex items-center justify-center gap-2"
                     >
-                        <i class="fa-solid fa-shield-halved"></i> Masuk ke Panel Admin
+                        <span x-show="!isLoading" class="inline-flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved"></i> Masuk ke Panel Admin
+                        </span>
+                        <span x-show="isLoading" style="display: none;" class="inline-flex items-center gap-2">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...
+                        </span>
                     </button>
 
                 </form>

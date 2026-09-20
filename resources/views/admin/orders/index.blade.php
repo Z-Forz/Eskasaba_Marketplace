@@ -75,7 +75,7 @@
                 <table class="w-full text-left text-sm">
                     <thead class="border-b border-slate-100 bg-slate-50/80 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400">
                         <tr>
-                            <th class="px-6 py-4">Invoice / ID</th>
+                            <th class="px-6 py-4">Produk Pesanan</th>
                             <th class="px-6 py-4">Pembeli (Buyer)</th>
                             <th class="px-6 py-4">Penjual (Seller)</th>
                             <th class="px-6 py-4">Total Transaksi</th>
@@ -88,12 +88,22 @@
                         @forelse ($orders as $order)
                             <tr class="transition hover:bg-slate-50/60 dark:hover:bg-slate-800/50">
 
-                                <td class="whitespace-nowrap px-6 py-4">
-                                    <p class="font-bold text-slate-900 dark:text-white flex items-center gap-1">
-                                        <i class="fa-solid fa-receipt text-emerald-600 text-xs"></i> {{ $order->invoice_number ?? $order->id }}
-                                    </p>
-                                    <p class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                                        <i class="fa-solid fa-clock text-[10px]"></i> {{ $order->created_at?->format('d M Y H:i') }}
+                                <td class="px-6 py-4">
+                                    @php
+                                        $firstItem = $order->items?->first();
+                                        $pName = $firstItem?->product_name ?: ($firstItem?->product?->name ?: 'Produk Pesanan');
+                                        $opt = $firstItem?->variant_name ?: $firstItem?->note;
+                                        $qty = $firstItem?->quantity ?? 1;
+                                        $subTitle = !empty($opt) ? "{$opt} / {$qty} Pcs" : "{$qty} Pcs";
+                                        $moreCount = ($order->items?->count() ?? 1) - 1;
+                                    @endphp
+
+                                    <h4 class="font-black text-slate-900 dark:text-white text-base">
+                                        {{ $pName }} @if($moreCount > 0) <span class="text-xs font-semibold text-slate-400">(+{{ $moreCount }} produk lain)</span> @endif
+                                    </h4>
+
+                                    <p class="mt-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                                        <i class="fa-solid fa-layer-group text-[10px]"></i> {{ $subTitle }}
                                     </p>
                                 </td>
 
@@ -141,7 +151,7 @@
 
                                 <td class="px-6 py-4 text-right">
                                     <a
-                                        href="{{ route('admin.orders.show', $order) }}"
+                                        href="{{ route('admin.orders.show', array_merge(['order' => $order->id], request()->query())) }}"
                                         class="inline-flex items-center gap-1.5 rounded-2xl bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800"
                                     >
                                         <i class="fa-solid fa-eye"></i> Detail Pesanan
@@ -164,28 +174,42 @@
             <div class="divide-y divide-slate-100 md:hidden dark:divide-slate-800">
                 @forelse ($orders as $order)
                     <div class="space-y-3 p-5">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-bold text-slate-900 dark:text-white">
-                                    {{ $order->invoice_number ?? $order->id }}
-                                </p>
-                                <p class="text-xs text-slate-500">
-                                    {{ $order->created_at?->format('d M Y H:i') }}
-                                </p>
-                            </div>
+                        @php
+                            $firstItem = $order->items?->first();
+                            $pName = $firstItem?->product_name ?: ($firstItem?->product?->name ?: 'Produk Pesanan');
+                            $opt = $firstItem?->variant_name ?: $firstItem?->note;
+                            $qty = $firstItem?->quantity ?? 1;
+                            $subTitle = !empty($opt) ? "{$opt} / {$qty} Pcs" : "{$qty} Pcs";
+                            $moreCount = ($order->items?->count() ?? 1) - 1;
+                        @endphp
+
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs text-slate-400">
+                                <i class="fa-regular fa-calendar mr-1"></i> {{ $order->created_at?->format('d M Y H:i') }}
+                            </span>
                             <span class="rounded-full px-3 py-1 text-xs font-bold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200">
                                 {{ ucfirst($order->status) }}
                             </span>
                         </div>
 
-                        <div class="space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                        <div>
+                            <h4 class="font-extrabold text-slate-900 dark:text-white text-base">
+                                {{ $pName }} @if($moreCount > 0) <span class="text-xs font-semibold text-slate-400">(+{{ $moreCount }} produk lain)</span> @endif
+                            </h4>
+                            <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
+                                <i class="fa-solid fa-layer-group text-[10px]"></i> {{ $subTitle }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 text-xs text-slate-600 dark:text-slate-300 border-t border-slate-100 pt-2.5 dark:border-slate-800">
+                            <p><span class="text-slate-400">Tanggal:</span> {{ $order->created_at?->format('d M Y H:i') }}</p>
                             <p><span class="text-slate-400">Pembeli:</span> {{ $order->buyer?->username ?? $order->user?->username ?? '-' }}</p>
                             <p><span class="text-slate-400">Seller:</span> {{ $order->seller?->user?->username ?? '-' }}</p>
                             <p class="font-black text-emerald-700 dark:text-emerald-400 text-sm">Total: Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}</p>
                         </div>
 
                         <a
-                            href="{{ route('admin.orders.show', $order) }}"
+                            href="{{ route('admin.orders.show', array_merge(['order' => $order->id], request()->query())) }}"
                             class="flex items-center justify-center gap-2 rounded-2xl bg-slate-900 py-2.5 text-xs font-bold text-white dark:bg-emerald-700"
                         >
                             <i class="fa-solid fa-eye"></i> Detail Pesanan

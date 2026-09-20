@@ -5,7 +5,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <a
-                    href="{{ route('admin.orders.index') }}"
+                    href="{{ route('admin.orders.index', request()->query()) }}"
                     class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 >
                     <i class="fa-solid fa-arrow-left"></i> Kembali ke List Pesanan
@@ -66,16 +66,18 @@
                                         {{ $item->product_name ?? $item->product?->name ?? 'Produk' }}
                                     </h3>
 
-                                    @if(!empty($item->note))
-                                        <div class="mt-1">
-                                            <span class="inline-flex items-center gap-1 rounded-xl bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                                                <i class="fa-solid fa-tag text-[9px]"></i> Varian / Rasa: {{ $item->note }}
-                                            </span>
-                                        </div>
-                                    @endif
+                                    @php
+                                        $opt = $item->variant_name ?: $item->note;
+                                        $subTitle = !empty($opt) ? "{$opt} / " . ($item->quantity ?? 1) . " Pcs" : ($item->quantity ?? 1) . " Pcs";
+                                    @endphp
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center gap-1 rounded-xl bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                            <i class="fa-solid fa-layer-group text-[9px]"></i> {{ $subTitle }}
+                                        </span>
+                                    </div>
 
-                                    <p class="mt-2 text-xs font-semibold text-slate-500">
-                                        {{ $item->quantity }} pcs × Rp {{ number_format($item->unit_price ?? $item->price ?? 0, 0, ',', '.') }}
+                                    <p class="mt-2 text-xs font-semibold text-slate-400">
+                                        Harga Satuan: Rp {{ number_format($item->unit_price ?? $item->price ?? 0, 0, ',', '.') }}
                                     </p>
                                 </div>
 

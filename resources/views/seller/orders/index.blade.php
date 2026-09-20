@@ -106,12 +106,9 @@
                                         : $firstProductName;
                                 @endphp
                                 <div class="flex flex-wrap items-center gap-2 mb-1">
-                                    <span class="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-0.5 text-[11px] font-extrabold text-emerald-800 border border-emerald-200/60 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/60">
-                                        <i class="fa-solid fa-receipt text-[9px]"></i> {{ $order->invoice_number ?? '#' . $order->id }}
-                                    </span>
                                     @if($order->created_at)
                                         <span class="text-xs text-slate-400">
-                                            • {{ $order->created_at->format('d M Y, H:i') }}
+                                            <i class="fa-regular fa-calendar mr-1"></i> Tanggal: {{ $order->created_at->format('d M Y, H:i') }}
                                         </span>
                                     @endif
                                 </div>
@@ -178,13 +175,17 @@
                         @if($order->items->count())
                             <div class="space-y-2 border-t border-slate-100 pt-4 dark:border-slate-800">
                                 @foreach($order->items->take(2) as $item)
+                                    @php
+                                        $opt = $item->variant_name ?: $item->note;
+                                        $subTitle = !empty($opt) ? "{$opt} / {$item->quantity} Pcs" : "{$item->quantity} Pcs";
+                                    @endphp
                                     <div class="flex items-center justify-between gap-3 text-xs sm:text-sm">
                                         <div class="min-w-0">
-                                            <p class="truncate font-bold text-slate-800 dark:text-slate-200">
+                                            <p class="truncate font-bold text-slate-900 dark:text-white">
                                                 {{ $item->product_name ?? $item->product?->name }}
                                             </p>
-                                            <p class="text-xs text-slate-400">
-                                                {{ $item->quantity }} × Rp {{ number_format($item->price ?? 0, 0, ',', '.') }}
+                                            <p class="text-xs text-emerald-700 dark:text-emerald-400 font-bold">
+                                                {{ $subTitle }} • <span class="text-slate-400 font-semibold">@ Rp {{ number_format($item->price ?? 0, 0, ',', '.') }}</span>
                                             </p>
                                         </div>
                                         <p class="shrink-0 font-extrabold text-slate-900 dark:text-white">
@@ -247,7 +248,7 @@
                             </div>
 
                             <a
-                                href="{{ route('seller.orders.show', $order) }}"
+                                href="{{ route('seller.orders.show', array_merge(['order' => $order->id], request()->query())) }}"
                                 class="inline-flex items-center gap-1.5 rounded-2xl bg-slate-900 px-5 py-2 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800"
                             >
                                 Detail & Kelola Status <i class="fa-solid fa-arrow-right"></i>
