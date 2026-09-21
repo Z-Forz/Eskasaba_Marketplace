@@ -324,7 +324,7 @@ app.post('/start', async (req, res) => {
     if (!isConnected) {
         isConnecting = false;
         botStatus = 'menghubungkan';
-        connectToWhatsApp();
+        connectToWhatsApp(true);
     }
     return res.json({
         status: true,
