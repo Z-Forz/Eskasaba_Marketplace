@@ -20,7 +20,7 @@ class WhatsAppBotService
         $host   = $parsed['host'] ?? '127.0.0.1';
         $port   = isset($parsed['port']) ? ':' . $parsed['port'] : ':3000';
 
-        if ($host !== 'localhost' && $host !== '127.0.0.1' && !filter_var($host, FILTER_VALIDATE_IP)) {
+        if ($host === 'localhost' || !filter_var($host, FILTER_VALIDATE_IP)) {
             $host = '127.0.0.1';
         }
 
@@ -36,7 +36,7 @@ class WhatsAppBotService
 
         // 1. Direct HTTP health check to Express
         try {
-            $response = Http::withoutVerifying()->timeout(1)->get("{$baseUrl}/status");
+            $response = Http::withoutVerifying()->timeout(4)->get("{$baseUrl}/status");
             if ($response->successful()) {
                 return true;
             }
@@ -85,10 +85,11 @@ class WhatsAppBotService
     public static function getStatus(): array
     {
         $baseUrl = self::getBaseUrl();
+        $httpError = null;
 
         try {
             $response = Http::withoutVerifying()
-                ->timeout(2)
+                ->timeout(5)
                 ->get("{$baseUrl}/status");
 
             if ($response->successful()) {
@@ -99,9 +100,11 @@ class WhatsAppBotService
                 $data['setting_enabled'] = ($enabledSetting === '1' || $enabledSetting === 1 || $enabledSetting === true);
 
                 return $data;
+            } else {
+                $httpError = 'HTTP Status Code ' . $response->status() . ' dari ' . $baseUrl . '/status';
             }
-        } catch (\Exception $e) {
-            // Node server offline
+        } catch (\Throwable $e) {
+            $httpError = 'Gagal terhubung ke ' . $baseUrl . '/status: ' . $e->getMessage();
         }
 
         $enabledSetting = WebsiteSetting::get('wa_bot_enabled', '0');
@@ -122,7 +125,7 @@ class WhatsAppBotService
             'connected_name'       => null,
             'last_connected_at'    => null,
             'last_disconnected_at' => null,
-            'last_error'           => 'Service Baileys Node.js tidak berjalan',
+            'last_error'           => $httpError ?? 'Service Baileys Node.js tidak berjalan',
         ];
     }
 
