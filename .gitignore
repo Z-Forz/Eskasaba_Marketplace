@@ -26,3 +26,4 @@ yarn-error.log
 # WhatsApp Bot Session Files
 /whatsapp-bot/auth_info_baileys/
 /whatsapp-bot/node_modules/
+/whatsapp-bot/logs/
