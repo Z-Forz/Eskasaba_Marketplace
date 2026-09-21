@@ -84,7 +84,7 @@ function clearAuthFolder() {
     }
 }
 
-async function connectToWhatsApp() {
+async function connectToWhatsApp(force = false) {
     await loadBaileys();
     if (!botEnabled) {
         botStatus = 'nonaktif';
@@ -92,7 +92,10 @@ async function connectToWhatsApp() {
         return;
     }
 
-    if (isConnecting) return;
+    if (isConnected && !force) return;
+    if (isConnecting && !force) return;
+    if (sock && botStatus === 'menunggu_qr' && !force) return;
+
     isConnecting = true;
 
     if (sock) {
@@ -186,7 +189,7 @@ async function connectToWhatsApp() {
                     setTimeout(() => {
                         if (botEnabled && !isConnected) {
                             isConnecting = false;
-                            connectToWhatsApp();
+                            connectToWhatsApp(true);
                         }
                     }, 500);
                 } else if (isLoggedOut) {
@@ -204,7 +207,7 @@ async function connectToWhatsApp() {
                     setTimeout(() => {
                         if (botEnabled) {
                             isConnecting = false;
-                            connectToWhatsApp();
+                            connectToWhatsApp(true);
                         }
                     }, 1000);
                 } else if (isQrTimeout) {
@@ -221,7 +224,7 @@ async function connectToWhatsApp() {
                     setTimeout(() => {
                         if (botEnabled) {
                             isConnecting = false;
-                            connectToWhatsApp();
+                            connectToWhatsApp(true);
                         }
                     }, 1000);
                 } else if (isReplaced) {
@@ -244,7 +247,7 @@ async function connectToWhatsApp() {
                     setTimeout(() => {
                         if (botEnabled) {
                             isConnecting = false;
-                            connectToWhatsApp();
+                            connectToWhatsApp(true);
                         }
                     }, 1000);
                 } else {
@@ -261,7 +264,7 @@ async function connectToWhatsApp() {
                     setTimeout(() => {
                         if (botEnabled && !isConnected) {
                             isConnecting = false;
-                            connectToWhatsApp();
+                            connectToWhatsApp(true);
                         }
                     }, 3000);
                 }

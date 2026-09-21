@@ -50,6 +50,17 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saved(function (User $user) {
+            if ($user->wasChanged('phone') && $user->seller) {
+                $user->seller->updateQuietly([
+                    'whatsapp_number' => $user->phone,
+                ]);
+            }
+        });
+    }
+
     /**
      * Accessor alias agar $user->kelas merujuk ke $user->class_room
      */

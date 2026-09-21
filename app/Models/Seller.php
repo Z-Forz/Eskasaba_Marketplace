@@ -29,11 +29,24 @@ class Seller extends Model
     }
 
     /**
-     * Accessor untuk whatsapp_number agar selalu sinkron dengan phone milik User jika belum terisi.
+     * Accessor untuk whatsapp_number agar selalu sinkron dengan phone milik User jika ada.
      */
     public function getWhatsappNumberAttribute($value)
     {
-        return $value ?: $this->user?->phone;
+        return $this->user?->phone ?: $value;
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (Seller $seller) {
+            if ($seller->wasChanged('whatsapp_number') && $seller->whatsapp_number && $seller->user) {
+                if ($seller->user->phone !== $seller->whatsapp_number) {
+                    $seller->user->updateQuietly([
+                        'phone' => $seller->whatsapp_number,
+                    ]);
+                }
+            }
+        });
     }
 
     /*
