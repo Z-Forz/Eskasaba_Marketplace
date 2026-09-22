@@ -168,7 +168,7 @@ class WhatsAppService
                 . "💰 *Total:* Rp " . number_format($order->total_price, 0, ',', '.') . "\n\n"
                 . "📋 *Item Pesanan:*\n{$itemsList}\n"
                 . "Silakan periksa panel Seller Anda untuk memproses pesanan ini.\n\n"
-                . "🌐 *Akses Website:* http://eskamart.smkn1bangsri.sch.id/";
+                . "🌐 *Akses Website:* https://eskamart.smkn1bangsri.sch.id/";
 
             self::send($sellerPhone, $sellerMsg);
         }
@@ -186,7 +186,7 @@ class WhatsAppService
                 . "📋 *Item Pesanan:*\n{$itemsList}\n"
                 . "Silakan selesaikan pembayaran dan koordinasi pengambilan pesanan dengan penjual.\n\n"
                 . "Terima kasih telah berbelanja di Eskasaba Marketplace!\n"
-                . "🌐 *Akses Website:* http://eskamart.smkn1bangsri.sch.id/";
+                . "🌐 *Akses Website:* https://eskamart.smkn1bangsri.sch.id/";
 
             self::send($buyerPhone, $buyerMsg);
         }
@@ -239,7 +239,7 @@ class WhatsAppService
             . "📍 *Titik Pengambilan:* {$pickupLoc}\n"
             . (!empty($itemsList) ? "📋 *Item:*\n{$itemsList}\n" : "")
             . "\nTerima kasih telah berbelanja di Eskasaba Marketplace!\n"
-            . "🌐 *Akses Website:* http://eskamart.smkn1bangsri.sch.id/";
+            . "🌐 *Akses Website:* https://eskamart.smkn1bangsri.sch.id/";
 
         self::send($buyerPhone, $msg);
     }
@@ -425,7 +425,7 @@ class WhatsAppService
             . "🏷️ *Nama Kategori / Judul:* {$sellerRequest->title}\n"
             . ($sellerRequest->description ? "📝 *Keterangan:* {$sellerRequest->description}\n\n" : "\n")
             . "Silakan periksa dan beri tanggapan melalui Panel Admin Eskasaba Marketplace.\n"
-            . "🌐 http://eskamart.smkn1bangsri.sch.id/admin/seller-requests";
+            . "🌐 https://eskamart.smkn1bangsri.sch.id/admin/seller-requests";
 
         self::send($adminPhone, $msg);
     }
@@ -451,7 +451,7 @@ class WhatsAppService
             . "👉 *{$statusText}*\n\n"
             . ($sellerRequest->admin_response ? "📋 *Catatan Balasan Admin:*\n_\"{$sellerRequest->admin_response}\"_\n\n" : "")
             . "Terima kasih telah aktif mengembangkan katalog toko Anda di Eskasaba Marketplace!\n"
-            . "🌐 *Panel Seller:* http://eskamart.smkn1bangsri.sch.id/seller/seller-requests";
+            . "🌐 *Panel Seller:* https://eskamart.smkn1bangsri.sch.id/seller/seller-requests";
 
         self::send($sellerPhone, $msg);
     }

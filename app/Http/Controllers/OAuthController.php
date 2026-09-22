@@ -148,7 +148,7 @@ class OAuthController extends Controller
             if ($user) {
                 $user->delete();
             }
-            $errorMsg = "Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.";
+            $errorMsg = "Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.";
             Log::warning("SSO Login Rejected: User {$nisNip} is an alumni.");
 
             if ($request->expectsJson()) {

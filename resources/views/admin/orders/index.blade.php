@@ -125,8 +125,8 @@
                                     Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}
                                 </td>
 
-                                <td class="px-6 py-4">
-                                    <span class="rounded-full px-3 py-1 text-xs font-bold
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold whitespace-nowrap
                                         {{ $order->status === 'completed'
                                             ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
                                             : ($order->status === 'cancelled'
@@ -136,23 +136,23 @@
                                                     : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400')) }}"
                                     >
                                         @if($order->status === 'completed')
-                                            <i class="fa-solid fa-circle-check mr-1"></i> Selesai
+                                            <i class="fa-solid fa-circle-check"></i> Selesai
                                         @elseif($order->status === 'cancelled')
-                                            <i class="fa-solid fa-circle-xmark mr-1"></i> Dibatalkan
+                                            <i class="fa-solid fa-circle-xmark"></i> Dibatalkan
                                         @elseif($order->status === 'ready_for_pickup')
-                                            <i class="fa-solid fa-box-open mr-1"></i> Siap Diambil
+                                            <i class="fa-solid fa-box-open"></i> Siap Diambil
                                         @elseif($order->status === 'processing')
-                                            <i class="fa-solid fa-fire-burner mr-1"></i> Diproses
+                                            <i class="fa-solid fa-fire-burner"></i> Diproses
                                         @else
-                                            <i class="fa-solid fa-clock mr-1"></i> {{ ucfirst($order->status) }}
+                                            <i class="fa-solid fa-clock"></i> {{ ucfirst($order->status) }}
                                         @endif
                                     </span>
                                 </td>
 
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-6 py-4 text-right whitespace-nowrap">
                                     <a
                                         href="{{ route('admin.orders.show', array_merge(['order' => $order->id], request()->query())) }}"
-                                        class="inline-flex items-center gap-1.5 rounded-2xl bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                                        class="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 whitespace-nowrap shadow-xs"
                                     >
                                         <i class="fa-solid fa-eye"></i> Detail Pesanan
                                     </a>

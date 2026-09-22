@@ -40,7 +40,7 @@
 
             <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-xs dark:border-gray-700 dark:bg-gray-900">
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Status Katalog</p>
-                <p class="mt-2 text-3xl font-extrabold text-blue-600 dark:text-blue-400">
+                <p class="mt-2 text-3xl font-extrabold text-emerald-700 dark:text-emerald-400">
                     Aktif
                 </p>
                 <p class="mt-1 text-xs text-slate-500">Sistem marketplace berjalan lancar</p>
@@ -103,8 +103,8 @@
                                 <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">
                                     Rp {{ number_format($prod->price, 0, ',', '.') }}
                                 </td>
-                                <td class="px-6 py-4 text-xs">
-                                    <span class="rounded-full px-2.5 py-1 font-bold {{ $prod->stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                <td class="px-6 py-4 text-xs whitespace-nowrap">
+                                    <span class="inline-flex items-center rounded-full px-3 py-1 font-bold whitespace-nowrap {{ $prod->stock > 0 ? 'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-400' }}">
                                         {{ $prod->stock }} Item
                                     </span>
                                 </td>

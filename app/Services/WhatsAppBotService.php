@@ -116,8 +116,8 @@ class WhatsAppBotService
         }
 
         return [
-            'status'               => 'nonaktif',
-            'bot_enabled'          => false,
+            'status'               => $isBotEnabled ? 'menjalankan' : 'nonaktif',
+            'bot_enabled'          => $isBotEnabled,
             'setting_enabled'      => $isBotEnabled,
             'is_connected'         => false,
             'qr_code'              => null,
@@ -125,7 +125,7 @@ class WhatsAppBotService
             'connected_name'       => null,
             'last_connected_at'    => null,
             'last_disconnected_at' => null,
-            'last_error'           => $httpError ?? 'Service Baileys Node.js tidak berjalan',
+            'last_error'           => $isBotEnabled ? 'Memulai service Baileys Node.js...' : ($httpError ?? 'Service Baileys Node.js tidak berjalan'),
         ];
     }
 
@@ -144,13 +144,23 @@ class WhatsAppBotService
             if ($response->successful()) {
                 $isServiceUp = true;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $isServiceUp = false;
         }
 
         if (! $isServiceUp) {
             self::spawnNodeProcess();
-            usleep(1500000); // Jeda 1.5 detik agar Express server boot up
+            // Retry ping hingga 4 kali (total 1.2 detik) menunggu Express boot up
+            for ($i = 0; $i < 4; $i++) {
+                usleep(300000);
+                try {
+                    $ping = Http::withoutVerifying()->timeout(1)->get("{$baseUrl}/status");
+                    if ($ping->successful()) {
+                        $isServiceUp = true;
+                        break;
+                    }
+                } catch (\Throwable $e) {}
+            }
         }
 
         try {
@@ -159,14 +169,14 @@ class WhatsAppBotService
                 ->post("{$baseUrl}/start");
 
             if ($response->successful()) {
-                usleep(500000); // Jeda 0.5s agar QR code sempat ter-generate
+                usleep(300000);
                 return [
                     'success' => true,
                     'message' => 'Bot WhatsApp berhasil diaktifkan.',
                     'data'    => self::getStatus()
                 ];
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("WhatsAppBotService start error: " . $e->getMessage());
         }
 
@@ -185,16 +195,23 @@ class WhatsAppBotService
         WebsiteSetting::set('wa_bot_enabled', '0');
 
         $baseUrl = self::getBaseUrl();
+        $httpSuccess = false;
 
         try {
-            Http::withoutVerifying()
+            $response = Http::withoutVerifying()
                 ->timeout(4)
                 ->post("{$baseUrl}/stop");
+            if ($response->successful()) {
+                $httpSuccess = true;
+            }
         } catch (\Exception $e) {
-            // Abaikan jika server sudah mati
+            // Server HTTP offline
         }
 
-        self::killNodeProcess();
+        // Hanya kill jika Node HTTP service tidak merespons
+        if (! $httpSuccess) {
+            self::killNodeProcess();
+        }
 
         return [
             'success' => true,

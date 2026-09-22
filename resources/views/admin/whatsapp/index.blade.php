@@ -165,7 +165,7 @@
                 </div>
                 <p id="text-connected-number" class="mt-4 text-xl font-black text-slate-900 dark:text-white truncate">
                     @if($isConnected && $connectedNumber)
-                        +{{ $connectedNumber }}
+                        <i class="fa-solid fa-plus"></i>{{ $connectedNumber }}
                     @else
                         {{ $isBotEnabled ? 'Belum Terhubung' : 'Nonaktif' }}
                     @endif
@@ -306,7 +306,7 @@
                         type="button"
                         id="btn-start-bot"
                         onclick="executeAction('start', this, 'Mengaktifkan...')"
-                        class="{{ ($statusKey === 'nonaktif' || !$isBotEnabled) ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-emerald-800 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="{{ ($statusKey === 'nonaktif' || !$isBotEnabled) ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-emerald-800 px-5 py-3 text-xs font-bold text-white shadow-xs transition-colors duration-150 hover:bg-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <i class="fa-solid fa-play"></i>
                         <span>Aktifkan Bot</span>
@@ -317,7 +317,7 @@
                         type="button"
                         id="btn-refresh-qr"
                         onclick="executeAction('start', this, 'Menyiapkan QR...')"
-                        class="{{ ($isBotEnabled && !$isConnected) ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-amber-600 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="{{ ($isBotEnabled && !$isConnected && ($statusKey === 'menunggu_qr' || !empty($qrCode))) ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-amber-600 px-5 py-3 text-xs font-bold text-white shadow-xs transition-colors duration-150 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <i class="fa-solid fa-qrcode"></i>
                         <span>Minta QR Code Baru</span>
@@ -328,7 +328,7 @@
                         type="button"
                         id="btn-stop-bot"
                         onclick="executeAction('stop', this, 'Menonaktifkan...')"
-                        class="{{ ($statusKey !== 'nonaktif' && $isBotEnabled) ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-slate-800 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="{{ ($statusKey !== 'nonaktif' && $isBotEnabled) ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-slate-800 px-5 py-3 text-xs font-bold text-white shadow-xs transition-colors duration-150 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <i class="fa-solid fa-stop"></i>
                         <span>Nonaktifkan Bot</span>
@@ -339,7 +339,7 @@
                         type="button"
                         id="btn-disconnect-bot"
                         onclick="executeAction('disconnect', this, 'Memutuskan...')"
-                        class="{{ ($isConnected || $statusKey === 'terhubung') ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-orange-600 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="{{ ($isConnected || $statusKey === 'terhubung') ? 'inline-flex' : 'hidden' }} items-center gap-2 rounded-2xl bg-orange-600 px-5 py-3 text-xs font-bold text-white shadow-xs transition-colors duration-150 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Memutuskan Koneksi</span>
@@ -350,7 +350,7 @@
                         type="button"
                         id="btn-reset-session-trigger"
                         onclick="openResetModal()"
-                        class="inline-flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-xs font-bold text-red-700 transition hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-900/60 shadow-xs cursor-pointer ml-auto"
+                        class="inline-flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-xs font-bold text-red-700 transition-colors duration-150 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-900/60 shadow-xs cursor-pointer ml-auto"
                     >
                         <i class="fa-solid fa-trash-can"></i>
                         <span>Reset Session</span>
@@ -648,18 +648,48 @@
                 toggleBtnVisibility(btnStart, (statusKey === 'nonaktif' || !data.bot_enabled));
                 toggleBtnVisibility(btnStop, (statusKey !== 'nonaktif' && data.bot_enabled));
                 toggleBtnVisibility(btnDisconnect, (data.is_connected || statusKey === 'terhubung'));
-                toggleBtnVisibility(btnRefreshQr, (data.bot_enabled && !data.is_connected));
+                toggleBtnVisibility(btnRefreshQr, (data.bot_enabled && !data.is_connected && (statusKey === 'menunggu_qr' || !!data.qr_code)));
             }
 
             window.executeAction = async function (actionType, btnElement, loadingText) {
                 if (isExecuting) return;
                 isExecuting = true;
 
+                const btnStart = document.getElementById('btn-start-bot');
+                const btnStop = document.getElementById('btn-stop-bot');
+                const btnDisconnect = document.getElementById('btn-disconnect-bot');
+                const btnRefreshQr = document.getElementById('btn-refresh-qr');
+
+                function toggleBtnVisibility(el, visible) {
+                    if (!el) return;
+                    if (visible) {
+                        el.classList.remove('hidden');
+                        el.classList.add('inline-flex');
+                    } else {
+                        el.classList.add('hidden');
+                        el.classList.remove('inline-flex');
+                    }
+                }
+
+                // Instant Optimistic UI Swap
+                if (actionType === 'start') {
+                    toggleBtnVisibility(btnStart, false);
+                    toggleBtnVisibility(btnStop, true);
+                } else if (actionType === 'stop') {
+                    toggleBtnVisibility(btnStop, false);
+                    toggleBtnVisibility(btnStart, true);
+                    toggleBtnVisibility(btnDisconnect, false);
+                    toggleBtnVisibility(btnRefreshQr, false);
+                }
+
                 const allActionBtns = document.querySelectorAll('#btn-start-bot, #btn-stop-bot, #btn-disconnect-bot, #btn-refresh-qr, #btn-reset-session-trigger');
                 allActionBtns.forEach(b => b.disabled = true);
 
-                const originalHTML = btnElement.innerHTML;
-                btnElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> ${loadingText}`;
+                const targetActiveBtn = (actionType === 'start') ? btnStop : (actionType === 'stop' ? btnStart : btnElement);
+                const originalHTML = targetActiveBtn.innerHTML;
+                targetActiveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> ${loadingText}`;
+
+                let responseData = null;
 
                 try {
                     const response = await fetch(ACTIONS[actionType], {
@@ -674,17 +704,20 @@
                     if (response.ok) {
                         const result = await response.json();
                         if (result.data) {
-                            renderUI(result.data);
+                            responseData = result.data;
                         }
                     }
-                    setTimeout(fetchBotStatus, 800);
                 } catch (err) {
                     console.warn('Execute action error:', err);
-                    setTimeout(fetchBotStatus, 500);
                 } finally {
-                    btnElement.innerHTML = originalHTML;
+                    targetActiveBtn.innerHTML = originalHTML;
                     allActionBtns.forEach(b => b.disabled = false);
                     isExecuting = false;
+                    if (responseData) {
+                        renderUI(responseData);
+                    } else {
+                        await fetchBotStatus();
+                    }
                 }
             };
 

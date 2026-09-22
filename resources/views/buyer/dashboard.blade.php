@@ -111,7 +111,7 @@
 
                 <div class="flex items-center justify-between">
 
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
                         🛒
                     </div>
 

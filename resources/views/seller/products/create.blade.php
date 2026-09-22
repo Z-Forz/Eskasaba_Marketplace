@@ -238,16 +238,16 @@
 
                     {{-- Mode 2: Multi-Size Inputs --}}
                     <div x-show="hasSizes" class="rounded-2xl border border-emerald-200/80 bg-emerald-50/30 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/20">
-                        <div class="flex items-center justify-between mb-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                             <div>
                                 <label class="block text-xs font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
                                     <i class="fa-solid fa-layer-group"></i> Daftar Varian Rasa / Ukuran & Harganya
                                 </label>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                                     Kartu produk di katalog akan otomatis menampilkan rentang harga (misal: Rp 10.000 - Rp 20.000).
                                 </p>
                             </div>
-                            <button type="button" @click="addVariant()" class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-800 transition shadow-xs">
+                            <button type="button" @click="addVariant()" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-800 transition shadow-xs">
                                 <i class="fa-solid fa-plus"></i> Tambah Varian
                             </button>
                         </div>

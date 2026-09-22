@@ -138,12 +138,21 @@
             <h2 class="text-2xl font-black tracking-tight text-white sm:text-3xl">Siap Bergabung Dengan Eskasaba Marketplace?</h2>
             <p class="mt-3 text-sm text-emerald-100">Mulai berbelanja atau berjualan di Eskasaba Marketplace sekarang.</p>
             <div class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                <a
-                    href="{{ route('login') }}"
-                    class="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50"
-                >
-                    Masuk Sekarang
-                </a>
+                @auth
+                    <a
+                        href="{{ route('profile.index') }}"
+                        class="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50"
+                    >
+                        Profil Saya
+                    </a>
+                @else
+                    <a
+                        href="{{ route('login') }}"
+                        class="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50"
+                    >
+                        Masuk Sekarang
+                    </a>
+                @endauth
                 <a
                     href="{{ route('products.index') }}"
                     class="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"

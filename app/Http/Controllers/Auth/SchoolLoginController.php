@@ -64,7 +64,7 @@ class SchoolLoginController extends Controller
         // Bagi akun siswa, login WAJIB menggunakan format email sekolah resmi yang terdaftar, tidak boleh hanya NIS saja.
         if ($localUser && $localUser->role === 'student' && !$isEmailInput) {
             throw ValidationException::withMessages([
-                'email' => 'Siswa wajib menggunakan Email Sekolah ( email atau nis yang digunakan saat login sijuna ).',
+                'email' => 'Siswa wajib menggunakan Email Sekolah ( email atau nis yang digunakan saat login sijuna, contoh: 1234@smkn1bangsri.sch id / 1234@sijuna.com ).',
             ]);
         }
 
@@ -72,7 +72,7 @@ class SchoolLoginController extends Controller
         if ($localUser && $localUser->role === 'student' && \App\Services\SchoolApiService::isAlumni($localUser->toArray())) {
             $localUser->delete();
             throw ValidationException::withMessages([
-                'email' => 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
+                'email' => 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
             ]);
         }
 
@@ -108,7 +108,7 @@ class SchoolLoginController extends Controller
                     $localUser->delete();
                 }
                 throw ValidationException::withMessages([
-                    'email' => 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
+                    'email' => 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
                 ]);
             }
 

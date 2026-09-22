@@ -4,7 +4,7 @@
         <div>
             <a
                 href="{{ route('seller.pickup-schedules.index') }}"
-                class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                class="inline-flex items-center text-sm font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400">
                 <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke Jadwal
             </a>
 
@@ -141,7 +141,7 @@
 
                 <button
                     type="submit"
-                    class="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+                    class="rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-800">
                     Simpan
                 </button>
 

@@ -112,7 +112,7 @@
 
                 {{-- Completed Orders --}}
                 <div class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-teal-50 text-lg sm:text-xl text-teal-600 border border-teal-100 dark:bg-teal-950/40">
+                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-50 text-lg sm:text-xl text-emerald-700 border border-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400">
                         <i class="fa-solid fa-circle-check font-bold"></i>
                     </div>
                     <div class="mt-3 sm:mt-4">
@@ -123,7 +123,7 @@
 
                 {{-- Cart Count --}}
                 <div class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-blue-50 text-lg sm:text-xl text-blue-600 border border-blue-100 dark:bg-blue-950/40">
+                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-50 text-lg sm:text-xl text-emerald-700 border border-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400">
                         <i class="fa-solid fa-cart-shopping"></i>
                     </div>
                     <div class="mt-3 sm:mt-4">
@@ -174,19 +174,19 @@
                 {{-- Quick Access 2: Keranjang Belanja --}}
                 <a
                     href="{{ route('buyer.cart.index') }}"
-                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-blue-200/80 bg-white p-5 sm:p-6 shadow-xs transition hover:-translate-y-1 hover:border-blue-400 hover:shadow-md dark:border-blue-950 dark:bg-slate-900"
+                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-emerald-200/80 bg-white p-5 sm:p-6 shadow-xs transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md dark:border-emerald-950 dark:bg-slate-900"
                 >
                     <div class="flex items-center justify-between">
-                        <div class="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/20 transition group-hover:scale-110">
+                        <div class="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20 transition group-hover:scale-110">
                             <i class="fa-solid fa-cart-shopping text-lg sm:text-xl"></i>
                         </div>
-                        <span class="rounded-full bg-blue-600 px-2.5 py-0.5 text-xs font-black text-white shadow-xs">
+                        <span class="rounded-full bg-emerald-700 px-2.5 py-0.5 text-xs font-black text-white shadow-xs">
                             {{ $cartCount ?? 0 }} Item
                         </span>
                     </div>
 
                     <div class="mt-4 sm:mt-5">
-                        <h3 class="font-extrabold text-slate-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400 text-base">
+                        <h3 class="font-extrabold text-slate-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400 text-base">
                             Keranjang Belanja
                         </h3>
                         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -198,19 +198,19 @@
                 {{-- Quick Access 3: Riwayat Pesanan --}}
                 <a
                     href="{{ route('buyer.orders.index') }}"
-                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-purple-200/80 bg-white p-5 sm:p-6 shadow-xs transition hover:-translate-y-1 hover:border-purple-400 hover:shadow-md dark:border-purple-950 dark:bg-slate-900"
+                    class="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-emerald-200/80 bg-white p-5 sm:p-6 shadow-xs transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md dark:border-emerald-950 dark:bg-slate-900"
                 >
                     <div class="flex items-center justify-between">
-                        <div class="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-md shadow-purple-500/20 transition group-hover:scale-110">
+                        <div class="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20 transition group-hover:scale-110">
                             <i class="fa-solid fa-box-open text-lg sm:text-xl"></i>
                         </div>
-                        <span class="text-xs font-bold text-purple-700 opacity-80 group-hover:translate-x-1 transition dark:text-purple-400">
+                        <span class="text-xs font-bold text-emerald-700 opacity-80 group-hover:translate-x-1 transition dark:text-emerald-400">
                             Lihat <i class="fa-solid fa-arrow-right ml-1"></i>
                         </span>
                     </div>
 
                     <div class="mt-4 sm:mt-5">
-                        <h3 class="font-extrabold text-slate-900 group-hover:text-purple-600 dark:text-white dark:group-hover:text-purple-400 text-base">
+                        <h3 class="font-extrabold text-slate-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400 text-base">
                             Riwayat Pesanan
                         </h3>
                         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">

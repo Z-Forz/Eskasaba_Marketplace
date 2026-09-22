@@ -40,6 +40,29 @@ let lastDisconnectCode = null;
 let disconnectHistory = [];
 
 const AUTH_DIR = path.join(__dirname, 'auth_info_baileys');
+const STATE_FILE = path.join(__dirname, 'bot_state.json');
+
+function loadBotState() {
+    try {
+        if (fs.existsSync(STATE_FILE)) {
+            const data = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+            if (typeof data.botEnabled === 'boolean') {
+                botEnabled = data.botEnabled;
+                if (!botEnabled) {
+                    botStatus = 'nonaktif';
+                }
+            }
+        }
+    } catch (e) {}
+}
+
+function saveBotState() {
+    try {
+        fs.writeFileSync(STATE_FILE, JSON.stringify({ botEnabled }));
+    } catch (e) {}
+}
+
+loadBotState();
 
 function hasSavedSession() {
     try {
@@ -229,11 +252,18 @@ async function connectToWhatsApp(force = false) {
                     }, 1000);
                 } else if (isReplaced) {
                     lastDisconnectSource = 'SESSION_CONFLICT';
-                    lastDisconnectReason = 'Sesi WhatsApp aktif di perangkat/proses lain (Conflict Code 440).';
+                    lastDisconnectReason = 'Sesi WhatsApp aktif di perangkat/proses lain (Conflict Code 440). Memulai pemulihan otomatis...';
                     console.log(`⛔ ${lastDisconnectReason}`);
                     addDisconnectLog('SESSION_CONFLICT', 440, lastDisconnectReason);
-                    botStatus = 'error';
-                    lastError = lastDisconnectReason;
+                    botStatus = 'menghubungkan';
+                    lastError = null;
+
+                    setTimeout(() => {
+                        if (botEnabled && !isConnected) {
+                            isConnecting = false;
+                            connectToWhatsApp(true);
+                        }
+                    }, 3000);
                 } else if (isBadSession && !sessionExists) {
                     lastDisconnectSource = 'BAD_SESSION';
                     lastDisconnectReason = 'File sesi terkorupsi (Code 500). Menyiapkan QR Code baru...';
@@ -321,6 +351,8 @@ app.get('/status', (req, res) => {
 // POST /start - Aktifkan Bot
 app.post('/start', async (req, res) => {
     botEnabled = true;
+    lastError = null;
+    saveBotState();
     if (!isConnected) {
         isConnecting = false;
         botStatus = 'menghubungkan';
@@ -340,6 +372,8 @@ app.post('/stop', async (req, res) => {
     isConnecting = false;
     isConnected = false;
     qrCodeDataUrl = null;
+    lastError = null;
+    saveBotState();
     lastDisconnectSource = 'ADMIN_PANEL';
     lastDisconnectReason = 'Bot dinonaktifkan oleh Admin dari Admin Panel.';
     addDisconnectLog('ADMIN_PANEL', 'OFF', lastDisconnectReason);
@@ -360,6 +394,8 @@ app.post('/stop', async (req, res) => {
 // POST /disconnect - Memutuskan koneksi WA (Logout & Siapkan QR Baru)
 app.post('/disconnect', async (req, res) => {
     botEnabled = true;
+    lastError = null;
+    saveBotState();
     lastDisconnectSource = 'ADMIN_PANEL';
     lastDisconnectReason = 'Koneksi WhatsApp diputuskan secara manual oleh Admin dari Admin Panel.';
     addDisconnectLog('ADMIN_PANEL', 'MANUAL_DISCONNECT', lastDisconnectReason);
@@ -403,6 +439,8 @@ app.post('/disconnect', async (req, res) => {
 // POST /reset-session - Reset Sesi & Hapus folder Auth
 app.post('/reset-session', async (req, res) => {
     botEnabled = true;
+    lastError = null;
+    saveBotState();
     isConnecting = false;
     isConnected = false;
     qrCodeDataUrl = null;
@@ -505,9 +543,21 @@ app.post('/send-message', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server WA Bot jalan di http://localhost:${PORT}`);
-    connectToWhatsApp();
+    if (botEnabled) {
+        connectToWhatsApp();
+    } else {
+        botStatus = 'nonaktif';
+        console.log('⏸️ Bot WhatsApp dimuat dalam status NONAKTIF.');
+    }
+});
+
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} sudah digunakan oleh proses node lain! Menghentikan proses duplikat...`);
+        process.exit(1);
+    }
 });
 
 process.on('uncaughtException', (err) => {

@@ -67,7 +67,7 @@
                         <p class="text-xs font-bold uppercase tracking-wider text-slate-400">
                             Penjualan Bulan Ini
                         </p>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                             <i class="fa-solid fa-calendar-days text-base"></i>
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                         <p class="text-xs font-bold uppercase tracking-wider text-slate-400">
                             Penjualan Hari Ini
                         </p>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-300">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                             <i class="fa-solid fa-bolt text-base"></i>
                         </div>
                     </div>
@@ -107,7 +107,7 @@
                         <p class="text-xs font-bold uppercase tracking-wider text-slate-400">
                             Produk Terjual
                         </p>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-300">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                             <i class="fa-solid fa-cart-flatbed text-base"></i>
                         </div>
                     </div>
@@ -158,7 +158,7 @@
                 </div>
 
                 <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/40">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                         <i class="fa-solid fa-receipt text-base"></i>
                     </div>
                     <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">

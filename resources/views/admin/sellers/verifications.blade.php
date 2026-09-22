@@ -109,10 +109,17 @@
                                     </td>
 
                                     <td class="px-6 py-4 text-xs">
-                                        @if ($seller->user?->nis_nip)
-                                            <p class="font-semibold text-slate-800 dark:text-gray-200">
-                                                NIS/NIP: {{ $seller->user->nis_nip }}
-                                            </p>
+                                        @if ($seller->user?->nis_nip || $seller->user?->class_room)
+                                            @if ($seller->user->nis_nip)
+                                                <p class="font-semibold text-slate-800 dark:text-gray-200">
+                                                    NIS/NIP: {{ $seller->user->nis_nip }}
+                                                </p>
+                                            @endif
+                                            @if ($seller->user->class_room)
+                                                <p class="font-bold text-emerald-700 dark:text-emerald-400">
+                                                    Kelas: {{ $seller->user->class_room }}
+                                                </p>
+                                            @endif
                                             <p class="text-slate-500">
                                                 {{ $seller->user->role === 'teacher' ? 'Guru Sekolah' : 'Siswa Sekolah' }}
                                             </p>
@@ -138,30 +145,30 @@
                                         @endif
                                     </td>
 
-                                    <td class="px-6 py-4">
-                                        <span class="rounded-full px-3 py-1 text-xs font-semibold
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap
                                             {{ $seller->status === 'approved'
-                                                ? 'bg-green-100 text-green-700'
+                                                ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
                                                 : ($seller->status === 'rejected'
-                                                    ? 'bg-red-100 text-red-700'
+                                                    ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
                                                     : ($seller->status === 'revision'
-                                                        ? 'bg-amber-100 text-amber-700'
-                                                        : 'bg-blue-100 text-blue-700')) }}"
+                                                        ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                                                        : 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400')) }}"
                                         >
                                             {{ $seller->statusLabel() }}
                                         </span>
                                     </td>
 
-                                    <td class="px-6 py-4 text-xs text-slate-500 dark:text-gray-400">
+                                    <td class="px-6 py-4 text-xs text-slate-500 dark:text-gray-400 whitespace-nowrap">
                                         {{ $seller->created_at?->format('d M Y H:i') ?? '-' }}
                                     </td>
 
-                                    <td class="px-6 py-4 text-right">
+                                    <td class="px-6 py-4 text-right whitespace-nowrap">
                                         <a
                                             href="{{ route('admin.sellers.show', array_merge(['seller' => $seller->id], request()->query())) }}"
-                                            class="inline-flex items-center gap-1 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-800 shadow-xs"
+                                            class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-emerald-800 shadow-xs whitespace-nowrap"
                                         >
-                                            Tinjau & Verifikasi <i class="fa-solid fa-arrow-right"></i>
+                                            Tinjau & Verifikasi <i class="fa-solid fa-arrow-right text-[10px]"></i>
                                         </a>
                                     </td>
 
@@ -194,7 +201,7 @@
                                     </div>
                                 </div>
 
-                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold bg-blue-100 text-blue-700">
+                                <span class="shrink-0 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap bg-yellow-100 text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-300">
                                     {{ $seller->statusLabel() }}
                                 </span>
                             </div>

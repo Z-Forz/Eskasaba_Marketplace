@@ -59,7 +59,7 @@
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-400">
                         Total Produk
                     </p>
-                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-300">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
                         <i class="fa-solid fa-boxes-stacked text-lg"></i>
                     </div>
                 </div>

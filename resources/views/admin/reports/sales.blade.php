@@ -24,7 +24,7 @@
 
             <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-gray-700 dark:bg-gray-900">
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Transaksi Selesai</p>
-                <p class="mt-2 text-3xl font-extrabold text-blue-600 dark:text-blue-400">
+                <p class="mt-2 text-3xl font-extrabold text-emerald-700 dark:text-emerald-400">
                     {{ number_format($completedOrdersCount ?? 0) }} Pesanan
                 </p>
                 <p class="mt-1 text-xs text-slate-500">Pesanan telah berhasil diambil & dibayar</p>
@@ -105,9 +105,9 @@
                                 <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
                                     Rp {{ number_format($sale->total_price, 0, ',', '.') }}
                                 </td>
-                                <td class="px-6 py-4 text-xs">
-                                    <span class="rounded-full px-3 py-1 font-bold
-                                        {{ $sale->status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}"
+                                <td class="px-6 py-4 text-xs whitespace-nowrap">
+                                    <span class="inline-flex items-center rounded-full px-3 py-1 font-bold whitespace-nowrap
+                                        {{ $sale->status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-400' : 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-400' }}"
                                     >
                                         {{ ucfirst($sale->status) }}
                                     </span>

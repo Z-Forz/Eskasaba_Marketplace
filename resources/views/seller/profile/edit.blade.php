@@ -67,22 +67,49 @@
                     >
 
                     @if ($seller->qris_image)
-                        <div class="mt-4 flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
+                        <div x-data="{ showQrModal: false }" class="mt-4 flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
                             <img
                                 src="{{ Storage::url($seller->qris_image) }}"
                                 alt="QRIS {{ $seller->user->username }}"
-                                class="h-24 w-24 rounded-xl border border-slate-200 object-cover shadow-xs dark:border-slate-700"
+                                class="h-24 w-24 rounded-xl border border-slate-200 object-cover shadow-xs dark:border-slate-700 cursor-pointer transition hover:opacity-90 hover:scale-105"
+                                @click="showQrModal = true"
                             >
                             <div>
                                 <p class="text-xs font-bold text-slate-900 dark:text-white">Barcode QRIS Toko Aktif</p>
                                 <p class="mt-0.5 text-xs text-slate-500">Pilih file baru diatas jika ingin mengganti barcode QRIS.</p>
-                                <a
-                                    href="{{ Storage::url($seller->qris_image) }}"
-                                    target="_blank"
-                                    class="mt-2 inline-block text-xs font-semibold text-emerald-600 hover:underline"
+                                <button
+                                    type="button"
+                                    @click="showQrModal = true"
+                                    class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:underline cursor-pointer dark:text-emerald-400"
                                 >
                                     🔍 Lihat Gambar Asli
-                                </a>
+                                </button>
+                            </div>
+
+                            {{-- Centered Lightbox Modal --}}
+                            <div
+                                x-show="showQrModal"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95"
+                                @click="showQrModal = false"
+                                @keydown.escape.window="showQrModal = false"
+                                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                            >
+                                <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2">
+                                    <img
+                                        src="{{ Storage::url($seller->qris_image) }}"
+                                        alt="QRIS {{ $seller->user->username }}"
+                                        class="max-h-[80vh] max-w-full rounded-3xl bg-white p-4 shadow-2xl object-contain border-4 border-emerald-500/30"
+                                    >
+                                    <p class="mt-4 text-center text-xs font-bold text-white/90 bg-slate-900/90 px-4 py-2 rounded-full border border-white/10 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
+                                        <i class="fa-solid fa-xmark text-emerald-400"></i> Klik di mana saja untuk menutup
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     @endif

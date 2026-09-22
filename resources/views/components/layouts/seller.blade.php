@@ -32,7 +32,7 @@
 
     <div class="flex flex-1 flex-col lg:pl-56">
 
-        <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/90 sm:px-6">
+        <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 dark:border-slate-800 dark:bg-slate-900/90 sm:px-6">
             <div class="flex items-center gap-3">
                 {{-- Mobile Hamburger Toggle Button Seller --}}
                 <button

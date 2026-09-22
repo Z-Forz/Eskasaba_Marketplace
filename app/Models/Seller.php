@@ -39,12 +39,10 @@ class Seller extends Model
     protected static function booted(): void
     {
         static::saved(function (Seller $seller) {
-            if ($seller->wasChanged('whatsapp_number') && $seller->whatsapp_number && $seller->user) {
-                if ($seller->user->phone !== $seller->whatsapp_number) {
-                    $seller->user->updateQuietly([
-                        'phone' => $seller->whatsapp_number,
-                    ]);
-                }
+            if ($seller->wasChanged('whatsapp_number')) {
+                User::where('id', $seller->user_id)->update([
+                    'phone' => $seller->whatsapp_number,
+                ]);
             }
         });
     }

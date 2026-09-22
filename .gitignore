@@ -27,3 +27,5 @@ yarn-error.log
 /whatsapp-bot/auth_info_baileys/
 /whatsapp-bot/node_modules/
 /whatsapp-bot/logs/
+/whatsapp-bot/bot_state.json
+routes.json

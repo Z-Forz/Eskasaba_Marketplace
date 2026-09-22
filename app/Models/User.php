@@ -53,8 +53,8 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::saved(function (User $user) {
-            if ($user->wasChanged('phone') && $user->seller) {
-                $user->seller->updateQuietly([
+            if ($user->wasChanged('phone')) {
+                Seller::where('user_id', $user->id)->update([
                     'whatsapp_number' => $user->phone,
                 ]);
             }

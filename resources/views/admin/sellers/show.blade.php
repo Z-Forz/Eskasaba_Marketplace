@@ -63,37 +63,11 @@
                     <i class="fa-solid fa-store text-emerald-600"></i> Informasi Seller
                 </h2>
 
-                <div class="mt-5 grid grid-cols-2 gap-5 sm:grid-cols-2">
+                <div class="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
                     <div>
-                        <p class="text-xs font-bold text-slate-400">Username</p>
-                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
-                            {{ $seller->user->username }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p class="text-xs font-bold text-slate-400">NIS / NIP</p>
-                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
-                            {{ $seller->user->nis_nip }}
-                        </p>
-                    </div>
-
-                    <div class="sm:col-span-1">
-
                         <p class="text-xs font-bold text-slate-400">
-                            Deskripsi Toko
-                        </p>
-
-                        <p class="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                            {{ $seller->description ?: 'Belum ada deskripsi toko.' }}
-                        </p>
-
-                    </div>                    
-                    
-                    <div class="sm:col-span-1">
-                        <p class="text-xs font-bold text-slate-400">
-                            Nomor WhatsApp Toko
+                            Nomor WhatsApp
                         </p>
 
                         <p class="mt-1 text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -125,9 +99,7 @@
                     </div>
 
                     @if ($seller->approved_at)
-
                         <div>
-
                             <p class="text-xs font-bold text-slate-400">
                                 Waktu Disetujui Admin
                             </p>
@@ -135,10 +107,18 @@
                             <p class="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200">
                                 <i class="fa-solid fa-clock-check text-emerald-600 mr-1"></i> {{ $seller->approved_at->format('d F Y H:i') }}
                             </p>
-
                         </div>
-
                     @endif
+
+                    <div class="col-span-2 lg:col-span-3">
+                        <p class="text-xs font-bold text-slate-400">
+                            Deskripsi Toko
+                        </p>
+
+                        <p class="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                            {{ $seller->description ?: 'Belum ada deskripsi toko.' }}
+                        </p>
+                    </div>
 
                 </div>
 
@@ -147,27 +127,41 @@
         </div>
 
         {{-- School identity --}}
-        @if ($seller->user?->nis_nip)
+        @if ($seller->user?->nis_nip || $seller->user?->class_room)
 
             <section class="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
                 <h2 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-graduation-cap text-emerald-600"></i> Identitas Sekolah (Warga Sekolah)
+                    <i class="fa-solid fa-graduation-cap text-emerald-600"></i> Identitas
                 </h2>
 
-                <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="mt-5 grid grid-cols-2 gap-3.5 sm:gap-4 lg:grid-cols-4">
 
-                    <div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-800/50">
                         <p class="text-xs font-bold text-slate-400">Username</p>
-                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
+                        <p class="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
                             {{ $seller->user->username }}
                         </p>
                     </div>
 
-                    <div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-800/50">
                         <p class="text-xs font-bold text-slate-400">NIS / NIP</p>
-                        <p class="mt-1 text-sm font-bold dark:text-slate-200">
-                            {{ $seller->user->nis_nip }}
+                        <p class="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100">
+                            {{ $seller->user->nis_nip ?? '-' }}
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl border border-emerald-200/80 bg-emerald-50/60 p-3.5 dark:border-emerald-950 dark:bg-emerald-950/30">
+                        <p class="text-xs font-bold text-emerald-800 dark:text-emerald-400">Kelas / Guru Mapel</p>
+                        <p class="mt-1 text-sm font-black text-emerald-700 dark:text-emerald-300">
+                            {{ $seller->user->class_room ?? '-' }}
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-800/50">
+                        <p class="text-xs font-bold text-slate-400">Peran</p>
+                        <p class="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100">
+                            {{ $seller->user->role === 'teacher' ? 'Guru' : ($seller->user->role === 'student' ? 'Siswa' : ucfirst($seller->user->role ?? '-')) }}
                         </p>
                     </div>
 
@@ -189,13 +183,48 @@
                 <div class="mt-5 space-y-5">
 
                     @if ($seller->qris_image)
-                        <div>
+                        <div x-data="{ showQrModal: false }">
                             <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Gambar Barcode QRIS Toko</p>
                             <div class="mt-3 flex items-center gap-4">
-                                <img src="{{ Storage::url($seller->qris_image) }}" alt="QRIS {{ $seller->user?->username }}" class="h-40 w-40 rounded-2xl border border-slate-200 object-cover shadow-xs dark:border-slate-700 bg-white p-2">
-                                <a href="{{ Storage::url($seller->qris_image) }}" target="_blank" class="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                <img
+                                    src="{{ Storage::url($seller->qris_image) }}"
+                                    alt="QRIS {{ $seller->user?->username }}"
+                                    class="h-40 w-40 rounded-2xl border border-slate-200 object-cover shadow-xs dark:border-slate-700 bg-white p-2 cursor-pointer transition hover:opacity-90 hover:scale-105"
+                                    @click="showQrModal = true"
+                                >
+                                <button
+                                    type="button"
+                                    @click="showQrModal = true"
+                                    class="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 cursor-pointer"
+                                >
                                     <i class="fa-solid fa-magnifying-glass-plus"></i> Lihat Ukuran Penuh
-                                </a>
+                                </button>
+                            </div>
+
+                            {{-- Centered Lightbox Modal --}}
+                            <div
+                                x-show="showQrModal"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95"
+                                @click="showQrModal = false"
+                                @keydown.escape.window="showQrModal = false"
+                                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                            >
+                                <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2">
+                                    <img
+                                        src="{{ Storage::url($seller->qris_image) }}"
+                                        alt="QRIS {{ $seller->user?->username }}"
+                                        class="max-h-[80vh] max-w-full rounded-3xl bg-white p-4 shadow-2xl object-contain border-4 border-emerald-500/30"
+                                    >
+                                    <p class="mt-4 text-center text-xs font-bold text-white/90 bg-slate-900/90 px-4 py-2 rounded-full border border-white/10 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
+                                        <i class="fa-solid fa-xmark text-emerald-400"></i> Klik di mana saja untuk menutup
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     @endif
@@ -246,7 +275,7 @@
                     </p>
                 </div>
 
-                <span class="rounded-full px-3 py-1 text-xs font-bold
+                <span class="rounded-full px-3 py-1 text-xs font-bold text-center
                     {{ $seller->status === 'approved'
                         ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
                         : ($seller->status === 'rejected'

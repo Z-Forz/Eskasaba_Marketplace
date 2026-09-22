@@ -48,7 +48,7 @@
 
                     {{-- Category Select --}}
                     <div>
-                        <label for="category" class="mb-1.5 block text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <label for="category" class="mb-2.5 block text-xs font-bold text-slate-700 dark:text-slate-300">
                             <i class="fa-solid fa-layer-group text-slate-400 mr-1"></i> Kategori
                         </label>
                         <select
@@ -70,7 +70,7 @@
 
                     {{-- Sort Select --}}
                     <div>
-                        <label for="sort" class="mb-1.5 block text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <label for="sort" class="mb-2.5 block text-xs font-bold text-slate-700 dark:text-slate-300">
                             <i class="fa-solid fa-arrow-down-short-wide text-slate-400 mr-1"></i> Urutkan
                         </label>
                         <select

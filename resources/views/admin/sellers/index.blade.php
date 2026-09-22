@@ -84,10 +84,17 @@
 
                                     {{-- School Identity --}}
                                     <td class="px-6 py-4 text-xs">
-                                        @if ($seller->user?->nis_nip)
-                                            <p class="font-bold text-slate-800 dark:text-slate-200">
-                                                NIS/NIP: {{ $seller->user->nis_nip }}
-                                            </p>
+                                        @if ($seller->user?->nis_nip || $seller->user?->class_room)
+                                            @if ($seller->user->nis_nip)
+                                                <p class="font-bold text-slate-800 dark:text-slate-200">
+                                                    NIS/NIP: {{ $seller->user->nis_nip }}
+                                                </p>
+                                            @endif
+                                            @if ($seller->user->class_room)
+                                                <p class="font-bold text-emerald-700 dark:text-emerald-400">
+                                                    Kelas: {{ $seller->user->class_room }}
+                                                </p>
+                                            @endif
                                             <p class="text-slate-500">
                                                 {{ $seller->user->role === 'teacher' ? 'Guru Sekolah' : 'Siswa Sekolah' }}
                                             </p>
@@ -183,14 +190,14 @@
                                     </div>
                                 </div>
 
-                                <span class="shrink-0 rounded-full px-3 py-1 text-xs font-bold
+                                <span class="shrink-0 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold whitespace-nowrap
                                     {{ $seller->status === 'approved'
-                                        ? 'bg-green-100 text-green-700'
+                                        ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
                                         : ($seller->status === 'rejected'
-                                            ? 'bg-red-100 text-red-700'
+                                            ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
                                             : ($seller->status === 'revision'
-                                                ? 'bg-amber-100 text-amber-700'
-                                                : 'bg-yellow-100 text-yellow-700')) }}"
+                                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-300')) }}"
                                 >
                                     {{ $seller->statusLabel() }}
                                 </span>

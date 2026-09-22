@@ -110,8 +110,8 @@
                                     Rp {{ number_format($payment->amount ?? $payment->order?->total_price ?? 0, 0, ',', '.') }}
                                 </td>
 
-                                <td class="px-6 py-4">
-                                    <span class="rounded-full px-3 py-1 text-xs font-bold
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold whitespace-nowrap
                                         {{ in_array($payment->status, ['verified', 'paid'])
                                             ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
                                             : ($payment->status === 'rejected'
@@ -119,19 +119,19 @@
                                                 : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400') }}"
                                     >
                                         @if(in_array($payment->status, ['verified', 'paid']))
-                                            <i class="fa-solid fa-check mr-1"></i> Terverifikasi
+                                            <i class="fa-solid fa-check"></i> Terverifikasi
                                         @elseif($payment->status === 'rejected')
-                                            <i class="fa-solid fa-xmark mr-1"></i> Ditolak
+                                            <i class="fa-solid fa-xmark"></i> Ditolak
                                         @else
-                                            <i class="fa-solid fa-clock mr-1"></i> Menunggu Konfirmasi
+                                            <i class="fa-solid fa-clock"></i> Menunggu Konfirmasi
                                         @endif
                                     </span>
                                 </td>
 
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-6 py-4 text-right whitespace-nowrap">
                                     <a
                                         href="{{ route('admin.payments.show', $payment) }}"
-                                        class="inline-flex items-center gap-1.5 rounded-2xl bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                                        class="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 whitespace-nowrap shadow-xs"
                                     >
                                         <i class="fa-solid fa-eye"></i> Detail & Bukti
                                     </a>

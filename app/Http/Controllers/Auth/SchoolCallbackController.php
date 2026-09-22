@@ -76,10 +76,10 @@ class SchoolCallbackController extends Controller
                 if ($request->expectsJson()) {
                     return response()->json([
                         'status'  => false,
-                        'message' => 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
+                        'message' => 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
                     ], 403);
                 }
-                return redirect()->route('login')->with('error', 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.');
+                return redirect()->route('login')->with('error', 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.');
             }
 
             Auth::login($localUser, true);
@@ -118,10 +118,10 @@ class SchoolCallbackController extends Controller
                 if ($request->expectsJson()) {
                     return response()->json([
                         'status'  => false,
-                        'message' => 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
+                        'message' => 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
                     ], 403);
                 }
-                return redirect()->route('login')->with('error', 'Akun Anda telah berstatus Alumni (Lulus). Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.');
+                return redirect()->route('login')->with('error', 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.');
             }
 
             $classRoom = $apiData['class_room'] ?? null;
