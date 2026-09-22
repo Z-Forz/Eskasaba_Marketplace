@@ -556,6 +556,10 @@ const server = app.listen(PORT, HOST, () => {
 
 server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
+        if (server.listening) {
+            console.warn(`⚠️ Port ${PORT} sudah aktif melayani request.`);
+            return;
+        }
         console.error(`❌ Port ${PORT} sudah digunakan oleh proses node lain! Menghentikan proses duplikat...`);
         process.exit(1);
     }
