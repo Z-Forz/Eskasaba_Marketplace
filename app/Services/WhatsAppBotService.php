@@ -14,11 +14,11 @@ class WhatsAppBotService
      */
     protected static function getBaseUrl(): string
     {
-        $gatewayUrl = config('services.whatsapp.url', 'http://127.0.0.1:3003/send-message');
+        $gatewayUrl = config('services.whatsapp.url', 'http://127.0.0.1:4545/send-message');
         $parsed = parse_url($gatewayUrl);
         $scheme = $parsed['scheme'] ?? 'http';
         $host   = $parsed['host'] ?? '127.0.0.1';
-        $port   = isset($parsed['port']) ? ':' . $parsed['port'] : ':3003';
+        $port   = isset($parsed['port']) ? ':' . $parsed['port'] : ':4545';
 
         if ($host === 'localhost' || !filter_var($host, FILTER_VALIDATE_IP)) {
             $host = '127.0.0.1';

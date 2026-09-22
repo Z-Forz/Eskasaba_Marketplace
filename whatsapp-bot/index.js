@@ -542,7 +542,7 @@ app.post('/send-message', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 4545;
 const HOST = process.env.HOST || '127.0.0.1';
 const server = app.listen(PORT, HOST, () => {
     console.log(`Server WA Bot jalan di http://${HOST}:${PORT}`);
@@ -560,8 +560,17 @@ server.on('error', (err) => {
             console.warn(`⚠️ Port ${PORT} sudah aktif melayani request.`);
             return;
         }
-        console.error(`❌ Port ${PORT} sudah digunakan oleh proses node lain! Menghentikan proses duplikat...`);
-        process.exit(1);
+        console.warn(`⚠️ Port ${PORT} sedang terpakai / dalam pembersihan socket OS. Mencoba lagi dalam 3 detik...`);
+        setTimeout(() => {
+            try {
+                server.close();
+            } catch (e) {}
+            try {
+                server.listen(PORT, HOST);
+            } catch (e) {}
+        }, 3000);
+    } else {
+        console.error('[WA BOT SERVER ERROR]', err);
     }
 });
 
