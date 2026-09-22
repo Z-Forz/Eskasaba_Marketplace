@@ -37,7 +37,7 @@ return [
 
     'whatsapp' => [
         'enabled' => env('WA_ENABLE_NOTIFICATION', true),
-        'url'     => env('WA_GATEWAY_URL', 'http://localhost:3000/send-message'),
+        'url'     => env('WA_GATEWAY_URL', 'http://127.0.0.1:3003/send-message'),
         'token'   => env('WA_GATEWAY_TOKEN', ''),
     ],
 

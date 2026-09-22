@@ -542,7 +542,7 @@ app.post('/send-message', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3003;
 const HOST = process.env.HOST || '127.0.0.1';
 const server = app.listen(PORT, HOST, () => {
     console.log(`Server WA Bot jalan di http://${HOST}:${PORT}`);
