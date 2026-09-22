@@ -543,8 +543,9 @@ app.post('/send-message', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
-    console.log(`Server WA Bot jalan di http://localhost:${PORT}`);
+const HOST = process.env.HOST || '127.0.0.1';
+const server = app.listen(PORT, HOST, () => {
+    console.log(`Server WA Bot jalan di http://${HOST}:${PORT}`);
     if (botEnabled) {
         connectToWhatsApp();
     } else {
