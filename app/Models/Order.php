@@ -17,7 +17,55 @@ class Order extends Model
         'pickup_location',
         'note',
         'status',
+        'cancelled_by',
+        'cancellation_reason',
+        'cancellation_status',
     ];
+
+    /**
+     * Restore stock for all products and variants in this order when cancelled.
+     */
+    public function restoreStock(): void
+    {
+        $this->loadMissing('items.product');
+
+        foreach ($this->items as $item) {
+            $product = $item->product;
+            if (! $product) {
+                continue;
+            }
+
+            $variantName = $item->variant_name;
+            $qty = (int) $item->quantity;
+
+            if (! empty($variantName) && is_array($product->variants)) {
+                $variants = $product->variants;
+                $variantFound = false;
+
+                foreach ($variants as $idx => $var) {
+                    if (isset($var['name']) && strcasecmp(trim($var['name']), trim($variantName)) === 0) {
+                        $variantFound = true;
+                        $varStock = isset($var['stock']) ? (int) $var['stock'] : 0;
+                        $variants[$idx]['stock'] = $varStock + $qty;
+                        break;
+                    }
+                }
+
+                if ($variantFound) {
+                    $product->variants = $variants;
+                    if (array_filter($variants, fn ($v) => isset($v['stock']))) {
+                        $product->stock = array_sum(array_column($variants, 'stock'));
+                    } else {
+                        $product->increment('stock', $qty);
+                    }
+                    $product->save();
+                    continue;
+                }
+            }
+
+            $product->increment('stock', $qty);
+        }
+    }
 
     protected function casts(): array
     {

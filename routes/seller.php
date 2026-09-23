@@ -29,6 +29,12 @@ Route::middleware(['auth', 'seller.approved'])
         Route::resource('orders', OrderController::class)
             ->only(['index', 'show', 'update']);
 
+        Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])
+            ->name('orders.cancel');
+
+        Route::post('/orders/{order}/confirm-cancellation', [OrderController::class, 'confirmCancellation'])
+            ->name('orders.confirm-cancellation');
+
         Route::resource('payments', PaymentController::class)
             ->only(['index', 'show']);
 

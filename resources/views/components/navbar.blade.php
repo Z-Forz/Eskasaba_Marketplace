@@ -11,7 +11,7 @@
         {{-- Logo --}}
         <a
             href="{{ route('home') }}"
-            class="flex min-w-0 items-center gap-2.5 sm:gap-3"
+            class="flex shrink-0 items-center gap-2 sm:gap-3 mr-2 lg:mr-4"
         >
             @if(isset($settings) && $settings->logo)
                 <img
@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            <span class="flex items-center gap-1 shrink-0 font-black tracking-tight">
+            <span class="flex items-center gap-1 shrink-0 font-black tracking-tight whitespace-nowrap">
                 <span class="text-sm xs:text-base sm:text-lg text-slate-900 dark:text-white">
                     Eskasaba
                 </span>
@@ -36,51 +36,51 @@
         </a>
 
         {{-- Desktop Navigation Links --}}
-        <div class="hidden items-center gap-2 md:flex">
+        <div class="hidden shrink-0 items-center gap-1 lg:gap-2 md:flex">
 
             <a
                 href="{{ route('home') }}"
-                class="px-3.5 py-2.5 rounded-xl text-sm transition inline-flex items-center justify-center gap-2 leading-none {{ request()->routeIs('home') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
+                class="px-2.5 lg:px-3.5 py-2 lg:py-2.5 rounded-xl text-xs lg:text-sm transition inline-flex items-center justify-center gap-1.5 lg:gap-2 leading-none whitespace-nowrap {{ request()->routeIs('home') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
             >
-                <i class="fa-solid fa-house text-sm leading-none text-emerald-600 shrink-0"></i>
+                <i class="fa-solid fa-house text-xs lg:text-sm leading-none text-emerald-600 shrink-0"></i>
                 <span class="leading-none">Beranda</span>
             </a>
 
             <a
                 href="{{ route('products.index') }}"
-                class="px-3.5 py-2.5 rounded-xl text-sm transition inline-flex items-center justify-center gap-2 leading-none {{ request()->routeIs('products.*') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
+                class="px-2.5 lg:px-3.5 py-2 lg:py-2.5 rounded-xl text-xs lg:text-sm transition inline-flex items-center justify-center gap-1.5 lg:gap-2 leading-none whitespace-nowrap {{ request()->routeIs('products.*') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
             >
-                <i class="fa-solid fa-bag-shopping text-sm leading-none text-emerald-600 shrink-0"></i>
+                <i class="fa-solid fa-bag-shopping text-xs lg:text-sm leading-none text-emerald-600 shrink-0"></i>
                 <span class="leading-none">Produk</span>
             </a>
 
             <a
                 href="{{ route('guide') }}"
-                class="px-3.5 py-2.5 rounded-xl text-sm transition inline-flex items-center justify-center gap-2 leading-none {{ request()->routeIs('guide') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
+                class="px-2.5 lg:px-3.5 py-2 lg:py-2.5 rounded-xl text-xs lg:text-sm transition inline-flex items-center justify-center gap-1.5 lg:gap-2 leading-none whitespace-nowrap {{ request()->routeIs('guide') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
             >
-                <i class="fa-solid fa-book-open text-sm leading-none text-emerald-600 shrink-0"></i>
+                <i class="fa-solid fa-book-open text-xs lg:text-sm leading-none text-emerald-600 shrink-0"></i>
                 <span class="leading-none">Panduan</span>
             </a>
 
             <a
                 href="{{ route('about') }}"
-                class="px-3.5 py-2.5 rounded-xl text-sm transition inline-flex items-center justify-center gap-2 leading-none {{ request()->routeIs('about') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
+                class="px-2.5 lg:px-3.5 py-2 lg:py-2.5 rounded-xl text-xs lg:text-sm transition inline-flex items-center justify-center gap-1.5 lg:gap-2 leading-none whitespace-nowrap {{ request()->routeIs('about') ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs ring-1 ring-emerald-200' : 'text-slate-600 font-semibold hover:bg-emerald-50/60 hover:text-emerald-700' }}"
             >
-                <i class="fa-solid fa-circle-info text-sm leading-none text-emerald-600 shrink-0"></i>
+                <i class="fa-solid fa-circle-info text-xs lg:text-sm leading-none text-emerald-600 shrink-0"></i>
                 <span class="leading-none">Tentang</span>
             </a>
 
         </div>
 
         {{-- Desktop Right Actions --}}
-        <div class="hidden items-center gap-2 md:flex">
+        <div class="hidden shrink-0 items-center gap-1.5 lg:gap-2 md:flex">
 
             @auth
 
                 {{-- Cart Button --}}
                 <a
                     href="{{ route('buyer.cart.index') }}"
-                    class="rounded-xl p-2.5 transition flex items-center justify-center {{ request()->routeIs('buyer.cart.*') ? 'bg-emerald-100/80 text-emerald-800 shadow-xs ring-1 ring-emerald-300' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700' }}"
+                    class="rounded-xl p-2 lg:p-2.5 transition flex items-center justify-center {{ request()->routeIs('buyer.cart.*') ? 'bg-emerald-100/80 text-emerald-800 shadow-xs ring-1 ring-emerald-300' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700' }}"
                     aria-label="Keranjang"
                 >
                     <i class="fa-solid fa-cart-shopping text-base"></i>
@@ -92,7 +92,7 @@
                 @endphp
                 <a
                     href="{{ route('buyer.notifications.index') }}"
-                    class="relative rounded-xl p-2.5 transition flex items-center justify-center {{ request()->routeIs('buyer.notifications.*') ? 'bg-emerald-100/80 text-emerald-800 shadow-xs ring-1 ring-emerald-300' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700' }}"
+                    class="relative rounded-xl p-2 lg:p-2.5 transition flex items-center justify-center {{ request()->routeIs('buyer.notifications.*') ? 'bg-emerald-100/80 text-emerald-800 shadow-xs ring-1 ring-emerald-300' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700' }}"
                     aria-label="Notifikasi"
                 >
                     <i class="fa-solid fa-bell text-base"></i>
@@ -106,18 +106,18 @@
                 {{-- Profile Card --}}
                 <a
                     href="{{ route('profile.index') }}"
-                    class="ml-1 flex items-center gap-2.5 rounded-xl p-1.5 transition hover:bg-slate-50 {{ request()->routeIs('profile.*') ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-300 shadow-xs' : '' }}"
+                    class="ml-0.5 lg:ml-1 flex items-center gap-2 lg:gap-2.5 rounded-xl p-1.5 transition hover:bg-slate-50 {{ request()->routeIs('profile.*') ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-300 shadow-xs' : '' }}"
                 >
-                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-sm font-bold text-white shadow-xs">
+                    <div class="flex h-8 w-8 lg:h-9 lg:w-9 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-xs lg:text-sm font-bold text-white shadow-xs">
                         {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
                     </div>
 
-                    <div class="max-w-32">
-                        <p class="truncate text-sm font-bold text-slate-800">
+                    <div class="hidden sm:block max-w-24 lg:max-w-32">
+                        <p class="truncate text-xs lg:text-sm font-bold text-slate-800">
                             {{ auth()->user()->username }}
                         </p>
 
-                        <p class="text-xs text-emerald-600 font-bold">
+                        <p class="text-[10px] lg:text-xs text-emerald-600 font-bold">
                             @if(auth()->user()->seller?->status === 'approved')
                                 Seller Toko
                             @else

@@ -28,6 +28,7 @@
                     'processing'       => 'Diproses',
                     'ready_for_pickup' => 'Siap Diambil',
                     'completed'        => 'Selesai',
+                    'cancel_requested' => 'Pengajuan Pembatalan',
                     'cancelled'        => 'Dibatalkan',
                 ];
             @endphp

@@ -16,13 +16,17 @@ class Payment extends Model
         'proof',
         'status',
         'verified_at',
+        'refund_proof',
+        'refund_notes',
+        'refunded_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'amount' => 'decimal:2',
+            'amount'      => 'decimal:2',
             'verified_at' => 'datetime',
+            'refunded_at' => 'datetime',
         ];
     }
 

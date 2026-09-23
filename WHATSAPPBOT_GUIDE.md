@@ -10,24 +10,25 @@ Panduan teknis pengintegrasian microservice **WhatsApp Bot (Baileys Node.js)** d
 eskasaba-marketplace/
 ├── app/
 │   ├── Http/Controllers/Admin/
-│   │   └── WhatsAppController.php          # Controller manajemen status bot & QR Code WA di Admin Panel
-│   ├── Jobs/
-│   │   └── SendWhatsAppNotificationJob.php    # Queue Job pengiriman pesan WA secara asynchronous
+│   │   └── WhatsAppController.php          # Controller manajemen status bot, QR Code WA, & tes pesan di Admin Panel
 │   ├── Models/
-│   │   ├── Order.php                       # Model Pesanan
+│   │   ├── Order.php                       # Model Pesanan & Relasi Item
 │   │   ├── Seller.php                      # Model Toko / Penjual
 │   │   ├── SellerRequest.php               # Model Permintaan Kategori / Fitur Seller
-│   │   └── User.php                        # Model Pengguna (Menyimpan nomor HP/WA)
+│   │   └── User.php                        # Model Pengguna (Menyimpan nomor HP/WA & Role)
 │   └── Services/
-│       └── WhatsAppService.php             # Service utama formatting nomor, template pesan, & HTTP Client ke Bot
+│       ├── WhatsAppBotService.php          # Service penanganan status proses Node, QR Code, & kontrol PID
+│       └── WhatsAppService.php             # Service utama formatting nomor, template pesan, & HTTP Client (Primary + Fallback)
 ├── config/
-│   └── services.php                        # Konfigurasi WA_ENABLE_NOTIFICATION, WA_GATEWAY_URL, & WA_GATEWAY_TOKEN
+│   └── services.php                        # Konfigurasi 'whatsapp.enabled', 'whatsapp.url', & 'whatsapp.token'
 ├── resources/views/admin/whatsapp/
 │   └── index.blade.php                     # Dashboard monitoring bot WA, scan QR Code, & kontrol sesi
 ├── routes/
 │   └── admin.php                           # Route admin untuk kontrol WA Bot (/admin/whatsapp)
 └── whatsapp-bot/
     ├── auth_info_baileys/                  # Folder sesi & kredensial Baileys WhatsApp (auto-generated)
+    ├── logs/                               # Folder log aktivitas server Express / Baileys
+    ├── bot_state.json                      # Status sesi koneksi Baileys (auto-updated)
     ├── index.js                            # Server Express REST API + Baileys WhatsApp Web Socket Engine
     ├── package.json                        # Dependensi Node.js (@whiskeysockets/baileys, express, qrcode)
     └── .env                                # Environment variabel PORT & API Key Bot
@@ -42,23 +43,22 @@ sequenceDiagram
     autonumber
     actor Trigger as Event / Action (Pembeli / Penjual / Admin)
     participant Laravel as Laravel App (WhatsAppService)
-    participant Queue as Laravel Queue Worker
-    participant NodeBot as Baileys REST API (Node.js :3000)
+    participant NodeBot as Baileys REST API (Node.js :3000 / :4545)
     participant BaileysEngine as Baileys Socket Engine
     participant WANetwork as WhatsApp Network Server
     actor Recipient as Penerima (Pembeli / Penjual / Admin)
 
     Trigger->>Laravel: Trigger Transaksi / Perubahan Status
-    Laravel->>Queue: Dispatch SendWhatsAppNotificationJob (Optional / Async)
-    Queue->>Laravel: Execute WhatsAppService::send($to, $message)
+    Laravel->>Laravel: Panggil WhatsAppService::send($to, $message)
     Laravel->>Laravel: Format Nomor HP via formatPhoneNumber() (08xx -> 628xx)
     
-    Laravel->>NodeBot: HTTP POST /send-message (JSON: number, message)
+    Laravel->>NodeBot: HTTP POST /send-message (JSON: target/number/phone, message)
     
-    alt Bot Offline / Connection Lost
+    alt Primary Gateway Timeout / Error
         NodeBot-->>Laravel: HTTP 500 / Connection Refused
-        Laravel->>Laravel: Log Warning & Retrying Fallback Gateway
-    else Bot Online & Terhubung
+        Laravel->>Laravel: Log Warning & Retrying Fallback Gateway (http://localhost:3000/send-message)
+        Laravel->>NodeBot: HTTP POST Fallback Gateway
+    else Primary / Fallback Gateway Online & Terhubung
         NodeBot->>BaileysEngine: sock.sendMessage(jid, { text: message })
         BaileysEngine->>WANetwork: Kirim Pesan via WebSocket Baileys
         WANetwork-->>Recipient: Pesan WhatsApp Masuk 💬
@@ -78,7 +78,7 @@ Semua nomor telepon pengguna secara otomatis diproses melalui method `WhatsAppSe
 - `6281234567890` `→` `6281234567890`
 - `81234567890` `→` `6281234567890`
 
-> ⚠️ **Catatan Penting**: Nomor telepon yang kosong (`null`), berformat tidak valid, atau mengandung karakter non-digit secara otomatis dibatalkan pengirimannya dan dicatat dalam Laravel Application Logs (`storage/logs/laravel.log`) dengan pesan warning: `"WhatsAppService: Nomor tujuan tidak valid."`
+> ⚠️ **Catatan Penting**: Nomor telepon yang kosong (`null`), berformat tidak valid, atau mengandung karakter non-digit secara otomatis dibatalkan pengirimannya dan dicatat dalam Laravel Application Logs (`storage/logs/laravel.log`) dengan pesan warning: `"WhatsAppService: Nomor tujuan '...' tidak valid."`
 
 ---
 
@@ -97,7 +97,7 @@ Anda mendapatkan pesanan baru di Eskasaba Marketplace!
 📄 *Invoice:* #[Nomor Invoice]
 👤 *Pembeli:* [Nama Pembeli]
 📱 *No. HP/WA Pembeli:* [No HP]
-📍 *Lokasi & Waktu Pengambilan:* [Lokasi COD / Kantin]
+📍 *Lokasi & Waktu Pengambilan:* [Jadwal Pickup / Kantin]
 💰 *Total:* Rp [Total Harga]
 
 📋 *Item Pesanan:*
@@ -122,7 +122,7 @@ Status pesanan *#[Nomor Invoice]* Anda telah diperbarui menjadi:
 
 🏪 *Toko Penjual:* [Nama Toko/Seller]
 📱 *No. HP/WA Penjual:* [No WA Seller]
-📍 *Titik Pengambilan:* [Lokasi]
+📍 *Titik Pengambilan:* [Lokasi Pickup]
 
 📋 *Item:*
 • [Nama Produk] (x[Qty])
@@ -217,6 +217,8 @@ npm start
 
 Admin dapat mengelola seluruh sesi koneksi WhatsApp Bot langsung dari antarmuka web di `/admin/whatsapp`:
 
-1. **Status Realtime**: Menampilkan status *Terhubung*, *Menunggu Scan QR*, *Menghubungkan*, atau *Nonaktif*.
+1. **Status Realtime**: Menampilkan status *Terhubung*, *Menunggu Scan QR*, *Menghubungkan*, *Server Node Offline*, atau *Nonaktif*.
 2. **Scan QR Code**: Render otomatis gambar QR Code Baileys untuk dipindai menggunakan aplikasi WhatsApp di HP Admin.
-3. **Reset Sesi / Logout**: Tombol hapus folder `auth_info_baileys` secara aman jika koneksi terputus atau akun berganti.
+3. **Kontrol Proses Node**: Memulai kembali (*start/restart*) proses Node secara background via PID controller dari `WhatsAppBotService`.
+4. **Reset Sesi / Logout**: Tombol hapus folder `auth_info_baileys` secara aman jika koneksi terputus atau akun berganti.
+5. **Uji Pengiriman Pesan**: Form interaktif untuk mengirimkan pesan WhatsApp uji coba ke nomor tujuan tertentu langsung dari dashboard Admin.

@@ -95,6 +95,10 @@ class OrderController extends Controller
 
         $statusChanged = !empty($data['status']) && $data['status'] !== $order->status;
 
+        if (!empty($data['status']) && $data['status'] === 'cancelled' && in_array($order->status, ['ready_for_pickup', 'completed'])) {
+            return back()->with('error', 'Pesanan yang sudah siap diambil atau selesai tidak dapat dibatalkan.');
+        }
+
         $order->update(array_filter([
             'status'          => $data['status'] ?? null,
             'pickup_location' => $data['pickup_location'] ?? null,
@@ -106,6 +110,12 @@ class OrderController extends Controller
                 'status'      => $data['payment_status'],
                 'verified_at' => in_array($data['payment_status'], ['verified', 'paid']) ? now() : null,
             ]);
+
+            // Auto-advance order status from 'pending' to 'confirmed' if payment is verified
+            if (in_array($data['payment_status'], ['verified', 'paid']) && $order->status === 'pending') {
+                $order->update(['status' => 'confirmed']);
+                $statusChanged = true;
+            }
         } elseif (isset($data['status']) && in_array($data['status'], ['confirmed', 'processing', 'ready_for_pickup', 'completed']) && $order->payment && $order->payment->status === 'pending') {
             // Auto-verify QRIS/payment when order is confirmed or processed
             $order->payment->update([
@@ -118,9 +128,9 @@ class OrderController extends Controller
             $this->notifyOrderStatusUpdate($order);
         }
 
-        return redirect()->route('seller.orders.index')->with(
+        return back()->with(
             'success',
-            'Status pesanan, konfirmasi pembayaran & lokasi pengambilan berhasil diperbarui.'
+            'Status pesanan & konfirmasi pembayaran berhasil diperbarui.'
         );
     }
 
@@ -145,7 +155,7 @@ class OrderController extends Controller
 
         $this->notifyOrderStatusUpdate($order);
 
-        return redirect()->route('seller.orders.index')->with(
+        return back()->with(
             'success',
             'Pesanan & pembayaran QRIS berhasil dikonfirmasi.'
         );
@@ -171,7 +181,7 @@ class OrderController extends Controller
 
         $this->notifyOrderStatusUpdate($order);
 
-        return redirect()->route('seller.orders.index')->with(
+        return back()->with(
             'success',
             'Pesanan berhasil ditolak.'
         );
@@ -191,7 +201,7 @@ class OrderController extends Controller
 
         $this->notifyOrderStatusUpdate($order);
 
-        return redirect()->route('seller.orders.index')->with(
+        return back()->with(
             'success',
             'Barang siap diambil.'
         );
@@ -218,9 +228,145 @@ class OrderController extends Controller
 
         $this->notifyOrderStatusUpdate($order);
 
-        return redirect()->route('seller.orders.index')->with(
+        return back()->with(
             'success',
             'Pesanan selesai & diserahterimakan.'
+        );
+    }
+
+    /**
+     * Cancel an order directly by seller.
+     */
+    public function cancel(Request $request, Order $order): RedirectResponse
+    {
+        $seller = Seller::where('user_id', Auth::id())->firstOrFail();
+        abort_unless($order->seller_id === $seller->id, 403);
+
+        if (!in_array($order->status, ['pending', 'confirmed', 'processing'])) {
+            return back()->with('error', 'Pesanan yang sudah siap diambil, selesai, atau dalam proses pembatalan tidak dapat dibatalkan.');
+        }
+
+        $request->validate([
+            'reason'       => ['required', 'string', 'max:500'],
+            'refund_proof' => ['nullable', 'image', 'max:10240'],
+            'refund_notes' => ['nullable', 'string', 'max:500'],
+        ], [
+            'reason.required'  => 'Alasan pembatalan pesanan wajib diisi.',
+            'refund_proof.image' => 'Bukti refund harus berupa gambar (JPG, PNG, WEBP).',
+            'refund_proof.max'   => 'Ukuran foto bukti refund maksimal 10MB.',
+        ]);
+
+        $order->loadMissing(['payment', 'user']);
+
+        $refundPath = null;
+        if ($request->hasFile('refund_proof')) {
+            $refundPath = \App\Services\ImageCompressor::compressAndStore($request->file('refund_proof'), 'refund_proofs');
+        }
+
+        if ($order->payment) {
+            $order->payment->update([
+                'refund_proof' => $refundPath ?? $order->payment->refund_proof,
+                'refund_notes' => $request->refund_notes ?? $order->payment->refund_notes,
+                'refunded_at'  => $refundPath ? now() : $order->payment->refunded_at,
+            ]);
+        } elseif ($refundPath) {
+            \App\Models\Payment::create([
+                'order_id'     => $order->id,
+                'method'       => 'qris',
+                'amount'       => $order->total_price,
+                'status'       => 'rejected',
+                'refund_proof' => $refundPath,
+                'refund_notes' => $request->refund_notes,
+                'refunded_at'  => now(),
+            ]);
+        }
+
+        $order->update([
+            'status'              => 'cancelled',
+            'cancelled_by'        => 'seller',
+            'cancellation_reason' => $request->reason,
+            'cancellation_status' => 'approved',
+        ]);
+
+        $order->restoreStock();
+
+        \App\Models\Notification::create([
+            'user_id' => $order->user_id,
+            'title'   => 'Pesanan Dibatalkan Penjual ❌',
+            'message' => 'Pesanan #' . $order->invoice_number . ' telah dibatalkan oleh penjual. Alasan: ' . $request->reason . ($refundPath ? ' (Bukti refund telah diunggah).' : ''),
+            'type'    => 'order_cancelled',
+            'link'    => route('buyer.orders.show', $order),
+        ]);
+
+        \App\Services\WhatsAppService::sendCancellationConfirmedNotification($order);
+
+        return redirect()->route('seller.orders.show', $order)->with(
+            'success',
+            'Pesanan berhasil dibatalkan dan stok produk telah dikembalikan.'
+        );
+    }
+
+    /**
+     * Confirm buyer's cancellation request and upload refund proof.
+     */
+    public function confirmCancellation(Request $request, Order $order): RedirectResponse
+    {
+        $seller = Seller::where('user_id', Auth::id())->firstOrFail();
+        abort_unless($order->seller_id === $seller->id, 403);
+
+        $request->validate([
+            'refund_proof' => ['nullable', 'image', 'max:10240'],
+            'refund_notes' => ['nullable', 'string', 'max:500'],
+        ], [
+            'refund_proof.image' => 'Bukti refund harus berupa gambar (JPG, PNG, WEBP).',
+            'refund_proof.max'   => 'Ukuran foto bukti refund maksimal 10MB.',
+        ]);
+
+        $order->loadMissing(['payment', 'user']);
+
+        $refundPath = null;
+        if ($request->hasFile('refund_proof')) {
+            $refundPath = \App\Services\ImageCompressor::compressAndStore($request->file('refund_proof'), 'refund_proofs');
+        }
+
+        if ($order->payment) {
+            $order->payment->update([
+                'refund_proof' => $refundPath ?? $order->payment->refund_proof,
+                'refund_notes' => $request->refund_notes ?? $order->payment->refund_notes,
+                'refunded_at'  => $refundPath ? now() : ($order->payment->refunded_at ?? now()),
+            ]);
+        } elseif ($refundPath) {
+            \App\Models\Payment::create([
+                'order_id'     => $order->id,
+                'method'       => 'qris',
+                'amount'       => $order->total_price,
+                'status'       => 'rejected',
+                'refund_proof' => $refundPath,
+                'refund_notes' => $request->refund_notes,
+                'refunded_at'  => now(),
+            ]);
+        }
+
+        $order->update([
+            'status'              => 'cancelled',
+            'cancellation_status' => 'approved',
+        ]);
+
+        $order->restoreStock();
+
+        \App\Models\Notification::create([
+            'user_id' => $order->user_id,
+            'title'   => 'Pengajuan Pembatalan Disetujui ✅',
+            'message' => 'Pengajuan pembatalan pesanan #' . $order->invoice_number . ' telah disetujui oleh penjual.' . ($refundPath ? ' Bukti refund pengembalian dana telah diunggah.' : ''),
+            'type'    => 'order_cancellation_approved',
+            'link'    => route('buyer.orders.show', $order),
+        ]);
+
+        \App\Services\WhatsAppService::sendCancellationConfirmedNotification($order);
+
+        return redirect()->route('seller.orders.show', $order)->with(
+            'success',
+            'Pengajuan pembatalan berhasil disetujui. Bukti pengembalian dana telah tersimpan.'
         );
     }
 }

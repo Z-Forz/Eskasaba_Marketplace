@@ -7,6 +7,7 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PickupSchedule;
+use App\Models\Product;
 use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -132,7 +133,7 @@ class CheckoutController extends Controller
                 ]);
 
                 foreach ($cart->items as $item) {
-                    $product = $item->product;
+                    $product = Product::where('id', $item->product_id)->lockForUpdate()->first() ?? $item->product;
                     $variantName = $item->variant_name ?: $item->note;
 
                     if ($product->hasVariants() && !empty($variantName)) {
@@ -231,7 +232,7 @@ class CheckoutController extends Controller
         ]);
 
         // Send WhatsApp Notification to Seller & Buyer
-        \App\Services\WhatsAppService::sendNewOrderNotification($order);
+        WhatsAppService::sendNewOrderNotification($order);
 
         return redirect()
             ->route('buyer.orders.show', $order)

@@ -527,37 +527,4 @@
         </div>
     </div>
 
-    {{-- Fixed Mobile Sticky Bottom Bar --}}
-    @if(! $isOwnProduct && $product->stock > 0)
-        <div class="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200/80 bg-white/95 p-3.5 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95 sm:hidden shadow-2xl">
-            <div class="flex items-center justify-between gap-3">
-                <div class="min-w-0 flex-1">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Harga</p>
-                    <p class="truncate text-base font-black text-emerald-600 dark:text-emerald-400">
-                        Rp {{ number_format($product->final_price, 0, ',', '.') }}
-                    </p>
-                </div>
-                @auth
-                    <form action="{{ route('buyer.cart.store') }}" method="POST" class="shrink-0">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <input type="hidden" name="quantity" value="1">
-                        <button
-                            type="submit"
-                            class="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 hover:bg-emerald-800 px-5 py-3 text-xs font-bold text-white shadow-md active:scale-95 transition"
-                        >
-                            <i class="fa-solid fa-cart-shopping"></i> Tambah Keranjang
-                        </button>
-                    </form>
-                @else
-                    <a
-                        href="{{ route('login') }}"
-                        class="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-xs font-bold text-white active:scale-95 transition"
-                    >
-                        <i class="fa-solid fa-right-to-bracket"></i> Masuk untuk Membeli
-                    </a>
-                @endauth
-            </div>
-        </div>
-    @endif
 </x-layouts.app>

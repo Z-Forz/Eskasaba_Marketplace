@@ -32,6 +32,9 @@ Route::middleware(['auth'])
         Route::post('/orders/{order}/upload-proof', [OrderController::class, 'uploadProof'])
             ->name('orders.upload-proof');
 
+        Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])
+            ->name('orders.cancel');
+
         Route::get('/reviews/create/{order}', [ReviewController::class, 'create'])
             ->name('reviews.create');
 

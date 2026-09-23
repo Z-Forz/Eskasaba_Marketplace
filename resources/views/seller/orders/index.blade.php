@@ -30,6 +30,7 @@
                     'processing'       => 'Diproses',
                     'ready_for_pickup' => 'Siap Diambil',
                     'completed'        => 'Selesai',
+                    'cancel_requested' => 'Pengajuan Pembatalan',
                     'cancelled'        => 'Dibatalkan',
                 ];
             @endphp
@@ -123,11 +124,12 @@
                                     {{ match($order->status) {
                                         'completed', 'ready_for_pickup', 'confirmed' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
                                         'pending', 'processing'                      => 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+                                        'cancel_requested'                          => 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300',
                                         'cancelled'                                  => 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300',
                                         default                                      => 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300'
                                     } }}"
                                 >
-                                    {{ ucfirst(str_replace('_', ' ', $order->status)) }}
+                                    {{ $order->status === 'cancel_requested' ? 'Pengajuan Pembatalan' : ucfirst(str_replace('_', ' ', $order->status)) }}
                                 </span>
                             </div>
                         </div>

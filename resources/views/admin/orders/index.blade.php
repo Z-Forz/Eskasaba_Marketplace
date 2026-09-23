@@ -46,6 +46,7 @@
                         <option value="processing" @selected(request('status') === 'processing')>Diproses Seller</option>
                         <option value="ready_for_pickup" @selected(request('status') === 'ready_for_pickup')>Siap Diambil</option>
                         <option value="completed" @selected(request('status') === 'completed')>Selesai</option>
+                        <option value="cancel_requested" @selected(request('status') === 'cancel_requested')>Pengajuan Pembatalan (Buyer)</option>
                         <option value="cancelled" @selected(request('status') === 'cancelled')>Dibatalkan</option>
                     </select>
                 </div>
@@ -127,18 +128,20 @@
 
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold whitespace-nowrap
-                                        {{ $order->status === 'completed'
-                                            ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
-                                            : ($order->status === 'cancelled'
-                                                ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
-                                                : ($order->status === 'ready_for_pickup'
-                                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400'
-                                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400')) }}"
+                                        {{ match($order->status) {
+                                            'completed'        => 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400',
+                                            'cancelled'        => 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400',
+                                            'cancel_requested' => 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400',
+                                            'ready_for_pickup' => 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
+                                            default            => 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                                        } }}"
                                     >
                                         @if($order->status === 'completed')
                                             <i class="fa-solid fa-circle-check"></i> Selesai
                                         @elseif($order->status === 'cancelled')
                                             <i class="fa-solid fa-circle-xmark"></i> Dibatalkan
+                                        @elseif($order->status === 'cancel_requested')
+                                            <i class="fa-solid fa-clock-rotate-left"></i> Pengajuan Pembatalan
                                         @elseif($order->status === 'ready_for_pickup')
                                             <i class="fa-solid fa-box-open"></i> Siap Diambil
                                         @elseif($order->status === 'processing')

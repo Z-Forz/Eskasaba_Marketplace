@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (alert.dataset.dismissScheduled) return;
             alert.dataset.dismissScheduled = 'true';
 
-            const timeoutMs = parseInt(alert.getAttribute('data-dismiss-after') || '4000', 10);
+            const timeoutMs = parseInt(alert.getAttribute('data-dismiss-after') || '5000', 10);
             setTimeout(() => {
                 alert.style.transition = 'opacity 0.35s ease, transform 0.35s ease, margin 0.35s ease, padding 0.35s ease';
                 alert.style.opacity = '0';

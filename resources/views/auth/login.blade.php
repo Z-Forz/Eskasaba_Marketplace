@@ -38,15 +38,15 @@
                 @endif
 
                 @if (session('error'))
-                    <x-alert type="error" :message="session('error')" :dismiss-after="10000" class="mb-5" />
+                    <x-alert type="error" :message="session('error')" class="mb-5" />
                 @endif
 
                 @if (session('warning'))
-                    <x-alert type="warning" :message="session('warning')" :dismiss-after="10000" class="mb-5" />
+                    <x-alert type="warning" :message="session('warning')" class="mb-5" />
                 @endif
 
                 @if ($errors->has('general'))
-                    <x-alert type="error" :message="$errors->first('general')" :dismiss-after="10000" class="mb-5" />
+                    <x-alert type="error" :message="$errors->first('general')" class="mb-5" />
                 @endif
 
                 <form

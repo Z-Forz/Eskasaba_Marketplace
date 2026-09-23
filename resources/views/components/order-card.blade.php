@@ -21,7 +21,13 @@
         'processing'       => 'Diproses',
         'ready_for_pickup' => 'Siap Diambil',
         'completed'        => 'Selesai',
-        'cancelled'        => 'Dibatalkan',
+        'cancel_requested' => 'Pengajuan Batal',
+        'cancelled'        => match($order->cancelled_by ?? null) {
+            'buyer'  => 'Dibatalkan Pembeli',
+            'seller' => 'Dibatalkan Penjual',
+            'admin'  => 'Dibatalkan Admin',
+            default  => 'Dibatalkan',
+        },
     ];
 
     $status = $order->status ?? 'pending';
