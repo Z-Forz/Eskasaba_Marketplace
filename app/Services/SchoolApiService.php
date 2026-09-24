@@ -245,6 +245,11 @@ class SchoolApiService
             }
         }
 
+        $existingUserPhones = User::whereNotNull('phone')
+            ->where('phone', '!=', '')
+            ->pluck('phone', 'nis_nip')
+            ->toArray();
+
         $now = now();
         $upsertData = [];
 
@@ -290,7 +295,11 @@ class SchoolApiService
             }
 
             $username = $item['nama'] ?? $item['name'] ?? $item['user']['name'] ?? $item['username'] ?? ('User ' . $nisNip);
-            $phone = $item['hp'] ?? $item['telepon'] ?? $item['phone'] ?? null;
+
+            // Prioritaskan nomor HP/WA lokal yang sudah diisi di Eskasaba sebagai data utama
+            $sipintuPhone  = !empty($item['hp'] ?? $item['telepon'] ?? $item['phone'] ?? null) ? trim((string) ($item['hp'] ?? $item['telepon'] ?? $item['phone'])) : null;
+            $existingPhone = $existingUserPhones[(string) $nisNip] ?? null;
+            $finalPhone    = !empty($existingPhone) ? $existingPhone : $sipintuPhone;
 
             $upsertData[] = [
                 'nis_nip'             => (string) $nisNip,
@@ -298,7 +307,7 @@ class SchoolApiService
                 'email'               => (string) $email,
                 'role'                => (string) $role,
                 'class_room'          => (string) $classRoom,
-                'phone'               => $phone ? (string) $phone : null,
+                'phone'               => $finalPhone,
                 'api_id'              => $item['id'] ?? null,
                 'password'            => '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W',
                 'is_default_password' => 1,

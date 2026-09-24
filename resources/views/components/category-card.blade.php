@@ -18,10 +18,20 @@
         {{ $category->name }}
     </h3>
 
-    @if(isset($category->products_count))
-        <p class="mt-1 text-xs font-semibold text-slate-400 sm:text-sm">
-            {{ $category->products_count }} produk
-        </p>
-    @endif
+    <div class="mt-2 flex flex-wrap items-center justify-between gap-1.5 text-xs font-semibold">
+        @if(isset($category->products_count))
+            <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                <i class="fa-solid fa-box text-[10px] text-emerald-600 dark:text-emerald-400"></i>
+                {{ $category->products_count }} produk
+            </span>
+        @endif
+
+        @if(!empty($category->reviews_avg_rating) && $category->reviews_avg_rating > 0)
+            <span class="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200/60 dark:border-amber-800/40 text-[11px]" title="Rating Rata-rata Kategori">
+                <i class="fa-solid fa-star text-[10px] text-amber-500"></i>
+                {{ number_format((float)$category->reviews_avg_rating, 1) }}
+            </span>
+        @endif
+    </div>
 
 </a>

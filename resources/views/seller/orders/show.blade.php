@@ -279,7 +279,7 @@
                                     x-transition:leave-end="opacity-0 scale-95"
                                     @click="showRefundModal = false"
                                     @keydown.escape.window="showRefundModal = false"
-                                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                    class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
                                 >
                                     <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
                                         <div class="relative w-full flex justify-center">
@@ -481,7 +481,7 @@
                                 x-transition:leave-end="opacity-0 scale-95"
                                 @click="showProofModal = false"
                                 @keydown.escape.window="showProofModal = false"
-                                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
                             >
                                 <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
                                     <div class="relative w-full flex justify-center">
@@ -702,7 +702,7 @@
                     x-show="showSellerCancelModal"
                     x-cloak
                     style="display: none;"
-                    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+                    class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
                 >
                     <div
                         @click.away="showSellerCancelModal = false"

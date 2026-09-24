@@ -66,7 +66,6 @@
                         <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
                         <span>{{ $item['label'] }}</span>
                     </span>
-                    <span class="{{ $isActive ? 'text-white/80 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
                 </a>
             @endforeach
 
@@ -162,7 +161,6 @@
                             <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
                             <span>{{ $item['label'] }}</span>
                         </span>
-                        <span class="{{ $isActive ? 'text-white/80 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
                     </a>
                 @endforeach
 

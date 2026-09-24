@@ -213,7 +213,7 @@
                                 x-transition:leave-end="opacity-0 scale-95"
                                 @click="showQrModal = false"
                                 @keydown.escape.window="showQrModal = false"
-                                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
                             >
                                 <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2">
                                     <img
@@ -341,7 +341,7 @@
     {{-- Custom Modal: Setujui --}}
     <div
         id="modal-approve"
-        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
     >
         <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-3 text-emerald-600">
@@ -393,7 +393,7 @@
     {{-- Custom Modal: Minta Revisi --}}
     <div
         id="modal-revision"
-        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
     >
         <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-3 text-amber-600">
@@ -456,7 +456,7 @@
     {{-- Custom Modal: Tolak --}}
     <div
         id="modal-reject"
-        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
     >
         <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-3 text-red-600">
@@ -519,7 +519,7 @@
     {{-- Custom Modal: Cabut Status --}}
     <div
         id="modal-revoke"
-        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
     >
         <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-3 text-red-600">

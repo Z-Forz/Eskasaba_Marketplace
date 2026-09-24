@@ -45,12 +45,9 @@ class WhatsAppService
         $fallbackUrl = 'http://localhost:3000/send-message';
 
         try {
-            // Beri jeda 300ms untuk memastikan pengiriman beruntun berjalan mulus
-            usleep(300000);
-
             // Support baik Baileys Node Bot API lokal maupun Fonnte / Gateway lain
             $response = Http::withoutVerifying()
-                ->timeout(10)
+                ->timeout(3)
                 ->withHeaders([
                     'Authorization' => $token,
                     'Content-Type'  => 'application/json',
@@ -67,7 +64,7 @@ class WhatsAppService
             if ($url !== $fallbackUrl) {
                 Log::info("Attempting fallback to local WhatsApp bot: {$fallbackUrl}");
                 $fallbackResponse = Http::withoutVerifying()
-                    ->timeout(10)
+                    ->timeout(3)
                     ->withHeaders([
                         'Authorization' => $token,
                         'Content-Type'  => 'application/json',
@@ -90,7 +87,7 @@ class WhatsAppService
                 try {
                     Log::info("Attempting fallback to local WhatsApp bot after exception: {$fallbackUrl}");
                     $fallbackResponse = Http::withoutVerifying()
-                        ->timeout(10)
+                        ->timeout(3)
                         ->withHeaders([
                             'Authorization' => $token,
                             'Content-Type'  => 'application/json',

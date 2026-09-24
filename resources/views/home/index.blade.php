@@ -29,7 +29,7 @@
                 <h1 class="mt-5 text-3xl font-black leading-snug tracking-tight text-white sm:text-4xl lg:text-5xl">
                     @php
                         $heroText = $settings->hero_title ?? 'Selamat Datang di Eskasaba Market';
-                        $heroLines = explode("\n", wordwrap($heroText, 15, "\n", false));
+                        $heroLines = explode("\n", wordwrap($heroText, 22, "\n", false));
                         if (count($heroLines) > 1) {
                             $line1 = array_shift($heroLines);
                             $line2 = implode(' ', $heroLines);
@@ -188,6 +188,10 @@
                     <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                         Kategori Produk Unggulan
                     </h2>
+
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        Kategori terpopuler berdasarkan jumlah produk terbanyak dan rating ulasan terbaik.
+                    </p>
                 </div>
 
                 <a

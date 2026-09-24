@@ -98,7 +98,7 @@
                                 x-transition:leave-end="opacity-0 scale-95"
                                 @click="showQrModal = false"
                                 @keydown.escape.window="showQrModal = false"
-                                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
                             >
                                 <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2">
                                     <img

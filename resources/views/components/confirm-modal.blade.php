@@ -40,9 +40,10 @@
         }
     }"
     @open-confirm-modal.window="triggerConfirm($event.detail)"
+    x-effect="document.body.classList.toggle('overflow-hidden', open)"
     x-show="open"
     x-cloak
-    class="relative z-50"
+    class="relative z-[65]"
     aria-labelledby="confirm-modal-title"
     role="dialog"
     aria-modal="true"

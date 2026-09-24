@@ -181,8 +181,8 @@ class OAuthController extends Controller
         if ($classroom) {
             $updateData['class_room'] = $classroom;
         }
-        $phone = $sipintuUser['phone'] ?? $sipintuUser['telepon'] ?? null;
-        if ($phone) {
+        $phone = $sipintuUser['phone'] ?? $sipintuUser['telepon'] ?? $sipintuUser['hp'] ?? null;
+        if (! empty($phone) && empty($user->phone)) {
             $updateData['phone'] = $phone;
         }
         if ($email && $user->email !== $email) {

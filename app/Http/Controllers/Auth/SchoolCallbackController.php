@@ -137,6 +137,9 @@ class SchoolCallbackController extends Controller
             }
         }
 
+        $existingLocalUser = User::where('nis_nip', $apiData['nis_nip'])->first();
+        $finalPhone = ($existingLocalUser && ! empty($existingLocalUser->phone)) ? $existingLocalUser->phone : ($apiData['telepon'] ?? $apiData['phone'] ?? null);
+
         $user = User::updateOrCreate(
             ['nis_nip' => $apiData['nis_nip']],
             [
@@ -144,10 +147,10 @@ class SchoolCallbackController extends Controller
                 'email'               => $apiData['email'] ?? ($apiData['nis_nip'] . '@smkn1bangsri.sch.id'),
                 'role'                => $role,
                 'class_room'          => $apiData['class_room'] ?? null,
-                'phone'               => $apiData['telepon'] ?? null,
-                'api_id'              => $apiData['id'] ?? null,
-                'password'            => Hash::make('password'),
-                'is_default_password' => true,
+                'phone'               => $finalPhone,
+                'api_id'              => $apiData['id'] ?? ($existingLocalUser ? $existingLocalUser->api_id : null),
+                'password'            => $existingLocalUser ? $existingLocalUser->password : Hash::make('password'),
+                'is_default_password' => $existingLocalUser ? $existingLocalUser->is_default_password : true,
             ]
         );
 

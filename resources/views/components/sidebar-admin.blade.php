@@ -71,14 +71,13 @@
                         <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
                         <span>{{ $item['label'] }}</span>
                     </span>
-                    <div class="flex items-center gap-1.5">
-                        @if (!empty($item['badge']) && $item['badge'] > 0)
+                    @if (!empty($item['badge']) && $item['badge'] > 0)
+                        <div class="flex items-center gap-1.5">
                             <span class="inline-flex items-center justify-center rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-black text-white shadow-xs animate-pulse">
                                 {{ $item['badge'] }}
                             </span>
-                        @endif
-                        <span class="{{ request()->routeIs($item['pattern']) ? 'text-white/80 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
-                    </div>
+                        </div>
+                    @endif
                 </a>
             @endforeach
 
@@ -171,14 +170,13 @@
                             <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
                             <span>{{ $item['label'] }}</span>
                         </span>
-                        <div class="flex items-center gap-1.5">
-                            @if (!empty($item['badge']) && $item['badge'] > 0)
+                        @if (!empty($item['badge']) && $item['badge'] > 0)
+                            <div class="flex items-center gap-1.5">
                                 <span class="inline-flex items-center justify-center rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-black text-white shadow-xs animate-pulse">
                                     {{ $item['badge'] }}
                                 </span>
-                            @endif
-                            <span class="{{ request()->routeIs($item['pattern']) ? 'text-emerald-700 font-bold' : 'text-slate-300 dark:text-slate-600' }} text-xs">›</span>
-                        </div>
+                            </div>
+                        @endif
                     </a>
                 @endforeach
 

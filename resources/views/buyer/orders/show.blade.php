@@ -192,7 +192,7 @@
                                     x-transition:leave-end="opacity-0 scale-95"
                                     @click="showRefundModal = false"
                                     @keydown.escape.window="showRefundModal = false"
-                                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                    class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
                                 >
                                     <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
                                         <div class="relative w-full flex justify-center">
@@ -289,20 +289,42 @@
 
                     <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white shadow-xs dark:bg-slate-800">
-                                {{ strtoupper(substr($order->seller?->user?->username ?? 'S', 0, 1)) }}
-                            </div>
+                        @if($order->seller)
+                            <a
+                                href="{{ route('sellers.show', $order->seller) }}"
+                                class="group flex items-center gap-3 min-w-0 transition hover:opacity-90"
+                                title="Kunjungi Toko {{ $order->seller->user?->username }}"
+                            >
+                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white shadow-xs dark:bg-slate-800 group-hover:bg-emerald-800 transition">
+                                    {{ strtoupper(substr($order->seller->user?->username ?? 'S', 0, 1)) }}
+                                </div>
 
-                            <div class="min-w-0 flex-1">
-                                <h2 class="font-bold text-slate-900 text-base dark:text-white truncate">
-                                    {{ $order->seller?->user?->username ?? 'Penjual' }}
-                                </h2>
-                                <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                                    <i class="fa-solid fa-circle-check mr-1"></i> Penjual Terverifikasi Sekolah
-                                </p>
+                                <div class="min-w-0 flex-1">
+                                    <h2 class="font-bold text-slate-900 text-base dark:text-white truncate group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition flex items-center gap-1">
+                                        <span>{{ $order->seller->user?->username ?? 'Penjual' }}</span>
+                                        <i class="fa-solid fa-arrow-right text-xs text-slate-400 group-hover:translate-x-0.5 transition"></i>
+                                    </h2>
+                                    <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                                        <i class="fa-solid fa-circle-check mr-1"></i> Penjual Terverifikasi Sekolah (Klik untuk Lihat Toko)
+                                    </p>
+                                </div>
+                            </a>
+                        @else
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white shadow-xs dark:bg-slate-800">
+                                    S
+                                </div>
+
+                                <div class="min-w-0 flex-1">
+                                    <h2 class="font-bold text-slate-900 text-base dark:text-white truncate">
+                                        Penjual
+                                    </h2>
+                                    <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                                        <i class="fa-solid fa-circle-check mr-1"></i> Penjual Terverifikasi Sekolah
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        @endif
 
                         @if($waUrl)
                             <a
@@ -410,7 +432,7 @@
                                     x-transition:leave-end="opacity-0 scale-95"
                                     @click="showQrisModal = false"
                                     @keydown.escape.window="showQrisModal = false"
-                                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                    class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
                                 >
                                     <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
                                         <div class="relative w-full flex justify-center">
@@ -491,7 +513,7 @@
                                         x-transition:leave-end="opacity-0 scale-95"
                                         @click="showProofModal = false"
                                         @keydown.escape.window="showProofModal = false"
-                                        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
                                     >
                                         <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
                                             <div class="relative w-full flex justify-center">
@@ -606,7 +628,7 @@
             {{-- Summary Sidebar --}}
             <div>
 
-                <div class="sticky top-24 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
+                <div class="lg:sticky lg:top-24 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs space-y-4 dark:border-slate-800 dark:bg-slate-900">
 
                     <h2 class="font-bold text-slate-900 border-b border-slate-100 pb-3 dark:text-white dark:border-slate-800">
                         Ringkasan Pembayaran
@@ -693,7 +715,7 @@
                                 x-show="showCancelModal"
                                 x-cloak
                                 style="display: none;"
-                                class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+                                class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
                             >
                                 <div
                                     @click.away="showCancelModal = false"

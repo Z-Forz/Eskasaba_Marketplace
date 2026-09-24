@@ -383,7 +383,7 @@
     </div>
 
     {{-- MODAL KONFIRMASI RESET SESSION --}}
-    <div id="modal-reset-session" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div id="modal-reset-session" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
         <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center gap-3 text-red-600 dark:text-red-400">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-950/80">
@@ -495,7 +495,12 @@
                 }
             };
 
+            let isFetchingStatus = false;
+
             window.fetchBotStatus = async function () {
+                if (isFetchingStatus || document.hidden) return;
+                isFetchingStatus = true;
+
                 const syncPing = document.getElementById('sync-ping');
                 if (syncPing) syncPing.classList.add('opacity-100');
 
@@ -511,8 +516,19 @@
                     renderUI(data);
                 } catch (err) {
                     console.warn('Status poll fetch failed:', err);
+                } finally {
+                    isFetchingStatus = false;
+                    if (syncPing) {
+                        setTimeout(() => syncPing.classList.remove('opacity-100'), 500);
+                    }
                 }
             };
+
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) {
+                    fetchBotStatus();
+                }
+            });
 
             function renderUI(data) {
                 const statusKey = data.status || 'nonaktif';

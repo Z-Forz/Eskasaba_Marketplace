@@ -34,7 +34,7 @@
                 {{-- Summary Sidebar --}}
                 <div class="lg:col-span-1">
 
-                    <div class="sticky top-24 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div class="lg:sticky lg:top-24 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
 
                         <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                             <i class="fa-solid fa-calculator text-emerald-600"></i> Ringkasan Belanja

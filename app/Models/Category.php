@@ -42,4 +42,10 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    // Satu kategori memiliki banyak ulasan melalui produk
+    public function reviews()
+    {
+        return $this->hasManyThrough(Review::class, Product::class);
+    }
 }

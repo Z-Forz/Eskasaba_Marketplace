@@ -79,6 +79,8 @@
                             class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         >
                             <option value="">Terbaru</option>
+                            <option value="best_seller" @selected(request('sort') === 'best_seller')>Terlaris (Banyak Pesanan)</option>
+                            <option value="rating" @selected(request('sort') === 'rating')>Rating Tertinggi</option>
                             <option value="price_low" @selected(request('sort') === 'price_low')>Harga Terendah</option>
                             <option value="price_high" @selected(request('sort') === 'price_high')>Harga Tertinggi</option>
                             <option value="name" @selected(request('sort') === 'name')>Nama A-Z</option>

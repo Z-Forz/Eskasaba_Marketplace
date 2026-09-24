@@ -301,34 +301,57 @@
                     {{-- Store Seller Card Info --}}
                     @if($product->seller?->user)
                         <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                                <i class="fa-solid fa-store text-emerald-600"></i> Informasi Penjual & Pemilik Toko
-                            </p>
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
+                                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-store text-emerald-600"></i> Informasi Penjual & Pemilik Toko
+                                </p>
+                                <a
+                                    href="{{ route('sellers.show', $product->seller) }}"
+                                    class="text-xs font-bold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 inline-flex items-center gap-1 transition"
+                                >
+                                    <span>Kunjungi Toko</span>
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </a>
+                            </div>
 
-                            <div class="mt-3 flex items-center justify-between gap-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-950 font-black text-white shadow-xs border border-emerald-400/30">
+                            <div class="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <a
+                                    href="{{ route('sellers.show', $product->seller) }}"
+                                    class="group flex items-center gap-3 transition"
+                                >
+                                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-950 font-black text-white shadow-xs border border-emerald-400/30 group-hover:bg-emerald-800 transition">
                                         {{ strtoupper(substr($product->seller->user->username ?? 'S', 0, 1)) }}
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 dark:text-white text-sm">
-                                            {{ $product->seller->user->username }}
+                                        <p class="font-bold text-slate-900 dark:text-white text-sm group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition flex items-center gap-1">
+                                            <span>{{ $product->seller->user->username }}</span>
+                                            <i class="fa-solid fa-chevron-right text-[10px] text-slate-400 group-hover:translate-x-0.5 transition"></i>
                                         </p>
                                         <p class="text-xs text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
                                             <i class="fa-solid fa-circle-check"></i> Penjual Terverifikasi Sekolah ({{ $product->seller->user->role === 'teacher' ? 'Guru' : 'Siswa' }})
                                         </p>
                                     </div>
-                                </div>
+                                </a>
 
-                                @if($product->seller->whatsapp_number)
+                                <div class="flex flex-wrap items-center gap-2">
                                     <a
-                                        href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $product->seller->whatsapp_number) }}?text=Halo%20{{ urlencode($product->seller->user->username) }},%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->name) }}"
-                                        target="_blank"
-                                        class="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300"
+                                        href="{{ route('sellers.show', $product->seller) }}"
+                                        class="inline-flex items-center gap-1.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
                                     >
-                                        <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i> Tanya Penjual
+                                        <i class="fa-solid fa-shop text-xs text-emerald-600"></i> Lihat Semua Produk Seller
                                     </a>
-                                @endif
+
+                                    @if($product->seller->whatsapp_number)
+                                        <a
+                                            href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $product->seller->whatsapp_number) }}?text=Halo%20{{ urlencode($product->seller->user->username) }},%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->name) }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-700 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-emerald-800"
+                                        >
+                                            <i class="fa-brands fa-whatsapp text-sm"></i> Tanya WA
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     @endif

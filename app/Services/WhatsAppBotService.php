@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\WebsiteSetting;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 class WhatsAppBotService
 {
     /**
-     * URL dasar Baileys Node Bot (contoh: http://127.0.0.1:3000)
+     * URL dasar Baileys Node Bot (contoh: http://127.0.0.1:4545)
      */
     protected static function getBaseUrl(): string
     {
@@ -28,23 +29,41 @@ class WhatsAppBotService
     }
 
     /**
-     * Periksa apakah proses node whatsapp-bot sedang berjalan di OS & merespons HTTP.
+     * Micro cURL request untuk fetch status lokal dalam hitungan milidetik.
      */
-    public static function isNodeProcessRunning(): bool
+    protected static function fastHttpGet(string $url, float $timeoutSeconds = 1.5): ?array
     {
-        $baseUrl = self::getBaseUrl();
-
-        // 1. Direct HTTP health check to Express
-        try {
-            $response = Http::withoutVerifying()->timeout(4)->get("{$baseUrl}/status");
-            if ($response->successful()) {
-                return true;
-            }
-        } catch (\Exception $e) {
-            // Node server HTTP offline
+        if (!function_exists('curl_init')) {
+            return null;
         }
 
-        // 2. PID File check
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT_MS => 800,
+            CURLOPT_TIMEOUT_MS     => (int) ($timeoutSeconds * 1000),
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_USERAGENT      => 'EskasabaFastCurl/1.0',
+        ]);
+        $output = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($output !== false && $httpCode === 200) {
+            $data = json_decode($output, true);
+            return is_array($data) ? $data : null;
+        }
+
+        return null;
+    }
+
+    /**
+     * Periksa PID process tanpa melakukan HTTP request ganda.
+     */
+    public static function isPidRunningOnly(): bool
+    {
         $pidFile = storage_path('app/whatsapp-bot.pid');
         if (File::exists($pidFile)) {
             $pid = trim((string) File::get($pidFile));
@@ -63,16 +82,10 @@ class WhatsAppBotService
                             if (@posix_kill((int) $pid, 0)) {
                                 return true;
                             }
-                        } elseif (function_exists('shell_exec')) {
-                            $execOut = @shell_exec("kill -0 {$pid} 2>&1");
-                            if (empty($execOut)) {
-                                return true;
-                            }
                         }
                     }
                 } catch (\Throwable $e) {}
             }
-            // Clean up stale PID file if process is dead
             File::delete($pidFile);
         }
 
@@ -80,53 +93,58 @@ class WhatsAppBotService
     }
 
     /**
+     * Periksa apakah proses node whatsapp-bot sedang berjalan di OS & merespons HTTP.
+     */
+    public static function isNodeProcessRunning(): bool
+    {
+        $baseUrl = self::getBaseUrl();
+        if (self::fastHttpGet("{$baseUrl}/status", 1.0) !== null) {
+            return true;
+        }
+
+        return self::isPidRunningOnly();
+    }
+
+    /**
      * Ambil status realtime bot WhatsApp dari Node.js service.
      */
     public static function getStatus(): array
     {
-        $baseUrl = self::getBaseUrl();
-        $httpError = null;
+        return Cache::remember('wa_bot_status_cache', 1, function () {
+            $baseUrl = self::getBaseUrl();
 
-        try {
-            $response = Http::withoutVerifying()
-                ->timeout(5)
-                ->get("{$baseUrl}/status");
+            // Fast cURL check (< 10ms jika service online)
+            $data = self::fastHttpGet("{$baseUrl}/status", 1.5);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                
-                // Sync dengan WebsiteSetting DB
+            if ($data !== null) {
                 $enabledSetting = WebsiteSetting::get('wa_bot_enabled', '1');
                 $data['setting_enabled'] = ($enabledSetting === '1' || $enabledSetting === 1 || $enabledSetting === true);
 
                 return $data;
-            } else {
-                $httpError = 'HTTP Status Code ' . $response->status() . ' dari ' . $baseUrl . '/status';
             }
-        } catch (\Throwable $e) {
-            $httpError = 'Gagal terhubung ke ' . $baseUrl . '/status: ' . $e->getMessage();
-        }
 
-        $enabledSetting = WebsiteSetting::get('wa_bot_enabled', '0');
-        $isBotEnabled = ($enabledSetting === '1' || $enabledSetting === 1 || $enabledSetting === true);
+            $httpError = 'Gagal terhubung ke ' . $baseUrl . '/status';
+            $enabledSetting = WebsiteSetting::get('wa_bot_enabled', '0');
+            $isBotEnabled = ($enabledSetting === '1' || $enabledSetting === 1 || $enabledSetting === true);
 
-        // Jika setting aktif tapi service mati, coba spawn secara otomatis
-        if ($isBotEnabled && !self::isNodeProcessRunning()) {
-            self::spawnNodeProcess();
-        }
+            // Jika setting aktif tapi service mati, spawn secara cepat tanpa HTTP retry ganda
+            if ($isBotEnabled && !self::isPidRunningOnly()) {
+                self::spawnNodeProcess();
+            }
 
-        return [
-            'status'               => $isBotEnabled ? 'menjalankan' : 'nonaktif',
-            'bot_enabled'          => $isBotEnabled,
-            'setting_enabled'      => $isBotEnabled,
-            'is_connected'         => false,
-            'qr_code'              => null,
-            'connected_number'     => null,
-            'connected_name'       => null,
-            'last_connected_at'    => null,
-            'last_disconnected_at' => null,
-            'last_error'           => $isBotEnabled ? 'Memulai service Baileys Node.js...' : ($httpError ?? 'Service Baileys Node.js tidak berjalan'),
-        ];
+            return [
+                'status'               => $isBotEnabled ? 'menjalankan' : 'nonaktif',
+                'bot_enabled'          => $isBotEnabled,
+                'setting_enabled'      => $isBotEnabled,
+                'is_connected'         => false,
+                'qr_code'              => null,
+                'connected_number'     => null,
+                'connected_name'       => null,
+                'last_connected_at'    => null,
+                'last_disconnected_at' => null,
+                'last_error'           => $isBotEnabled ? 'Memulai service Baileys Node.js...' : ($httpError ?? 'Service Baileys Node.js tidak berjalan'),
+            ];
+        });
     }
 
     /**

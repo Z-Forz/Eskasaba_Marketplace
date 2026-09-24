@@ -12,6 +12,9 @@ Route::get('/products', [HomeController::class, 'products'])
 Route::get('/products/{product}', [HomeController::class, 'show'])
     ->name('products.show');
 
+Route::get('/sellers/{seller}', [HomeController::class, 'sellerProfile'])
+    ->name('sellers.show');
+
 Route::view('/panduan', 'guide')->name('guide');
 
 Route::view('/tentang', 'about')->name('about');

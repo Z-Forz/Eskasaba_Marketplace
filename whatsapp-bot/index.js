@@ -335,7 +335,7 @@ app.get('/status', (req, res) => {
         status: botStatus,
         bot_enabled: botEnabled,
         is_connected: isConnected,
-        qr_code: qrCodeDataUrl,
+        qr_code: isConnected ? null : qrCodeDataUrl,
         connected_number: connectedNumber,
         connected_name: connectedName,
         last_connected_at: lastConnectedAt,
@@ -516,7 +516,7 @@ app.post('/send-message', async (req, res) => {
         if (sock && sock.onWhatsApp) {
             try {
                 const onWaPromise = sock.onWhatsApp(formattedNumber);
-                const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 1500));
+                const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 400));
                 const resArray = await Promise.race([onWaPromise, timeoutPromise]);
                 if (resArray && Array.isArray(resArray) && resArray[0] && resArray[0].exists) {
                     jid = resArray[0].jid;

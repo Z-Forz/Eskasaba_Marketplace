@@ -12,11 +12,11 @@
                 </span>
 
                 <h1 class="mt-4 text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
-                    Panduan Berbelanja, Seller & System Bot WA
+                    Panduan Berbelanja & Seller
                 </h1>
 
                 <p class="mt-4 text-sm leading-relaxed text-emerald-100/80 sm:text-base sm:leading-7">
-                    Pelajari petunjuk praktis berbelanja dengan login NIS@Email untuk murid dan NIP/Emai    l untuk Guru/Staff, sistem notifikasi otomatis WhatsApp Bot, transaksi COD sekolah, serta tata cara pendaftaran & pengelolaan toko Seller.
+                    Pelajari petunjuk praktis berbelanja dengan login NIS@Email untuk murid dan NIP/Email untuk Guru/Staff, transaksi, serta tata cara pendaftaran & pengelolaan toko Seller.
                 </p>
             </div>
         </div>
@@ -53,14 +53,6 @@
                 >
                     <i class="fa-solid fa-id-card"></i> Cara Daftar Seller
                 </button>
-
-                <button
-                    @click="activeTab = 'wabot_feedback'"
-                    :class="activeTab === 'wabot_feedback' ? 'bg-emerald-700 text-white shadow-lg shadow-emerald-900/20 ring-2 ring-emerald-500' : 'bg-white text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300'"
-                    class="flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition cursor-pointer"
-                >
-                    <i class="fa-brands fa-whatsapp text-emerald-400"></i> Notifikasi Bot WA
-                </button>
             </div>
 
             {{-- TAB 1: PANDUAN PEMBELI (BUYER) --}}
@@ -96,7 +88,7 @@
                         <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 font-black text-lg mb-4 dark:bg-emerald-950 dark:text-emerald-300">
                             3
                         </div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Titik Temu Pengambilan (COD)</h3>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Titik Temu Pengambilan</h3>
                         <p class="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                             Saat checkout, tentukan lokasi pengambilan di area sekolah (Kantin Utama, Gazebo RPL, Depan Perpus, Lab Komputer, atau Pos Satpam).
                         </p>
@@ -282,99 +274,6 @@
                     </div>
                 @endauth
             </div>
-
-            {{-- TAB 4: SYSTEM FEEDBACK NOTIFIKASI BOT WA --}}
-            <div x-show="activeTab === 'wabot_feedback'" x-transition class="space-y-8">
-                <div class="text-center max-w-2xl mx-auto mb-8">
-                    <h2 class="text-2xl font-black text-slate-900 dark:text-white">Sistem Notifikasi Otomatis WhatsApp Bot</h2>
-                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Daftar lengkap alur notifikasi pesan WhatsApp otomatis yang dikirimkan oleh Bot ke Pembeli dan Penjual.</p>
-                </div>
-
-                <div class="grid gap-6 md:grid-cols-2">
-
-                    {{-- Card Notifikasi Pembeli --}}
-                    <div class="rounded-3xl border border-emerald-200/80 bg-white p-6 shadow-xs dark:border-emerald-900/50 dark:bg-slate-900">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-bold dark:bg-emerald-950 dark:text-emerald-300">
-                                <i class="fa-solid fa-user text-base"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Notifikasi Untuk Pembeli (Buyer)</h3>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Pesan otomatis yang masuk ke WhatsApp Pembeli</p>
-                            </div>
-                        </div>
-
-                        <ul class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
-                            <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                                <div>
-                                    <strong>Pesanan Baru Dibuat:</strong> Bot mengirim invoice lengkap (Kode Order, Rincian Produk, Total Harga, dan Lokasi Titik Temu COD).
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                                <div>
-                                    <strong>Instruksi Pembayaran QRIS:</strong> Saat checkout QRIS, Bot menyertakan petunjuk pengunggahan bukti bayar.
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                                <div>
-                                    <strong>Konfirmasi Penjual:</strong> Notifikasi saat Seller mengonfirmasi pembayaran dan mulai memproses pesanan.
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                                <div>
-                                    <strong>Pesanan Siap Diambil:</strong> Pemberitahuan bahwa barang sudah bisa diambil di titik temu sekolah.
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {{-- Card Notifikasi Penjual --}}
-                    <div class="rounded-3xl border border-emerald-200/80 bg-white p-6 shadow-xs dark:border-emerald-900/50 dark:bg-slate-900">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-bold dark:bg-emerald-950 dark:text-emerald-300">
-                                <i class="fa-solid fa-store text-base"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Notifikasi Untuk Penjual (Seller)</h3>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Pesan otomatis yang masuk ke WhatsApp Penjual</p>
-                            </div>
-                        </div>
-
-                        <ul class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
-                            <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                                <div>
-                                    <strong>Order Masuk Baru:</strong> Info pesanan baru dari siswa/guru beserta nama pembeli dan lokasi serah terima.
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                                <div>
-                                    <strong>Pembayaran QRIS Diterima:</strong> Notifikasi saat pembeli telah mengunggah bukti bayar QRIS untuk diverifikasi.
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                                <div>
-                                    <strong>Pengingat Titik Temu COD:</strong> Pengingat waktu dan tempat lokasi pengambilan pesanan di sekolah.
-                                </div>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>
-                                <div>
-                                    <strong>Pesanan Selesai / Rating:</strong> Info jika pesanan telah selesai dan diterima ulasan positif dari pembeli.
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-
-                </div>
-            </div>
-
         </div>
     </section>
 
@@ -446,7 +345,7 @@
                         @click="openFaq = (openFaq === 4 ? null : 4)"
                         class="flex w-full items-center justify-between p-5 text-left font-bold text-slate-900 dark:text-white hover:text-emerald-700 transition"
                     >
-                        <span>Di mana lokasi serah terima barang (COD Sekolah)?</span>
+                        <span>Di mana lokasi serah terima barang?</span>
                         <i class="fa-solid" :class="openFaq === 4 ? 'fa-chevron-up text-emerald-600' : 'fa-chevron-down text-slate-400'"></i>
                     </button>
 

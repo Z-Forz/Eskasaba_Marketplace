@@ -18,6 +18,10 @@
     $reviewsCount = isset($product->reviews_count)
         ? (int) $product->reviews_count
         : ($product->relationLoaded('reviews') ? $product->reviews->count() : 0);
+
+    $totalSold = isset($product->order_items_sum_quantity)
+        ? (int) $product->order_items_sum_quantity
+        : (isset($product->order_items_count) ? (int) $product->order_items_count : 0);
 @endphp
 
 <article
@@ -86,21 +90,29 @@
                 <span></span>
             @endif
 
-            {{-- Accurate Rating Badge --}}
-            @if($avgRating > 0)
-                <div class="shrink-0 flex items-center gap-1 text-[10px] sm:text-[11px] font-extrabold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/60 dark:bg-amber-950/40 dark:border-amber-900/40 dark:text-amber-300">
-                    <i class="fa-solid fa-star text-[9px] text-amber-500"></i>
-                    <span>{{ number_format($avgRating, 1) }}</span>
-                    @if($reviewsCount > 0)
-                        <span class="text-slate-400 font-semibold">({{ $reviewsCount }})</span>
-                    @endif
-                </div>
-            @else
-                <div class="shrink-0 flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md dark:bg-slate-800 dark:text-slate-400">
-                    <i class="fa-regular fa-star text-[8px] text-slate-400"></i>
-                    <span>Baru</span>
-                </div>
-            @endif
+            <div class="flex items-center gap-1 shrink-0">
+                @if($totalSold > 0)
+                    <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-lg border border-emerald-200/60 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/60">
+                        {{ $totalSold }} Terjual
+                    </span>
+                @endif
+
+                {{-- Accurate Rating Badge --}}
+                @if($avgRating > 0)
+                    <div class="flex items-center gap-1 text-[10px] sm:text-[11px] font-extrabold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/60 dark:bg-amber-950/40 dark:border-amber-900/40 dark:text-amber-300">
+                        <i class="fa-solid fa-star text-[9px] text-amber-500"></i>
+                        <span>{{ number_format($avgRating, 1) }}</span>
+                        @if($reviewsCount > 0)
+                            <span class="text-slate-400 font-semibold">({{ $reviewsCount }})</span>
+                        @endif
+                    </div>
+                @else
+                    <div class="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md dark:bg-slate-800 dark:text-slate-400">
+                        <i class="fa-regular fa-star text-[8px] text-slate-400"></i>
+                        <span>Baru</span>
+                    </div>
+                @endif
+            </div>
         </div>
 
         {{-- Product Name --}}
@@ -182,20 +194,41 @@
         @if($sellerUser)
             <div class="mt-3 flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-slate-800/60">
 
-                <div class="flex min-w-0 items-center gap-2">
-                    <div class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-600 text-xs font-black text-white shadow-2xs">
-                        {{ strtoupper(substr($sellerUser->username ?? 'S', 0, 1)) }}
-                    </div>
+                @if($product->seller_id)
+                    <a
+                        href="{{ route('sellers.show', $product->seller_id) }}"
+                        class="group/seller flex min-w-0 items-center gap-2 transition hover:opacity-90"
+                        title="Kunjungi Toko {{ $sellerUser->username }}"
+                    >
+                        <div class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-600 text-xs font-black text-white shadow-2xs group-hover/seller:bg-emerald-700">
+                            {{ strtoupper(substr($sellerUser->username ?? 'S', 0, 1)) }}
+                        </div>
 
-                    <div class="min-w-0">
-                        <span class="truncate text-xs font-bold text-slate-800 dark:text-slate-200 block leading-tight">
-                            {{ $sellerUser->username }}
-                        </span>
-                        <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 block leading-none">
-                            {{ $sellerUser->role === 'teacher' ? 'Guru' : 'Siswa' }}
-                        </span>
+                        <div class="min-w-0">
+                            <span class="truncate text-xs font-bold text-slate-800 dark:text-slate-200 block leading-tight group-hover/seller:text-emerald-700 dark:group-hover/seller:text-emerald-400">
+                                {{ $sellerUser->username }}
+                            </span>
+                            <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 block leading-none">
+                                {{ $sellerUser->role === 'teacher' ? 'Guru' : 'Siswa' }}
+                            </span>
+                        </div>
+                    </a>
+                @else
+                    <div class="flex min-w-0 items-center gap-2">
+                        <div class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-600 text-xs font-black text-white shadow-2xs">
+                            {{ strtoupper(substr($sellerUser->username ?? 'S', 0, 1)) }}
+                        </div>
+
+                        <div class="min-w-0">
+                            <span class="truncate text-xs font-bold text-slate-800 dark:text-slate-200 block leading-tight">
+                                {{ $sellerUser->username }}
+                            </span>
+                            <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 block leading-none">
+                                {{ $sellerUser->role === 'teacher' ? 'Guru' : 'Siswa' }}
+                            </span>
+                        </div>
                     </div>
-                </div>
+                @endif
 
                 <a
                     href="{{ route('products.show', $product) }}"

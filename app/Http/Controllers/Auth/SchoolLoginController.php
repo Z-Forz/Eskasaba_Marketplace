@@ -150,7 +150,7 @@ class SchoolLoginController extends Controller
                         'email'               => $userEmail,
                         'role'                => $role,
                         'class_room'          => $apiData['class_room'] ?? null,
-                        'phone'               => $apiData['telepon'] ?? null,
+                        'phone'               => ($localUser && ! empty($localUser->phone)) ? $localUser->phone : ($apiData['telepon'] ?? $apiData['phone'] ?? null),
                         'api_id'              => $apiData['id'] ?? ($localUser ? $localUser->api_id : rand(1000, 9999)),
                         'password'            => $localUser ? $localUser->password : Hash::make('password'),
                         'is_default_password' => $localUser ? $localUser->is_default_password : true,
