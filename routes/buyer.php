@@ -44,7 +44,8 @@ Route::middleware(['auth'])
         Route::get('/reviews/create/{order}', [ReviewController::class, 'create'])
             ->name('reviews.create');
 
-        Route::resource('reviews', ReviewController::class);
+        Route::resource('reviews', ReviewController::class)
+            ->except(['create']);
 
         // Pengajuan menjadi seller
         Route::get('/apply-seller', [SellerApplicationController::class, 'create'])
