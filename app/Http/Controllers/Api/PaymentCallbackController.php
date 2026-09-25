@@ -72,10 +72,15 @@ class PaymentCallbackController extends Controller
             if ($isPaid) {
                 $payment->status = 'verified';
                 $payment->verified_at = now();
-                $order->status = 'confirmed';
+                
+                if (!in_array($order->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested'])) {
+                    $order->status = 'confirmed';
+                }
             } elseif ($isFailed) {
                 $payment->status = 'failed';
-                $order->status = 'cancelled';
+                if (!in_array($order->status, ['refunded', 'returned', 'refund_pending_buyer_confirmation'])) {
+                    $order->status = 'cancelled';
+                }
             } else {
                 $payment->status = 'pending';
             }

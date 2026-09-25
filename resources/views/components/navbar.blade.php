@@ -246,7 +246,6 @@
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-box-open w-5 text-center text-emerald-600"></i> Pesanan Saya
                     </span>
-                    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
                 </a>
 
                 @if (auth()->user()->role === 'admin')
@@ -257,7 +256,6 @@
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-shield-halved w-5 text-center text-amber-600"></i> Dashboard Admin
                         </span>
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
                     </a>
                 @endif
 
@@ -269,7 +267,6 @@
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-store w-5 text-center text-emerald-600"></i> Dashboard Seller Toko
                         </span>
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
                     </a>
                 @endif
 
@@ -285,7 +282,7 @@
                                     {{ auth()->user()->username }}
                                 </p>
                                 <p class="truncate text-xs font-semibold text-emerald-800 dark:text-emerald-400 flex items-center gap-1">
-                                    {{ auth()->user()->role === 'teacher' ? 'Guru' : 'Siswa' }} • Profil & Pengaturan <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                    {{ auth()->user()->role === 'teacher' ? 'Guru' : 'Siswa' }} • Profil & Pengaturan
                                 </p>
                             </div>
                         </a>
@@ -322,7 +319,6 @@
             function openMenu() {
                 drawer.classList.remove('hidden');
                 backdrop.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden');
                 btn.setAttribute('aria-expanded', 'true');
                 if (icon) {
                     icon.classList.remove('fa-bars');
@@ -333,7 +329,6 @@
             function closeMenu() {
                 drawer.classList.add('hidden');
                 backdrop.classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
                 btn.setAttribute('aria-expanded', 'false');
                 if (icon) {
                     icon.classList.remove('fa-xmark');
@@ -342,7 +337,10 @@
             }
 
             function toggleMenu(e) {
-                if (e) e.stopPropagation();
+                if (e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
                 if (drawer.classList.contains('hidden')) {
                     openMenu();
                 } else {
@@ -352,6 +350,20 @@
 
             btn.onclick = toggleMenu;
             backdrop.onclick = closeMenu;
+
+            // Close when clicking any link inside drawer
+            drawer.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', closeMenu);
+            });
+
+            // Close when clicking anywhere outside drawer and toggle button
+            document.addEventListener('click', function (e) {
+                if (!drawer.classList.contains('hidden')) {
+                    if (!drawer.contains(e.target) && !btn.contains(e.target)) {
+                        closeMenu();
+                    }
+                }
+            });
 
             // Close on escape key
             document.addEventListener('keydown', function (e) {

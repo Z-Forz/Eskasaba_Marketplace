@@ -106,7 +106,7 @@ class CartController extends Controller
     /**
      * Update cart item.
      */
-    public function update(int $id): RedirectResponse
+    public function update(int $id)
     {
         request()->validate([
             'quantity' => [
@@ -127,6 +127,24 @@ class CartController extends Controller
         $cartItem->update([
             'quantity' => request('quantity'),
         ]);
+
+        if (request()->expectsJson() || request()->wantsJson()) {
+            $cart->load('items.product');
+            $totalQuantity = $cart->items->sum('quantity');
+            $subtotal = $cart->items->sum(fn ($i) => $i->quantity * ($i->price ?? $i->product?->price ?? 0));
+            $itemSubtotal = $cartItem->quantity * ($cartItem->price ?? $cartItem->product?->price ?? 0);
+
+            return response()->json([
+                'success'        => true,
+                'message'        => 'Jumlah produk berhasil diperbarui.',
+                'item_id'        => $cartItem->id,
+                'item_quantity'  => $cartItem->quantity,
+                'item_subtotal'  => 'Rp ' . number_format($itemSubtotal, 0, ',', '.'),
+                'total_quantity' => $totalQuantity . ' Pcs',
+                'subtotal'       => 'Rp ' . number_format($subtotal, 0, ',', '.'),
+                'total_pay'      => 'Rp ' . number_format($subtotal, 0, ',', '.'),
+            ]);
+        }
 
         return back()->with(
             'success',

@@ -151,18 +151,22 @@
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
                     </div>
 
-                    {{-- Sort Dropdown --}}
-                    <select
-                        name="sort"
-                        onchange="this.form.submit()"
-                        class="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
-                    >
-                        <option value="" @selected(request('sort') === '')>Urutkan: Terbaru</option>
-                        <option value="best_seller" @selected(request('sort') === 'best_seller')>Terlaris</option>
-                        <option value="rating" @selected(request('sort') === 'rating')>Rating Tertinggi</option>
-                        <option value="price_low" @selected(request('sort') === 'price_low')>Harga: Terendah</option>
-                        <option value="price_high" @selected(request('sort') === 'price_high')>Harga: Tertinggi</option>
-                    </select>
+                    {{-- Custom Sort Dropdown --}}
+                    <div class="w-48">
+                        <x-custom-select
+                            name="sort"
+                            :options="[
+                                '' => 'Urutkan: Terbaru',
+                                'best_seller' => 'Terlaris',
+                                'rating' => 'Rating Tertinggi',
+                                'price_low' => 'Harga: Terendah',
+                                'price_high' => 'Harga: Tertinggi'
+                            ]"
+                            :selected="request('sort')"
+                            placeholder=""
+                            :submitOnSelect="true"
+                        />
+                    </div>
 
                     <button type="submit" class="hidden"></button>
                 </form>
@@ -199,7 +203,7 @@
 
             @if($products->isNotEmpty())
 
-                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 sm:gap-5">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-5">
                     @foreach($products as $product)
                         <x-product-card :product="$product" />
                     @endforeach

@@ -113,24 +113,24 @@
                         @enderror
                     </div>
 
+                    @php
+                        $categoryOpts = [];
+                        foreach ($categories as $cat) {
+                            $categoryOpts[$cat->id] = $cat->name;
+                        }
+                    @endphp
+
                     {{-- Kategori --}}
                     <div>
                         <label for="category_id" class="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
                             <i class="fa-solid fa-layer-group text-slate-400 mr-1"></i> Kategori Produk <span class="text-red-500">*</span>
                         </label>
-                        <select
-                            id="category_id"
+                        <x-custom-select
                             name="category_id"
-                            required
-                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
-                            <option value="">Pilih Kategori</option>
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                            :options="$categoryOpts"
+                            :selected="old('category_id')"
+                            placeholder="Pilih Kategori"
+                        />
                         @error('category_id')
                             <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
                         @enderror

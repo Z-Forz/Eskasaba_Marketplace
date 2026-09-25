@@ -32,7 +32,19 @@
                 </div>
 
                 {{-- Summary Sidebar --}}
-                <div class="lg:col-span-1">
+                <div
+                    x-data="{
+                        totalQuantity: '{{ $cart->items->sum('quantity') }} Pcs',
+                        subtotal: 'Rp {{ number_format($cart->items->sum(fn ($item) => $item->quantity * ($item->price ?? $item->product->price)), 0, ',', '.') }}',
+                        totalPay: 'Rp {{ number_format($cart->items->sum(fn ($item) => $item->quantity * ($item->price ?? $item->product->price)), 0, ',', '.') }}'
+                    }"
+                    @cart-updated.window="
+                        totalQuantity = $event.detail.total_quantity;
+                        subtotal = $event.detail.subtotal;
+                        totalPay = $event.detail.total_pay;
+                    "
+                    class="lg:col-span-1"
+                >
 
                     <div class="lg:sticky lg:top-24 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
 
@@ -47,7 +59,7 @@
                                     Total Item Produk
                                 </span>
 
-                                <span class="font-black text-slate-900 dark:text-white">
+                                <span class="font-black text-slate-900 dark:text-white" x-text="totalQuantity">
                                     {{ $cart->items->sum('quantity') }} Pcs
                                 </span>
                             </div>
@@ -57,7 +69,7 @@
                                     Subtotal Nilai Pesanan
                                 </span>
 
-                                <span class="font-black text-slate-900 dark:text-white">
+                                <span class="font-black text-slate-900 dark:text-white" x-text="subtotal">
                                     Rp {{ number_format($cart->items->sum(fn ($item) => $item->quantity * ($item->price ?? $item->product->price)), 0, ',', '.') }}
                                 </span>
                             </div>
@@ -71,7 +83,7 @@
                                 Total Bayar
                             </span>
 
-                            <span class="text-2xl font-black text-emerald-700 dark:text-emerald-400">
+                            <span class="text-2xl font-black text-emerald-700 dark:text-emerald-400" x-text="totalPay">
                                 Rp {{ number_format($cart->items->sum(fn ($item) => $item->quantity * ($item->price ?? $item->product->price)), 0, ',', '.') }}
                             </span>
                         </div>

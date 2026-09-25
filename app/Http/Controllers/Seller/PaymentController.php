@@ -58,13 +58,18 @@ class PaymentController extends Controller
      */
     public function verify(Payment $payment): RedirectResponse
     {
-        if ($payment->method === 'qris') {
+        $seller = Seller::where('user_id', Auth::id())->firstOrFail();
+        abort_unless($payment->order?->seller_id === $seller->id, 403);
 
+        if (in_array($payment->order?->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested'])) {
+            return back()->with('error', 'Pesanan ini telah dibatalkan, dikembalikan, atau sedang dalam alur pengajuan refund/return.');
+        }
+
+        if ($payment->method === 'qris') {
             $payment->update([
                 'status'      => 'verified',
                 'verified_at' => now(),
             ]);
-
         }
 
         return redirect()
@@ -77,12 +82,17 @@ class PaymentController extends Controller
      */
     public function reject(Payment $payment): RedirectResponse
     {
-        if ($payment->method === 'qris') {
+        $seller = Seller::where('user_id', Auth::id())->firstOrFail();
+        abort_unless($payment->order?->seller_id === $seller->id, 403);
 
+        if (in_array($payment->order?->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested'])) {
+            return back()->with('error', 'Pesanan ini telah dibatalkan, dikembalikan, atau sedang dalam alur pengajuan refund/return.');
+        }
+
+        if ($payment->method === 'qris') {
             $payment->update([
                 'status' => 'rejected',
             ]);
-
         }
 
         return redirect()

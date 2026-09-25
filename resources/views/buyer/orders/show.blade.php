@@ -43,14 +43,17 @@
                 <div class="self-start sm:self-auto">
                     <x-badge :type="$order->status">
                         {{ match($order->status) {
-                            'cancel_requested' => 'Pengajuan Pembatalan',
-                            'cancelled'        => match($order->cancelled_by) {
+                            'cancel_requested'                  => 'Pengajuan Pembatalan',
+                            'return_requested'                  => 'Pengajuan Return Barang',
+                            'refund_pending_buyer_confirmation' => 'Menunggu Konfirmasi Refund Anda',
+                            'cancelled'                         => match($order->cancelled_by) {
                                 'buyer'  => 'Dibatalkan Pembeli (Anda)',
                                 'seller' => 'Dibatalkan Penjual Toko',
                                 'admin'  => 'Dibatalkan Admin Sekolah',
                                 default  => 'Dibatalkan',
                             },
-                            default => ucfirst(str_replace('_', ' ', $order->status))
+                            'refunded', 'returned'              => 'Pengembalian Selesai',
+                            default                             => ucfirst(str_replace('_', ' ', $order->status))
                         } }}
                     </x-badge>
                 </div>
@@ -59,7 +62,15 @@
 
         </div>
 
-        {{-- Order Progress Stepper Bar & Cancellation Banners --}}
+        @if (session('success'))
+            <x-alert type="success" :message="session('success')" class="mb-6" />
+        @endif
+
+        @if (session('error'))
+            <x-alert type="danger" :message="session('error')" class="mb-6" />
+        @endif
+
+        {{-- Order Progress Stepper Bar & Banners --}}
         @php
             $statusStep = match($order->status) {
                 'pending'          => 1,
@@ -67,8 +78,7 @@
                 'processing'       => 3,
                 'ready_for_pickup' => 4,
                 'completed'        => 5,
-                'cancelled', 'cancel_requested' => 0,
-                default            => 1,
+                default            => 0,
             };
 
             $progressWidthClass = match($statusStep) {
@@ -88,7 +98,7 @@
             foreach($order->items as $idx => $item) {
                 $opt = $item->variant_name ?: $item->note;
                 $optText = !empty($opt) ? " [Pilihan: {$opt}]" : "";
-                $price  = number_format($item->price ?? 0, 0, ',', '.');
+                $price  = number_format((float) ($item->price ?? 0), 0, ',', '.');
                 $itemsSummary .= ($idx + 1) . ". {$item->product_name}{$optText} - {$item->quantity}x @ Rp {$price}\n";
             }
 
@@ -99,7 +109,7 @@
                 . "• Waktu Pesanan: " . ($order->created_at?->format('d M Y, H:i') ?? '-') . "\n"
                 . "• Status: " . ucfirst(str_replace('_', ' ', $order->status)) . "\n\n"
                 . "🛍️ *DAFTAR ITEM PRODUK:*\n" . $itemsSummary . "\n"
-                . "💰 *TOTAL BAYAR:* Rp " . number_format($order->total_price ?? 0, 0, ',', '.') . "\n"
+                . "💰 *TOTAL BAYAR:* Rp " . number_format((float) ($order->total_price ?? 0), 0, ',', '.') . "\n"
                 . "💳 *METODE PEMBAYARAN:* " . strtoupper($order->payment?->method ?? 'COD') . "\n"
                 . "📍 *TITIK PENGAMBILAN:* " . ($order->pickup_location ?? 'COD Sekolah') . "\n\n"
                 . "Mohon bantuan untuk diproses ya kak. Terima kasih!";
@@ -111,21 +121,108 @@
             $waUrl   = !empty($waPhone) ? "https://wa.me/{$waPhone}?text=" . urlencode($waText) : null;
         @endphp
 
-        @if($order->status === 'cancel_requested')
+        {{-- Banner: Menunggu Konfirmasi Penerimaan Refund oleh Pembeli (CRITICAL FEATURE) --}}
+        @if($order->status === 'refund_pending_buyer_confirmation')
+            <div class="mb-8 rounded-3xl border-2 border-emerald-500 bg-emerald-50/90 p-6 shadow-md dark:border-emerald-700 dark:bg-emerald-950/40" x-data="{ showRefundModal: false }">
+                <div class="flex flex-col sm:flex-row items-start gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white text-2xl font-bold shadow-xs">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-3">
+                        <div>
+                            <h2 class="text-lg font-black text-emerald-950 dark:text-emerald-200">
+                                Penjual Telah Mengunggah Bukti Pengembalian Dana (Refund)
+                            </h2>
+                            <p class="mt-1 text-xs text-emerald-900 dark:text-emerald-300 leading-relaxed">
+                                Penjual (<strong>{{ $order->seller?->user?->username }}</strong>) menyatakan telah melakukan transfer pengembalian dana sebesar <strong class="text-emerald-700 dark:text-emerald-400 font-black">Rp {{ number_format((float) ($order->total_price ?? 0), 0, ',', '.') }}</strong>. Silakan periksa mutasi rekening / e-wallet Anda.
+                            </p>
+                        </div>
+
+                        {{-- Bukti Refund Screenshot Card --}}
+                        @if($order->payment?->refund_proof)
+                            <div class="rounded-2xl border border-emerald-200 bg-white p-4 shadow-2xs dark:border-slate-800 dark:bg-slate-900 flex flex-col sm:flex-row items-center gap-4">
+                                <img
+                                    src="{{ Storage::url($order->payment->refund_proof) }}"
+                                    alt="Foto Bukti Refund Penjual"
+                                    class="h-28 w-28 rounded-xl border border-slate-200 object-cover shadow-xs cursor-pointer hover:scale-105 transition"
+                                    @click="showRefundModal = true"
+                                >
+                                <div class="flex-1 text-center sm:text-left">
+                                    <p class="text-xs font-bold text-slate-900 dark:text-white">Foto Struk / Screenshot Refund QRIS</p>
+                                    @if($order->payment->refund_notes)
+                                        <p class="mt-1 text-xs text-slate-600 italic dark:text-slate-300">"{{ $order->payment->refund_notes }}"</p>
+                                    @endif
+                                    <button
+                                        type="button"
+                                        @click="showRefundModal = true"
+                                        class="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:underline dark:text-emerald-400 cursor-pointer"
+                                    >
+                                        <i class="fa-solid fa-magnifying-glass-plus"></i> Lihat Bukti Refund Ukuran Penuh
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Modal Lightbox --}}
+                            <div
+                                x-show="showRefundModal"
+                                x-cloak
+                                @click="showRefundModal = false"
+                                class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer"
+                            >
+                                <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
+                                    <img
+                                        src="{{ Storage::url($order->payment->refund_proof) }}"
+                                        alt="Foto Bukti Refund"
+                                        class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
+                                    >
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Action Button: Confirm Receipt --}}
+                        <div class="pt-2">
+                            <form action="{{ route('buyer.orders.confirm-refund', $order) }}" method="POST">
+                                @csrf
+                                <button
+                                    type="submit"
+                                    class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-6 py-3.5 text-xs font-black text-white shadow-md hover:bg-emerald-800 transition cursor-pointer"
+                                >
+                                    <i class="fa-solid fa-circle-check text-base"></i> Konfirmasi Pengembalian Dana Diterima
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif($order->status === 'cancel_requested')
             <div class="mb-8 rounded-3xl border border-amber-200 bg-amber-50/90 p-6 shadow-xs dark:border-amber-900/60 dark:bg-amber-950/40">
                 <div class="flex items-center gap-4">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-800 text-xl font-bold dark:bg-amber-900/60 dark:text-amber-300">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-amber-900 dark:text-amber-300">Pengajuan Pembatalan Menunggu Konfirmasi Penjual</h2>
+                        <h2 class="text-base font-bold text-amber-900 dark:text-amber-300">Pengajuan Pembatalan Menunggu Peninjauan Penjual</h2>
                         <p class="mt-0.5 text-xs text-amber-700 dark:text-amber-400">
-                            Alasan Pengajuan Anda: <em>"{{ $order->cancellation_reason }}"</em>. Penjual sedang meninjau dan akan mengunggah foto bukti pengembalian dana (refund).
+                            Alasan Pengajuan Anda: <em>"{{ $order->cancellation_reason }}"</em>. Penjual sedang meninjau permohonan Anda.
                         </p>
                     </div>
                 </div>
             </div>
-        @elseif($order->status === 'cancelled')
+        @elseif($order->status === 'return_requested')
+            <div class="mb-8 rounded-3xl border border-orange-200 bg-orange-50/90 p-6 shadow-xs dark:border-orange-900/60 dark:bg-orange-950/40">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-100 text-orange-800 text-xl font-bold dark:bg-orange-900/60 dark:text-orange-300">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-orange-900 dark:text-orange-300">Pengajuan Return / Pengembalian Barang Menunggu Penjual</h2>
+                        <p class="mt-0.5 text-xs text-orange-800 dark:text-orange-400">
+                            Alasan Return Anda: <em>"{{ $order->cancellation_reason }}"</em>. Penjual sedang memeriksa foto bukti kondisi barang yang Anda unggah.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @elseif(in_array($order->status, ['cancelled', 'refunded', 'returned']))
             <div class="mb-8 rounded-3xl border border-red-200 bg-red-50/90 p-6 shadow-xs dark:border-red-900/60 dark:bg-red-950/40">
                 <div class="flex items-start gap-4">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-red-100 text-red-700 text-xl font-bold dark:bg-red-900/60 dark:text-red-300">
@@ -133,14 +230,14 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <h2 class="text-base font-bold text-red-900 dark:text-red-300">
-                            Pesanan Ini Telah Dibatalkan
+                            {{ $order->status === 'returned' ? 'Pesanan Ini Telah Direturn & Refund' : 'Pesanan Ini Telah Dibatalkan' }}
                         </h2>
                         <p class="mt-1 text-xs font-semibold text-red-700 dark:text-red-400">
                             Dibatalkan Oleh: <strong>{{ match($order->cancelled_by) { 'buyer' => 'Pembeli (Anda)', 'seller' => 'Penjual Toko', 'admin' => 'Admin Sekolah', default => 'Sistem' } }}</strong>
                         </p>
                         @if($order->cancellation_reason)
                             <div class="mt-2.5 rounded-2xl bg-white/80 p-3.5 border border-red-100 dark:border-red-900/40 dark:bg-slate-900/60">
-                                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Alasan Pembatalan:</p>
+                                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Alasan Pembatalan / Return:</p>
                                 <p class="mt-0.5 text-xs text-slate-800 dark:text-slate-200 font-medium italic">"{{ $order->cancellation_reason }}"</p>
                             </div>
                         @endif
@@ -160,10 +257,10 @@
                                     >
                                     <div class="flex-1 text-center sm:text-left">
                                         <p class="text-xs font-bold text-slate-900 dark:text-white">
-                                            Status Pengembalian Dana: <span class="text-emerald-700 dark:text-emerald-400 font-black">✓ Lunas Dikembalikan</span>
+                                            Status Pengembalian Dana: <span class="text-emerald-700 dark:text-emerald-400 font-black inline-flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> Lunas Dikembalikan & Dikonfirmasi</span>
                                         </p>
                                         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                            Penjual telah mentransfer kembali dana sebesar <strong>Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}</strong>.
+                                            Penjual telah mentransfer kembali dana sebesar <strong>Rp {{ number_format((float) ($order->total_price ?? 0), 0, ',', '.') }}</strong>.
                                         </p>
                                         @if($order->payment->refund_notes)
                                             <p class="mt-1 text-xs text-slate-600 dark:text-slate-300 italic">"{{ $order->payment->refund_notes }}"</p>
@@ -184,12 +281,6 @@
                                 <div
                                     x-show="showRefundModal"
                                     x-cloak
-                                    x-transition:enter="transition ease-out duration-200"
-                                    x-transition:enter-start="opacity-0 scale-95"
-                                    x-transition:enter-end="opacity-100 scale-100"
-                                    x-transition:leave="transition ease-in duration-150"
-                                    x-transition:leave-start="opacity-100 scale-100"
-                                    x-transition:leave-end="opacity-0 scale-95"
                                     @click="showRefundModal = false"
                                     @keydown.escape.window="showRefundModal = false"
                                     class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
@@ -201,17 +292,7 @@
                                                 alt="Bukti Pengembalian Dana"
                                                 class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
                                             >
-                                            <button
-                                                type="button"
-                                                @click="showRefundModal = false"
-                                                class="absolute -top-3 -right-3 flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg border border-white/20 hover:bg-red-600 transition cursor-pointer"
-                                            >
-                                                <i class="fa-solid fa-xmark text-sm"></i>
-                                            </button>
                                         </div>
-                                        <p class="mt-4 text-center text-xs font-bold text-white/90 bg-slate-900/90 px-4 py-2 rounded-full border border-white/10 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
-                                            <i class="fa-solid fa-xmark text-emerald-400"></i> Klik di mana saja untuk menutup
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -220,6 +301,7 @@
                 </div>
             </div>
         @else
+            {{-- Standard Progress Stepper --}}
             <div class="mb-8 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
                     Status Progres Pesanan
@@ -227,10 +309,10 @@
 
                 <div class="relative flex items-center justify-between">
                     {{-- Progress Line --}}
-                    <div class="absolute left-0 top-1/2 -z-0 h-1 w-full -translate-y-1/2 bg-slate-100 dark:bg-slate-800"></div>
-                    <div
-                        class="absolute left-0 top-1/2 -z-0 h-1 -translate-y-1/2 bg-emerald-600 transition-all duration-500 {{ $progressWidthClass }}"
-                    ></div>
+                    <div class="absolute left-4 right-4 top-4.5 -z-0 h-1 -translate-y-1/2 sm:left-5 sm:right-5">
+                        <div class="h-full w-full rounded-full bg-slate-100 dark:bg-slate-800"></div>
+                        <div class="absolute left-0 top-0 h-full rounded-full bg-emerald-600 transition-all duration-500 {{ $progressWidthClass }}"></div>
+                    </div>
 
                     {{-- Step 1 --}}
                     <div class="relative z-10 flex flex-col items-center">
@@ -417,19 +499,13 @@
                                     Barcode QRIS Toko: {{ $order->seller->user?->username ?? 'Seller' }}
                                 </p>
                                 <p class="mt-0.5 text-xs text-emerald-700 dark:text-emerald-400 font-extrabold">
-                                    Total Tagihan: Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}
+                                    Total Tagihan: Rp {{ number_format((float) ($order->total_price ?? 0), 0, ',', '.') }}
                                 </p>
 
                                 {{-- Centered Lightbox Modal --}}
                                 <div
                                     x-show="showQrisModal"
                                     x-cloak
-                                    x-transition:enter="transition ease-out duration-200"
-                                    x-transition:enter-start="opacity-0 scale-95"
-                                    x-transition:enter-end="opacity-100 scale-100"
-                                    x-transition:leave="transition ease-in duration-150"
-                                    x-transition:leave-start="opacity-100 scale-100"
-                                    x-transition:leave-end="opacity-0 scale-95"
                                     @click="showQrisModal = false"
                                     @keydown.escape.window="showQrisModal = false"
                                     class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
@@ -441,17 +517,7 @@
                                                 alt="QRIS Toko {{ $order->seller->user?->username }}"
                                                 class="max-h-[80vh] max-w-full rounded-3xl bg-white p-4 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
                                             >
-                                            <button
-                                                type="button"
-                                                @click="showQrisModal = false"
-                                                class="absolute -top-3 -right-3 flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg border border-white/20 hover:bg-red-600 transition cursor-pointer"
-                                            >
-                                                <i class="fa-solid fa-xmark text-sm"></i>
-                                            </button>
                                         </div>
-                                        <p class="mt-4 text-center text-xs font-bold text-white/90 bg-slate-900/90 px-4 py-2 rounded-full border border-white/10 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
-                                            <i class="fa-solid fa-xmark text-emerald-400"></i> Klik di mana saja untuk menutup
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -479,16 +545,18 @@
                                     <div class="flex-1 text-center sm:text-left">
                                         <div class="flex items-center justify-center sm:justify-start gap-2">
                                             <span class="text-xs font-bold text-slate-900 dark:text-white">Status Pembayaran:</span>
-                                            <span class="rounded-full px-2.5 py-0.5 text-[11px] font-extrabold {{ match($order->payment->status) {
+                                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-extrabold {{ match($order->payment->status) {
                                                 'verified', 'paid' => 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900',
                                                 'rejected'         => 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-950/60 dark:text-red-300 dark:border-red-900',
                                                 default            => 'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900'
                                             } }}">
-                                                {{ match($order->payment->status) {
-                                                    'verified', 'paid' => '✓ Terverifikasi Lunas',
-                                                    'rejected'         => '✕ Bukti Ditolak Penjual',
-                                                    default            => '⏳ Menunggu Verifikasi Penjual'
-                                                } }}
+                                                @if(in_array($order->payment->status, ['verified', 'paid']))
+                                                    <i class="fa-solid fa-circle-check mr-1 text-[11px]"></i> Terverifikasi Lunas
+                                                @elseif($order->payment->status === 'rejected')
+                                                    <i class="fa-solid fa-circle-xmark mr-1 text-[11px]"></i> Bukti Ditolak Penjual
+                                                @else
+                                                    <i class="fa-solid fa-clock mr-1 text-[11px]"></i> Menunggu Verifikasi Penjual
+                                                @endif
                                             </span>
                                         </div>
                                         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Bukti pembayaran telah berhasil dikirim ke penjual.</p>
@@ -501,45 +569,26 @@
                                         </button>
                                     </div>
 
-                                    {{-- Centered Lightbox Modal --}}
+                                    {{-- Lightbox Modal --}}
                                     <div
                                         x-show="showProofModal"
                                         x-cloak
-                                        x-transition:enter="transition ease-out duration-200"
-                                        x-transition:enter-start="opacity-0 scale-95"
-                                        x-transition:enter-end="opacity-100 scale-100"
-                                        x-transition:leave="transition ease-in duration-150"
-                                        x-transition:leave-start="opacity-100 scale-100"
-                                        x-transition:leave-end="opacity-0 scale-95"
                                         @click="showProofModal = false"
-                                        @keydown.escape.window="showProofModal = false"
-                                        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer"
                                     >
                                         <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
-                                            <div class="relative w-full flex justify-center">
-                                                <img
-                                                    src="{{ Storage::url($order->payment->proof) }}"
-                                                    alt="Bukti Pembayaran"
-                                                    class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
-                                                >
-                                                <button
-                                                    type="button"
-                                                    @click="showProofModal = false"
-                                                    class="absolute -top-3 -right-3 flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg border border-white/20 hover:bg-red-600 transition cursor-pointer"
-                                                >
-                                                    <i class="fa-solid fa-xmark text-sm"></i>
-                                                </button>
-                                            </div>
-                                            <p class="mt-4 text-center text-xs font-bold text-white/90 bg-slate-900/90 px-4 py-2 rounded-full border border-white/10 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
-                                                <i class="fa-solid fa-xmark text-emerald-400"></i> Klik di mana saja untuk menutup
-                                            </p>
+                                            <img
+                                                src="{{ Storage::url($order->payment->proof) }}"
+                                                alt="Bukti Pembayaran"
+                                                class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
+                                            >
                                         </div>
                                     </div>
                                 </div>
                             @endif
 
                             {{-- Upload Form --}}
-                            @if($order->status !== 'completed' && $order->status !== 'cancelled')
+                            @if(!in_array($order->status, ['completed', 'cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation']))
                                 <form action="{{ route('buyer.orders.upload-proof', $order) }}" method="POST" enctype="multipart/form-data" class="mt-3">
                                     @csrf
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -576,13 +625,9 @@
                     </div>
 
                     <div class="divide-y divide-slate-100 dark:divide-slate-800">
-
                         @foreach ($order->items as $item)
-
                             <div class="flex gap-4 p-5 sm:p-6">
-
-                                <div class="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 sm:h-24 sm:w-24">
-
+                                <div class="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 sm:h-24 sm:w-24 border border-slate-200/60 dark:border-slate-700">
                                     @if ($item->product?->images?->first())
                                         <img
                                             src="{{ Storage::url($item->product->images->first()->image) }}"
@@ -590,11 +635,9 @@
                                             class="h-full w-full object-cover"
                                         >
                                     @endif
-
                                 </div>
 
                                 <div class="min-w-0 flex-1">
-
                                     <h3 class="font-bold text-slate-900 text-sm sm:text-base dark:text-white">
                                         {{ $item->product_name ?? $item->product?->name }}
                                     </h3>
@@ -606,19 +649,15 @@
                                     @endif
 
                                     <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                        {{ $item->quantity }} × Rp {{ number_format($item->price ?? $item->unit_price ?? 0, 0, ',', '.') }}
+                                        {{ $item->quantity }} × Rp {{ number_format((float) ($item->price ?? $item->unit_price ?? 0), 0, ',', '.') }}
                                     </p>
 
                                     <p class="mt-2 font-black text-slate-900 text-sm sm:text-base dark:text-white">
-                                        Rp {{ number_format($item->quantity * ($item->price ?? $item->unit_price ?? 0), 0, ',', '.') }}
+                                        Rp {{ number_format((float) ($item->quantity * ($item->price ?? $item->unit_price ?? 0)), 0, ',', '.') }}
                                     </p>
-
                                 </div>
-
                             </div>
-
                         @endforeach
-
                     </div>
 
                 </div>
@@ -672,7 +711,7 @@
                             </span>
 
                             <span class="text-xl font-black text-emerald-700 dark:text-emerald-400">
-                                Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}
+                                Rp {{ number_format((float) ($order->total_price ?? 0), 0, ',', '.') }}
                             </span>
                         </div>
                     </div>
@@ -690,16 +729,15 @@
                     @endif
 
                     @if ($order->status === 'completed')
-
                         <a
                             href="{{ route('buyer.reviews.create', ['order' => $order->id]) }}"
                             class="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
                         >
                             <i class="fa-solid fa-star text-amber-500"></i> Beri Ulasan Produk
                         </a>
-
                     @endif
 
+                    {{-- Action Button: Cancel Order (For Pending, Confirmed, Processing) --}}
                     @if (in_array($order->status, ['pending', 'confirmed', 'processing']))
                         <div x-data="{ showCancelModal: false }" class="mt-3">
                             <button
@@ -707,7 +745,7 @@
                                 @click="showCancelModal = true"
                                 class="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-xs font-bold text-red-700 transition hover:bg-red-100 cursor-pointer dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400"
                             >
-                                <i class="fa-solid fa-ban"></i> {{ (strtolower($order->payment?->method ?? '') === 'qris' && ($order->payment?->proof || in_array($order->payment?->status, ['verified', 'paid']))) ? 'Ajukan Pembatalan Pesanan' : 'Batalkan Pesanan' }}
+                                <i class="fa-solid fa-ban"></i> {{ ($order->status !== 'pending' || (strtolower($order->payment?->method ?? '') === 'qris' && ($order->payment?->proof || in_array($order->payment?->status, ['verified', 'paid'])))) ? 'Ajukan Pembatalan Pesanan' : 'Batalkan Pesanan' }}
                             </button>
 
                             {{-- Cancel Modal --}}
@@ -732,13 +770,24 @@
 
                                     <form action="{{ route('buyer.orders.cancel', $order) }}" method="POST" class="mt-4 space-y-4">
                                         @csrf
-                                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                                            @if(strtolower($order->payment?->method ?? '') === 'qris' && ($order->payment?->proof || in_array($order->payment?->status, ['verified', 'paid'])))
-                                                Karena Anda telah melakukan pembayaran QRIS, pengajuan pembatalan ini akan dikirimkan ke penjual untuk mengonfirmasi pengembalian dana (refund).
-                                            @else
+                                        @if($order->status !== 'pending' || (strtolower($order->payment?->method ?? '') === 'qris' && ($order->payment?->proof || in_array($order->payment?->status, ['verified', 'paid']))))
+                                            <div class="rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200 leading-relaxed">
+                                                <div class="flex items-start gap-2.5">
+                                                    <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5 shrink-0"></i>
+                                                    <div>
+                                                        <p class="font-bold mb-1">Pengajuan Pembatalan Ke Penjual:</p>
+                                                        <p>
+                                                            Pesanan Anda sudah diproses atau telah dibayar. Pengajuan pembatalan akan dikirimkan ke penjual untuk disetujui.
+                                                            Sertakan info nomor rekening / e-wallet jika Anda telah melakukan transfer QRIS.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                                                 Apakah Anda yakin ingin membatalkan pesanan ini? Stok barang akan dikembalikan secara otomatis.
-                                            @endif
-                                        </p>
+                                            </p>
+                                        @endif
 
                                         <div>
                                             <label for="reason" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -749,7 +798,7 @@
                                                 name="reason"
                                                 rows="3"
                                                 required
-                                                placeholder="Contoh: Salah memilih barang, mengubah rencana..."
+                                                placeholder="Contoh: Salah memilih barang, ada keperluan mendadak..."
                                                 class="w-full rounded-2xl border border-slate-200 bg-white p-3 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                             ></textarea>
                                         </div>
@@ -767,6 +816,96 @@
                                                 class="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 transition cursor-pointer"
                                             >
                                                 Ya, Batalkan Pesanan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Action Button: Request Return / Complain Item (For Ready for Pickup & Completed) --}}
+                    @if (in_array($order->status, ['ready_for_pickup', 'completed']))
+                        <div x-data="{ showReturnModal: false }" class="mt-3">
+                            <button
+                                type="button"
+                                @click="showReturnModal = true"
+                                class="flex w-full items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-5 py-3 text-xs font-bold text-orange-800 transition hover:bg-orange-100 cursor-pointer dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-300"
+                            >
+                                <i class="fa-solid fa-rotate-left"></i> Ajukan Return / Pengembalian Barang
+                            </button>
+
+                            {{-- Return Modal --}}
+                            <div
+                                x-show="showReturnModal"
+                                x-cloak
+                                style="display: none;"
+                                class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+                            >
+                                <div
+                                    @click.away="showReturnModal = false"
+                                    class="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl dark:bg-slate-900 dark:border dark:border-slate-800 text-left"
+                                >
+                                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                            <i class="fa-solid fa-rotate-left text-orange-500"></i> Pengajuan Return & Refund Barang
+                                        </h3>
+                                        <button @click="showReturnModal = false" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                            <i class="fa-solid fa-xmark text-lg"></i>
+                                        </button>
+                                    </div>
+
+                                    <form action="{{ route('buyer.orders.request-return', $order) }}" method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
+                                        @csrf
+                                        <div class="rounded-2xl border border-orange-200 bg-orange-50/80 p-3.5 text-xs text-orange-900 dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-200 leading-relaxed">
+                                            <p class="font-bold mb-1"><i class="fa-solid fa-circle-info mr-1"></i> Ketentuan Pengembalian Barang:</p>
+                                            <p>
+                                                Silakan sertakan foto jelas kondisi barang (rusak/salah produk) beserta alasan lengkap agar penjual dapat menyetujui pengembalian dana (refund).
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label for="return_reason" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                                                Alasan Pengembalian <span class="text-red-500">*</span>
+                                            </label>
+                                            <textarea
+                                                id="return_reason"
+                                                name="reason"
+                                                rows="3"
+                                                required
+                                                placeholder="Contoh: Barang fisik tidak sesuai pesanan, makanan basi/rusak saat diterima. Refund ke DANA 08123456789..."
+                                                class="w-full rounded-2xl border border-slate-200 bg-white p-3 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                            ></textarea>
+                                        </div>
+
+                                        <div>
+                                            <label for="return_proof" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                                                Foto Bukti Kondisi Barang <span class="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                id="return_proof"
+                                                type="file"
+                                                name="return_proof"
+                                                accept="image/*"
+                                                required
+                                                class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:rounded-xl file:border-0 file:bg-orange-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white hover:file:bg-orange-700 cursor-pointer"
+                                            >
+                                            <p class="mt-1 text-[11px] text-slate-400">Maksimal 10MB (Format JPG, PNG, WEBP).</p>
+                                        </div>
+
+                                        <div class="flex justify-end gap-2 pt-2">
+                                            <button
+                                                type="button"
+                                                @click="showReturnModal = false"
+                                                class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 cursor-pointer dark:bg-slate-800 dark:text-slate-300"
+                                            >
+                                                Kembali
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                class="rounded-xl bg-orange-600 px-4 py-2 text-xs font-bold text-white hover:bg-orange-700 transition cursor-pointer"
+                                            >
+                                                Kirim Pengajuan Return
                                             </button>
                                         </div>
                                     </form>

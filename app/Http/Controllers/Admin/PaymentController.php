@@ -59,7 +59,7 @@ class PaymentController extends Controller
         $payment->update(['status' => $newStatus]);
 
         if (in_array($newStatus, ['verified', 'paid']) && $payment->order) {
-            if ($payment->order->status === 'pending') {
+            if (!in_array($payment->order->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested']) && $payment->order->status === 'pending') {
                 $payment->order->update(['status' => 'processing']);
             }
         }

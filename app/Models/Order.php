@@ -20,6 +20,8 @@ class Order extends Model
         'cancelled_by',
         'cancellation_reason',
         'cancellation_status',
+        'return_proof_image',
+        'refund_confirmed_at',
     ];
 
     /**
@@ -70,7 +72,8 @@ class Order extends Model
     protected function casts(): array
     {
         return [
-            'total_price' => 'decimal:2',
+            'total_price'         => 'decimal:2',
+            'refund_confirmed_at' => 'datetime',
         ];
     }
 

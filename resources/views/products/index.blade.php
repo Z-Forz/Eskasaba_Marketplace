@@ -46,26 +46,33 @@
                         </div>
                     </div>
 
+                    @php
+                        $categoryOptions = ['' => 'Semua Kategori'];
+                        foreach($categories as $cat) {
+                            $categoryOptions[$cat->id] = $cat->name;
+                        }
+
+                        $sortOptions = [
+                            '' => 'Terbaru',
+                            'best_seller' => 'Terlaris (Banyak Pesanan)',
+                            'rating' => 'Rating Tertinggi',
+                            'price_low' => 'Harga Terendah',
+                            'price_high' => 'Harga Tertinggi',
+                            'name' => 'Nama A-Z',
+                        ];
+                    @endphp
+
                     {{-- Category Select --}}
                     <div>
                         <label for="category" class="mb-2.5 block text-xs font-bold text-slate-700 dark:text-slate-300">
                             <i class="fa-solid fa-layer-group text-slate-400 mr-1"></i> Kategori
                         </label>
-                        <select
-                            id="category"
+                        <x-custom-select
                             name="category"
-                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
-                            <option value="">Semua Kategori</option>
-                            @foreach($categories as $category)
-                                <option
-                                    value="{{ $category->id }}"
-                                    @selected(request('category') == $category->id)
-                                >
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                            :options="$categoryOptions"
+                            :selected="request('category')"
+                            placeholder=""
+                        />
                     </div>
 
                     {{-- Sort Select --}}
@@ -73,18 +80,12 @@
                         <label for="sort" class="mb-2.5 block text-xs font-bold text-slate-700 dark:text-slate-300">
                             <i class="fa-solid fa-arrow-down-short-wide text-slate-400 mr-1"></i> Urutkan
                         </label>
-                        <select
-                            id="sort"
+                        <x-custom-select
                             name="sort"
-                            class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
-                            <option value="">Terbaru</option>
-                            <option value="best_seller" @selected(request('sort') === 'best_seller')>Terlaris (Banyak Pesanan)</option>
-                            <option value="rating" @selected(request('sort') === 'rating')>Rating Tertinggi</option>
-                            <option value="price_low" @selected(request('sort') === 'price_low')>Harga Terendah</option>
-                            <option value="price_high" @selected(request('sort') === 'price_high')>Harga Tertinggi</option>
-                            <option value="name" @selected(request('sort') === 'name')>Nama A-Z</option>
-                        </select>
+                            :options="$sortOptions"
+                            :selected="request('sort')"
+                            placeholder=""
+                        />
                     </div>
 
                     {{-- Action Buttons --}}
@@ -120,7 +121,7 @@
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
                         @foreach($products as $product)
                             <x-product-card :product="$product" />
                         @endforeach

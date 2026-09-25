@@ -42,28 +42,28 @@
             <div class="grid gap-10 md:grid-cols-2">
 
                 {{-- Visi --}}
-                <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-8">
-                    <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-800">
+                <div class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-slate-50/80 p-8 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-50/60 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40">
+                    <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 text-white shadow-xs transition-colors duration-300 group-hover:bg-emerald-700 dark:bg-slate-800 dark:group-hover:bg-emerald-600">
                         <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
                     </div>
-                    <h2 class="mb-3 text-xl font-bold text-slate-800">Visi</h2>
-                    <p class="text-sm leading-relaxed text-slate-600 whitespace-pre-line">
+                    <h2 class="mb-3 text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-emerald-800 dark:text-white dark:group-hover:text-emerald-400">Visi</h2>
+                    <p class="text-sm leading-relaxed text-slate-600 whitespace-pre-line dark:text-slate-300">
                         {{ $settings->vision ?? 'Menjadi platform marketplace sekolah terdepan yang mendorong kemandirian ekonomi, kreativitas, dan kewirausahaan di lingkungan pendidikan Indonesia.' }}
                     </p>
                 </div>
 
                 {{-- Misi --}}
-                <div class="rounded-2xl border border-slate-100 bg-slate-50 p-8">
-                    <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800">
+                <div class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-slate-50/80 p-8 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-50/60 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40">
+                    <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 text-white shadow-xs transition-colors duration-300 group-hover:bg-emerald-700 dark:bg-slate-800 dark:group-hover:bg-emerald-600">
                         <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
                         </svg>
                     </div>
-                    <h2 class="mb-3 text-xl font-bold text-slate-800">Misi</h2>
-                    <div class="text-sm leading-relaxed text-slate-600 whitespace-pre-line">
+                    <h2 class="mb-3 text-xl font-bold text-slate-900 transition-colors duration-300 group-hover:text-emerald-800 dark:text-white dark:group-hover:text-emerald-400">Misi</h2>
+                    <div class="text-sm leading-relaxed text-slate-600 whitespace-pre-line dark:text-slate-300">
                         {{ $settings->mission ?? "• Menyediakan platform belanja yang aman dan terpercaya bagi komunitas sekolah.\n• Mendorong jiwa wirausaha di kalangan pelajar dan tenaga pendidik.\n• Membangun ekosistem ekonomi yang mandiri dalam lingkungan sekolah." }}
                     </div>
                 </div>

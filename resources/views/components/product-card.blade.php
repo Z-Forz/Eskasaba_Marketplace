@@ -154,8 +154,8 @@
             </div>
         @endif
 
-        {{-- Price & Stock Level Detail --}}
-        <div class="mt-3 flex flex-wrap items-baseline justify-between gap-1 border-t border-slate-100 pt-3 dark:border-slate-800/80">
+        {{-- Price & Stock Level Detail (Pushed to bottom with mt-auto for row alignment) --}}
+        <div class="mt-auto flex flex-wrap items-baseline justify-between gap-1 border-t border-slate-100 pt-3 dark:border-slate-800/80">
             <div class="min-w-0 flex-1">
                 @if($product->hasVariants())
                     @php

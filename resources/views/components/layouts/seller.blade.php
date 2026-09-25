@@ -47,12 +47,6 @@
                     <i class="fa-solid fa-store text-emerald-600"></i> {{ $title ?? 'Panel Seller' }}
                 </h1>
             </div>
-
-            <div class="flex items-center gap-3">
-                <span class="rounded-full bg-emerald-100 px-3.5 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                    <i class="fa-solid fa-shop mr-1"></i> Seller Toko
-                </span>
-            </div>
         </header>
 
         <main class="flex-1 p-4 sm:p-6 lg:p-8">

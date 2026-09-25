@@ -72,6 +72,10 @@ class PickupScheduleController extends Controller
         $seller = Seller::where('user_id', Auth::id())->firstOrFail();
         abort_unless($order->seller_id === $seller->id, 403);
 
+        if (in_array($order->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested'])) {
+            return back()->with('error', 'Pesanan yang telah dibatalkan, dikembalikan (return), atau sedang dalam alur pengajuan refund/pembatalan tidak dapat diubah statusnya lagi.');
+        }
+
         $data = $request->validate([
             'pickup_location' => ['required', 'string', 'max:255'],
             'status'          => ['nullable', 'in:pending,confirmed,processing,ready_for_pickup,completed,cancelled'],

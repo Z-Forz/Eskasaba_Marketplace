@@ -9,7 +9,44 @@
     $sellerName = $product?->seller?->user?->username;
 @endphp
 
-<div class="rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white p-3.5 sm:p-5 shadow-xs transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900">
+<div
+    x-data="{
+        qty: {{ $item->quantity }},
+        stock: {{ $stock }},
+        unitPrice: {{ $unitPrice }},
+        itemSubtotalFormatted: 'Rp {{ number_format($unitPrice * $item->quantity, 0, ',', '.') }}',
+        loading: false,
+        async updateQty(newQty) {
+            if (newQty < 1 || newQty > this.stock || this.loading) return;
+            this.loading = true;
+            try {
+                const response = await fetch('{{ route('buyer.cart.update', $item->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _method: 'PUT',
+                        quantity: newQty
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    this.qty = data.item_quantity;
+                    this.itemSubtotalFormatted = data.item_subtotal;
+                    window.dispatchEvent(new CustomEvent('cart-updated', { detail: data }));
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                this.loading = false;
+            }
+        }
+    }"
+    class="rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white p-3.5 sm:p-5 shadow-xs transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900"
+>
 
     <div class="flex gap-3 sm:gap-5">
 
@@ -56,7 +93,7 @@
                     {{-- Trigger Modal Hapus Button --}}
                     <button
                         type="button"
-                        onclick="window.openDeleteCartModal({{ $item->id }})"
+                        onclick="window.openDeleteCartModal('{{ $item->id }}')"
                         class="inline-flex items-center gap-1 rounded-lg sm:rounded-xl bg-red-50/80 px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-red-600 hover:bg-red-100 hover:text-red-700 transition dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-900/60 cursor-pointer shrink-0 border border-red-200/60 dark:border-red-900/40"
                         title="Hapus dari Keranjang"
                     >
@@ -104,7 +141,7 @@
     {{-- Bottom Bar: Quantity Controls (+ / -) & Item Subtotal --}}
     <div class="mt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 pt-3">
 
-        {{-- Increment / Decrement Quantity Form --}}
+        {{-- Increment / Decrement Quantity --}}
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold text-slate-500 dark:text-slate-400 hidden sm:inline">
                 Jumlah:
@@ -112,59 +149,34 @@
 
             <div class="flex items-center rounded-2xl border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-800">
 
-                {{-- Decrement Form --}}
-                @if($item->quantity > 1)
-                    <form action="{{ route('buyer.cart.update', $item->id) }}" method="POST" class="inline">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="quantity" value="{{ $item->quantity - 1 }}">
-                        <button
-                            type="submit"
-                            class="flex h-7 w-7 items-center justify-center rounded-xl bg-white text-slate-700 shadow-2xs hover:bg-slate-100 hover:text-emerald-700 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 transition font-bold cursor-pointer"
-                            title="Kurangi 1"
-                        >
-                            <i class="fa-solid fa-minus text-[10px]"></i>
-                        </button>
-                    </form>
-                @else
-                    <button
-                        type="button"
-                        disabled
-                        class="flex h-7 w-7 items-center justify-center rounded-xl bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed"
-                    >
-                        <i class="fa-solid fa-minus text-[10px]"></i>
-                    </button>
-                @endif
+                {{-- Decrement Button --}}
+                <button
+                    type="button"
+                    @click="updateQty(qty - 1)"
+                    :disabled="qty <= 1 || loading"
+                    :class="(qty <= 1 || loading) ? 'bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed' : 'bg-white text-slate-700 shadow-2xs hover:bg-slate-100 hover:text-emerald-700 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 cursor-pointer'"
+                    class="flex h-7 w-7 items-center justify-center rounded-xl transition font-bold"
+                    title="Kurangi 1"
+                >
+                    <i class="fa-solid fa-minus text-[10px]"></i>
+                </button>
 
                 {{-- Current Quantity --}}
-                <span class="w-10 text-center text-xs font-black text-slate-900 dark:text-white">
+                <span class="w-10 text-center text-xs font-black text-slate-900 dark:text-white" x-text="qty">
                     {{ $item->quantity }}
                 </span>
 
-                {{-- Increment Form --}}
-                @if($item->quantity < $stock)
-                    <form action="{{ route('buyer.cart.update', $item->id) }}" method="POST" class="inline">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="quantity" value="{{ $item->quantity + 1 }}">
-                        <button
-                            type="submit"
-                            class="flex h-7 w-7 items-center justify-center rounded-xl bg-white text-slate-700 shadow-2xs hover:bg-slate-100 hover:text-emerald-700 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 transition font-bold cursor-pointer"
-                            title="Tambah 1"
-                        >
-                            <i class="fa-solid fa-plus text-[10px]"></i>
-                        </button>
-                    </form>
-                @else
-                    <button
-                        type="button"
-                        disabled
-                        class="flex h-7 w-7 items-center justify-center rounded-xl bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed"
-                        title="Stok Maksimal Terpenuhi"
-                    >
-                        <i class="fa-solid fa-plus text-[10px]"></i>
-                    </button>
-                @endif
+                {{-- Increment Button --}}
+                <button
+                    type="button"
+                    @click="updateQty(qty + 1)"
+                    :disabled="qty >= stock || loading"
+                    :class="(qty >= stock || loading) ? 'bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed' : 'bg-white text-slate-700 shadow-2xs hover:bg-slate-100 hover:text-emerald-700 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 cursor-pointer'"
+                    class="flex h-7 w-7 items-center justify-center rounded-xl transition font-bold"
+                    title="Tambah 1"
+                >
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                </button>
 
             </div>
         </div>
@@ -172,7 +184,7 @@
         {{-- Total Item Price --}}
         <div class="text-right">
             <span class="text-[10px] font-semibold text-slate-400 block">Subtotal Item</span>
-            <p class="text-base font-black text-slate-900 dark:text-white sm:text-lg">
+            <p class="text-base font-black text-slate-900 dark:text-white sm:text-lg" x-text="itemSubtotalFormatted">
                 Rp {{ number_format($unitPrice * $item->quantity, 0, ',', '.') }}
             </p>
         </div>
@@ -189,7 +201,7 @@
         {{-- Modal Backdrop --}}
         <div
             class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
-            onclick="window.closeDeleteCartModal({{ $item->id }})"
+            onclick="window.closeDeleteCartModal('{{ $item->id }}')"
         ></div>
 
         {{-- Modal Dialog Card --}}
@@ -214,7 +226,7 @@
                 <div class="mt-6 flex w-full gap-3">
                     <button
                         type="button"
-                        onclick="window.closeDeleteCartModal({{ $item->id }})"
+                        onclick="window.closeDeleteCartModal('{{ $item->id }}')"
                         class="flex-1 rounded-2xl border border-slate-200 bg-white py-3 text-xs font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition cursor-pointer"
                     >
                         Batal

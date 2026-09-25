@@ -152,15 +152,15 @@
 
                     <a
                         href="{{ route('products.index') }}"
-                        class="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 shrink-0"
+                        class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-700 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 shrink-0"
                     >
                         <span>Jelajahi Katalog Lengkap</span>
-                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
                     </a>
                 </div>
 
-                {{-- Grid Cards (2 per baris di HP) --}}
-                <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+                {{-- Grid Cards (1 per baris di HP untuk tampilan lega, 2 di tablet, 4 di desktop) --}}
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
                     @foreach($featuredProducts as $featuredItem)
                         <x-product-card :product="$featuredItem" />
                     @endforeach
@@ -267,7 +267,7 @@
 
             @if($products->isNotEmpty())
 
-                <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+                <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
 
                     @foreach($products as $product)
 
@@ -293,15 +293,13 @@
 
 
             <div class="mt-8 text-center sm:hidden">
-
                 <a
                     href="{{ route('products.index') }}"
-                    class="inline-flex items-center gap-2 rounded-2xl bg-emerald-800 px-6 py-3 text-xs font-bold text-white shadow-xs"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-800 px-6 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-900"
                 >
                     <span>Lihat Semua Produk</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </a>
-
             </div>
 
         </div>

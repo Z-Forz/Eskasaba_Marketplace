@@ -356,6 +356,7 @@
 
             <div class="mt-4 divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                 @forelse ($recentActivityLogs ?? [] as $log)
+                    @php /** @var \App\Models\ActivityLog $log */ @endphp
                     <div class="py-3 flex items-center justify-between gap-3">
                         <div class="flex items-center gap-3 min-w-0 flex-1">
                             <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm dark:bg-slate-800">

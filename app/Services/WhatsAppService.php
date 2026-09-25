@@ -162,7 +162,7 @@ class WhatsAppService
                 . "👤 *Pembeli:* {$order->user->username}\n"
                 . "📱 *No. HP/WA Pembeli:* {$buyerPhoneText}\n"
                 . "📍 *Lokasi & Waktu Pengambilan:* {$pickupLoc}\n"
-                . "💰 *Total:* Rp " . number_format($order->total_price, 0, ',', '.') . "\n\n"
+                . "💰 *Total:* Rp " . number_format((float) ($order->total_price ?? 0), 0, ',', '.') . "\n\n"
                 . "📋 *Item Pesanan:*\n{$itemsList}\n"
                 . "Silakan periksa panel Seller Anda untuk memproses pesanan ini.\n\n"
                 . "🌐 *Akses Website:* https://eskamart.smkn1bangsri.sch.id/";
@@ -178,7 +178,7 @@ class WhatsAppService
                 . "Pesanan Anda dengan Invoice *#{$order->invoice_number}* telah berhasil dibuat.\n\n"
                 . "🏪 *Toko Penjual:* {$order->seller->user->username}\n"
                 . "📱 *No. HP/WA Penjual:* {$sellerPhoneText}\n"
-                . "💰 *Total Pembayaran:* Rp " . number_format($order->total_price, 0, ',', '.') . "\n"
+                . "💰 *Total Pembayaran:* Rp " . number_format((float) ($order->total_price ?? 0), 0, ',', '.') . "\n"
                 . "📍 *Lokasi & Waktu Pengambilan:* {$pickupLoc}\n\n"
                 . "📋 *Item Pesanan:*\n{$itemsList}\n"
                 . "Silakan selesaikan pembayaran dan koordinasi pengambilan pesanan dengan penjual.\n\n"
@@ -205,13 +205,17 @@ class WhatsAppService
         $sellerPhoneText = $order->seller?->whatsapp_number ?: ($order->seller?->user?->phone ?: '-');
 
         $statusLabel = match ($order->status) {
-            'pending'          => 'Menunggu Konfirmasi ⏳',
-            'confirmed'        => 'Dikonfirmasi & Diterima Penjual ✅',
-            'processing'       => 'Sedang Diproses oleh Penjual 👨‍🍳',
-            'ready_for_pickup', 'ready' => 'Siap Diambil di Kantin/Toko 🎒',
-            'completed'        => 'Selesai & Diserahterimakan 🎉',
-            'cancelled'        => 'Dibatalkan / Ditolak ❌',
-            default            => ucfirst(str_replace('_', ' ', (string) $order->status)),
+            'pending'                           => 'Menunggu Konfirmasi Penjual ⏳',
+            'confirmed'                         => 'Dikonfirmasi Penjual ✅',
+            'processing'                        => 'Sedang Diproses Penjual 👨‍🍳',
+            'ready_for_pickup', 'ready'         => 'Siap Diambil di Kantin/Toko 🎒',
+            'completed'                         => 'Selesai & Diserahterimakan 🎉',
+            'cancel_requested'                  => 'Pengajuan Pembatalan Pembeli ⚠️',
+            'return_requested'                  => 'Pengajuan Return / Pengembalian Barang 📦',
+            'refund_pending_buyer_confirmation' => 'Bukti Refund Diunggah Penjual (Menunggu Konfirmasi Anda) 💳',
+            'cancelled'                         => 'Pesanan Dibatalkan ❌',
+            'refunded', 'returned'              => 'Pengembalian Dana & Return Selesai 💸',
+            default                             => ucfirst(str_replace('_', ' ', (string) $order->status)),
         };
 
         $pickupLoc = $order->pickup_location ?: 'Kantin Sekolah';
@@ -471,15 +475,86 @@ class WhatsAppService
             . "Halo *{$order->seller->user->username}*,\n"
             . "Pembeli *{$order->user->username}* mengajukan pembatalan untuk pesanan *#{$order->invoice_number}*.\n\n"
             . "📝 *{$reason}*\n"
-            . "💰 *Total Nominal:* Rp " . number_format($order->total_price, 0, ',', '.') . "\n\n"
-            . "Silakan periksa panel Seller Anda untuk mengonfirmasi pembatalan dan mengunggah bukti pengembalian dana (refund) jika pembayaran QRIS sudah diterima.\n"
+            . "💰 *Total Nominal:* Rp " . number_format((float) ($order->total_price ?? 0), 0, ',', '.') . "\n\n"
+            . "Silakan periksa panel Seller Anda untuk meninjau, mengonfirmasi, dan mengunggah bukti refund jika diperlukan.\n"
             . "🌐 *Akses Seller:* https://eskamart.smkn1bangsri.sch.id/seller/orders/{$order->id}";
 
         self::send($sellerPhone, $msg);
     }
 
     /**
-     * Kirim notifikasi konfirmasi pembatalan & refund ke Pembeli via WA.
+     * Kirim notifikasi pengajuan RETURN / Pengembalian Barang & Dana dari Pembeli ke Penjual via WA.
+     */
+    public static function sendReturnRequestNotification(Order $order): void
+    {
+        $order->loadMissing(['user', 'seller.user']);
+
+        $sellerPhone = $order->seller?->whatsapp_number ?: $order->seller?->user?->phone;
+        if (! $sellerPhone) {
+            return;
+        }
+
+        $reason = $order->cancellation_reason ? "Alasan Return: {$order->cancellation_reason}" : "Alasan: Tidak disebutkan";
+        $hasProof = $order->return_proof_image ? "\n📸 *Bukti Foto Barang:* Diunggah Pembeli (Tersedia di Panel)" : "";
+
+        $msg = "🔄 *PENGAJUAN RETURN / PENGEMBALIAN BARANG*\n\n"
+            . "Halo *{$order->seller->user->username}*,\n"
+            . "Pembeli *{$order->user->username}* mengajukan pengembalian (return) untuk pesanan *#{$order->invoice_number}*.\n\n"
+            . "📝 *{$reason}*{$hasProof}\n"
+            . "💰 *Total Tagihan Pesanan:* Rp " . number_format((float) ($order->total_price ?? 0), 0, ',', '.') . "\n\n"
+            . "Silakan periksa foto bukti kondisi barang dan konfirmasi pengembalian melalui panel Seller Anda.\n"
+            . "🌐 *Akses Seller:* https://eskamart.smkn1bangsri.sch.id/seller/orders/{$order->id}";
+
+        self::send($sellerPhone, $msg);
+    }
+
+    /**
+     * Kirim notifikasi ke Pembeli bahwa Penjual telah mengunggah Bukti Refund dan menunggu konfirmasi.
+     */
+    public static function sendRefundUploadedNotification(Order $order): void
+    {
+        $order->loadMissing(['user', 'seller.user', 'payment']);
+
+        $buyerPhone = $order->user?->phone;
+        if (! $buyerPhone) {
+            return;
+        }
+
+        $notes = $order->payment?->refund_notes ? "\n💬 *Catatan Penjual:* {$order->payment->refund_notes}" : "";
+
+        $msg = "💳 *BUKTI REFUND DIUNGGAH PENJUAL*\n\n"
+            . "Halo *{$order->user->username}*,\n"
+            . "Penjual toko *{$order->seller->user->username}* telah mengunggah bukti pengembalian dana (refund) sebesar *Rp " . number_format((float) ($order->total_price ?? 0), 0, ',', '.') . "* untuk pesanan *#{$order->invoice_number}*.{$notes}\n\n"
+            . "⚠️ *PENTING:* Silakan periksa rekening / e-wallet Anda. Jika dana sudah masuk, tekan tombol *\"Konfirmasi Pengembalian Dana Diterima\"* di halaman detail pesanan untuk menyelesaikan transaksi.\n"
+            . "🌐 *Buka Detail Pesanan:* https://eskamart.smkn1bangsri.sch.id/buyer/orders/{$order->id}";
+
+        self::send($buyerPhone, $msg);
+    }
+
+    /**
+     * Kirim notifikasi ke Penjual bahwa Pembeli telah mengonfirmasi penerimaan refund.
+     */
+    public static function sendRefundConfirmedByBuyerNotification(Order $order): void
+    {
+        $order->loadMissing(['user', 'seller.user']);
+
+        $sellerPhone = $order->seller?->whatsapp_number ?: $order->seller?->user?->phone;
+        if (! $sellerPhone) {
+            return;
+        }
+
+        $msg = "✅ *PENGEMBALIAN DANA DIKONFIRMASI PEMBELI*\n\n"
+            . "Halo *{$order->seller->user->username}*,\n"
+            . "Pembeli *{$order->user->username}* telah mengonfirmasi penerimaan dana refund untuk pesanan *#{$order->invoice_number}*.\n\n"
+            . "💰 *Total Refund:* Rp " . number_format((float) ($order->total_price ?? 0), 0, ',', '.') . "\n"
+            . "Proses pembatalan/pengembalian pesanan ini telah *SELESAI LUNAS* dan stok barang telah diperbarui.\n\n"
+            . "🌐 *Detail Pesanan:* https://eskamart.smkn1bangsri.sch.id/seller/orders/{$order->id}";
+
+        self::send($sellerPhone, $msg);
+    }
+
+    /**
+     * Kirim notifikasi konfirmasi pembatalan / return akhir ke Pembeli via WA.
      */
     public static function sendCancellationConfirmedNotification(Order $order): void
     {
@@ -490,16 +565,24 @@ class WhatsAppService
             return;
         }
 
-        $byText = $order->cancelled_by === 'buyer' ? 'disetujui penjual' : 'dibatalkan oleh penjual';
-        $reason = $order->cancellation_reason ? "\n📝 *Alasan:* {$order->cancellation_reason}" : "";
-        $hasRefund = $order->payment?->refund_proof ? "\n🧾 *Bukti Refund:* Telah diunggah oleh penjual" : "";
+        $byText = match ($order->cancelled_by) {
+            'buyer'  => ($order->cancellation_status === 'approved' && in_array($order->status, ['cancelled', 'refunded', 'returned']))
+                            ? 'dibatalkan langsung oleh Anda (Pembeli)'
+                            : 'pengajuan pembatalannya disetujui penjual',
+            'seller' => 'dibatalkan oleh penjual',
+            'admin'  => 'dibatalkan oleh Admin Sekolah',
+            default  => 'telah dibatalkan',
+        };
 
-        $msg = "❌ *PESANAN DIBATALKAN*\n\n"
+        $reason = $order->cancellation_reason ? "\n📝 *Alasan:* {$order->cancellation_reason}" : "";
+        $hasRefund = $order->payment?->refund_proof ? "\n🧾 *Bukti Refund:* Telah diverifikasi & dikonfirmasi" : "";
+
+        $msg = "❌ *PESANAN DIBATALKAN / DIRETURN*\n\n"
             . "Halo *{$order->user->username}*,\n"
-            . "Pesanan *#{$order->invoice_number}* telah {$byText}.{$reason}{$hasRefund}\n\n"
+            . "Pesanan *#{$order->invoice_number}* {$byText}.{$reason}{$hasRefund}\n\n"
             . "🏪 *Toko Penjual:* {$order->seller->user->username}\n"
-            . "💰 *Total Nominal:* Rp " . number_format($order->total_price, 0, ',', '.') . "\n\n"
-            . "Anda dapat memeriksa detail pesanan dan foto bukti pengembalian dana di halaman Riwayat Pesanan.\n"
+            . "💰 *Total Nominal:* Rp " . number_format((float) ($order->total_price ?? 0), 0, ',', '.') . "\n\n"
+            . "Terima kasih atas kerja samanya.\n"
             . "🌐 *Akses Website:* https://eskamart.smkn1bangsri.sch.id/buyer/orders/{$order->id}";
 
         self::send($buyerPhone, $msg);
