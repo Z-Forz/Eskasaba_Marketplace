@@ -125,6 +125,7 @@ class OrderController extends Controller
         if ($requiresApproval) {
             $order->update([
                 'status'              => 'cancel_requested',
+                'previous_status'     => $order->status,
                 'cancelled_by'        => 'buyer',
                 'cancellation_reason' => $request->reason,
                 'cancellation_status' => 'pending',
@@ -145,6 +146,7 @@ class OrderController extends Controller
             // Unpaid COD / Pending order -> cancel immediately & restore stock
             $order->update([
                 'status'              => 'cancelled',
+                'previous_status'     => $order->status,
                 'cancelled_by'        => 'buyer',
                 'cancellation_reason' => $request->reason,
                 'cancellation_status' => 'approved',
@@ -173,8 +175,8 @@ class OrderController extends Controller
     {
         abort_unless($order->user_id === Auth::id(), 403);
 
-        if (!in_array($order->status, ['ready_for_pickup', 'completed'])) {
-            return back()->with('error', 'Pengajuan return / pengembalian barang hanya dapat dilakukan untuk pesanan yang sudah siap diambil atau selesai.');
+        if (in_array($order->status, ['ready_for_pickup', 'completed'])) {
+            return back()->with('error', 'Pesanan yang sudah siap diambil atau selesai tidak dapat dibatalkan ataupun di-return.');
         }
 
         $request->validate([
@@ -194,6 +196,7 @@ class OrderController extends Controller
 
         $order->update([
             'status'              => 'return_requested',
+            'previous_status'     => $order->status,
             'cancelled_by'        => 'buyer',
             'cancellation_reason' => $request->reason,
             'return_proof_image'  => $proofPath,

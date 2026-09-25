@@ -17,6 +17,7 @@ class Order extends Model
         'pickup_location',
         'note',
         'status',
+        'previous_status',
         'cancelled_by',
         'cancellation_reason',
         'cancellation_status',

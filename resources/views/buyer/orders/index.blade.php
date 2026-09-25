@@ -22,14 +22,17 @@
             @php
                 $currentStatus = request('status');
                 $statuses = [
-                    ''                 => 'Semua Pesanan',
-                    'pending'          => 'Menunggu',
-                    'confirmed'        => 'Dikonfirmasi',
-                    'processing'       => 'Diproses',
-                    'ready_for_pickup' => 'Siap Diambil',
-                    'completed'        => 'Selesai',
-                    'cancel_requested' => 'Pengajuan Pembatalan',
-                    'cancelled'        => 'Dibatalkan',
+                    ''                                  => 'Semua Pesanan',
+                    'pending'                           => 'Menunggu',
+                    'confirmed'                         => 'Dikonfirmasi',
+                    'processing'                        => 'Diproses',
+                    'ready_for_pickup'                  => 'Siap Diambil',
+                    'completed'                         => 'Selesai',
+                    'cancel_requested'                  => 'Pengajuan Pembatalan',
+                    'return_requested'                  => 'Pengajuan Return',
+                    'refund_pending_buyer_confirmation' => 'Menunggu Refund',
+                    'cancelled'                         => 'Dibatalkan',
+                    'returned'                          => 'Return Berhasil',
                 ];
             @endphp
 

@@ -24,14 +24,17 @@
             @php
                 $currentStatus = request('status');
                 $statuses = [
-                    ''                 => 'Semua Pesanan',
-                    'pending'          => 'Menunggu',
-                    'confirmed'        => 'Dikonfirmasi',
-                    'processing'       => 'Diproses',
-                    'ready_for_pickup' => 'Siap Diambil',
-                    'completed'        => 'Selesai',
-                    'cancel_requested' => 'Pengajuan Pembatalan',
-                    'cancelled'        => 'Dibatalkan',
+                    ''                                  => 'Semua Pesanan',
+                    'pending'                           => 'Menunggu',
+                    'confirmed'                         => 'Dikonfirmasi',
+                    'processing'                        => 'Diproses',
+                    'ready_for_pickup'                  => 'Siap Diambil',
+                    'completed'                         => 'Selesai',
+                    'cancel_requested'                  => 'Pengajuan Pembatalan',
+                    'return_requested'                  => 'Pengajuan Return',
+                    'refund_pending_buyer_confirmation' => 'Menunggu Refund Pembeli',
+                    'cancelled'                         => 'Dibatalkan',
+                    'returned'                          => 'Return Berhasil',
                 ];
             @endphp
 
@@ -122,14 +125,18 @@
                             <div class="flex items-center gap-2">
                                 <span class="rounded-full px-3 py-1 text-xs font-bold
                                     {{ match($order->status) {
-                                        'completed', 'ready_for_pickup', 'confirmed' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
+                                        'completed', 'ready_for_pickup', 'confirmed', 'cancelled', 'refunded', 'returned' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
                                         'pending', 'processing'                      => 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
-                                        'cancel_requested'                          => 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300',
-                                        'cancelled'                                  => 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300',
+                                        'cancel_requested', 'return_requested'      => 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300',
                                         default                                      => 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300'
                                     } }}"
                                 >
-                                    {{ $order->status === 'cancel_requested' ? 'Pengajuan Pembatalan' : ucfirst(str_replace('_', ' ', $order->status)) }}
+                                    {{ match($order->status) {
+                                        'cancelled' => 'Pembatalan Berhasil',
+                                        'refunded', 'returned' => 'Return & Refund Berhasil',
+                                        'cancel_requested' => 'Pengajuan Pembatalan',
+                                        default => ucfirst(str_replace('_', ' ', $order->status))
+                                    } }}
                                 </span>
                             </div>
                         </div>
@@ -209,15 +216,27 @@
                             {{-- Quick Action Button --}}
                             <div class="flex flex-wrap gap-2">
                                 @if($order->status === 'pending')
-                                    <form action="{{ route('seller.orders.update', $order) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="confirmed">
-                                        <input type="hidden" name="payment_status" value="verified">
-                                        <button type="submit" class="rounded-xl bg-emerald-700 px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-800 flex items-center gap-1.5">
-                                            <i class="fa-solid fa-circle-check"></i> Konfirmasi & Terima
-                                        </button>
-                                    </form>
+                                    @php
+                                        $isQris = strtolower($order->payment?->method ?? '') === 'qris';
+                                    @endphp
+
+                                    @if($isQris)
+                                        <a
+                                            href="{{ route('seller.orders.show', array_merge(['order' => $order->id], request()->query())) }}"
+                                            class="rounded-xl bg-emerald-700 px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-800 flex items-center gap-1.5 shadow-2xs"
+                                        >
+                                            <i class="fa-solid fa-qrcode"></i> Periksa Bukti QRIS & Konfirmasi
+                                        </a>
+                                    @else
+                                        <form action="{{ route('seller.orders.update', $order) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="confirmed">
+                                            <button type="submit" class="rounded-xl bg-emerald-700 px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-800 flex items-center gap-1.5">
+                                                <i class="fa-solid fa-circle-check"></i> Konfirmasi & Terima
+                                            </button>
+                                        </form>
+                                    @endif
                                 @elseif($order->status === 'confirmed')
                                     <form action="{{ route('seller.orders.update', $order) }}" method="POST">
                                         @csrf

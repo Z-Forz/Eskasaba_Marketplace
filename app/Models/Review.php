@@ -15,6 +15,7 @@ class Review extends Model
         'product_id',
         'rating',
         'comment',
+        'image',
     ];
 
     /*

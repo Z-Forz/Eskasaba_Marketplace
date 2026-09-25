@@ -125,22 +125,28 @@ class OrderController extends Controller
 
         // Verification for QRIS / COD payment through order page
         if (!empty($data['payment_status']) && $order->payment) {
-            $order->payment->update([
-                'status'      => $data['payment_status'],
-                'verified_at' => in_array($data['payment_status'], ['verified', 'paid']) ? now() : null,
-            ]);
+            $alreadyPaid = in_array($order->payment->status, ['verified', 'paid', 'refunded']);
 
-            // Auto-advance order status from 'pending' to 'confirmed' if payment is verified
-            if (in_array($data['payment_status'], ['verified', 'paid']) && $order->status === 'pending') {
-                $order->update(['status' => 'confirmed']);
-                $statusChanged = true;
+            if (!$alreadyPaid) {
+                $order->payment->update([
+                    'status'      => $data['payment_status'],
+                    'verified_at' => in_array($data['payment_status'], ['verified', 'paid']) ? now() : null,
+                ]);
+
+                // Auto-advance order status from 'pending' to 'confirmed' if payment is verified
+                if (in_array($data['payment_status'], ['verified', 'paid']) && $order->status === 'pending') {
+                    $order->update(['status' => 'confirmed']);
+                    $statusChanged = true;
+                }
             }
         } elseif (isset($data['status']) && in_array($data['status'], ['confirmed', 'processing', 'ready_for_pickup', 'completed']) && $order->payment && $order->payment->status === 'pending') {
-            // Auto-verify QRIS/payment when order is confirmed or processed
-            $order->payment->update([
-                'status'      => 'verified',
-                'verified_at' => now(),
-            ]);
+            // Auto-verify payment when order is confirmed/processed ONLY if not QRIS (require explicit QRIS proof check)
+            if (strtolower($order->payment->method ?? '') !== 'qris') {
+                $order->payment->update([
+                    'status'      => 'verified',
+                    'verified_at' => now(),
+                ]);
+            }
         }
 
         if ($statusChanged || isset($data['status'])) {
@@ -280,6 +286,7 @@ class OrderController extends Controller
 
         if ($order->payment) {
             $order->payment->update([
+                'status'       => $refundPath ? 'refunded' : $order->payment->status,
                 'refund_proof' => $refundPath ?? $order->payment->refund_proof,
                 'refund_notes' => $request->refund_notes ?? $order->payment->refund_notes,
                 'refunded_at'  => $refundPath ? now() : ($order->payment->refunded_at ?? now()),
@@ -289,7 +296,7 @@ class OrderController extends Controller
                 'order_id'     => $order->id,
                 'method'       => 'qris',
                 'amount'       => $order->total_price,
-                'status'       => 'rejected',
+                'status'       => 'refunded',
                 'refund_proof' => $refundPath,
                 'refund_notes' => $request->refund_notes,
                 'refunded_at'  => now(),
@@ -366,11 +373,8 @@ class OrderController extends Controller
 
         $order->loadMissing(['user']);
 
-        // Restore to processing / confirmed / completed based on context
-        $revertedStatus = match($order->status) {
-            'return_requested' => 'completed',
-            default            => 'processing',
-        };
+        // Restore to previous_status or default
+        $revertedStatus = $order->previous_status ?: ($order->status === 'return_requested' ? 'completed' : 'processing');
 
         $order->update([
             'status'              => $revertedStatus,

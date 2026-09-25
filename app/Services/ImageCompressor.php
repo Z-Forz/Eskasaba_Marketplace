@@ -9,21 +9,21 @@ use Illuminate\Support\Str;
 class ImageCompressor
 {
     /**
-     * Compress an uploaded image file to ~300KB - 400KB and save to storage.
+     * Compress an uploaded image file to <= 200KB (~100KB - 200KB) and save to storage.
      *
      * @param  UploadedFile  $file
-     * @param  string  $directory  Storage folder relative to disk (e.g. 'avatars', 'products', 'settings')
+     * @param  string  $directory  Storage folder relative to disk (e.g. 'avatars', 'products', 'settings', 'review_images')
      * @param  string  $disk       Storage disk name (default: 'public')
-     * @param  int     $targetMin  Target minimum size in KB (default: 300)
-     * @param  int     $targetMax  Target maximum size in KB (default: 400)
+     * @param  int     $targetMin  Target minimum size in KB (default: 100)
+     * @param  int     $targetMax  Target maximum size in KB (default: 200)
      * @return string  Relative storage path
      */
     public static function compressAndStore(
         UploadedFile $file,
         string $directory = 'uploads',
         string $disk = 'public',
-        int $targetMin = 300,
-        int $targetMax = 400
+        int $targetMin = 100,
+        int $targetMax = 200
     ): string {
         @ini_set('memory_limit', '256M');
 
@@ -31,7 +31,7 @@ class ImageCompressor
         $mime = strtolower((string) $file->getMimeType());
         $originalExtension = strtolower((string) $file->getClientOriginalExtension());
 
-        // Max target size in bytes (400 KB)
+        // Max target size in bytes (default: 200 KB)
         $maxSizeBytes = $targetMax * 1024;
         $minSizeBytes = $targetMin * 1024;
 
@@ -56,7 +56,7 @@ class ImageCompressor
             }
         }
 
-        // Fallback: If GD cannot create image resource, store file directly without losing it!
+        // Fallback: If GD cannot create image resource, store file directly
         if (! $srcImage) {
             return $file->store($directory, $disk);
         }
@@ -64,8 +64,8 @@ class ImageCompressor
         $origWidth = imagesx($srcImage);
         $origHeight = imagesy($srcImage);
 
-        // Maximum dimension (width/height) allowed for web images
-        $maxDimension = 1600;
+        // Maximum dimension (width/height) allowed for web images (1200px)
+        $maxDimension = 1200;
         $newWidth = $origWidth;
         $newHeight = $origHeight;
 
@@ -89,15 +89,14 @@ class ImageCompressor
         imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
         imagedestroy($srcImage);
 
-        // Compress image dynamically to target size range (~300-400KB)
+        // Compress image dynamically to target size range (<= 200KB)
         $bestBuffer = null;
         $bestSize = 0;
 
-        // Iterate quality settings from 90 down to 30 to hit target file size (300KB-400KB)
-        for ($quality = 90; $quality >= 30; $quality -= 5) {
+        // Iterate quality settings from 85 down to 25
+        for ($quality = 85; $quality >= 25; $quality -= 5) {
             ob_start();
             if (str_contains($mime, 'png') || $originalExtension === 'png') {
-                // Convert quality 0-100 to PNG compression level 0-9
                 $pngQuality = (int) round((100 - $quality) / 10);
                 imagepng($dstImage, null, min(9, max(0, $pngQuality)));
             } elseif (str_contains($mime, 'webp') || $originalExtension === 'webp') {
@@ -111,9 +110,19 @@ class ImageCompressor
             $bestBuffer = $buffer;
             $bestSize = $bufferSize;
 
-            // Stop if compressed size is within or below the target max (400KB)
             if ($bufferSize <= $maxSizeBytes) {
                 break;
+            }
+        }
+
+        // If buffer size is still > 200KB (e.g. large uncompressed PNGs), convert to WebP or scale down to 800px
+        if ($bestSize > $maxSizeBytes && (str_contains($mime, 'png') || $originalExtension === 'png')) {
+            ob_start();
+            imagewebp($dstImage, null, 75);
+            $webpBuffer = ob_get_clean();
+            if (strlen($webpBuffer) < $bestSize) {
+                $bestBuffer = $webpBuffer;
+                $originalExtension = 'webp';
             }
         }
 

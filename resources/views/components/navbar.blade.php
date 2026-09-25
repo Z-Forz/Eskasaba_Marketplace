@@ -248,6 +248,15 @@
                     </span>
                 </a>
 
+                <a
+                    href="{{ route('buyer.reviews.index') }}"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.reviews.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
+                >
+                    <span class="flex items-center gap-3">
+                        <i class="fa-solid fa-star w-5 text-center text-amber-500"></i> Ulasan Saya
+                    </span>
+                </a>
+
                 @if (auth()->user()->role === 'admin')
                     <a
                         href="{{ route('admin.dashboard') }}"

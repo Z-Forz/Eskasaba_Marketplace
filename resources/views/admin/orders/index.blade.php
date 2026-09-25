@@ -36,19 +36,24 @@
                         <i class="fa-solid fa-filter mr-1 text-slate-400"></i> Status Pesanan
                     </label>
 
-                    <select
+                    <x-custom-select
                         name="status"
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                    >
-                        <option value="">Semua Status</option>
-                        <option value="pending" @selected(request('status') === 'pending')>Menunggu Konfirmasi (Pending)</option>
-                        <option value="confirmed" @selected(request('status') === 'confirmed')>Dikonfirmasi</option>
-                        <option value="processing" @selected(request('status') === 'processing')>Diproses Seller</option>
-                        <option value="ready_for_pickup" @selected(request('status') === 'ready_for_pickup')>Siap Diambil</option>
-                        <option value="completed" @selected(request('status') === 'completed')>Selesai</option>
-                        <option value="cancel_requested" @selected(request('status') === 'cancel_requested')>Pengajuan Pembatalan (Buyer)</option>
-                        <option value="cancelled" @selected(request('status') === 'cancelled')>Dibatalkan</option>
-                    </select>
+                        :options="[
+                            ''                                  => 'Semua Status',
+                            'pending'                           => 'Menunggu Konfirmasi (Pending)',
+                            'confirmed'                         => 'Dikonfirmasi',
+                            'processing'                        => 'Diproses Seller',
+                            'ready_for_pickup'                  => 'Siap Diambil',
+                            'completed'                         => 'Selesai',
+                            'cancel_requested'                  => 'Pengajuan Pembatalan (Buyer)',
+                            'return_requested'                  => 'Pengajuan Return (Buyer)',
+                            'refund_pending_buyer_confirmation' => 'Menunggu Konfirmasi Refund',
+                            'cancelled'                         => 'Dibatalkan',
+                            'returned'                          => 'Return & Refund Berhasil',
+                        ]"
+                        :selected="request('status')"
+                        placeholder=""
+                    />
                 </div>
 
                 <div class="flex items-end gap-2">

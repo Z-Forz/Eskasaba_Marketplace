@@ -46,13 +46,8 @@
                             'cancel_requested'                  => 'Pengajuan Pembatalan',
                             'return_requested'                  => 'Pengajuan Return Barang',
                             'refund_pending_buyer_confirmation' => 'Menunggu Konfirmasi Refund Anda',
-                            'cancelled'                         => match($order->cancelled_by) {
-                                'buyer'  => 'Dibatalkan Pembeli (Anda)',
-                                'seller' => 'Dibatalkan Penjual Toko',
-                                'admin'  => 'Dibatalkan Admin Sekolah',
-                                default  => 'Dibatalkan',
-                            },
-                            'refunded', 'returned'              => 'Pengembalian Selesai',
+                            'cancelled'                         => 'Pembatalan Berhasil',
+                            'refunded', 'returned'              => 'Return & Refund Berhasil',
                             default                             => ucfirst(str_replace('_', ' ', $order->status))
                         } }}
                     </x-badge>
@@ -62,13 +57,6 @@
 
         </div>
 
-        @if (session('success'))
-            <x-alert type="success" :message="session('success')" class="mb-6" />
-        @endif
-
-        @if (session('error'))
-            <x-alert type="danger" :message="session('error')" class="mb-6" />
-        @endif
 
         {{-- Order Progress Stepper Bar & Banners --}}
         @php
@@ -163,20 +151,23 @@
                             </div>
 
                             {{-- Modal Lightbox --}}
-                            <div
-                                x-show="showRefundModal"
-                                x-cloak
-                                @click="showRefundModal = false"
-                                class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer"
-                            >
-                                <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
-                                    <img
-                                        src="{{ Storage::url($order->payment->refund_proof) }}"
-                                        alt="Foto Bukti Refund"
-                                        class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
-                                    >
+                            <template x-teleport="body">
+                                <div
+                                    x-show="showRefundModal"
+                                    x-cloak
+                                    style="display: none;"
+                                    @click="showRefundModal = false"
+                                    class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer"
+                                >
+                                    <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
+                                        <img
+                                            src="{{ Storage::url($order->payment->refund_proof) }}"
+                                            alt="Foto Bukti Refund"
+                                            class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
+                                        >
+                                    </div>
                                 </div>
-                            </div>
+                            </template>
                         @endif
 
                         {{-- Action Button: Confirm Receipt --}}
@@ -204,6 +195,11 @@
                         <h2 class="text-base font-bold text-amber-900 dark:text-amber-300">Pengajuan Pembatalan Menunggu Peninjauan Penjual</h2>
                         <p class="mt-0.5 text-xs text-amber-700 dark:text-amber-400">
                             Alasan Pengajuan Anda: <em>"{{ $order->cancellation_reason }}"</em>. Penjual sedang meninjau permohonan Anda.
+                            @if($order->previous_status)
+                                <span class="block mt-1 text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                                    Status Terakhir Pesanan: {{ ucfirst(str_replace('_', ' ', $order->previous_status)) }}
+                                </span>
+                            @endif
                         </p>
                     </div>
                 </div>
@@ -218,25 +214,35 @@
                         <h2 class="text-base font-bold text-orange-900 dark:text-orange-300">Pengajuan Return / Pengembalian Barang Menunggu Penjual</h2>
                         <p class="mt-0.5 text-xs text-orange-800 dark:text-orange-400">
                             Alasan Return Anda: <em>"{{ $order->cancellation_reason }}"</em>. Penjual sedang memeriksa foto bukti kondisi barang yang Anda unggah.
+                            @if($order->previous_status)
+                                <span class="block mt-1 text-[11px] font-bold text-orange-900 dark:text-orange-300">
+                                    Status Terakhir Pesanan: {{ ucfirst(str_replace('_', ' ', $order->previous_status)) }}
+                                </span>
+                            @endif
                         </p>
                     </div>
                 </div>
             </div>
         @elseif(in_array($order->status, ['cancelled', 'refunded', 'returned']))
-            <div class="mb-8 rounded-3xl border border-red-200 bg-red-50/90 p-6 shadow-xs dark:border-red-900/60 dark:bg-red-950/40">
+            <div class="mb-8 rounded-3xl border border-emerald-300 bg-emerald-50/90 p-6 shadow-xs dark:border-emerald-800 dark:bg-emerald-950/40">
                 <div class="flex items-start gap-4">
-                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-red-100 text-red-700 text-xl font-bold dark:bg-red-900/60 dark:text-red-300">
-                        <i class="fa-solid fa-circle-xmark"></i>
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 text-xl font-bold dark:bg-emerald-900/60 dark:text-emerald-300">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h2 class="text-base font-bold text-red-900 dark:text-red-300">
-                            {{ $order->status === 'returned' ? 'Pesanan Ini Telah Direturn & Refund' : 'Pesanan Ini Telah Dibatalkan' }}
+                        <h2 class="text-base font-black text-emerald-950 dark:text-emerald-200">
+                            {{ $order->status === 'returned' ? 'Return & Refund Berhasil' : 'Pembatalan Pesanan Berhasil' }}
                         </h2>
-                        <p class="mt-1 text-xs font-semibold text-red-700 dark:text-red-400">
+                        <p class="mt-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                             Dibatalkan Oleh: <strong>{{ match($order->cancelled_by) { 'buyer' => 'Pembeli (Anda)', 'seller' => 'Penjual Toko', 'admin' => 'Admin Sekolah', default => 'Sistem' } }}</strong>
+                            @if($order->previous_status)
+                                <span class="ml-2 inline-block rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200">
+                                    Status Terakhir: {{ ucfirst(str_replace('_', ' ', $order->previous_status)) }}
+                                </span>
+                            @endif
                         </p>
                         @if($order->cancellation_reason)
-                            <div class="mt-2.5 rounded-2xl bg-white/80 p-3.5 border border-red-100 dark:border-red-900/40 dark:bg-slate-900/60">
+                            <div class="mt-2.5 rounded-2xl bg-white/90 p-3.5 border border-emerald-200/80 dark:border-emerald-900/40 dark:bg-slate-900/60">
                                 <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Alasan Pembatalan / Return:</p>
                                 <p class="mt-0.5 text-xs text-slate-800 dark:text-slate-200 font-medium italic">"{{ $order->cancellation_reason }}"</p>
                             </div>
@@ -278,23 +284,26 @@
                                 </div>
 
                                 {{-- Centered Lightbox Modal --}}
-                                <div
-                                    x-show="showRefundModal"
-                                    x-cloak
-                                    @click="showRefundModal = false"
-                                    @keydown.escape.window="showRefundModal = false"
-                                    class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
-                                >
-                                    <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
-                                        <div class="relative w-full flex justify-center">
-                                            <img
-                                                src="{{ Storage::url($order->payment->refund_proof) }}"
-                                                alt="Bukti Pengembalian Dana"
-                                                class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
-                                            >
+                                <template x-teleport="body">
+                                    <div
+                                        x-show="showRefundModal"
+                                        x-cloak
+                                        style="display: none;"
+                                        @click="showRefundModal = false"
+                                        @keydown.escape.window="showRefundModal = false"
+                                        class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                    >
+                                        <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
+                                            <div class="relative w-full flex justify-center">
+                                                <img
+                                                    src="{{ Storage::url($order->payment->refund_proof) }}"
+                                                    alt="Bukti Pengembalian Dana"
+                                                    class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
+                                                >
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </template>
                             </div>
                         @endif
                     </div>
@@ -319,7 +328,7 @@
                         <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 1 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
                             1
                         </div>
-                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 1 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Dibuat</span>
+                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 1 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Pending</span>
                     </div>
 
                     {{-- Step 2 --}}
@@ -384,10 +393,9 @@
                                 <div class="min-w-0 flex-1">
                                     <h2 class="font-bold text-slate-900 text-base dark:text-white truncate group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition flex items-center gap-1">
                                         <span>{{ $order->seller->user?->username ?? 'Penjual' }}</span>
-                                        <i class="fa-solid fa-arrow-right text-xs text-slate-400 group-hover:translate-x-0.5 transition"></i>
                                     </h2>
                                     <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                                        <i class="fa-solid fa-circle-check mr-1"></i> Penjual Terverifikasi Sekolah (Klik untuk Lihat Toko)
+                                        <i class="fa-solid fa-circle-check mr-1"></i> Penjual Terverifikasi Sekolah
                                     </p>
                                 </div>
                             </a>
@@ -503,23 +511,26 @@
                                 </p>
 
                                 {{-- Centered Lightbox Modal --}}
-                                <div
-                                    x-show="showQrisModal"
-                                    x-cloak
-                                    @click="showQrisModal = false"
-                                    @keydown.escape.window="showQrisModal = false"
-                                    class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
-                                >
-                                    <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
-                                        <div class="relative w-full flex justify-center">
-                                            <img
-                                                src="{{ Storage::url($order->seller->qris_image) }}"
-                                                alt="QRIS Toko {{ $order->seller->user?->username }}"
-                                                class="max-h-[80vh] max-w-full rounded-3xl bg-white p-4 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
-                                            >
+                                <template x-teleport="body">
+                                    <div
+                                        x-show="showQrisModal"
+                                        x-cloak
+                                        style="display: none;"
+                                        @click="showQrisModal = false"
+                                        @keydown.escape.window="showQrisModal = false"
+                                        class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer select-none"
+                                    >
+                                        <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
+                                            <div class="relative w-full flex justify-center">
+                                                <img
+                                                    src="{{ Storage::url($order->seller->qris_image) }}"
+                                                    alt="QRIS Toko {{ $order->seller->user?->username }}"
+                                                    class="max-h-[80vh] max-w-full rounded-3xl bg-white p-4 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
+                                                >
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </template>
                             </div>
                         @else
                             <div class="mt-4 rounded-2xl bg-white p-4 text-center border border-amber-200 dark:border-amber-900/60 dark:bg-slate-900">
@@ -570,20 +581,23 @@
                                     </div>
 
                                     {{-- Lightbox Modal --}}
-                                    <div
-                                        x-show="showProofModal"
-                                        x-cloak
-                                        @click="showProofModal = false"
-                                        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer"
-                                    >
-                                        <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
-                                            <img
-                                                src="{{ Storage::url($order->payment->proof) }}"
-                                                alt="Bukti Pembayaran"
-                                                class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
-                                            >
+                                    <template x-teleport="body">
+                                        <div
+                                            x-show="showProofModal"
+                                            x-cloak
+                                            style="display: none;"
+                                            @click="showProofModal = false"
+                                            class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md cursor-pointer"
+                                        >
+                                            <div class="relative max-w-lg w-full flex flex-col items-center justify-center p-2" @click.stop>
+                                                <img
+                                                    src="{{ Storage::url($order->payment->proof) }}"
+                                                    alt="Bukti Pembayaran"
+                                                    class="max-h-[80vh] max-w-full rounded-3xl bg-white p-3 shadow-2xl object-contain border-4 border-emerald-500/30 dark:bg-slate-900"
+                                                >
+                                            </div>
                                         </div>
-                                    </div>
+                                    </template>
                                 </div>
                             @endif
 
@@ -697,8 +711,29 @@
                             <span class="text-slate-500 dark:text-slate-400">
                                 Status Pembayaran
                             </span>
-                            <span class="font-bold text-emerald-700 dark:text-emerald-400">
-                                {{ ucfirst($order->payment?->status ?? 'Pending') }}
+                            <span class="font-bold
+                                {{ match($order->status) {
+                                    'cancelled', 'refunded', 'returned' => 'text-emerald-700 dark:text-emerald-400',
+                                    default => match($order->payment?->status) {
+                                        'verified', 'paid' => 'text-emerald-700 dark:text-emerald-400',
+                                        'rejected'         => 'text-red-600 dark:text-red-400',
+                                        default            => 'text-amber-600 dark:text-amber-400'
+                                    }
+                                } }}"
+                            >
+                                @if(in_array($order->status, ['cancelled', 'refunded', 'returned']))
+                                    @if($order->payment?->refund_proof || $order->refund_confirmed_at || $order->payment?->buyer_confirmed_refund)
+                                        Refund Lunas (Dikembalikan)
+                                    @else
+                                        Dibatalkan
+                                    @endif
+                                @else
+                                    {{ match($order->payment?->status) {
+                                        'verified', 'paid' => 'Lunas',
+                                        'rejected'         => 'Ditolak',
+                                        default            => 'Pending'
+                                    } }}
+                                @endif
                             </span>
                         </div>
 
@@ -749,170 +784,84 @@
                             </button>
 
                             {{-- Cancel Modal --}}
-                            <div
-                                x-show="showCancelModal"
-                                x-cloak
-                                style="display: none;"
-                                class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
-                            >
+                            <template x-teleport="body">
                                 <div
-                                    @click.away="showCancelModal = false"
-                                    class="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl dark:bg-slate-900 dark:border dark:border-slate-800 text-left"
+                                    x-show="showCancelModal"
+                                    x-cloak
+                                    style="display: none;"
+                                    class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
                                 >
-                                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                            <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Konfirmasi Pembatalan
-                                        </h3>
-                                        <button @click="showCancelModal = false" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                                            <i class="fa-solid fa-xmark text-lg"></i>
-                                        </button>
-                                    </div>
+                                    <div
+                                        @click.away="showCancelModal = false"
+                                        class="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl dark:bg-slate-900 dark:border dark:border-slate-800 text-left"
+                                    >
+                                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800 gap-3">
+                                            <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 min-w-0">
+                                                <i class="fa-solid fa-triangle-exclamation text-amber-500 shrink-0"></i> <span class="truncate">Konfirmasi Pembatalan</span>
+                                            </h3>
+                                            <button @click="showCancelModal = false" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shrink-0">
+                                                <i class="fa-solid fa-xmark text-lg"></i>
+                                            </button>
+                                        </div>
 
-                                    <form action="{{ route('buyer.orders.cancel', $order) }}" method="POST" class="mt-4 space-y-4">
-                                        @csrf
-                                        @if($order->status !== 'pending' || (strtolower($order->payment?->method ?? '') === 'qris' && ($order->payment?->proof || in_array($order->payment?->status, ['verified', 'paid']))))
-                                            <div class="rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200 leading-relaxed">
-                                                <div class="flex items-start gap-2.5">
-                                                    <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5 shrink-0"></i>
-                                                    <div>
-                                                        <p class="font-bold mb-1">Pengajuan Pembatalan Ke Penjual:</p>
-                                                        <p>
-                                                            Pesanan Anda sudah diproses atau telah dibayar. Pengajuan pembatalan akan dikirimkan ke penjual untuk disetujui.
-                                                            Sertakan info nomor rekening / e-wallet jika Anda telah melakukan transfer QRIS.
-                                                        </p>
+                                        <form action="{{ route('buyer.orders.cancel', $order) }}" method="POST" class="mt-4 space-y-4">
+                                            @csrf
+                                            @if($order->status !== 'pending' || (strtolower($order->payment?->method ?? '') === 'qris' && ($order->payment?->proof || in_array($order->payment?->status, ['verified', 'paid']))))
+                                                <div class="rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200 leading-relaxed">
+                                                    <div class="flex items-start gap-2.5">
+                                                        <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5 shrink-0"></i>
+                                                        <div>
+                                                            <p class="font-bold mb-1">Pengajuan Pembatalan Ke Penjual:</p>
+                                                            <p>
+                                                                Pesanan Anda sudah diproses atau telah dibayar. Pengajuan pembatalan akan dikirimkan ke penjual untuk disetujui.
+                                                                Sertakan info nomor rekening / e-wallet jika Anda telah melakukan transfer QRIS.
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                            @else
+                                                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                                    Apakah Anda yakin ingin membatalkan pesanan ini? Stok barang akan dikembalikan secara otomatis.
+                                                </p>
+                                            @endif
+
+                                            <div>
+                                                <label for="reason" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                                                    Alasan Pembatalan <span class="text-red-500">*</span>
+                                                </label>
+                                                <textarea
+                                                    id="reason"
+                                                    name="reason"
+                                                    rows="3"
+                                                    required
+                                                    placeholder="Contoh: Salah memilih barang, ada keperluan mendadak..."
+                                                    class="w-full rounded-2xl border border-slate-200 bg-white p-3 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                                ></textarea>
                                             </div>
-                                        @else
-                                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                                                Apakah Anda yakin ingin membatalkan pesanan ini? Stok barang akan dikembalikan secara otomatis.
-                                            </p>
-                                        @endif
 
-                                        <div>
-                                            <label for="reason" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                                Alasan Pembatalan <span class="text-red-500">*</span>
-                                            </label>
-                                            <textarea
-                                                id="reason"
-                                                name="reason"
-                                                rows="3"
-                                                required
-                                                placeholder="Contoh: Salah memilih barang, ada keperluan mendadak..."
-                                                class="w-full rounded-2xl border border-slate-200 bg-white p-3 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                                            ></textarea>
-                                        </div>
-
-                                        <div class="flex justify-end gap-2 pt-2">
-                                            <button
-                                                type="button"
-                                                @click="showCancelModal = false"
-                                                class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 cursor-pointer dark:bg-slate-800 dark:text-slate-300"
-                                            >
-                                                Kembali
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                class="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 transition cursor-pointer"
-                                            >
-                                                Ya, Batalkan Pesanan
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
-                    {{-- Action Button: Request Return / Complain Item (For Ready for Pickup & Completed) --}}
-                    @if (in_array($order->status, ['ready_for_pickup', 'completed']))
-                        <div x-data="{ showReturnModal: false }" class="mt-3">
-                            <button
-                                type="button"
-                                @click="showReturnModal = true"
-                                class="flex w-full items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-5 py-3 text-xs font-bold text-orange-800 transition hover:bg-orange-100 cursor-pointer dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-300"
-                            >
-                                <i class="fa-solid fa-rotate-left"></i> Ajukan Return / Pengembalian Barang
-                            </button>
-
-                            {{-- Return Modal --}}
-                            <div
-                                x-show="showReturnModal"
-                                x-cloak
-                                style="display: none;"
-                                class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
-                            >
-                                <div
-                                    @click.away="showReturnModal = false"
-                                    class="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl dark:bg-slate-900 dark:border dark:border-slate-800 text-left"
-                                >
-                                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                            <i class="fa-solid fa-rotate-left text-orange-500"></i> Pengajuan Return & Refund Barang
-                                        </h3>
-                                        <button @click="showReturnModal = false" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                                            <i class="fa-solid fa-xmark text-lg"></i>
-                                        </button>
+                                            <div class="flex justify-end gap-2 pt-2">
+                                                <button
+                                                    type="button"
+                                                    @click="showCancelModal = false"
+                                                    class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 cursor-pointer dark:bg-slate-800 dark:text-slate-300"
+                                                >
+                                                    Kembali
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    class="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 transition cursor-pointer"
+                                                >
+                                                    Ya, Batalkan Pesanan
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
-
-                                    <form action="{{ route('buyer.orders.request-return', $order) }}" method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
-                                        @csrf
-                                        <div class="rounded-2xl border border-orange-200 bg-orange-50/80 p-3.5 text-xs text-orange-900 dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-200 leading-relaxed">
-                                            <p class="font-bold mb-1"><i class="fa-solid fa-circle-info mr-1"></i> Ketentuan Pengembalian Barang:</p>
-                                            <p>
-                                                Silakan sertakan foto jelas kondisi barang (rusak/salah produk) beserta alasan lengkap agar penjual dapat menyetujui pengembalian dana (refund).
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <label for="return_reason" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                                Alasan Pengembalian <span class="text-red-500">*</span>
-                                            </label>
-                                            <textarea
-                                                id="return_reason"
-                                                name="reason"
-                                                rows="3"
-                                                required
-                                                placeholder="Contoh: Barang fisik tidak sesuai pesanan, makanan basi/rusak saat diterima. Refund ke DANA 08123456789..."
-                                                class="w-full rounded-2xl border border-slate-200 bg-white p-3 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                                            ></textarea>
-                                        </div>
-
-                                        <div>
-                                            <label for="return_proof" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                                Foto Bukti Kondisi Barang <span class="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                id="return_proof"
-                                                type="file"
-                                                name="return_proof"
-                                                accept="image/*"
-                                                required
-                                                class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:rounded-xl file:border-0 file:bg-orange-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white hover:file:bg-orange-700 cursor-pointer"
-                                            >
-                                            <p class="mt-1 text-[11px] text-slate-400">Maksimal 10MB (Format JPG, PNG, WEBP).</p>
-                                        </div>
-
-                                        <div class="flex justify-end gap-2 pt-2">
-                                            <button
-                                                type="button"
-                                                @click="showReturnModal = false"
-                                                class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 cursor-pointer dark:bg-slate-800 dark:text-slate-300"
-                                            >
-                                                Kembali
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                class="rounded-xl bg-orange-600 px-4 py-2 text-xs font-bold text-white hover:bg-orange-700 transition cursor-pointer"
-                                            >
-                                                Kirim Pengajuan Return
-                                            </button>
-                                        </div>
-                                    </form>
                                 </div>
-                            </div>
+                            </template>
                         </div>
                     @endif
+
+
 
                 </div>
 

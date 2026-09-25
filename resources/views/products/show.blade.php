@@ -131,9 +131,23 @@
 
                     {{-- Price Card Showcase --}}
                     <div class="rounded-3xl border border-slate-200/90 bg-slate-50 p-5 sm:p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-tags text-emerald-600"></i> Harga Produk
-                        </p>
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-tags text-emerald-600"></i> Harga Produk
+                            </p>
+                            
+                            {{-- Stock Indicator Badge --}}
+                            <div class="shrink-0">
+                                <span
+                                    :class="activeStock > 0 ? 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800' : 'bg-red-100 text-red-800 border-red-300 dark:bg-red-950 dark:text-red-300 dark:border-red-800'"
+                                    class="inline-flex items-center gap-1.5 rounded-xl border px-3 py-1 text-xs font-black shadow-2xs"
+                                >
+                                    <i class="fa-solid" :class="activeStock > 0 ? 'fa-box-archive text-emerald-600' : 'fa-circle-xmark text-red-600'"></i>
+                                    <span x-text="activeStock > 0 ? 'Stok: ' + activeStock + ' Pcs' : 'Stok Habis'"></span>
+                                </span>
+                            </div>
+                        </div>
+
                         <div class="mt-2 flex flex-col gap-1">
                             <div class="flex items-baseline gap-3 flex-wrap">
                                 <p class="text-3xl sm:text-4xl font-black text-emerald-800 dark:text-emerald-400">
@@ -467,6 +481,7 @@
                                 $colorClass = $colors[abs(crc32($review->user?->username ?? 'User')) % count($colors)];
                             @endphp
                             <div
+                                x-data="{ showImageModal: false }"
                                 x-show="selectedRating === 'all' || selectedRating == {{ $review->rating }}"
                                 x-transition:enter="transition ease-out duration-300"
                                 x-transition:enter-start="opacity-0 transform scale-95"
@@ -504,6 +519,55 @@
                                         <p class="mt-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal bg-slate-50/80 dark:bg-slate-800/40 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800/80">
                                             "{{ $review->comment }}"
                                         </p>
+                                    @endif
+
+                                    @if($review->image)
+                                        <div class="mt-3">
+                                            <button
+                                                type="button"
+                                                @click="showImageModal = true"
+                                                class="group relative inline-block overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xs transition hover:opacity-90 cursor-pointer"
+                                            >
+                                                <img
+                                                    src="{{ Storage::url($review->image) }}"
+                                                    alt="Foto Ulasan Pembeli"
+                                                    class="h-24 w-24 object-cover"
+                                                >
+                                                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1">
+                                                    <i class="fa-solid fa-magnifying-glass-plus"></i> Lihat
+                                                </div>
+                                            </button>
+                                        </div>
+
+                                        {{-- Lightbox Modal --}}
+                                        <template x-teleport="body">
+                                            <div
+                                                x-show="showImageModal"
+                                                x-transition:enter="transition ease-out duration-200"
+                                                x-transition:enter-start="opacity-0"
+                                                x-transition:enter-end="opacity-100"
+                                                x-transition:leave="transition ease-in duration-150"
+                                                x-transition:leave-start="opacity-100"
+                                                x-transition:leave-end="opacity-0"
+                                                class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs"
+                                                @keydown.escape.window="showImageModal = false"
+                                            >
+                                                <div class="relative max-w-3xl w-full max-h-[90vh] flex flex-col items-center">
+                                                    <button
+                                                        type="button"
+                                                        @click="showImageModal = false"
+                                                        class="absolute -top-12 right-0 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition cursor-pointer"
+                                                    >
+                                                        <i class="fa-solid fa-xmark text-lg"></i>
+                                                    </button>
+                                                    <img
+                                                        src="{{ Storage::url($review->image) }}"
+                                                        alt="Foto Ulasan Full"
+                                                        class="max-h-[80vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl border border-white/20"
+                                                    >
+                                                </div>
+                                            </div>
+                                        </template>
                                     @endif
                                 </div>
                             </div>

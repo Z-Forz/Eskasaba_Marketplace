@@ -343,15 +343,15 @@
                             <label for="status" class="mb-2 block text-xs font-bold text-slate-700 dark:text-slate-300">
                                 Status Produk <span class="text-red-500">*</span>
                             </label>
-                            <select
-                                id="status"
+                            <x-custom-select
                                 name="status"
-                                required
-                                class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                            >
-                                <option value="active" @selected(old('status', $product->status) === 'active')>Aktif (Siap Dibeli)</option>
-                                <option value="inactive" @selected(old('status', $product->status) === 'inactive')>Nonaktif (Disembunyikan)</option>
-                            </select>
+                                :options="[
+                                    'active'   => 'Aktif (Siap Dibeli)',
+                                    'inactive' => 'Nonaktif (Disembunyikan)',
+                                ]"
+                                :selected="old('status', $product->status)"
+                                placeholder=""
+                            />
                         </div>
                     </div>
 

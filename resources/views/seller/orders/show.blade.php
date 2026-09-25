@@ -27,26 +27,14 @@
                     'cancel_requested'                  => 'Pengajuan Batal Pembeli',
                     'return_requested'                  => 'Pengajuan Return Barang',
                     'refund_pending_buyer_confirmation' => 'Menunggu Konfirmasi Refund Pembeli',
-                    'cancelled'                         => match($order->cancelled_by) {
-                        'buyer'  => 'Dibatalkan Pembeli',
-                        'seller' => 'Dibatalkan Penjual (Anda)',
-                        'admin'  => 'Dibatalkan Admin',
-                        default  => 'Dibatalkan',
-                    },
-                    'refunded', 'returned'              => 'Pengembalian Selesai',
+                    'cancelled'                         => 'Pembatalan Berhasil',
+                    'refunded', 'returned'              => 'Return & Refund Berhasil',
                     default                             => ucfirst(str_replace('_', ' ', $order->status))
                 }"
             />
 
         </div>
 
-        @if (session('success'))
-            <x-alert type="success" :message="session('success')" class="mb-4" />
-        @endif
-
-        @if (session('error'))
-            <x-alert type="danger" :message="session('error')" class="mb-4" />
-        @endif
 
         {{-- Order Progress Stepper Bar --}}
         @php
@@ -116,7 +104,7 @@
                         <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 1 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
                             1
                         </div>
-                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 1 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Dibuat</span>
+                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 1 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Pending</span>
                     </div>
 
                     {{-- Step 2 --}}
@@ -167,6 +155,11 @@
                         </h2>
                         <p class="mt-1 text-xs text-amber-800 dark:text-amber-300">
                             Pembeli telah mengajukan {{ $order->status === 'return_requested' ? 'pengembalian barang (return)' : 'pembatalan pesanan' }} ini dengan alasan:
+                            @if($order->previous_status)
+                                <span class="ml-2 inline-block rounded-md bg-amber-200/80 px-2 py-0.5 text-[11px] font-bold text-amber-900 dark:bg-amber-900 dark:text-amber-200">
+                                    Status Terakhir: {{ ucfirst(str_replace('_', ' ', $order->previous_status)) }}
+                                </span>
+                            @endif
                         </p>
 
                         <div class="mt-2 rounded-2xl bg-white/90 p-4 border border-amber-200 dark:border-amber-900/60 dark:bg-slate-900 space-y-3">
@@ -397,20 +390,25 @@
                 </div>
             </div>
         @elseif(in_array($order->status, ['cancelled', 'refunded', 'returned']))
-            <div class="rounded-3xl border border-red-200 bg-red-50/90 p-6 shadow-xs dark:border-red-900/60 dark:bg-red-950/40">
+            <div class="rounded-3xl border border-emerald-300 bg-emerald-50/90 p-6 shadow-xs dark:border-emerald-800 dark:bg-emerald-950/40">
                 <div class="flex items-start gap-4">
-                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-red-100 text-red-700 text-xl font-bold dark:bg-red-900/60 dark:text-red-300">
-                        <i class="fa-solid fa-circle-xmark"></i>
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 text-xl font-bold dark:bg-emerald-900/60 dark:text-emerald-300">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h2 class="text-base font-bold text-red-900 dark:text-red-300">
-                            {{ $order->status === 'returned' ? 'Pesanan Ini Telah Direturn & Refund' : 'Pesanan Ini Telah Dibatalkan' }}
+                        <h2 class="text-base font-black text-emerald-950 dark:text-emerald-200">
+                            {{ $order->status === 'returned' ? 'Return & Refund Berhasil' : 'Pembatalan Pesanan Berhasil' }}
                         </h2>
-                        <p class="mt-1 text-xs font-semibold text-red-700 dark:text-red-400">
+                        <p class="mt-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                             Dibatalkan Oleh: <strong>{{ match($order->cancelled_by) { 'buyer' => 'Pembeli', 'seller' => 'Penjual Toko (Anda)', 'admin' => 'Admin Sekolah', default => 'Sistem' } }}</strong>
+                            @if($order->previous_status)
+                                <span class="ml-2 inline-block rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200">
+                                    Status Terakhir: {{ ucfirst(str_replace('_', ' ', $order->previous_status)) }}
+                                </span>
+                            @endif
                         </p>
                         @if($order->cancellation_reason)
-                            <div class="mt-2.5 rounded-2xl bg-white/80 p-3.5 border border-red-100 dark:border-red-900/40 dark:bg-slate-900/60">
+                            <div class="mt-2.5 rounded-2xl bg-white/90 p-3.5 border border-emerald-200/80 dark:border-emerald-900/40 dark:bg-slate-900/60">
                                 <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Alasan Pembatalan / Return:</p>
                                 <p class="mt-0.5 text-xs text-slate-800 dark:text-slate-200 font-medium italic">"{{ $order->cancellation_reason }}"</p>
                             </div>
@@ -527,7 +525,7 @@
             {{-- Pickup & Note Details --}}
             <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <h2 class="text-base font-bold text-slate-900 dark:text-white">
-                    <i class="fa-solid fa-location-dot mr-1.5 text-emerald-600"></i> Titik Temu & Catatan COD
+                    <i class="fa-solid fa-location-dot mr-1.5 text-emerald-600"></i>Titik Temu & Catatan
                 </h2>
 
                 <div class="mt-4 space-y-3 text-sm">
@@ -565,16 +563,18 @@
                     <h2 class="mt-2 text-lg font-black text-slate-900 dark:text-white">
                         Status Pembayaran:
                         <span class="
-                            {{ match($order->payment?->status) {
-                                'verified', 'paid' => 'text-emerald-700 dark:text-emerald-400',
-                                'rejected'         => 'text-red-600 dark:text-red-400',
-                                default            => 'text-amber-600 dark:text-amber-400'
+                            {{ match(true) {
+                                in_array($order->payment?->status, ['refunded']) || in_array($order->status, ['refunded', 'returned', 'refund_pending_buyer_confirmation']) || !empty($order->payment?->refund_proof) => 'text-emerald-700 dark:text-emerald-400',
+                                in_array($order->payment?->status, ['verified', 'paid']) => 'text-emerald-700 dark:text-emerald-400',
+                                $order->payment?->status === 'rejected' => 'text-red-600 dark:text-red-400',
+                                default => 'text-amber-600 dark:text-amber-400'
                             } }}"
                         >
-                            {{ match($order->payment?->status) {
-                                'verified', 'paid' => 'Terverifikasi (Lunas)',
-                                'rejected'         => 'Pembayaran Ditolak',
-                                default            => 'Menunggu Konfirmasi / Verifikasi Seller'
+                            {{ match(true) {
+                                in_array($order->payment?->status, ['refunded']) || in_array($order->status, ['refunded', 'returned', 'refund_pending_buyer_confirmation']) || !empty($order->payment?->refund_proof) => 'Refunded (Pengembalian Dana)',
+                                in_array($order->payment?->status, ['verified', 'paid']) => 'Terverifikasi (Lunas)',
+                                $order->payment?->status === 'rejected' => 'Pembayaran Ditolak',
+                                default => 'Menunggu Konfirmasi / Verifikasi Seller'
                             } }}
                         </span>
                     </h2>
@@ -743,17 +743,18 @@
                             <label for="status" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                                 Status Pesanan
                             </label>
-                            <select
-                                id="status"
+                            <x-custom-select
                                 name="status"
-                                class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                            >
-                                <option value="pending" @selected($order->status === 'pending')>Menunggu Konfirmasi</option>
-                                <option value="confirmed" @selected($order->status === 'confirmed')>Dikonfirmasi (Diterima)</option>
-                                <option value="processing" @selected($order->status === 'processing')>Sedang Diproses</option>
-                                <option value="ready_for_pickup" @selected($order->status === 'ready_for_pickup')>Siap Diambil (Ready for Pickup)</option>
-                                <option value="completed" @selected($order->status === 'completed')>Pesanan Selesai</option>
-                            </select>
+                                :options="[
+                                    'pending'          => 'Menunggu Konfirmasi',
+                                    'confirmed'        => 'Dikonfirmasi (Diterima)',
+                                    'processing'       => 'Sedang Diproses',
+                                    'ready_for_pickup' => 'Siap Diambil (Ready for Pickup)',
+                                    'completed'        => 'Pesanan Selesai',
+                                ]"
+                                :selected="$order->status"
+                                placeholder=""
+                            />
                         </div>
 
                         {{-- QRIS Payment Verification --}}
@@ -761,21 +762,29 @@
                             <label for="payment_status" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                                 Konfirmasi Pembayaran QRIS / COD
                             </label>
-                            <select
-                                id="payment_status"
-                                name="payment_status"
-                                class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                            >
-                                <option value="verified" @selected(($order->payment?->status ?? '') === 'verified' || ($order->payment?->status ?? '') === 'paid')>
-                                    Terverifikasi / Pembayaran Lunas
-                                </option>
-                                <option value="pending" @selected(($order->payment?->status ?? '') === 'pending')>
-                                    Menunggu Pembayaran / Verifikasi
-                                </option>
-                                <option value="rejected" @selected(($order->payment?->status ?? '') === 'rejected')>
-                                    Pembayaran Ditolak
-                                </option>
-                            </select>
+                            @if(in_array($order->payment?->status, ['verified', 'paid']))
+                                <div class="w-full rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-xs font-extrabold text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300 flex items-center justify-between">
+                                    <span class="flex items-center gap-2">
+                                        <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+                                        Pembayaran Lunas & Terverifikasi
+                                    </span>
+                                    <span class="text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-black bg-emerald-100 dark:bg-emerald-900/80 px-2 py-0.5 rounded-md border border-emerald-300 dark:border-emerald-800">
+                                        <i class="fa-solid fa-lock text-[9px] mr-1"></i> Terkunci
+                                    </span>
+                                </div>
+                                <input type="hidden" name="payment_status" value="{{ $order->payment->status }}">
+                            @else
+                                <x-custom-select
+                                    name="payment_status"
+                                    :options="[
+                                        'pending'  => 'Menunggu Pembayaran / Verifikasi',
+                                        'verified' => 'Terverifikasi / Pembayaran Lunas',
+                                        'rejected' => 'Pembayaran Ditolak',
+                                    ]"
+                                    :selected="($order->payment?->status === 'paid' ? 'verified' : ($order->payment?->status ?? 'pending'))"
+                                    placeholder=""
+                                />
+                            @endif
                         </div>
 
                     </div>

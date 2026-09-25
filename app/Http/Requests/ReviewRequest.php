@@ -20,6 +20,15 @@ class ReviewRequest extends FormRequest
      */
     public function rules(): array
     {
+        $review = $this->route('review');
+
+        $uniqueProductRule = Rule::unique('reviews', 'product_id')
+            ->where(fn ($query) => $query->where('order_id', $this->order_id));
+
+        if ($review) {
+            $uniqueProductRule->ignore($review->id);
+        }
+
         return [
 
             'order_id' => [
@@ -38,10 +47,8 @@ class ReviewRequest extends FormRequest
                 Rule::exists('order_items', 'product_id')->where(
                     fn ($query) => $query->where('order_id', $this->order_id)
                 ),
-                // belum pernah direview di order yang sama
-                Rule::unique('reviews', 'product_id')->where(
-                    fn ($query) => $query->where('order_id', $this->order_id)
-                ),
+                // belum pernah direview di order yang sama (abaikan ID jika update)
+                $uniqueProductRule,
             ],
 
             'rating' => [
@@ -54,6 +61,18 @@ class ReviewRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:1000',
+            ],
+
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg,webp',
+                'max:10240',
+            ],
+
+            'remove_image' => [
+                'nullable',
+                'boolean',
             ],
 
         ];
@@ -79,6 +98,10 @@ class ReviewRequest extends FormRequest
 
             'comment.string' => 'Komentar harus berupa teks.',
             'comment.max'    => 'Komentar maksimal 1000 karakter.',
+
+            'image.image' => 'File ulasan harus berupa gambar.',
+            'image.mimes' => 'Format gambar ulasan yang diperbolehkan: jpeg, png, jpg, webp.',
+            'image.max'   => 'Ukuran gambar maksimal 10MB.',
 
         ];
     }

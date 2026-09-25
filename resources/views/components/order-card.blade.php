@@ -22,12 +22,10 @@
         'ready_for_pickup' => 'Siap Diambil',
         'completed'        => 'Selesai',
         'cancel_requested' => 'Pengajuan Batal',
-        'cancelled'        => match($order->cancelled_by ?? null) {
-            'buyer'  => 'Dibatalkan Pembeli',
-            'seller' => 'Dibatalkan Penjual',
-            'admin'  => 'Dibatalkan Admin',
-            default  => 'Dibatalkan',
-        },
+        'refund_pending_buyer_confirmation' => 'Menunggu Konfirmasi Refund',
+        'cancelled'        => 'Pembatalan Berhasil',
+        'refunded'         => 'Pembatalan & Refund Berhasil',
+        'returned'         => 'Return & Refund Berhasil',
     ];
 
     $status = $order->status ?? 'pending';
