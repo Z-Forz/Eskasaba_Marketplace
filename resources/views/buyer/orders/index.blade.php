@@ -17,33 +17,39 @@
             </p>
         </div>
 
-        {{-- Filter Tabs --}}
-        <div class="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-            @php
-                $currentStatus = request('status');
-                $statuses = [
-                    ''                                  => 'Semua Pesanan',
-                    'pending'                           => 'Menunggu',
-                    'confirmed'                         => 'Dikonfirmasi',
-                    'processing'                        => 'Diproses',
-                    'ready_for_pickup'                  => 'Siap Diambil',
-                    'completed'                         => 'Selesai',
-                    'cancel_requested'                  => 'Pengajuan Pembatalan',
-                    'return_requested'                  => 'Pengajuan Return',
-                    'refund_pending_buyer_confirmation' => 'Menunggu Refund',
-                    'cancelled'                         => 'Dibatalkan',
-                    'returned'                          => 'Return Berhasil',
-                ];
-            @endphp
-
-            @foreach($statuses as $val => $label)
-                <a
-                    href="{{ route('buyer.orders.index', array_filter(['status' => $val])) }}"
-                    class="shrink-0 rounded-2xl px-4 py-2 text-xs font-bold transition {{ $currentStatus === $val || (is_null($currentStatus) && $val === '') ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}"
-                >
-                    {{ $label }}
-                </a>
-            @endforeach
+        {{-- Filter Dropdown Bar --}}
+        <div class="mb-6 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <form method="GET" action="{{ route('buyer.orders.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div class="w-full sm:w-80">
+                    <x-custom-select
+                        name="status"
+                        :options="[
+                            ''                                  => 'Semua Status Pesanan',
+                            'pending'                           => 'Menunggu Konfirmasi',
+                            'confirmed'                         => 'Dikonfirmasi',
+                            'processing'                        => 'Sedang Diproses',
+                            'ready_for_pickup'                  => 'Siap Diambil',
+                            'completed'                         => 'Pesanan Selesai',
+                            'cancel_requested'                  => 'Pengajuan Pembatalan',
+                            'return_requested'                  => 'Pengajuan Return',
+                            'refund_pending_buyer_confirmation' => 'Menunggu Refund',
+                            'cancelled'                         => 'Dibatalkan',
+                            'returned'                          => 'Return Berhasil',
+                        ]"
+                        :selected="request('status')"
+                        placeholder=""
+                        :submitOnSelect="true"
+                    />
+                </div>
+                @if(request('status'))
+                    <a
+                        href="{{ route('buyer.orders.index') }}"
+                        class="rounded-2xl border border-slate-200 px-4 py-3 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 text-center whitespace-nowrap"
+                    >
+                        Reset Filter
+                    </a>
+                @endif
+            </form>
         </div>
 
         {{-- Orders List --}}

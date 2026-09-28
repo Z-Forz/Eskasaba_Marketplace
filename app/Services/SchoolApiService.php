@@ -236,12 +236,17 @@ class SchoolApiService
             return 0;
         }
 
-        // Deduplicate array by NIS/NIP
+        // Preserve all items from SiPintu API Gateway (ensure unique NIS/NIP key per row)
         $uniqueUsers = [];
-        foreach ($allUsersData as $item) {
+        foreach ($allUsersData as $idx => $item) {
             $rawNisNip = $item['nis_nip'] ?? $item['nis'] ?? $item['nip'] ?? null;
             if ($rawNisNip !== null && $rawNisNip !== '') {
-                $uniqueUsers[(string) $rawNisNip] = $item;
+                $key = (string) $rawNisNip;
+                if (isset($uniqueUsers[$key])) {
+                    $key = $rawNisNip . '_' . ($item['id'] ?? $idx);
+                }
+                $item['sync_nis_nip'] = $key;
+                $uniqueUsers[$key] = $item;
             }
         }
 
@@ -270,15 +275,15 @@ class SchoolApiService
                 $classRoom = $item['class_room'];
             }
 
-            // Exclude alumni and non-active students (only keep active students of grade 10, 11, 12)
+            // Exclude alumni (only keep non-alumni students including PKL students)
             if ($role === 'student') {
                 if (self::isAlumni($item)) {
                     Log::info("SchoolApiService syncAllUsers: Excluded alumni student " . ($nisNip ?? 'unknown'));
                     continue;
                 }
 
-                if (empty($classRoom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
-                    continue;
+                if (empty($classRoom)) {
+                    $classRoom = 'Siswa PKL / Aktif';
                 }
             } else {
                 if (empty($classRoom)) {
@@ -302,7 +307,7 @@ class SchoolApiService
             $finalPhone    = !empty($existingPhone) ? $existingPhone : $sipintuPhone;
 
             $upsertData[] = [
-                'nis_nip'             => (string) $nisNip,
+                'nis_nip'             => (string) ($item['sync_nis_nip'] ?? $nisNip),
                 'username'            => (string) $username,
                 'email'               => (string) $email,
                 'role'                => (string) $role,
@@ -378,41 +383,13 @@ class SchoolApiService
             return false;
         }
 
-        // Status alumni eksplisit tanpa kelas aktif
+        // Status alumni eksplisit
         $statusStr = strtolower(trim((string) ($item['status'] ?? '')));
-        if ($statusStr === 'alumni' && empty($item['classroom_id'])) {
+        if ($statusStr === 'alumni' || !empty($item['is_graduated'])) {
             return true;
         }
 
-        // SiPintu API Gateway: Alumni asli tidak memiliki classroom_id (null / empty)
-        if (array_key_exists('classroom_id', $item)) {
-            if (empty($item['classroom_id'])) {
-                return true;
-            }
-        }
-
-        // Ambil nama kelas/class_room
-        $classRoom = null;
-        if (isset($item['classroom']) && is_array($item['classroom'])) {
-            $classRoom = $item['classroom']['name'] ?? $item['classroom']['nama'] ?? null;
-        } elseif (isset($item['classroom']) && is_string($item['classroom'])) {
-            $classRoom = $item['classroom'];
-        } elseif (isset($item['kelas'])) {
-            $classRoom = $item['kelas'];
-        } elseif (isset($item['class_room'])) {
-            $classRoom = $item['class_room'];
-        }
-
-        if (empty($classRoom)) {
-            return true;
-        }
-
-        // Jika memiliki kelas aktif (X, XI, XII atau 10, 11, 12), maka SISWA AKTIF (bukan alumni)
-        if (preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     protected function formatUserData(array $data, string $defaultRole): array

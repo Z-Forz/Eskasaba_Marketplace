@@ -5,7 +5,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-box text-emerald-600"></i> Kelola Pesanan Toko
+                    <i class="fa-solid fa-receipt text-emerald-600"></i> kelola pesanan
                 </h1>
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Pantau pesanan masuk dari pembeli, konfirmasi pembayaran QRIS, dan perbarui titik lokasi COD.
@@ -19,72 +19,66 @@
             </div>
         </div>
 
-        {{-- Status Filter Tabs --}}
-        <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            @php
-                $currentStatus = request('status');
-                $statuses = [
-                    ''                                  => 'Semua Pesanan',
-                    'pending'                           => 'Menunggu',
-                    'confirmed'                         => 'Dikonfirmasi',
-                    'processing'                        => 'Diproses',
-                    'ready_for_pickup'                  => 'Siap Diambil',
-                    'completed'                         => 'Selesai',
-                    'cancel_requested'                  => 'Pengajuan Pembatalan',
-                    'return_requested'                  => 'Pengajuan Return',
-                    'refund_pending_buyer_confirmation' => 'Menunggu Refund Pembeli',
-                    'cancelled'                         => 'Dibatalkan',
-                    'returned'                          => 'Return Berhasil',
-                ];
-            @endphp
-
-            @foreach($statuses as $val => $label)
-                <a
-                    href="{{ route('seller.orders.index', array_filter(['status' => $val, 'search' => request('search')])) }}"
-                    class="shrink-0 rounded-2xl px-4 py-2.5 text-xs font-bold transition {{ $currentStatus === $val || (is_null($currentStatus) && $val === '') ? 'bg-emerald-700 text-white shadow-xs' : 'bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800' }}"
-                >
-                    {{ $label }}
-                </a>
-            @endforeach
-        </div>
-
-        {{-- Search Input --}}
-        <div class="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        {{-- Search & Filter Card with Status Dropdown --}}
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-5">
             <form
                 method="GET"
                 action="{{ route('seller.orders.index') }}"
-                class="flex items-center gap-3"
+                class="flex flex-col gap-3 md:flex-row md:items-center"
             >
-                @if(request('status'))
-                    <input type="hidden" name="status" value="{{ request('status') }}">
-                @endif
+                {{-- Status Filter Dropdown --}}
+                <div class="w-full md:w-64 shrink-0">
+                    <x-custom-select
+                        name="status"
+                        :options="[
+                            ''                                  => 'Semua Status Pesanan',
+                            'pending'                           => 'Menunggu Konfirmasi',
+                            'confirmed'                         => 'Dikonfirmasi',
+                            'processing'                        => 'Sedang Diproses',
+                            'ready_for_pickup'                  => 'Siap Diambil',
+                            'completed'                         => 'Pesanan Selesai',
+                            'cancel_requested'                  => 'Pengajuan Pembatalan',
+                            'return_requested'                  => 'Pengajuan Return',
+                            'refund_pending_buyer_confirmation' => 'Menunggu Refund Pembeli',
+                            'cancelled'                         => 'Dibatalkan',
+                            'returned'                          => 'Return Berhasil',
+                        ]"
+                        :selected="request('status')"
+                        placeholder=""
+                        :submitOnSelect="true"
+                    />
+                </div>
 
+                {{-- Search Invoice Input --}}
                 <div class="relative flex-1">
                     <input
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Cari nomor invoice pesanan (contoh: INV-...)"
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 pl-10 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 pl-10 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-xs text-slate-400"></i>
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-4 text-xs text-slate-400"></i>
                 </div>
 
-                <button
-                    type="submit"
-                    class="rounded-2xl bg-emerald-700 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center gap-1.5"
-                >
-                    <i class="fa-solid fa-magnifying-glass"></i> Cari Pesanan
-                </button>
-
-                @if(request()->hasAny(['status', 'search']))
-                    <a
-                        href="{{ route('seller.orders.index') }}"
-                        class="rounded-2xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300"
+                {{-- Action Buttons --}}
+                <div class="flex items-center gap-2">
+                    <button
+                        type="submit"
+                        class="flex-1 sm:flex-none rounded-2xl bg-emerald-700 px-5 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 flex items-center justify-center gap-1.5 whitespace-nowrap"
                     >
-                        Reset
-                    </a>
-                @endif
+                        <i class="fa-solid fa-magnifying-glass"></i> Cari Pesanan
+                    </button>
+
+                    @if(request()->hasAny(['status', 'search']))
+                        <a
+                            href="{{ route('seller.orders.index') }}"
+                            class="rounded-2xl border border-slate-200 px-4 py-3 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 whitespace-nowrap"
+                        >
+                            Reset
+                        </a>
+                    @endif
+                </div>
             </form>
         </div>
 
@@ -159,7 +153,7 @@
 
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                    Lokasi Pengambilan (COD)
+                                    Lokasi Pengambilan
                                 </p>
                                 <p class="mt-1 font-bold text-emerald-700 dark:text-emerald-400 text-sm">
                                     <i class="fa-solid fa-location-dot mr-1"></i> {{ $order->pickup_location ?? 'Belum ditentukan' }}

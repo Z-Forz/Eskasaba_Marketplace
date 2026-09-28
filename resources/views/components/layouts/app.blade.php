@@ -56,6 +56,7 @@
     @endif
 
     <x-confirm-modal />
+    <x-share-modal />
 
     @stack('scripts')
 

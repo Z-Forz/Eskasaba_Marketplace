@@ -1,7 +1,7 @@
 @php
     $sellerMenus = [
         'Toko' => [
-            ['route' => 'seller.products.index',         'label' => 'Produk Saya',       'icon' => 'fa-solid fa-box-archive'],
+            ['route' => 'seller.products.index',         'label' => 'Produk Saya',       'icon' => 'fa-solid fa-box'],
             ['route' => 'seller.orders.index',           'label' => 'Pesanan Toko',      'icon' => 'fa-solid fa-receipt'],
             ['route' => 'seller.payments.index',         'label' => 'Pembayaran',        'icon' => 'fa-solid fa-credit-card'],
             ['route' => 'seller.pickup-schedules.index', 'label' => 'Jadwal Pengambilan','icon' => 'fa-solid fa-calendar-check'],
@@ -38,12 +38,18 @@
     <nav class="flex-1 overflow-y-auto px-3 py-5 scrollbar-none">
 
         {{-- Dashboard Link --}}
+        @php
+            $isSellerDashboardActive = request()->routeIs('seller.dashboard');
+        @endphp
         <a
             href="{{ route('seller.dashboard') }}"
-            class="mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
-                {{ request()->routeIs('seller.dashboard') ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
+            class="group mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
+                {{ $isSellerDashboardActive ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
         >
-            <i class="fa-solid fa-gauge-high text-base w-5 text-center"></i>
+            <svg class="h-6 w-6 transition-all duration-200 group-hover:scale-110 {{ $isSellerDashboardActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-700 dark:text-slate-500 dark:group-hover:text-emerald-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+            </svg>
+
             <span>Dashboard</span>
         </a>
 
@@ -59,11 +65,11 @@
                 @endphp
                 <a
                     href="{{ route($item['route']) }}"
-                    class="mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
+                    class="group mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
                         {{ $isActive ? 'bg-emerald-800 text-white font-bold shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
                 >
                     <span class="flex items-center gap-3">
-                        <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
+                        <i class="{{ $item['icon'] }} text-sm w-5 text-center transition-transform duration-200 group-hover:scale-110 {{ $isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-700 dark:text-slate-500 dark:group-hover:text-emerald-400' }}"></i>
                         <span>{{ $item['label'] }}</span>
                     </span>
                 </a>
@@ -133,12 +139,18 @@
 
         <nav class="flex-1 overflow-y-auto px-3 py-4 scrollbar-none">
 
+            @php
+                $isMobileSellerDashboardActive = request()->routeIs('seller.dashboard');
+            @endphp
             <a
                 href="{{ route('seller.dashboard') }}"
-                class="mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
-                    {{ request()->routeIs('seller.dashboard') ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
+                class="group mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
+                    {{ $isMobileSellerDashboardActive ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
             >
-                <i class="fa-solid fa-gauge-high text-base w-5 text-center"></i>
+                <svg class="h-6 w-6 transition-all duration-200 group-hover:scale-110 {{ $isMobileSellerDashboardActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-700 dark:text-slate-500 dark:group-hover:text-emerald-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+
                 <span>Dashboard</span>
             </a>
 
@@ -154,11 +166,11 @@
                     @endphp
                     <a
                         href="{{ route($item['route']) }}"
-                        class="mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
+                        class="group mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
                             {{ $isActive ? 'bg-emerald-800 text-white font-bold shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
                     >
                         <span class="flex items-center gap-3">
-                            <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
+                            <i class="{{ $item['icon'] }} text-sm w-5 text-center transition-transform duration-200 group-hover:scale-110 {{ $isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-700 dark:text-slate-500 dark:group-hover:text-emerald-400' }}"></i>
                             <span>{{ $item['label'] }}</span>
                         </span>
                     </a>

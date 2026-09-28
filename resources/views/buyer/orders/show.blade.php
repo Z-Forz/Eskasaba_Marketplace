@@ -102,10 +102,7 @@
                 . "📍 *TITIK PENGAMBILAN:* " . ($order->pickup_location ?? 'COD Sekolah') . "\n\n"
                 . "Mohon bantuan untuk diproses ya kak. Terima kasih!";
 
-            $waPhone = preg_replace('/[^0-9]/', '', $order->seller?->whatsapp_number ?? '');
-            if (!empty($waPhone) && str_starts_with($waPhone, '0')) {
-                $waPhone = '62' . substr($waPhone, 1);
-            }
+            $waPhone = \App\Services\WhatsAppService::formatPhoneNumber($order->seller?->whatsapp_number ?: ($order->seller?->user?->phone ?: ''));
             $waUrl   = !empty($waPhone) ? "https://wa.me/{$waPhone}?text=" . urlencode($waText) : null;
         @endphp
 

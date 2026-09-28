@@ -51,7 +51,7 @@
 
                     <p class="mt-1 font-bold text-slate-900 dark:text-white text-base">
                         <i class="{{ $payment->method === 'qris' ? 'fa-solid fa-qrcode text-emerald-600' : 'fa-solid fa-money-bill-wave text-slate-600' }} mr-1"></i>
-                        {{ $payment->method === 'qris' ? 'QRIS Non-Tunai' : 'Cash On Delivery (COD)' }}
+                        {{ $payment->method === 'qris' ? 'QRIS Non-Tunai' : 'Cash On Delivery' }}
                     </p>
                 </div>
 

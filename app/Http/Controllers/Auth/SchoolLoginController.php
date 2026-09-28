@@ -69,7 +69,7 @@ class SchoolLoginController extends Controller
         }
 
         // Tolak jika akun siswa lokal berstatus alumni
-        if ($localUser && $localUser->role === 'student' && \App\Services\SchoolApiService::isAlumni($localUser->toArray())) {
+        if ($localUser && $localUser->role === 'student' && SchoolApiService::isAlumni($localUser->toArray())) {
             $localUser->delete();
             throw ValidationException::withMessages([
                 'email' => 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
@@ -103,7 +103,7 @@ class SchoolLoginController extends Controller
             };
 
             // Jika dari API Gateway siswa berstatus alumni (graduates=true), tolak login & hapus akun lokal jika ada
-            if ($role === 'student' && (!empty($apiData['is_graduated']) || \App\Services\SchoolApiService::isAlumni($apiData))) {
+            if ($role === 'student' && (!empty($apiData['is_graduated']) || SchoolApiService::isAlumni($apiData))) {
                 if ($localUser) {
                     $localUser->delete();
                 }
@@ -119,13 +119,11 @@ class SchoolLoginController extends Controller
                 ]);
             }
 
-            // Hanya siswa aktif (Kelas 10, 11, dan 12) yang dapat mengakses sistem
+            // Izinkan seluruh siswa non-alumni (termasuk siswa PKL) untuk mengakses sistem
             if ($role === 'student') {
                 $classRoom = $apiData['class_room'] ?? null;
-                if (empty($classRoom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
-                    throw ValidationException::withMessages([
-                        'email' => 'Hanya siswa aktif (Kelas 10, 11, dan 12) yang dapat mengakses sistem.',
-                    ]);
+                if (empty($classRoom)) {
+                    $apiData['class_room'] = 'Siswa PKL / Aktif';
                 }
             }
 

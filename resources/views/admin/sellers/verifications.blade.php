@@ -134,7 +134,7 @@
                                         @endphp
                                         @if ($waNum)
                                             <a
-                                                href="https://wa.me/{{ preg_replace('/\D/', '', $waNum) }}"
+                                                href="https://wa.me/{{ \App\Services\WhatsAppService::formatPhoneNumber($waNum) }}"
                                                 target="_blank"
                                                 class="inline-flex items-center gap-1.5 font-bold text-emerald-700 hover:underline dark:text-emerald-400"
                                             >

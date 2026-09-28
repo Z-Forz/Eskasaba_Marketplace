@@ -145,7 +145,7 @@
                 <div class="mt-4 rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
                     <div class="flex items-center gap-2 text-xs font-bold text-white mb-1.5">
                         <i class="fa-solid fa-shield-cat text-emerald-400 text-sm"></i>
-                        <span>Transaksi Aman (COD)</span>
+                        <span>Transaksi Aman</span>
                     </div>
                     <p class="text-[11px] leading-relaxed text-slate-400">
                         Penjual & Pembeli merupakan warga SMKN 1 Bantul terverifikasi. Transaksi dilakukan secara langsung di area sekolah.

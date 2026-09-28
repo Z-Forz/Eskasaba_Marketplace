@@ -280,7 +280,7 @@
                                             class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"
                                         >
                                         <div>
-                                            <p class="font-bold text-slate-900 dark:text-white text-sm">Bayar di Tempat (COD)</p>
+                                            <p class="font-bold text-slate-900 dark:text-white text-sm">Bayar di Tempat</p>
                                             <p class="text-xs text-slate-500 dark:text-slate-400">Bayar tunai saat barang diterima</p>
                                         </div>
                                     </div>

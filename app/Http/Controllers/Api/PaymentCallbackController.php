@@ -71,7 +71,7 @@ class PaymentCallbackController extends Controller
 
             if ($isPaid) {
                 $payment->status = 'verified';
-                $payment->verified_at = now()->toDateTimeString();
+                $payment->verified_at = \Illuminate\Support\Carbon::now();
                 
                 if (!in_array($order->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested'])) {
                     $order->status = 'confirmed';

@@ -19,10 +19,26 @@ class SellerController extends Controller
     {
         $status = 'approved';
 
-        $sellers = Seller::with('user')
+        $query = Seller::with('user')
             ->withCount('products')
-            ->where('status', 'approved')
-            ->latest()
+            ->where('status', 'approved');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($uq) use ($search) {
+                    $uq->where('username', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%")
+                       ->orWhere('nis_nip', 'like', "%{$search}%")
+                       ->orWhere('class_room', 'like', "%{$search}%")
+                       ->orWhere('phone_number', 'like', "%{$search}%");
+                })
+                ->orWhere('whatsapp_number', 'like', "%{$search}%")
+                ->orWhere('store_name', 'like', "%{$search}%");
+            });
+        }
+
+        $sellers = $query->latest()
             ->paginate(10)
             ->withQueryString();
 
@@ -39,10 +55,26 @@ class SellerController extends Controller
     {
         $status = $request->query('status', 'pending');
 
-        $sellers = Seller::with('user')
+        $query = Seller::with('user')
             ->whereIn('status', ['pending', 'revision', 'rejected'])
-            ->when($status !== 'all', fn ($q) => $q->where('status', $status))
-            ->latest()
+            ->when($status !== 'all', fn ($q) => $q->where('status', $status));
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($uq) use ($search) {
+                    $uq->where('username', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%")
+                       ->orWhere('nis_nip', 'like', "%{$search}%")
+                       ->orWhere('class_room', 'like', "%{$search}%")
+                       ->orWhere('phone_number', 'like', "%{$search}%");
+                })
+                ->orWhere('whatsapp_number', 'like', "%{$search}%")
+                ->orWhere('store_name', 'like', "%{$search}%");
+            });
+        }
+
+        $sellers = $query->latest()
             ->paginate(10)
             ->withQueryString();
 

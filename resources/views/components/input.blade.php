@@ -38,6 +38,10 @@
                 :type="showPassword ? 'text' : 'password'"
             @endif
             type="{{ $type }}"
+            @if($type === 'number' || str_contains($name, 'price') || str_contains($name, 'harga') || str_contains($name, 'discount'))
+                inputmode="numeric"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+            @endif
             value="{{ old($name, $value) }}"
             placeholder="{{ $placeholder }}"
             @required($required)

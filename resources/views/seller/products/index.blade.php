@@ -1,4 +1,4 @@
-<x-layouts.seller title="Katalog Produk Toko">
+<x-layouts.seller title="Katalog Produk">
 
     <div class="space-y-6">
 
@@ -6,7 +6,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-box-archive text-emerald-600"></i> Katalog Produk Toko
+                    <i class="fa-solid fa-box text-emerald-600"></i> Katalog Produk
                 </h1>
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Kelola seluruh produk jualan Anda, atur ketersediaan stok, dan ubah varian produk.

@@ -76,7 +76,7 @@
                             @endphp
                             @if ($sellerWaNum)
                                 <a
-                                    href="https://wa.me/{{ preg_replace('/\D/', '', $sellerWaNum) }}"
+                                    href="https://wa.me/{{ \App\Services\WhatsAppService::formatPhoneNumber($sellerWaNum) }}"
                                     target="_blank"
                                     class="inline-flex items-center gap-1.5 text-emerald-700 hover:underline dark:text-emerald-400"
                                 >

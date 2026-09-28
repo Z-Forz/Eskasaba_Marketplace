@@ -227,7 +227,9 @@
                             <input
                                 id="price_display"
                                 type="text"
+                                inputmode="numeric"
                                 x-model="basePriceDisplay"
+                                @input="basePriceDisplay = $event.target.value.replace(/[^0-9.]/g, '')"
                                 placeholder="15.000"
                                 :required="!hasSizes"
                                 class="w-full rounded-2xl border border-slate-200 pl-11 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
@@ -264,7 +266,7 @@
                                             <label class="block text-[11px] font-bold text-slate-500 mb-1">Harga Peritem <span class="text-red-500">*</span></label>
                                             <div class="relative">
                                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
-                                                <input type="text" :value="v.price" @input="formatVariantPrice(i, $event.target.value)" placeholder="15.000" class="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white" :required="hasSizes">
+                                                <input type="text" inputmode="numeric" :value="v.price" @input="formatVariantPrice(i, $event.target.value.replace(/[^0-9.]/g, ''))" placeholder="15.000" class="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white" :required="hasSizes">
                                                 <input type="hidden" :name="`variants[${i}][price]`" :value="String(v.price).replace(/\D/g, '')">
                                             </div>
                                         </div>

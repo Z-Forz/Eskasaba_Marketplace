@@ -11,7 +11,7 @@
             <div class="mt-1 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl flex items-center gap-2">
-                        Halo, {{ auth()->user()->username }} <i class="fa-solid fa-store text-emerald-600 text-2xl"></i>
+                        Halo, {{ auth()->user()->username }}
                     </h1>
 
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -42,81 +42,81 @@
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
                 {{-- Total Omset Penjualan --}}
-                <div class="rounded-3xl border border-emerald-200/80 bg-emerald-50/60 p-5 shadow-xs dark:border-emerald-950 dark:bg-emerald-950/30">
+                <div class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-50/60 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">  
                             Total Omset Penjualan
                         </p>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-xs">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 transition-transform duration-300 group-hover:scale-110">
                             <i class="fa-solid fa-sack-dollar text-base"></i>
                         </div>
                     </div>
 
-                    <p class="mt-3 text-2xl font-black text-emerald-900 dark:text-emerald-300">
+                    <p class="mt-3 text-2xl font-black text-slate-900 dark:text-white group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors">
                         Rp {{ number_format($totalRevenue ?? 0, 0, ',', '.') }}
                     </p>
 
-                    <p class="mt-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-                        <i class="fa-solid fa-circle-check mr-1"></i> Dari transaksi valid & selesai
+                    <p class="mt-1 text-[11px] font-semibold text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                        <i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i> Dari transaksi valid & selesai
                     </p>
                 </div>
 
                 {{-- Omset Bulan Ini --}}
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-50/60 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">
                             Penjualan Bulan Ini
                         </p>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 transition-transform duration-300 group-hover:scale-110">
                             <i class="fa-solid fa-calendar-days text-base"></i>
                         </div>
                     </div>
 
-                    <p class="mt-3 text-2xl font-black text-slate-900 dark:text-white">
+                    <p class="mt-3 text-2xl font-black text-slate-900 dark:text-white group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors">
                         Rp {{ number_format($revenueThisMonth ?? 0, 0, ',', '.') }}
                     </p>
 
-                    <p class="mt-1 text-[11px] font-semibold text-slate-400">
+                    <p class="mt-1 text-[11px] font-semibold text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                         Bulan {{ date('F Y') }}
                     </p>
                 </div>
 
                 {{-- Omset Hari Ini --}}
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-50/60 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">
                             Penjualan Hari Ini
                         </p>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
-                            <i class="fa-solid fa-bolt text-base"></i>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 transition-transform duration-300 group-hover:scale-110">
+                            <i class="fa-solid fa-chart-line text-base"></i>
                         </div>
                     </div>
 
-                    <p class="mt-3 text-2xl font-black text-slate-900 dark:text-white">
+                    <p class="mt-3 text-2xl font-black text-slate-900 dark:text-white group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors">
                         Rp {{ number_format($revenueToday ?? 0, 0, ',', '.') }}
                     </p>
 
-                    <p class="mt-1 text-[11px] font-semibold text-slate-400">
+                    <p class="mt-1 text-[11px] font-semibold text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                         Tanggal {{ date('d M Y') }}
                     </p>
                 </div>
 
                 {{-- Total Produk Terjual --}}
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-50/60 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">
                             Produk Terjual
                         </p>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 transition-transform duration-300 group-hover:scale-110">
                             <i class="fa-solid fa-cart-flatbed text-base"></i>
                         </div>
                     </div>
 
-                    <p class="mt-3 text-2xl font-black text-slate-900 dark:text-white">
-                        {{ number_format($totalItemsSold ?? 0) }} <span class="text-xs font-bold text-slate-400">Pcs</span>
+                    <p class="mt-3 text-2xl font-black text-slate-900 dark:text-white group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors">
+                        {{ number_format($totalItemsSold ?? 0) }} <span class="text-xs font-bold text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">Pcs</span>
                     </p>
 
-                    <p class="mt-1 text-[11px] font-semibold text-slate-400">
+                    <p class="mt-1 text-[11px] font-semibold text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                         Akumulasi item laku
                     </p>
                 </div>
@@ -133,53 +133,53 @@
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+                <a href="{{ route('seller.products.index') }}" class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-50/60 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 transition-transform duration-300 group-hover:scale-110">
                         <i class="fa-solid fa-boxes-stacked text-base"></i>
                     </div>
-                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">
                         Total Katalog Produk
                     </p>
-                    <p class="mt-1 text-xl font-black text-slate-900 dark:text-white">
+                    <p class="mt-1 text-xl font-black text-slate-900 dark:text-white group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors">
                         {{ $totalProducts ?? 0 }} Produk
                     </p>
-                </div>
+                </a>
 
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40">
+                <a href="{{ route('seller.orders.index', ['status' => 'pending']) }}" class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-amber-400 hover:bg-amber-50/60 hover:shadow-xl hover:shadow-amber-950/5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-amber-700 dark:hover:bg-amber-950/40">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 transition-transform duration-300 group-hover:scale-110">
                         <i class="fa-solid fa-clock-rotate-left text-base"></i>
                     </div>
-                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400 group-hover:text-amber-800 dark:group-hover:text-amber-400 transition-colors">
                         Pesanan Pending
                     </p>
-                    <p class="mt-1 text-xl font-black text-amber-600 dark:text-amber-400">
+                    <p class="mt-1 text-xl font-black text-amber-600 dark:text-amber-400 transition-colors">
                         {{ $pendingOrders ?? 0 }} Pesanan
                     </p>
-                </div>
+                </a>
 
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                <a href="{{ route('seller.orders.index') }}" class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-50/60 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 transition-transform duration-300 group-hover:scale-110">
                         <i class="fa-solid fa-receipt text-base"></i>
                     </div>
-                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">
                         Total Pesanan Masuk
                     </p>
-                    <p class="mt-1 text-xl font-black text-slate-900 dark:text-white">
+                    <p class="mt-1 text-xl font-black text-slate-900 dark:text-white group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors">
                         {{ $totalOrders ?? 0 }} Pesanan
                     </p>
-                </div>
+                </a>
 
-                <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40">
+                <a href="{{ route('seller.orders.index', ['status' => 'completed']) }}" class="group cursor-pointer rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-50/60 hover:shadow-xl hover:shadow-emerald-950/5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 transition-transform duration-300 group-hover:scale-110">
                         <i class="fa-solid fa-circle-check text-base"></i>
                     </div>
-                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-wider text-slate-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors">
                         Pesanan Selesai
                     </p>
-                    <p class="mt-1 text-xl font-black text-emerald-700 dark:text-emerald-400">
+                    <p class="mt-1 text-xl font-black text-emerald-700 dark:text-emerald-400 transition-colors">
                         {{ $completedOrders ?? 0 }} Selesai
                     </p>
-                </div>
+                </a>
 
             </div>
         </div>
@@ -212,16 +212,16 @@
 
                                     <div class="min-w-0">
                                         <p class="truncate text-xs font-bold text-slate-900 dark:text-white">
-                                            {{ $top->product_name ?? $top->product?->name ?? 'Produk' }}
+                                            {{ is_object($top) ? ($top->product_name ?? 'Produk') : (is_array($top) ? ($top['product_name'] ?? 'Produk') : 'Produk') }}
                                         </p>
                                         <p class="text-[11px] text-slate-400 font-medium">
-                                            Terjual: <strong class="text-emerald-700 dark:text-emerald-400 font-extrabold">{{ $top->total_sold }} Pcs</strong>
+                                            Terjual: <strong class="text-emerald-700 dark:text-emerald-400 font-extrabold">{{ is_object($top) ? ($top->total_sold ?? 0) : (is_array($top) ? ($top['total_sold'] ?? 0) : 0) }} Pcs</strong>
                                         </p>
                                     </div>
                                 </div>
 
                                 <p class="text-xs font-black text-slate-900 dark:text-white shrink-0 ml-2">
-                                    Rp {{ number_format($top->total_revenue ?? 0, 0, ',', '.') }}
+                                    Rp {{ number_format((float) (is_object($top) ? ($top->total_revenue ?? 0) : (is_array($top) ? ($top['total_revenue'] ?? 0) : 0)), 0, ',', '.') }}
                                 </p>
                             </div>
                         @empty

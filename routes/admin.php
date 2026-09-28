@@ -2,8 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ReportController;
@@ -65,6 +66,10 @@ Route::middleware(['auth:admin'])
 
         Route::get('/reports/sales', [ReportController::class, 'sales'])
             ->name('reports.sales');
+
+        // Login & Activity Logs route
+        Route::get('/login-logs', [ActivityLogController::class, 'index'])
+            ->name('login-logs.index');
 
         Route::get('/website-settings', [WebsiteSettingController::class, 'index'])
             ->name('website-settings.index');

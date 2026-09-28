@@ -5,11 +5,15 @@
         {{-- Header --}}
         <div>
             <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                <i class="fa-solid fa-gauge-high mr-1"></i> Marketplace Administration
+                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+
+                Marketplace Administration
             </p>
 
             <h1 class="mt-1 text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl flex items-center gap-2">
-                Halo, Admin <i class="fa-solid fa-user-shield text-emerald-600"></i>
+                Halo, Admin
             </h1>
 
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -106,14 +110,14 @@
                             <div class="flex items-center justify-between gap-4">
                                 <div>
                                     <p class="text-sm font-bold text-slate-900 dark:text-white">
-                                        {{ $order->invoice_number ?? '#' . $order->id }}
+                                        {{ data_get($order, 'invoice_number', '#' . data_get($order, 'id')) }}
                                     </p>
                                     <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                                        <i class="fa-solid fa-user mr-1 text-slate-400"></i> {{ $order->buyer?->username ?? $order->user?->username ?? 'Pembeli' }} • {{ ucfirst($order->status ?? '-') }}
+                                        <i class="fa-solid fa-user mr-1 text-slate-400"></i> {{ data_get($order, 'buyer.username', data_get($order, 'user.username', 'Pembeli')) }} • {{ ucfirst((string) data_get($order, 'status', '-')) }}
                                     </p>
                                 </div>
                                 <p class="text-base font-black text-emerald-700 dark:text-emerald-400">
-                                    Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}
+                                    Rp {{ number_format((float) data_get($order, 'total_price', 0), 0, ',', '.') }}
                                 </p>
                             </div>
                         </a>

@@ -300,16 +300,56 @@
                                         <i class="fa-solid fa-cart-shopping" x-show="activeStock > 0"></i>
                                         <span x-text="activeStock > 0 ? 'Tambah ke Keranjang' : 'Stok Habis'">Tambah ke Keranjang</span>
                                     </button>
+
+                                    <button
+                                        type="button"
+                                        data-title="{{ e($product->name) }}"
+                                        data-url="{{ route('products.show', $product) }}"
+                                        data-price="Rp {{ number_format($product->final_price ?? $product->price, 0, ',', '.') }}"
+                                        data-image="{{ $firstImage ? asset('storage/' . $firstImage) : '' }}"
+                                        onclick="shareProduct({
+                                            title: this.dataset.title,
+                                            text: 'Cek ' + this.dataset.title + ' di Eskasaba Marketplace!',
+                                            url: this.dataset.url,
+                                            price: this.dataset.price,
+                                            image: this.dataset.image
+                                        })"
+                                        class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+                                        title="Bagikan Produk Ini"
+                                    >
+                                        <i class="fa-solid fa-share-nodes text-emerald-600"></i>
+                                        <span>Bagikan</span>
+                                    </button>
                                 </div>
                             </form>
                         @endif
                     @else
-                        <a
-                            href="{{ route('login') }}"
-                            class="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-slate-800"
-                        >
-                            <i class="fa-solid fa-right-to-bracket"></i> Masuk untuk Membeli
-                        </a>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <a
+                                href="{{ route('login') }}"
+                                class="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-slate-800"
+                            >
+                                <i class="fa-solid fa-right-to-bracket"></i> Masuk untuk Membeli
+                            </a>
+                            <button
+                                type="button"
+                                data-title="{{ e($product->name) }}"
+                                data-url="{{ route('products.show', $product) }}"
+                                data-price="Rp {{ number_format($product->final_price ?? $product->price, 0, ',', '.') }}"
+                                data-image="{{ $firstImage ? asset('storage/' . $firstImage) : '' }}"
+                                onclick="shareProduct({
+                                    title: this.dataset.title,
+                                    text: 'Cek ' + this.dataset.title + ' di Eskasaba Marketplace!',
+                                    url: this.dataset.url,
+                                    price: this.dataset.price,
+                                    image: this.dataset.image
+                                })"
+                                class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+                            >
+                                <i class="fa-solid fa-share-nodes text-emerald-600"></i>
+                                <span>Bagikan</span>
+                            </button>
+                        </div>
                     @endauth
 
                     {{-- Store Seller Card Info --}}
@@ -340,9 +380,12 @@
                                 </a>
 
                                 <div class="flex flex-wrap items-center gap-2 sm:ml-auto sm:justify-end">
-                                    @if($product->seller->whatsapp_number)
+                                    @php
+                                        $sellerWaFormatted = \App\Services\WhatsAppService::formatPhoneNumber($product->seller->whatsapp_number ?: ($product->seller->user?->phone ?: ''));
+                                    @endphp
+                                    @if($sellerWaFormatted)
                                         <a
-                                            href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $product->seller->whatsapp_number) }}?text=Halo%20{{ urlencode($product->seller->user->username) }},%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->name) }}"
+                                            href="https://wa.me/{{ $sellerWaFormatted }}?text=Halo%20{{ urlencode($product->seller->user->username) }},%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->name) }}"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             class="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-700 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-emerald-800"

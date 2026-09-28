@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
 use App\Services\SchoolApiService;
 use Illuminate\Http\JsonResponse;
@@ -71,7 +72,7 @@ class SchoolCallbackController extends Controller
             ->first();
 
         if ($localUser) {
-            if ($localUser->role === 'student' && \App\Services\SchoolApiService::isAlumni($localUser->toArray())) {
+            if ($localUser->role === 'student' && SchoolApiService::isAlumni($localUser->toArray())) {
                 $localUser->delete();
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -84,6 +85,8 @@ class SchoolCallbackController extends Controller
 
             Auth::login($localUser, true);
             $request->session()->regenerate();
+
+            ActivityLog::record($localUser->id, 'login', "User {$localUser->username} berhasil login via SSO SiPintu.", $request);
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -114,7 +117,7 @@ class SchoolCallbackController extends Controller
         $role = ($apiData['jenis_pengguna'] ?? 'siswa') === 'guru' ? 'teacher' : 'student';
 
         if ($role === 'student') {
-            if (!empty($apiData['is_graduated']) || \App\Services\SchoolApiService::isAlumni($apiData)) {
+            if (!empty($apiData['is_graduated']) || SchoolApiService::isAlumni($apiData)) {
                 if ($request->expectsJson()) {
                     return response()->json([
                         'status'  => false,
@@ -156,6 +159,8 @@ class SchoolCallbackController extends Controller
 
         Auth::login($user, true);
         $request->session()->regenerate();
+
+        ActivityLog::record($user->id, 'login', "User {$user->username} berhasil login via SSO SiPintu (Sync SiPintu).", $request);
 
         if ($request->expectsJson()) {
             return response()->json([

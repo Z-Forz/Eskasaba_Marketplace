@@ -6,7 +6,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-days text-emerald-600"></i> Jadwal & Titik Pengambilan (COD)
+                    <i class="fa-solid fa-calendar-days text-emerald-600"></i> Jadwal & Titik Pengambilan
                 </h1>
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Kelola titik temu pengambilan pesanan aktif di sekolah. Pesanan yang telah selesai tidak ditampilkan lagi di jadwal aktif.
@@ -24,27 +24,24 @@
             <x-alert type="success" :message="session('success')" class="mb-4" />
         @endif
 
-        {{-- Filter Tabs Bar --}}
-        <div class="flex flex-wrap gap-2 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-            @php
-                $currentStatus = request('status', 'active');
-                $tabs = [
-                    'active'           => ['label' => 'Jadwal Pengambilan Aktif', 'icon' => 'fa-clock'],
-                    'ready_for_pickup' => ['label' => 'Siap Diambil',             'icon' => 'fa-box-open'],
-                    'processing'       => ['label' => 'Sedang Diproses',          'icon' => 'fa-fire-burner'],
-                    'completed'        => ['label' => 'Riwayat Selesai',          'icon' => 'fa-circle-check'],
-                ];
-            @endphp
-
-            @foreach ($tabs as $key => $tab)
-                <a
-                    href="{{ route('seller.pickup-schedules.index', ['status' => $key]) }}"
-                    class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition {{ $currentStatus === $key ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300' }}"
-                >
-                    <i class="fa-solid {{ $tab['icon'] }}"></i>
-                    <span>{{ $tab['label'] }}</span>
-                </a>
-            @endforeach
+        {{-- Filter Dropdown Bar --}}
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <form method="GET" action="{{ route('seller.pickup-schedules.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div class="w-full sm:w-80">
+                    <x-custom-select
+                        name="status"
+                        :options="[
+                            'active'           => 'Jadwal Pengambilan Aktif',
+                            'ready_for_pickup' => 'Siap Diambil',
+                            'processing'       => 'Sedang Diproses',
+                            'completed'        => 'Riwayat Selesai',
+                        ]"
+                        :selected="request('status', 'active')"
+                        placeholder=""
+                        :submitOnSelect="true"
+                    />
+                </div>
+            </form>
         </div>
 
         {{-- Orders List with Pickup Locations --}}

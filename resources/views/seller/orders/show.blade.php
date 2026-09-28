@@ -79,10 +79,7 @@
                 . "📍 *TITIK PENGAMBILAN:* " . ($order->pickup_location ?? 'Kantin Sekolah') . "\n\n"
                 . "Pesanan kakak sedang disiapkan. Silakan konfirmasi titik pengambilan ya. Terima kasih!";
 
-            $buyerPhone = preg_replace('/[^0-9]/', '', $order->user?->phone ?? '');
-            if (!empty($buyerPhone) && str_starts_with($buyerPhone, '0')) {
-                $buyerPhone = '62' . substr($buyerPhone, 1);
-            }
+            $buyerPhone = \App\Services\WhatsAppService::formatPhoneNumber($order->user?->phone ?? '');
             $sellerWaUrl = !empty($buyerPhone) ? "https://wa.me/{$buyerPhone}?text=" . urlencode($sellerWaText) : null;
         @endphp
 
@@ -557,7 +554,7 @@
                         {{ strtolower($order->payment?->method ?? '') === 'qris' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200' }}"
                     >
                         <i class="{{ strtolower($order->payment?->method ?? '') === 'qris' ? 'fa-solid fa-qrcode' : 'fa-solid fa-money-bill-wave' }}"></i>
-                        {{ strtolower($order->payment?->method ?? '') === 'qris' ? 'Pembayaran QRIS Non-Tunai' : 'Pembayaran Tunai (COD)' }}
+                        {{ strtolower($order->payment?->method ?? '') === 'qris' ? 'Pembayaran QRIS Non-Tunai' : 'Pembayaran Tunai' }}
                     </span>
 
                     <h2 class="mt-2 text-lg font-black text-slate-900 dark:text-white">
@@ -792,7 +789,7 @@
                     {{-- Pickup Location Input & Quick Chips --}}
                     <div>
                         <label for="pickup_location" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                            Lokasi Titik Pengambilan di Sekolah (COD)
+                            Lokasi Titik Pengambilan di Sekolah
                         </label>
 
                         <input

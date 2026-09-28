@@ -328,7 +328,7 @@
                             </p>
                             @if($order->seller?->whatsapp_number)
                                 <a
-                                    href="https://wa.me/{{ preg_replace('/\D/', '', $order->seller->whatsapp_number) }}"
+                                    href="https://wa.me/{{ \App\Services\WhatsAppService::formatPhoneNumber($order->seller->whatsapp_number) }}"
                                     target="_blank"
                                     class="text-xs font-bold text-emerald-700 hover:underline dark:text-emerald-400 flex items-center gap-1 mt-0.5"
                                 >

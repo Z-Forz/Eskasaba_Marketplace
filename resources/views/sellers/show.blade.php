@@ -101,9 +101,12 @@
                     </div>
 
                     {{-- WA Contact Button (Underneath Stats Card) --}}
-                    @if($seller->whatsapp_number)
+                    @php
+                        $sellerWaFormatted = \App\Services\WhatsAppService::formatPhoneNumber($seller->whatsapp_number ?: ($seller->user?->phone ?: ''));
+                    @endphp
+                    @if($sellerWaFormatted)
                         <a
-                            href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $seller->whatsapp_number) }}?text=Halo%20{{ urlencode($seller->user->username) }},%20saya%20ingin%20bertanya%20mengenai%20produk%20di%20toko%20Anda"
+                            href="https://wa.me/{{ $sellerWaFormatted }}?text=Halo%20{{ urlencode($seller->user->username) }},%20saya%20ingin%20bertanya%20mengenai%20produk%20di%20toko%20Anda"
                             target="_blank"
                             rel="noopener noreferrer"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md transition hover:bg-emerald-800 active:scale-95 cursor-pointer"

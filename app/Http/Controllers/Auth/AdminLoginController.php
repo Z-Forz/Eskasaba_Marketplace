@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,15 @@ class AdminLoginController extends Controller
 
         $request->session()->regenerate();
 
+        $admin = Auth::guard('admin')->user();
+        ActivityLog::record(
+            userId: null,
+            event: 'admin_login',
+            description: 'Admin ' . $admin->name . ' (' . $admin->username . ') berhasil login.',
+            request: $request,
+            adminId: $admin->id
+        );
+
         return redirect()->route('admin.dashboard');
     }
 
@@ -47,6 +57,17 @@ class AdminLoginController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        if (Auth::guard('admin')->check()) {
+            $admin = Auth::guard('admin')->user();
+            ActivityLog::record(
+                userId: null,
+                event: 'admin_logout',
+                description: 'Admin ' . $admin->name . ' (' . $admin->username . ') logout dari sistem.',
+                request: $request,
+                adminId: $admin->id
+            );
+        }
+
         Auth::guard('admin')->logout();
 
         $request->session()->invalidate();

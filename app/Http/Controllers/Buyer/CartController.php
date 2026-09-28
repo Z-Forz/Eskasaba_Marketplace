@@ -87,7 +87,8 @@ class CartController extends Controller
             ->first();
 
         if ($cartItem) {
-            $cartItem->increment('quantity', $quantity);
+            $cartItem->quantity += $quantity;
+            $cartItem->save();
         } else {
             $cart->items()->create([
                 'product_id'   => $product->id,

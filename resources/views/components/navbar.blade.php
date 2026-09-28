@@ -213,7 +213,7 @@
 
                 <a
                     href="{{ route('buyer.cart.index') }}"
-                    class="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.cart.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.cart.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-1 border-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
                 >
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-cart-shopping w-5 text-center text-emerald-600"></i> Keranjang Belanja
@@ -227,7 +227,7 @@
 
                 <a
                     href="{{ route('buyer.notifications.index') }}"
-                    class="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.notifications.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.notifications.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-1 border-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
                 >
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-bell w-5 text-center text-emerald-600"></i> Notifikasi
@@ -241,7 +241,7 @@
 
                 <a
                     href="{{ route('buyer.orders.index') }}"
-                    class="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.orders.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.orders.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-1 border-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
                 >
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-box-open w-5 text-center text-emerald-600"></i> Pesanan Saya
@@ -250,10 +250,10 @@
 
                 <a
                     href="{{ route('buyer.reviews.index') }}"
-                    class="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.reviews.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-l-4 border-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl text-sm transition {{ request()->routeIs('buyer.reviews.*') ? 'bg-emerald-100/80 text-emerald-900 font-bold border-1 border-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 shadow-xs' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800' }}"
                 >
                     <span class="flex items-center gap-3">
-                        <i class="fa-solid fa-star w-5 text-center text-amber-500"></i> Ulasan Saya
+                        <i class="fa-solid fa-star w-5 text-center text-emerald-600"></i> Ulasan Saya
                     </span>
                 </a>
 
@@ -274,7 +274,7 @@
                         class="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold bg-emerald-500/10 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-500/30"
                     >
                         <span class="flex items-center gap-3">
-                            <i class="fa-solid fa-store w-5 text-center text-emerald-600"></i> Dashboard Seller Toko
+                            <i class="fa-solid fa-store w-5 text-center text-emerald-600"></i> Dashboard Seller
                         </span>
                     </a>
                 @endif

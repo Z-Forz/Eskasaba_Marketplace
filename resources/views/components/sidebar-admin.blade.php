@@ -14,6 +14,7 @@
         'Laporan & Analistik' => [
             ['route' => 'admin.reports.products',       'pattern' => 'admin.reports.products',   'label' => 'Laporan Produk',      'icon' => 'fa-solid fa-boxes-stacked'],
             ['route' => 'admin.reports.sales',          'pattern' => 'admin.reports.sales',      'label' => 'Laporan Penjualan',   'icon' => 'fa-solid fa-chart-line'],
+            ['route' => 'admin.login-logs.index',       'pattern' => 'admin.login-logs.*',       'label' => 'Log Login System',    'icon' => 'fa-solid fa-clock-rotate-left'],
         ],
         'Pengaturan' => [
             ['route' => 'admin.whatsapp.index',         'pattern' => 'admin.whatsapp.*',         'label' => 'WhatsApp Bot',        'icon' => 'fa-brands fa-whatsapp'],
@@ -46,12 +47,18 @@
     <nav class="flex-1 overflow-y-auto px-3 py-5 scrollbar-none">
 
         {{-- Dashboard Link --}}
+        @php
+            $isDashboardActive = request()->routeIs('admin.dashboard');
+        @endphp
         <a
             href="{{ route('admin.dashboard') }}"
-            class="mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
-                {{ request()->routeIs('admin.dashboard') ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
+            class="group mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
+                {{ $isDashboardActive ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
         >
-            <i class="fa-solid fa-gauge-high text-base w-5 text-center"></i>
+            <svg class="h-6 w-6 transition-all duration-200 group-hover:scale-110 {{ $isDashboardActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-700 dark:text-slate-500 dark:group-hover:text-emerald-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+            </svg>
+
             <span>Dashboard</span>
         </a>
 
@@ -62,13 +69,16 @@
             </p>
 
             @foreach ($items as $item)
+                @php
+                    $isActive = request()->routeIs($item['pattern']);
+                @endphp
                 <a
                     href="{{ route($item['route']) }}"
-                    class="mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
-                        {{ request()->routeIs($item['pattern']) ? 'bg-emerald-800 text-white font-bold shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
+                    class="group mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
+                        {{ $isActive ? 'bg-emerald-800 text-white font-bold shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
                 >
                     <span class="flex items-center gap-3">
-                        <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
+                        <i class="{{ $item['icon'] }} text-sm w-5 text-center transition-transform duration-200 group-hover:scale-110 {{ $isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-700 dark:text-slate-500 dark:group-hover:text-emerald-400' }}"></i>
                         <span>{{ $item['label'] }}</span>
                     </span>
                     @if (!empty($item['badge']) && $item['badge'] > 0)
@@ -145,12 +155,18 @@
 
         <nav class="flex-1 overflow-y-auto px-3 py-4 scrollbar-none">
 
+            @php
+                $isMobileDashboardActive = request()->routeIs('admin.dashboard');
+            @endphp
             <a
                 href="{{ route('admin.dashboard') }}"
-                class="mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
-                    {{ request()->routeIs('admin.dashboard') ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
+                class="group mb-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition
+                    {{ $isMobileDashboardActive ? 'bg-emerald-800 text-white shadow-sm shadow-emerald-900/20' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
             >
-                <i class="fa-solid fa-gauge-high text-base w-5 text-center"></i>
+                <svg class="h-6 w-6 transition-all duration-200 group-hover:scale-110 {{ $isMobileDashboardActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-700 dark:text-slate-500 dark:group-hover:text-emerald-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+
                 <span>Dashboard</span>
             </a>
 
@@ -161,13 +177,16 @@
                 </p>
 
                 @foreach ($items as $item)
+                    @php
+                        $isActive = request()->routeIs($item['pattern']);
+                    @endphp
                     <a
                         href="{{ route($item['route']) }}"
-                        class="mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
-                            {{ request()->routeIs($item['pattern']) ? 'bg-emerald-50 font-bold text-emerald-900 border-l-4 border-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
+                        class="group mb-1 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition
+                            {{ $isActive ? 'bg-emerald-50 font-bold text-emerald-900 border-l-4 border-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500' : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-emerald-400' }}"
                     >
                         <span class="flex items-center gap-3">
-                            <i class="{{ $item['icon'] }} text-sm w-5 text-center"></i>
+                            <i class="{{ $item['icon'] }} text-sm w-5 text-center transition-transform duration-200 group-hover:scale-110 {{ $isActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400 group-hover:text-emerald-700 dark:text-slate-500 dark:group-hover:text-emerald-400' }}"></i>
                             <span>{{ $item['label'] }}</span>
                         </span>
                         @if (!empty($item['badge']) && $item['badge'] > 0)
