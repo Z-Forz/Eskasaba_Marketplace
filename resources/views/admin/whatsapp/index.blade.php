@@ -37,7 +37,7 @@
             'desc' => 'Silakan pindai QR Code dengan aplikasi WhatsApp di HP.'
         ],
         'menghubungkan' => [
-            'badge' => 'MENGHUBUNGKAN...',
+            'badge' => 'MEMUAT...',
             'bgClass' => 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300',
             'dotClass' => 'bg-blue-500',
             'pulseClass' => 'bg-blue-400',
@@ -292,7 +292,7 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-bold text-slate-800 dark:text-white">
-                        Menghubungkan ke WhatsApp...
+                        Memuat ...
                     </h3>
                     <p class="mt-1 max-w-md text-xs text-slate-500 dark:text-slate-400">
                         Proses Baileys sedang memvalidasi sesi atau menyiapkan QR Code. Mohon tunggu sebentar.
@@ -473,7 +473,7 @@
                     desc: 'Silakan pindai QR Code dengan aplikasi WhatsApp di HP.'
                 },
                 menghubungkan: {
-                    badge: 'MENGHUBUNGKAN...',
+                    badge: 'MEMUAT...',
                     bgClass: 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300',
                     dotClass: 'bg-blue-500',
                     pulseClass: 'bg-blue-400',
