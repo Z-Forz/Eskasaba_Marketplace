@@ -22,6 +22,13 @@
             'pulseClass' => 'bg-sky-400',
             'desc' => 'Memulai service Baileys...'
         ],
+        'membuat_qr' => [
+            'badge' => 'MEMBUAT QR CODE...',
+            'bgClass' => 'bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300',
+            'dotClass' => 'bg-purple-500',
+            'pulseClass' => 'bg-purple-400',
+            'desc' => 'Sedang memuat & menghasilkan QR Code pairing dari WhatsApp server...'
+        ],
         'menunggu_qr' => [
             'badge' => 'MENUNGGU QR SCAN',
             'bgClass' => 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300',
@@ -61,7 +68,7 @@
 
     $cfg = $configs[$statusKey] ?? $configs['nonaktif'];
 
-    $showQrPanel = ($statusKey === 'menunggu_qr' || (!empty($qrCode) && !$isConnected));
+    $showQrPanel = (in_array($statusKey, ['menunggu_qr', 'membuat_qr']) || (!empty($qrCode) && !$isConnected));
     $showConnPanel = ($statusKey === 'terhubung' || $isConnected);
     $showInactivePanel = ($statusKey === 'nonaktif' || (!$isBotEnabled && empty($status['setting_enabled'])));
     $showConnectingPanel = (!$showQrPanel && !$showConnPanel && !$showInactivePanel);

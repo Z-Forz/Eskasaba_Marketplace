@@ -1,5 +1,6 @@
 <x-layouts.app :title="$product->name">
     @php
+        $firstImage = $product->images->first()?->image;
         $hasVariants = $product->hasVariants();
         $variantsList = $hasVariants ? $product->variants : [];
         $firstVariant = $hasVariants && count($variantsList) > 0 ? $variantsList[0] : null;

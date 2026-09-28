@@ -130,7 +130,7 @@ async function connectToWhatsApp(force = false) {
     }
 
     if (botStatus !== 'menunggu_qr') {
-        botStatus = 'menghubungkan';
+        botStatus = hasSavedSession() ? 'menghubungkan' : 'membuat_qr';
     }
 
     try {

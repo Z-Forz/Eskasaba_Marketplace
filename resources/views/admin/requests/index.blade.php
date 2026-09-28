@@ -12,13 +12,6 @@
                     Kelola dan tanggapi permohonan kategori baru atau usulan fitur dari para penjual.
                 </p>
             </div>
-
-            <a
-                href="{{ route('admin.categories.create') }}"
-                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800 shrink-0"
-            >
-                <i class="fa-solid fa-plus"></i> Tambah Kategori Baru
-            </a>
         </div>
 
         {{-- Filter Tabs --}}

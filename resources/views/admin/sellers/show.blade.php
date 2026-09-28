@@ -530,7 +530,7 @@
             </div>
 
             <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                Apakah Anda yakin ingin mencabut status seller dari <strong>{{ $seller->user?->username }}</strong>?
+                Apakah Anda yakin ingin mencabut status seller dari <strong>{{ $seller->user?->username }}</strong>? Jika Anda Mencabutnya, produk yang dijualnya juga ikut <strong>Tertarik / Terhapus</strong>
             </p>
 
             <form
