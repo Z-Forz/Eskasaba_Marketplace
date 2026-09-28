@@ -236,17 +236,16 @@ class SchoolApiService
             return 0;
         }
 
-        // Preserve all items from SiPintu API Gateway (ensure unique NIS/NIP key per row)
+        // Deduplicate items by raw NIS/NIP so each student/teacher is synced only once
         $uniqueUsers = [];
         foreach ($allUsersData as $idx => $item) {
             $rawNisNip = $item['nis_nip'] ?? $item['nis'] ?? $item['nip'] ?? null;
             if ($rawNisNip !== null && $rawNisNip !== '') {
                 $key = (string) $rawNisNip;
-                if (isset($uniqueUsers[$key])) {
-                    $key = $rawNisNip . '_' . ($item['id'] ?? $idx);
+                if (!isset($uniqueUsers[$key])) {
+                    $item['sync_nis_nip'] = $key;
+                    $uniqueUsers[$key] = $item;
                 }
-                $item['sync_nis_nip'] = $key;
-                $uniqueUsers[$key] = $item;
             }
         }
 
