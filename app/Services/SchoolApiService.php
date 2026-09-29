@@ -74,7 +74,16 @@ class SchoolApiService
 
                 if ($response->successful()) {
                     $data = $response->json()['data'] ?? $response->json();
-                    $items = is_array($data) ? ($data[0] ?? $data) : $data;
+                    $items = null;
+                    if (is_array($data) && isset($data[0])) {
+                        $items = collect($data)->first(function ($st) use ($key) {
+                            $stNis = (string) ($st['nis_nip'] ?? $st['nis'] ?? $st['id'] ?? '');
+                            return $stNis === (string) $key;
+                        });
+                    } else {
+                        $items = $data;
+                    }
+
                     if (!empty($items['nis_nip']) || !empty($items['nis']) || !empty($items['id'])) {
                         if (self::isAlumni($items)) {
                             Log::info("SchoolApiService validate: Ignored alumni student " . ($items['nis'] ?? $items['nis_nip'] ?? $key));
@@ -102,7 +111,16 @@ class SchoolApiService
 
                 if ($responseTeacher->successful()) {
                     $data = $responseTeacher->json()['data'] ?? $responseTeacher->json();
-                    $items = is_array($data) ? ($data[0] ?? $data) : $data;
+                    $items = null;
+                    if (is_array($data) && isset($data[0])) {
+                        $items = collect($data)->first(function ($tc) use ($key) {
+                            $tcNip = (string) ($tc['nis_nip'] ?? $tc['nip'] ?? $tc['id'] ?? '');
+                            return $tcNip === (string) $key;
+                        });
+                    } else {
+                        $items = $data;
+                    }
+
                     if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
                         return $this->formatUserData($items, 'teacher');
                     }
