@@ -17,3 +17,6 @@ Schedule::command('notifications:clean')->dailyAt('00:00')->timezone('Asia/Jakar
 
 // Menjalankan sinkronisasi pengguna SiPintu Gateway setiap hari pukul 00:00 WIB
 Schedule::command('sipintu:sync')->dailyAt('00:00')->timezone('Asia/Jakarta');
+
+// Otomatis mengonfirmasi pesanan yang telah 3 hari menjadi Selesai setiap jam
+Schedule::command('orders:auto-complete')->hourly();

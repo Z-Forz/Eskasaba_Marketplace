@@ -331,7 +331,7 @@
                         href="{{ route('buyer.apply-seller') }}"
                         class="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 sm:px-6 sm:py-3.5 text-sm font-bold text-white shadow-xs transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 shrink-0 w-full sm:w-auto"
                     >
-                        Daftar Jadi Seller Toko <i class="fa-solid fa-arrow-right"></i>
+                        Daftar Jadi Seller <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
             @endif

@@ -65,16 +65,18 @@
                 'confirmed'        => 2,
                 'processing'       => 3,
                 'ready_for_pickup' => 4,
-                'completed'        => 5,
+                'delivered'        => 5,
+                'completed'        => 6,
                 default            => 0,
             };
 
             $progressWidthClass = match($statusStep) {
                 1 => 'w-0',
-                2 => 'w-1/4',
-                3 => 'w-1/2',
-                4 => 'w-3/4',
-                5 => 'w-full',
+                2 => 'w-1/5',
+                3 => 'w-2/5',
+                4 => 'w-3/5',
+                5 => 'w-4/5',
+                6 => 'w-full',
                 default => 'w-0',
             };
 
@@ -105,6 +107,98 @@
             $waPhone = \App\Services\WhatsAppService::formatPhoneNumber($order->seller?->whatsapp_number ?: ($order->seller?->user?->phone ?: ''));
             $waUrl   = !empty($waPhone) ? "https://wa.me/{$waPhone}?text=" . urlencode($waText) : null;
         @endphp
+
+        {{-- Banner: Konfirmasi Penerimaan Pesanan Diterima oleh Pembeli --}}
+        @if($order->status === 'delivered')
+            <div class="mb-8 rounded-3xl border-2 border-emerald-500 bg-emerald-50/90 p-6 shadow-md dark:border-emerald-700 dark:bg-emerald-950/40" x-data="{ showConfirmModal: false }">
+                <div class="flex flex-col sm:flex-row items-start gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white text-2xl font-bold shadow-xs">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-3">
+                        <div>
+                            <h2 class="text-lg font-black text-emerald-950 dark:text-emerald-200">
+                                Barang Diserahkan ke Pembeli / Telah Diterima!
+                            </h2>
+                            <p class="mt-1 text-xs text-emerald-900 dark:text-emerald-300 leading-relaxed">
+                                Sudah menerima barang pesananmu dari penjual (<strong>{{ $order->seller?->user?->username }}</strong>)? Tekan tombol <strong>"Konfirmasi Pesanan Diterima"</strong> di bawah ini untuk menyelesaikan transaksi.
+                            </p>
+                            <p class="mt-1 text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                                ⏱️ Pesanan akan otomatis terkonfirmasi Selesai oleh sistem 3 hari setelah barang diserahkan jika belum dikonfirmasi.
+                            </p>
+                        </div>
+
+                        <div class="pt-1">
+                            <button
+                                type="button"
+                                @click="showConfirmModal = true"
+                                class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3.5 text-xs font-black text-white shadow-md hover:bg-emerald-700 transition cursor-pointer"
+                            >
+                                <i class="fa-solid fa-circle-check text-base"></i> ✦ Konfirmasi Pesanan Diterima
+                            </button>
+
+                            {{-- Confirm Received Custom Modal --}}
+                            <template x-teleport="body">
+                                <div
+                                    x-show="showConfirmModal"
+                                    x-cloak
+                                    style="display: none;"
+                                    class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs"
+                                >
+                                    <div
+                                        @click.away="showConfirmModal = false"
+                                        class="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl dark:bg-slate-900 dark:border dark:border-slate-800 text-left space-y-4"
+                                    >
+                                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800 gap-3">
+                                            <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2.5 min-w-0">
+                                                <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 shrink-0">
+                                                    <i class="fa-solid fa-box-check text-sm"></i>
+                                                </div>
+                                                <span class="truncate">Konfirmasi Penerimaan Barang</span>
+                                            </h3>
+                                            <button @click="showConfirmModal = false" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shrink-0 cursor-pointer">
+                                                <i class="fa-solid fa-xmark text-lg"></i>
+                                            </button>
+                                        </div>
+
+                                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                            Apakah Anda yakin telah menerima pesanan ini dengan kondisi baik dari penjual (<strong>{{ $order->seller?->user?->username }}</strong>)?
+                                        </p>
+
+                                        <div class="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-xs text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200 leading-relaxed">
+                                            <div class="flex items-start gap-2.5">
+                                                <i class="fa-solid fa-circle-info text-emerald-600 text-sm mt-0.5 shrink-0"></i>
+                                                <div>
+                                                    <p class="font-bold mb-0.5">Catatan Penting:</p>
+                                                    <p>Setelah Anda mengonfirmasi, status pesanan akan menjadi <strong>Selesai</strong> dan transaksi selesai secara resmi.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <form action="{{ route('buyer.orders.confirm-received', $order) }}" method="POST" class="flex justify-end gap-2.5 pt-2">
+                                            @csrf
+                                            <button
+                                                type="button"
+                                                @click="showConfirmModal = false"
+                                                class="rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-200 transition cursor-pointer dark:bg-slate-800 dark:text-slate-300"
+                                            >
+                                                Batal
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-black text-white hover:bg-emerald-700 shadow-md transition cursor-pointer"
+                                            >
+                                                <i class="fa-solid fa-circle-check"></i> Ya, Sudah Diterima
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Banner: Menunggu Konfirmasi Penerimaan Refund oleh Pembeli (CRITICAL FEATURE) --}}
         @if($order->status === 'refund_pending_buyer_confirmation')
@@ -357,7 +451,15 @@
                         <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 5 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
                             5
                         </div>
-                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 5 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Selesai</span>
+                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 5 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Diterima</span>
+                    </div>
+
+                    {{-- Step 6 --}}
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 6 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
+                            6
+                        </div>
+                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 6 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Selesai</span>
                     </div>
                 </div>
             </div>
@@ -769,8 +871,8 @@
                         </a>
                     @endif
 
-                    {{-- Action Button: Cancel Order (For Pending, Confirmed, Processing) --}}
-                    @if (in_array($order->status, ['pending', 'confirmed', 'processing']))
+                    {{-- Action Button: Cancel Order (Only For Pending and Confirmed) --}}
+                    @if (in_array($order->status, ['pending', 'confirmed']))
                         <div x-data="{ showCancelModal: false }" class="mt-3">
                             <button
                                 type="button"

@@ -141,7 +141,8 @@ class SchoolCallbackController extends Controller
         }
 
         $existingLocalUser = User::where('nis_nip', $apiData['nis_nip'])->first();
-        $finalPhone = ($existingLocalUser && ! empty($existingLocalUser->phone)) ? $existingLocalUser->phone : ($apiData['telepon'] ?? $apiData['phone'] ?? null);
+        $extractedPhone    = SchoolApiService::extractPhone($apiData);
+        $finalPhone        = ($existingLocalUser && ! empty($existingLocalUser->phone)) ? $existingLocalUser->phone : $extractedPhone;
 
         $user = User::updateOrCreate(
             ['nis_nip' => $apiData['nis_nip']],

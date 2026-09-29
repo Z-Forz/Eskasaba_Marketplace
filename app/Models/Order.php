@@ -26,6 +26,50 @@ class Order extends Model
     ];
 
     /**
+     * Auto complete orders that have been marked ready_for_pickup (diserahkan) >= 3 days ago.
+     */
+    public static function autoCompleteExpiredOrders(): int
+    {
+        $cutoff = now()->subDays(3);
+        $expiredOrders = static::with(['seller.user', 'user', 'payment'])
+            ->whereIn('status', ['delivered', 'ready_for_pickup'])
+            ->where('updated_at', '<=', $cutoff)
+            ->get();
+
+        $count = 0;
+        foreach ($expiredOrders as $order) {
+            $order->update(['status' => 'completed']);
+
+            if ($order->payment && $order->payment->status === 'pending') {
+                $order->payment->update([
+                    'status'      => 'verified',
+                    'verified_at' => now(),
+                ]);
+            }
+
+            \App\Models\Notification::create([
+                'user_id' => $order->user_id,
+                'title'   => 'Pesanan Otomatis Selesai 📦',
+                'message' => 'Pesanan #' . ($order->invoice_number ?? $order->id) . ' telah otomatis dikonfirmasi Selesai oleh sistem (3 hari setelah diserahkan oleh penjual).',
+                'type'    => 'order_completed',
+                'link'    => route('buyer.orders.show', $order),
+            ]);
+
+            \App\Models\Notification::create([
+                'user_id' => $order->seller->user_id,
+                'title'   => 'Pesanan Otomatis Selesai 📦',
+                'message' => 'Pesanan #' . ($order->invoice_number ?? $order->id) . ' telah otomatis dikonfirmasi Selesai oleh sistem (3 hari setelah diserahkan).',
+                'type'    => 'order_completed',
+                'link'    => route('seller.orders.show', $order),
+            ]);
+
+            $count++;
+        }
+
+        return $count;
+    }
+
+    /**
      * Restore stock for all products and variants in this order when cancelled.
      */
     public function restoreStock(): void

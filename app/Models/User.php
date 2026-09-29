@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -130,5 +131,61 @@ class User extends Authenticatable
     public function isTeacher(): bool
     {
         return $this->role === 'teacher';
+    }
+
+    /**
+     * Scope query user berdasarkan target penerima broadcast WhatsApp.
+     * Only select users with non-empty phone number.
+     */
+    public function scopeByTargetRecipient(Builder $query, string $target): Builder
+    {
+        $query->whereNotNull('phone')
+            ->where('phone', '!=', '');
+
+        return match ($target) {
+            'teacher' => $query->where('role', 'teacher'),
+
+            'student_10' => $query->where('role', 'student')
+                ->where(function ($q) {
+                    $q->where('class_room', 'LIKE', 'X %')
+                        ->orWhere('class_room', 'LIKE', 'X-%')
+                        ->orWhere('class_room', 'LIKE', '10 %')
+                        ->orWhere('class_room', 'LIKE', '10-%')
+                        ->orWhere('class_room', 'LIKE', 'Kelas X%')
+                        ->orWhere('class_room', 'LIKE', 'Kelas 10%')
+                        ->orWhere('class_room', 'LIKE', 'Kls X%')
+                        ->orWhere('class_room', 'LIKE', 'Kls 10%')
+                        ->orWhereRaw("class_room REGEXP '^(kelas[[:space:]]+|kls[[:space:]]+)?(X|10)([^0-9a-zA-Z]|$)'");
+                }),
+
+            'student_11' => $query->where('role', 'student')
+                ->where(function ($q) {
+                    $q->where('class_room', 'LIKE', 'XI %')
+                        ->orWhere('class_room', 'LIKE', 'XI-%')
+                        ->orWhere('class_room', 'LIKE', '11 %')
+                        ->orWhere('class_room', 'LIKE', '11-%')
+                        ->orWhere('class_room', 'LIKE', 'Kelas XI%')
+                        ->orWhere('class_room', 'LIKE', 'Kelas 11%')
+                        ->orWhere('class_room', 'LIKE', 'Kls XI%')
+                        ->orWhere('class_room', 'LIKE', 'Kls 11%')
+                        ->orWhereRaw("class_room REGEXP '^(kelas[[:space:]]+|kls[[:space:]]+)?(XI|11)([^0-9a-zA-Z]|$)'");
+                }),
+
+            'student_12' => $query->where('role', 'student')
+                ->where(function ($q) {
+                    $q->where('class_room', 'LIKE', 'XII %')
+                        ->orWhere('class_room', 'LIKE', 'XII-%')
+                        ->orWhere('class_room', 'LIKE', '12 %')
+                        ->orWhere('class_room', 'LIKE', '12-%')
+                        ->orWhere('class_room', 'LIKE', 'Kelas XII%')
+                        ->orWhere('class_room', 'LIKE', 'Kelas 12%')
+                        ->orWhere('class_room', 'LIKE', 'Kls XII%')
+                        ->orWhere('class_room', 'LIKE', 'Kls 12%')
+                        ->orWhereRaw("class_room REGEXP '^(kelas[[:space:]]+|kls[[:space:]]+)?(XII|12)([^0-9a-zA-Z]|$)'");
+                }),
+
+            'all' => $query,
+            default => $query,
+        };
     }
 }

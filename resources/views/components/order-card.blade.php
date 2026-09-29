@@ -11,6 +11,7 @@
         'confirmed'        => 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:ring-emerald-800',
         'processing'       => 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:ring-amber-800',
         'ready_for_pickup' => 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:ring-emerald-800',
+        'delivered'        => 'bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:ring-blue-800',
         'completed'        => 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:ring-emerald-800',
         'cancelled'        => 'bg-red-50 text-red-700 ring-red-200 dark:bg-red-950/50 dark:text-red-300 dark:ring-red-800',
     ];
@@ -20,6 +21,7 @@
         'confirmed'        => 'Dikonfirmasi',
         'processing'       => 'Diproses',
         'ready_for_pickup' => 'Siap Diambil',
+        'delivered'        => 'Barang Diserahkan',
         'completed'        => 'Selesai',
         'cancel_requested' => 'Pengajuan Batal',
         'refund_pending_buyer_confirmation' => 'Menunggu Konfirmasi Refund',
@@ -118,6 +120,18 @@
         </div>
 
         <div class="flex items-center gap-2">
+            @if(in_array($order->status, ['ready_for_pickup', 'delivered', 'confirmed', 'processing']))
+                <form action="{{ route('buyer.orders.confirm-received', $order) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin telah menerima barang pesanan ini?')">
+                    @csrf
+                    <button
+                        type="submit"
+                        class="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-600 px-3.5 py-2 text-xs font-black text-white shadow-xs transition hover:bg-emerald-700 cursor-pointer sm:px-4"
+                    >
+                        <i class="fa-solid fa-circle-check"></i> Konfirmasi Diterima
+                    </button>
+                </form>
+            @endif
+
             @if(strtolower($order->payment?->method ?? '') === 'qris' && strtolower($order->payment?->status ?? 'pending') === 'pending' && $order->status !== 'cancelled' && $order->status !== 'completed')
                 <a
                     href="{{ $href }}"
@@ -129,7 +143,7 @@
 
             <a
                 href="{{ $href }}"
-                class="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-800 sm:px-5 sm:text-sm"
+                class="inline-flex items-center gap-1.5 rounded-2xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800 dark:bg-emerald-700 dark:hover:bg-emerald-800 sm:px-5 sm:text-sm"
             >
                 Lihat Detail Pesanan <i class="fa-solid fa-arrow-right"></i>
             </a>

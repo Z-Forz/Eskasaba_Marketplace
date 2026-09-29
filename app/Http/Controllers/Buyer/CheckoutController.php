@@ -67,6 +67,12 @@ class CheckoutController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
+            'phone' => [
+                'required',
+                'string',
+                'min:8',
+                'max:25',
+            ],
             'pickup_location' => [
                 'required',
                 'string',
@@ -82,9 +88,17 @@ class CheckoutController extends Controller
                 'max:1000',
             ],
         ], [
+            'phone.required'           => 'Nomor WhatsApp wajib diisi agar Anda menerima notifikasi rincian pesanan.',
+            'phone.min'                => 'Nomor WhatsApp minimal 8 digit.',
             'pickup_location.required' => 'Lokasi/titik pengambilan wajib diisi.',
             'payment_method.required'  => 'Metode pembayaran wajib dipilih.',
         ]);
+
+        // Synchronize/save user phone number if empty or updated
+        $user = Auth::user();
+        if ($request->filled('phone') && $user->phone !== $request->phone) {
+            $user->update(['phone' => $request->phone]);
+        }
 
         $cart = Cart::with([
             'items.product.seller',
@@ -107,6 +121,13 @@ class CheckoutController extends Controller
             return redirect()
                 ->route('buyer.cart.index')
                 ->with('error', 'Kamu tidak dapat melakukan checkout pada produk tokomu sendiri.');
+        }
+
+        $seller = $cart->items->first()?->product?->seller;
+        if ($request->payment_method === 'qris' && empty($seller?->qris_image)) {
+            return redirect()
+                ->back()
+                ->with('error', 'Penjual belum mengunggah barcode QRIS. Silakan pilih metode Bayar di Tempat.');
         }
 
         try {

@@ -119,7 +119,7 @@
 
                         <p class="text-[10px] lg:text-xs text-emerald-600 font-bold dark:text-emerald-400">
                             @if(auth()->user()->seller?->status === 'approved')
-                                Seller Toko
+                                Seller Aktif
                             @else
                                 {{ auth()->user()->role === 'teacher' ? 'Guru' : 'Siswa' }}
                             @endif

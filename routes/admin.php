@@ -90,4 +90,14 @@ Route::middleware(['auth:admin'])
             ->name('whatsapp.disconnect');
         Route::post('/whatsapp/reset-session', [WhatsAppController::class, 'resetSession'])
             ->name('whatsapp.reset-session');
+
+        // WhatsApp Broadcast Routes
+        Route::get('/whatsapp/recipient-count', [WhatsAppController::class, 'getRecipientCount'])
+            ->name('whatsapp.recipient-count');
+        Route::post('/whatsapp/broadcast', [WhatsAppController::class, 'sendBroadcast'])
+            ->name('whatsapp.broadcast.send');
+        Route::get('/whatsapp/broadcast/{id}/status', [WhatsAppController::class, 'getBroadcastStatus'])
+            ->name('whatsapp.broadcast.status');
+        Route::post('/whatsapp/broadcast/{id}/cancel', [WhatsAppController::class, 'cancelBroadcast'])
+            ->name('whatsapp.broadcast.cancel');
     });

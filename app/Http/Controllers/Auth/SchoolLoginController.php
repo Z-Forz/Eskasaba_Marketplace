@@ -50,8 +50,6 @@ class SchoolLoginController extends Controller
         $isEmailInput = str_contains($nisNipInput, '@');
 
         // 1. Cek kredensial di database lokal terlebih dahulu
-        // Jika input mengandung '@', HANYA cocokkan persis ke kolom email ($user->email).
-        // Jangan pernah memotong domain dan mencocokkan ke NIS/NIP agar 4716@gmail.com tidak bisa masuk ke akun 4716@smkn1bangsri.sch.id.
         $localUser = User::where(function ($query) use ($nisNipInput, $isEmailInput) {
             if ($isEmailInput) {
                 $query->where('email', $nisNipInput);
@@ -76,23 +74,50 @@ class SchoolLoginController extends Controller
             ]);
         }
 
-        if ($localUser && Hash::check($inputPassword, $localUser->password)) {
-            Auth::login($localUser);
-            $request->session()->regenerate();
+        if ($localUser) {
+            // Jika user lokal sudah pernah mengganti password bawaan (is_default_password == false)
+            if (!$localUser->is_default_password) {
+                if (Hash::check($inputPassword, $localUser->password)) {
+                    Auth::login($localUser);
+                    $request->session()->regenerate();
 
-            if (class_exists(\App\Models\ActivityLog::class)) {
-                \App\Models\ActivityLog::record(
-                    $localUser->id,
-                    'login',
-                    "Login berhasil dari IP {$request->ip()}",
-                    $request
-                );
+                    if (class_exists(\App\Models\ActivityLog::class)) {
+                        \App\Models\ActivityLog::record(
+                            $localUser->id,
+                            'login',
+                            "Login berhasil dari IP {$request->ip()}",
+                            $request
+                        );
+                    }
+
+                    return redirect()->route('profile.index')->with('success', 'Berhasil login! Selamat datang kembali, ' . $localUser->username . '.');
+                } else {
+                    // Password salah! Tolak login & jangan pernah izinkan fallback ke password default 'password'.
+                    throw ValidationException::withMessages([
+                        'email' => 'NIS/NIP, Email, atau kata sandi tidak sesuai.',
+                    ]);
+                }
+            } else {
+                // User lokal masih berstatus password default (is_default_password == true)
+                if (Hash::check($inputPassword, $localUser->password) || $inputPassword === 'password') {
+                    Auth::login($localUser);
+                    $request->session()->regenerate();
+
+                    if (class_exists(\App\Models\ActivityLog::class)) {
+                        \App\Models\ActivityLog::record(
+                            $localUser->id,
+                            'login',
+                            "Login berhasil dari IP {$request->ip()}",
+                            $request
+                        );
+                    }
+
+                    return redirect()->route('profile.index')->with('success', 'Berhasil login! Selamat datang kembali, ' . $localUser->username . '.');
+                }
             }
-
-            return redirect()->route('profile.index')->with('success', 'Berhasil login! Selamat datang kembali, ' . $localUser->username . '.');
         }
 
-        // 2. Jika user lokal belum ada atau password default, validasi ke API Gateway
+        // 2. Jika user lokal belum ada, divalidasi ke API Gateway SiPintu
         $cleanNisNip = $isEmailInput ? explode('@', $nisNipInput)[0] : $nisNipInput;
         $apiData = $this->schoolApi->validate($nisNipInput) ?? ($isEmailInput ? null : $this->schoolApi->validate($cleanNisNip));
 
@@ -134,7 +159,10 @@ class SchoolLoginController extends Controller
                 ]);
             }
 
-            if ($inputPassword === 'password' || ($localUser && Hash::check($inputPassword, $localUser->password))) {
+            if ($inputPassword === 'password') {
+                $extractedPhone = SchoolApiService::extractPhone($apiData);
+                $phoneToSave    = ($localUser && !empty($localUser->phone)) ? $localUser->phone : $extractedPhone;
+
                 $userEmail = $apiData['email'] ?? ($localUser ? $localUser->email : null);
                 if (empty($userEmail)) {
                     $userEmail = $cleanNisNip . '@sijuna.com';
@@ -148,7 +176,7 @@ class SchoolLoginController extends Controller
                         'email'               => $userEmail,
                         'role'                => $role,
                         'class_room'          => $apiData['class_room'] ?? null,
-                        'phone'               => ($localUser && ! empty($localUser->phone)) ? $localUser->phone : ($apiData['telepon'] ?? $apiData['phone'] ?? null),
+                        'phone'               => $phoneToSave,
                         'api_id'              => $apiData['id'] ?? ($localUser ? $localUser->api_id : rand(1000, 9999)),
                         'password'            => $localUser ? $localUser->password : Hash::make('password'),
                         'is_default_password' => $localUser ? $localUser->is_default_password : true,

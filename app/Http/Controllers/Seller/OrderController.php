@@ -19,6 +19,8 @@ class OrderController extends Controller
      */
     public function index(Request $request): View
     {
+        Order::autoCompleteExpiredOrders();
+
         $seller = Seller::where('user_id', Auth::id())->firstOrFail();
 
         $query = Order::with([
@@ -53,6 +55,9 @@ class OrderController extends Controller
         $seller = Seller::where('user_id', Auth::id())->firstOrFail();
         abort_unless($order->seller_id === $seller->id, 403);
 
+        Order::autoCompleteExpiredOrders();
+        $order->refresh();
+
         $order->load([
             'user',
             'items.product',
@@ -73,6 +78,7 @@ class OrderController extends Controller
             'confirmed'                         => 'Dikonfirmasi',
             'processing'                        => 'Sedang Diproses',
             'ready_for_pickup'                  => 'Siap Diambil',
+            'delivered'                         => 'Barang Diserahkan (Menunggu Konfirmasi Pembeli)',
             'completed'                         => 'Selesai',
             'cancel_requested'                  => 'Pengajuan Pembatalan Pembeli',
             'return_requested'                  => 'Pengajuan Return / Pengembalian Barang',
@@ -102,20 +108,24 @@ class OrderController extends Controller
         $seller = Seller::where('user_id', Auth::id())->firstOrFail();
         abort_unless($order->seller_id === $seller->id, 403);
 
-        if (in_array($order->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested'])) {
-            return back()->with('error', 'Pesanan yang telah dibatalkan, dikembalikan (return), atau sedang dalam alur pengajuan refund/pembatalan tidak dapat diubah statusnya lagi.');
+        if ($order->status === 'completed') {
+            return back()->with('error', 'Pesanan ini sudah berstatus Selesai dan tidak dapat diubah lagi.');
+        }
+
+        if ($request->input('status') === 'completed') {
+            return back()->with('error', 'Penjual tidak dapat menyelesaikan pesanan secara langsung. Tandai status sebagai "Barang Diserahkan". Pesanan akan berstatus "Selesai" setelah dikonfirmasi Pembeli atau otomatis selesai setelah 3 hari.');
         }
 
         $data = $request->validate([
-            'status'          => ['nullable', 'in:pending,confirmed,processing,ready_for_pickup,completed,cancelled'],
+            'status'          => ['nullable', 'in:pending,confirmed,processing,ready_for_pickup,delivered,cancelled'],
             'pickup_location' => ['nullable', 'string', 'max:255'],
             'payment_status'  => ['nullable', 'in:pending,verified,rejected,paid'],
         ]);
 
         $statusChanged = !empty($data['status']) && $data['status'] !== $order->status;
 
-        if (!empty($data['status']) && $data['status'] === 'cancelled' && in_array($order->status, ['ready_for_pickup', 'completed'])) {
-            return back()->with('error', 'Pesanan yang sudah siap diambil atau selesai tidak dapat dibatalkan secara langsung.');
+        if (!empty($data['status']) && $data['status'] === 'cancelled' && in_array($order->status, ['ready_for_pickup', 'delivered', 'completed'])) {
+            return back()->with('error', 'Pesanan yang sudah siap diambil, diserahkan, atau selesai tidak dapat dibatalkan secara langsung.');
         }
 
         $order->update(array_filter([

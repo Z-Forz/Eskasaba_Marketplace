@@ -129,7 +129,7 @@
 
                     {{-- Pagination --}}
                     <div class="mt-10">
-                        {{ $products->links('components.pagination') }}
+                        {{ $products->withQueryString()->links() }}
                     </div>
 
                 @else

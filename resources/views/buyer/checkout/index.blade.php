@@ -257,12 +257,72 @@
 
                         </div>
 
+                        {{-- WhatsApp Phone Number Section --}}
+                        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <i class="fa-brands fa-whatsapp text-emerald-500 text-xl"></i>
+                                    Nomor WhatsApp Notifikasi
+                                </h2>
+                                @if (!empty(Auth::user()->phone))
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
+                                        <i class="fa-solid fa-circle-check"></i> Terisi
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 dark:bg-amber-950/60 dark:text-amber-400">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> Wajib Diisi
+                                    </span>
+                                @endif
+                            </div>
+
+                            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                Nomor WhatsApp ini digunakan sistem untuk mengirimkan notifikasi rincian pesanan & perubahan status secara otomatis ke nomor kamu.
+                            </p>
+
+                            @if (empty(Auth::user()->phone))
+                                <div class="mt-3 rounded-2xl bg-amber-50/90 p-4 border border-amber-200 text-xs text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-300 flex items-start gap-2.5">
+                                    <i class="fa-solid fa-circle-info text-amber-600 dark:text-amber-400 text-base shrink-0 mt-0.5"></i>
+                                    <div>
+                                        <p class="font-bold">Kamu belum memasukkan nomor WhatsApp di profil!</p>
+                                        <p class="mt-0.5 text-amber-700 dark:text-amber-400">Mohon isi nomor WhatsApp kamu di bawah ini agar pesanan dapat dibuat dan kamu bisa menerima notifikasi WhatsApp.</p>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="mt-4">
+                                <label for="phone" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                                    Nomor WhatsApp Aktif <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-sm">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </span>
+                                    <input
+                                        type="text"
+                                        id="phone"
+                                        name="phone"
+                                        value="{{ old('phone', Auth::user()->phone) }}"
+                                        placeholder="Contoh: 081234567890"
+                                        class="w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                        required
+                                    >
+                                </div>
+                                @error('phone')
+                                    <p class="mt-1.5 text-xs font-medium text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
                         {{-- Payment Method Selection --}}
                         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 sm:p-8">
 
                             <h2 class="text-lg font-bold text-slate-900 dark:text-white">
                                 Metode Pembayaran
                             </h2>
+
+                            @php
+                                $hasQris = !empty($seller?->qris_image);
+                            @endphp
 
                             <div class="mt-4 grid gap-3 sm:grid-cols-2">
 
@@ -284,46 +344,76 @@
                                             <p class="text-xs text-slate-500 dark:text-slate-400">Bayar tunai saat barang diterima</p>
                                         </div>
                                     </div>
-                                    <span class="text-xl"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+                                    <span class="text-xl"><i class="fa-solid fa-hand-holding-dollar text-emerald-600"></i></span>
                                 </label>
 
-                                <label
-                                    id="label-qris"
-                                    class="relative flex cursor-pointer items-center justify-between rounded-2xl border border-slate-200 p-4 transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
-                                >
-                                    <div class="flex items-center gap-3">
-                                        <input
-                                            type="radio"
-                                            name="payment_method"
-                                            value="qris"
-                                            onchange="togglePaymentMethod('qris')"
-                                            class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"
-                                        >
-                                        <div>
-                                            <p class="font-bold text-slate-900 dark:text-white text-sm">QRIS / Non-Tunai</p>
-                                            <p class="text-xs text-slate-500 dark:text-slate-400">Scan QRIS toko penjual langsung</p>
+                                @if ($hasQris)
+                                    <label
+                                        id="label-qris"
+                                        class="relative flex cursor-pointer items-center justify-between rounded-2xl border border-slate-200 p-4 transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <input
+                                                type="radio"
+                                                name="payment_method"
+                                                value="qris"
+                                                onchange="togglePaymentMethod('qris')"
+                                                class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"
+                                            >
+                                            <div>
+                                                <p class="font-bold text-slate-900 dark:text-white text-sm">QRIS / Non-Tunai</p>
+                                                <p class="text-xs text-slate-500 dark:text-slate-400">Scan QRIS toko penjual langsung</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <span class="text-xl"><i class="fa-solid fa-qrcode"></i></span>
-                                </label>
+                                        <span class="text-xl"><i class="fa-solid fa-qrcode text-slate-400"></i></span>
+                                    </label>
+                                @else
+                                    <label
+                                        id="label-qris"
+                                        class="relative flex cursor-not-allowed items-center justify-between rounded-2xl border border-slate-200 bg-slate-100/70 p-4 opacity-75 dark:border-slate-800 dark:bg-slate-800/40"
+                                        title="Penjual belum mengunggah gambar QRIS"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <input
+                                                type="radio"
+                                                name="payment_method"
+                                                value="qris"
+                                                disabled
+                                                class="h-4 w-4 text-slate-400 cursor-not-allowed"
+                                            >
+                                            <div>
+                                                <p class="font-bold text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1.5">
+                                                    QRIS / Non-Tunai
+                                                    <span class="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-700 dark:bg-amber-950/80 dark:text-amber-400">
+                                                        Tidak Tersedia
+                                                    </span>
+                                                </p>
+                                                <p class="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-0.5">
+                                                    ⚠️ Penjual belum mengunggah QRIS
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <span class="text-xl text-slate-400"><i class="fa-solid fa-qrcode"></i></span>
+                                    </label>
+                                @endif
 
                             </div>
 
-                            {{-- Dynamic QRIS Display Box --}}
-                            <div id="qris-display-box" class="mt-6 hidden rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-2xl"><i class="fa-solid fa-qrcode"></i></span></span>
-                                    <div>
-                                        <h3 class="font-bold text-slate-900 dark:text-white text-sm">
-                                            Barcode QRIS Toko Penjual ({{ $seller?->user?->username ?? 'Seller' }})
-                                        </h3>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400">
-                                            Silakan scan barcode QRIS di bawah ini untuk melakukan pembayaran non-tunai.
-                                        </p>
+                            @if ($hasQris)
+                                {{-- Dynamic QRIS Display Box --}}
+                                <div id="qris-display-box" class="mt-6 hidden rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-2xl"><i class="fa-solid fa-qrcode"></i></span>
+                                        <div>
+                                            <h3 class="font-bold text-slate-900 dark:text-white text-sm">
+                                                Barcode QRIS Toko Penjual ({{ $seller?->user?->username ?? 'Seller' }})
+                                            </h3>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                                Silakan scan barcode QRIS di bawah ini untuk melakukan pembayaran non-tunai.
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
 
-                                @if ($seller?->qris_image)
                                     <div class="mt-4 flex flex-col items-center justify-center rounded-2xl bg-white p-5 border border-emerald-100 shadow-xs dark:bg-slate-900 dark:border-slate-800">
                                         <img
                                             src="{{ Storage::url($seller->qris_image) }}"
@@ -337,15 +427,8 @@
                                             Total Pembayaran: Rp {{ number_format($cart->items->sum(fn ($item) => $item->quantity * $item->price), 0, ',', '.') }}
                                         </p>
                                     </div>
-                                @else
-                                    <div class="mt-4 rounded-2xl bg-white p-4 text-center border border-amber-200 dark:bg-slate-900 dark:border-slate-800">
-                                        <p class="text-xs font-bold text-amber-800 dark:text-amber-400">⚠️ Penjual Belum Mengunggah QRIS</p>
-                                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                            Penjual belum memasukkan gambar QRIS toko. Anda dapat melanjutkan checkout dan meminta nomor rekening / barcode QRIS via WhatsApp setelah pesanan dibuat.
-                                        </p>
-                                    </div>
-                                @endif
-                            </div>
+                                </div>
+                            @endif
 
                         </div>
 
@@ -487,19 +570,25 @@
                 const labelQris = document.getElementById('label-qris');
 
                 if (method === 'qris') {
-                    qrisBox.classList.remove('hidden');
-                    labelQris.classList.add('border-emerald-500', 'bg-emerald-50/40', 'dark:border-emerald-600', 'dark:bg-emerald-950/20');
-                    labelQris.classList.remove('border-slate-200', 'dark:border-slate-700');
-
-                    labelCod.classList.remove('border-emerald-500', 'bg-emerald-50/40', 'dark:border-emerald-600', 'dark:bg-emerald-950/20');
-                    labelCod.classList.add('border-slate-200', 'dark:border-slate-700');
+                    if (qrisBox) qrisBox.classList.remove('hidden');
+                    if (labelQris) {
+                        labelQris.classList.add('border-emerald-500', 'bg-emerald-50/40', 'dark:border-emerald-600', 'dark:bg-emerald-950/20');
+                        labelQris.classList.remove('border-slate-200', 'dark:border-slate-700');
+                    }
+                    if (labelCod) {
+                        labelCod.classList.remove('border-emerald-500', 'bg-emerald-50/40', 'dark:border-emerald-600', 'dark:bg-emerald-950/20');
+                        labelCod.classList.add('border-slate-200', 'dark:border-slate-700');
+                    }
                 } else {
-                    qrisBox.classList.add('hidden');
-                    labelCod.classList.add('border-emerald-500', 'bg-emerald-50/40', 'dark:border-emerald-600', 'dark:bg-emerald-950/20');
-                    labelCod.classList.remove('border-slate-200', 'dark:border-slate-700');
-
-                    labelQris.classList.remove('border-emerald-500', 'bg-emerald-50/40', 'dark:border-emerald-600', 'dark:bg-emerald-950/20');
-                    labelQris.classList.add('border-slate-200', 'dark:border-slate-700');
+                    if (qrisBox) qrisBox.classList.add('hidden');
+                    if (labelCod) {
+                        labelCod.classList.add('border-emerald-500', 'bg-emerald-50/40', 'dark:border-emerald-600', 'dark:bg-emerald-950/20');
+                        labelCod.classList.remove('border-slate-200', 'dark:border-slate-700');
+                    }
+                    if (labelQris) {
+                        labelQris.classList.remove('border-emerald-500', 'bg-emerald-50/40', 'dark:border-emerald-600', 'dark:bg-emerald-950/20');
+                        labelQris.classList.add('border-slate-200', 'dark:border-slate-700');
+                    }
                 }
             }
         </script>

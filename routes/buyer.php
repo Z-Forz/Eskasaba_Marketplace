@@ -41,6 +41,9 @@ Route::middleware(['auth'])
         Route::post('/orders/{order}/confirm-refund', [OrderController::class, 'confirmRefund'])
             ->name('orders.confirm-refund');
 
+        Route::post('/orders/{order}/confirm-received', [OrderController::class, 'confirmReceived'])
+            ->name('orders.confirm-received');
+
         Route::get('/reviews/create/{order}', [ReviewController::class, 'create'])
             ->name('reviews.create');
 

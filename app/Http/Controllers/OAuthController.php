@@ -225,7 +225,17 @@ class OAuthController extends Controller
      */
     public function syncUser(Request $request): JsonResponse
     {
-        // 1. Verifikasi Keamanan Signature HMAC SHA-256
+        // 1. Tangani Probe / Health Check Ping (GET / POST tanpa payload) dari engine SiPintu
+        if ($request->isMethod('get') || $request->has('ping')) {
+            return response()->json([
+                'status'  => 'ok',
+                'service' => config('app.name'),
+                'message' => 'Endpoint Webhook Sinkronisasi Real-Time SiPintu aktif.',
+                'time'    => now()->toIso8601String(),
+            ], 200);
+        }
+
+        // 2. Verifikasi Keamanan Signature HMAC SHA-256 (jika ada header signature)
         $signature = $request->header('X-SiPintu-Signature');
         $clientSecret = env('SIPINTU_CLIENT_SECRET', config('services.sipintu.client_secret'));
 
@@ -236,14 +246,20 @@ class OAuthController extends Controller
             }
         }
 
-        $userData = $request->input('user');
+        $userData = $request->input('user') ?? $request->all();
         $previous = $request->input('previous', []);
 
-        if (! $userData) {
-            return response()->json(['status' => 'error', 'message' => 'Missing user payload'], 400);
+        // Jika request kosong (probe test dari SiPintu SSO scanner)
+        if (empty($userData) || (!isset($userData['external_id']) && !isset($userData['nis_nip']) && !isset($userData['email']) && !isset($userData['nis']) && !isset($userData['nip']) && !isset($userData['username']) && !isset($userData['name']))) {
+            return response()->json([
+                'status'  => 'ok',
+                'service' => config('app.name'),
+                'message' => 'Endpoint Webhook SiPintu aktif (Health Check OK). Siap menerima payload pengguna/password.',
+                'time'    => now()->toIso8601String(),
+            ], 200);
         }
 
-        // 2. Temukan user berdasarkan email atau external_id (NIS/NIP)
+        // 3. Temukan user berdasarkan email atau external_id (NIS/NIP)
         $nisNip = $userData['external_id'] ?? $userData['nis_nip'] ?? $userData['nis'] ?? $userData['nip'] ?? null;
         $email = $userData['email'] ?? null;
 
@@ -270,7 +286,7 @@ class OAuthController extends Controller
             return response()->json(['status' => 'success', 'message' => 'Siswa berstatus alumni diabaikan/dihapus dari marketplace'], 200);
         }
 
-        // 3. Siapkan data pembaruan
+        // 4. Siapkan data pembaruan
         $updateFields = [
             'username' => $userData['name'] ?? $userData['username'] ?? 'User',
             'role'     => $role,
@@ -299,7 +315,7 @@ class OAuthController extends Controller
             $updateFields['class_room'] = $userData['classroom'] ?? $userData['class_room'] ?? $userData['kelas'];
         }
 
-        // 4. Update jika user sudah ada, atau buat baru jika belum pernah login
+        // 5. Update jika user sudah ada, atau buat baru jika belum pernah login
         if ($user) {
             $user->update($updateFields);
             $action = 'updated';
@@ -319,5 +335,13 @@ class OAuthController extends Controller
             'message' => "User {$user->username} ({$user->email}) berhasil disinkronkan di Eskasaba Marketplace.",
             'user_id' => $user->id,
         ]);
+    }
+
+    /**
+     * Alias endpoint sinkronisasi password real-time dari SiPintu Gateway
+     */
+    public function syncPassword(Request $request): JsonResponse
+    {
+        return $this->syncUser($request);
     }
 }

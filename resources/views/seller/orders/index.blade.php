@@ -253,11 +253,15 @@
                                     <form action="{{ route('seller.orders.update', $order) }}" method="POST">
                                         @csrf
                                         @method('PUT')
-                                        <input type="hidden" name="status" value="completed">
-                                        <button type="submit" class="rounded-xl bg-emerald-700 px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-800 flex items-center gap-1.5">
-                                            <i class="fa-solid fa-flag-checkered"></i> Selesaikan Pesanan
+                                        <input type="hidden" name="status" value="delivered">
+                                        <button type="submit" class="rounded-xl bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-blue-700 flex items-center gap-1.5 cursor-pointer">
+                                            <i class="fa-solid fa-hand-holding-hand"></i> Tandai Barang Diserahkan
                                         </button>
                                     </form>
+                                @elseif($order->status === 'delivered')
+                                    <span class="rounded-xl bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 flex items-center gap-1.5" title="Penjual telah menyerahkan barang. Menunggu konfirmasi penerimaan dari Pembeli.">
+                                        <i class="fa-solid fa-clock text-amber-600"></i> Menunggu Konfirmasi Pembeli
+                                    </span>
                                 @endif
                             </div>
 

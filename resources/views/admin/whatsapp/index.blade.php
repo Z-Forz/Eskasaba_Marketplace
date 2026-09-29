@@ -84,6 +84,7 @@
         data-stop-url="{{ route('admin.whatsapp.stop', [], false) }}"
         data-disconnect-url="{{ route('admin.whatsapp.disconnect', [], false) }}"
         data-reset-url="{{ route('admin.whatsapp.reset-session', [], false) }}"
+        data-recipient-count-url="{{ route('admin.whatsapp.recipient-count', [], false) }}"
         data-csrf="{{ csrf_token() }}"
         data-initial='@json($status)'
     >
@@ -92,13 +93,13 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
-                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp Bot Gateway
+                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp Bot Gateway & Broadcast System
                 </p>
                 <h1 class="mt-1 text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl flex items-center gap-2">
-                    Pengelolaan WhatsApp Bot
+                    Pengelolaan WhatsApp Bot & Broadcast
                 </h1>
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Kontrol service Baileys, pantau status koneksi WhatsApp, dan pindai QR Code pairing secara langsung.
+                    Kontrol service Baileys, pantau status koneksi, dan kirim pesan kustom bertahap ke Guru & Siswa.
                 </p>
             </div>
 
@@ -266,7 +267,7 @@
                     </p>
                 </div>
                 <p class="max-w-md text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    WhatsApp Gateway aktif & siap mengirim notifikasi otomatis untuk pesanan baru, status transaksi, dan verifikasi seller.
+                    WhatsApp Gateway aktif & siap mengirim notifikasi transaksi otomatis serta pesan broadcast custom.
                 </p>
             </div>
 
@@ -368,6 +369,367 @@
 
         </div>
 
+        {{-- ================================================================= --}}
+        {{-- SECTION PESAN BROADCAST CUSTOM (ANTI-BAN QUEUE) --}}
+        {{-- ================================================================= --}}
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-6 md:p-8 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-6">
+
+            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-b border-slate-100 pb-5 dark:border-slate-800">
+                <div>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-black uppercase tracking-wider text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 mb-1">
+                        <i class="fa-solid fa-paper-plane text-xs"></i> Fitur Pesan Custom
+                    </span>
+                    <h2 class="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        Kirim Pesan Broadcast Kustom
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Kirim pesan WhatsApp otomatis ke target pengguna (Guru, Siswa Kelas 10/11/12, atau Semua) secara bertahap dengan fitur <strong>Anti-Ban Rate Limiting</strong>.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 text-xs">
+                    <div class="rounded-2xl bg-amber-50 border border-amber-200 px-3.5 py-2 text-amber-800 dark:bg-amber-950/40 dark:border-amber-900/50 dark:text-amber-300 font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-amber-600"></i>
+                        <span>Proteksi Anti-Ban Active</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Connection Status Banner for Broadcast --}}
+            <div id="wrapper-broadcast-conn-status">
+                <div id="broadcast-conn-warning-banner" class="{{ $isConnected ? 'hidden' : 'flex' }} rounded-2xl border border-amber-300 bg-amber-50 p-4 text-xs font-semibold text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300 flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
+                            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-sm text-amber-900 dark:text-amber-200">Bot WhatsApp Belum Terhubung</p>
+                            <p class="text-xs text-amber-700 dark:text-amber-300 font-medium">
+                                Bot WhatsApp saat ini nonaktif atau belum ditautkan (QR Code belum di-scan). Pindai QR Code di atas terlebih dahulu agar pesan broadcast dapat terkirim.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onclick="document.getElementById('whatsapp-admin-config').scrollIntoView({ behavior: 'smooth' })"
+                        class="shrink-0 rounded-xl bg-amber-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-amber-700 transition cursor-pointer shadow-xs"
+                    >
+                        <i class="fa-solid fa-qrcode mr-1"></i> Scan QR Code
+                    </button>
+                </div>
+
+                <div id="broadcast-conn-success-banner" class="{{ $isConnected ? 'flex' : 'hidden' }} rounded-2xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-xs font-semibold text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300 items-center gap-3 shadow-xs">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">
+                        <i class="fa-solid fa-circle-check text-base"></i>
+                    </div>
+                    <div>
+                        <span class="font-black">WhatsApp Bot Terhubung</span> (<span id="banner-connected-phone">+{{ $connectedNumber ?? '' }}</span>) — Siap mengirim pesan broadcast kustom.
+                    </div>
+                </div>
+            </div>
+
+            {{-- Form Kirim Broadcast --}}
+            <form action="{{ route('admin.whatsapp.broadcast.send') }}" method="POST" id="form-send-broadcast" class="space-y-6">
+                @csrf
+
+                <div class="grid gap-6 md:grid-cols-2">
+
+                    {{-- Kolom Kiri: Target & Pengaturan --}}
+                    <div class="space-y-5">
+
+                        {{-- Judul Broadcast --}}
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                                Judul Campaign Broadcast <span class="text-slate-400 font-normal">(Opsional)</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="title"
+                                placeholder="Contoh: Pengumuman Ujian Semester / Informasi Kegiatan Sekolah"
+                                class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-xs font-medium text-slate-800 focus:border-emerald-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/50 dark:text-white dark:focus:border-emerald-500"
+                            >
+                        </div>
+
+                        {{-- Target Penerima --}}
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    Target Penerima Pesan <span class="text-red-500">*</span>
+                                </label>
+                                <span id="badge-recipient-count" class="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:border-emerald-900/50 dark:text-emerald-300">
+                                    <i class="fa-solid fa-user-check text-[10px]"></i> <span id="count-number">{{ $recipientStats['all'] }}</span> WA Terisi
+                                </span>
+                            </div>
+
+                            <x-custom-select
+                                name="target_type"
+                                id="select-target-type"
+                                icon="fa-solid fa-users text-emerald-600"
+                                :options="[
+                                    'all'        => 'Semua Users (Guru & Siswa) — ' . $recipientStats['all'] . ' No. WA',
+                                    'teacher'    => 'Dewan Guru & Staf — ' . $recipientStats['teacher'] . ' No. WA',
+                                    'student_10' => 'Siswa Kelas 10 (X) — ' . $recipientStats['student_10'] . ' No. WA',
+                                    'student_11' => 'Siswa Kelas 11 (XI) — ' . $recipientStats['student_11'] . ' No. WA',
+                                    'student_12' => 'Siswa Kelas 12 (XII) — ' . $recipientStats['student_12'] . ' No. WA',
+                                ]"
+                                selected="all"
+                                placeholder=""
+                            />
+
+                            <p class="mt-1.5 text-[11px] text-slate-400">
+                                *Hanya mengirim ke akun pengguna yang pernah login dan mengisi nomor WhatsApp.
+                            </p>
+                        </div>
+
+                        {{-- Jeda Pengiriman / Rate Limit (Anti-Ban) --}}
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                                Jeda Pengiriman per Pesan (Anti-Ban Rate Limit) <span class="text-red-500">*</span>
+                            </label>
+
+                            <x-custom-select
+                                name="delay_seconds"
+                                id="select-delay-seconds"
+                                icon="fa-solid fa-clock text-amber-500"
+                                :options="[
+                                    '2'  => '2 Detik per pesan (Cepat)',
+                                    '3'  => '3 Detik per pesan (Direkomendasikan — Safe Anti-Ban)',
+                                    '5'  => '5 Detik per pesan (Ekstra Aman)',
+                                    '10' => '10 Detik per pesan (Sangat Aman / Pesan Banyak)',
+                                ]"
+                                selected="3"
+                                placeholder=""
+                            />
+
+                            <p class="mt-1.5 text-[11px] text-slate-400">
+                                Pemberian jeda bertahap mencegah nomor WA terdeteksi sebagai spammer oleh sistem WhatsApp.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    {{-- Kolom Kanan: Editor Pesan & Placeholder --}}
+                    <div class="space-y-4">
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    Isi Pesan Custom WhatsApp <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex items-center gap-1.5 text-[11px]">
+                                    <span class="text-slate-400">Variabel:</span>
+                                    <button type="button" onclick="insertPlaceholder('{name}')" class="rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-mono font-bold text-slate-700 hover:bg-emerald-100 hover:text-emerald-800 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-950 dark:hover:text-emerald-300 transition cursor-pointer" title="Sisipkan Nama User">{name}</button>
+                                    <button type="button" onclick="insertPlaceholder('{kelas}')" class="rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-mono font-bold text-slate-700 hover:bg-emerald-100 hover:text-emerald-800 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-950 dark:hover:text-emerald-300 transition cursor-pointer" title="Sisipkan Kelas User">{kelas}</button>
+                                </div>
+                            </div>
+
+                            <textarea
+                                name="message"
+                                id="broadcast-message-textarea"
+                                rows="6"
+                                placeholder="Tulis pesan custom WhatsApp di sini...
+Contoh:
+Halo {name},
+Diberitahukan kepada seluruh siswa kelas {kelas}, bahwa ada update terbaru di Eskasaba Marketplace.
+
+Terima kasih,
+_Admin Eskasaba Marketplace_"
+                                class="w-full rounded-2xl border border-slate-200 bg-slate-50/50 p-4 text-xs font-medium text-slate-800 focus:border-emerald-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-950/50 dark:text-white dark:focus:border-emerald-500 leading-relaxed"
+                                oninput="updateMessagePreview(this.value)"
+                                required
+                            ></textarea>
+                        </div>
+
+                        {{-- Preview Chat Bubble WhatsApp --}}
+                        <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                            <p class="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 mb-2 flex items-center gap-1.5">
+                                <i class="fa-brands fa-whatsapp text-emerald-600"></i> Preview Chat Bubble WhatsApp:
+                            </p>
+                            <div class="rounded-2xl bg-white p-3.5 shadow-xs border border-emerald-100 dark:bg-slate-800 dark:border-slate-700 max-w-sm">
+                                <p id="whatsapp-preview-text" class="text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-sans leading-relaxed italic text-slate-400">
+                                    Pesan preview akan muncul di sini saat Anda mengetik...
+                                </p>
+                                <div class="mt-2 text-[10px] text-slate-400 text-right flex items-center justify-end gap-1">
+                                    <span>08:00</span>
+                                    <i class="fa-solid fa-check-double text-sky-500"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {{-- Action Submit --}}
+                <div class="flex items-center justify-end border-t border-slate-100 pt-5 dark:border-slate-800 gap-3">
+                    <button
+                        type="button"
+                        onclick="openBroadcastModal()"
+                        class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3.5 text-xs font-black text-white shadow-md transition hover:bg-emerald-700 cursor-pointer"
+                    >
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Kirim Broadcast Custom</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+
+        {{-- ================================================================= --}}
+        {{-- SECTION ACTIVE BROADCAST REALTIME PROGRESS MONITOR --}}
+        {{-- ================================================================= --}}
+        @if($activeBroadcast)
+            <div id="active-broadcast-card" data-broadcast-id="{{ $activeBroadcast->id }}" data-status-url="{{ route('admin.whatsapp.broadcast.status', $activeBroadcast->id) }}" class="rounded-3xl border border-emerald-200 bg-emerald-50/70 p-6 shadow-xs dark:border-emerald-900/50 dark:bg-emerald-950/30 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-xs shrink-0">
+                            <i class="fa-solid fa-paper-plane text-xl animate-pulse"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-200 px-2.5 py-0.5 text-[10px] font-black uppercase text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200">
+                                    <i class="fa-solid fa-circle-notch fa-spin"></i> BROADCAST BERJALAN
+                                </span>
+                                <span class="text-xs font-bold text-slate-500">{{ $activeBroadcast->id }}</span>
+                            </div>
+                            <h3 class="text-base font-black text-slate-900 dark:text-white mt-1">
+                                {{ $activeBroadcast->title }}
+                            </h3>
+                        </div>
+                    </div>
+
+                    <form action="{{ route('admin.whatsapp.broadcast.cancel', $activeBroadcast->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengiriman broadcast ini?');">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="rounded-xl border border-red-200 bg-white px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 dark:bg-slate-900 dark:border-red-900/50 dark:text-red-400 transition cursor-pointer shadow-xs"
+                        >
+                            <i class="fa-solid fa-stop mr-1"></i> Batalkan Broadcast
+                        </button>
+                    </form>
+                </div>
+
+                {{-- Progress Bar --}}
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <span>Progress Pengiriman: <span id="active-sent-count">{{ $activeBroadcast->sent_count }}</span> / <span id="active-total-count">{{ $activeBroadcast->total_recipients }}</span> User</span>
+                        <span id="active-percent-text" class="text-emerald-700 dark:text-emerald-400">{{ $activeBroadcast->progress_percentage }}%</span>
+                    </div>
+                    <div class="h-3.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                        <div id="active-progress-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%;" :style="{ width: '{{ $activeBroadcast->progress_percentage }}%' }"></div>
+                    </div>
+                </div>
+
+                {{-- Stats Cards --}}
+                <div class="grid grid-cols-3 gap-3 text-center text-xs font-bold pt-1">
+                    <div class="rounded-2xl bg-white p-3 dark:bg-slate-900 shadow-xs border border-emerald-100 dark:border-slate-800">
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Target Group</span>
+                        <span class="text-emerald-700 dark:text-emerald-400 truncate block mt-0.5">{{ $activeBroadcast->target_label }}</span>
+                    </div>
+                    <div class="rounded-2xl bg-white p-3 dark:bg-slate-900 shadow-xs border border-emerald-100 dark:border-slate-800">
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Terkirim (Berhasil)</span>
+                        <span id="stat-sent-count" class="text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 block">{{ $activeBroadcast->sent_count }}</span>
+                    </div>
+                    <div class="rounded-2xl bg-white p-3 dark:bg-slate-900 shadow-xs border border-emerald-100 dark:border-slate-800">
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Gagal</span>
+                        <span id="stat-failed-count" class="text-red-500 text-sm mt-0.5 block">{{ $activeBroadcast->failed_count }}</span>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- ================================================================= --}}
+        {{-- SECTION RIWAYAT CAMPAIGN BROADCAST --}}
+        {{-- ================================================================= --}}
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-emerald-600"></i> Riwayat Campaign Broadcast WA
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Daftar campaign pesan custom yang telah atau sedang dikirimkan.
+                    </p>
+                </div>
+                <span class="text-[11px] font-bold text-slate-400">{{ count($broadcasts) }} Record Terbaru</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                    <thead class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:bg-slate-800/60">
+                        <tr>
+                            <th class="px-4 py-3 rounded-l-xl">ID / Campaign</th>
+                            <th class="px-4 py-3">Target</th>
+                            <th class="px-4 py-3 text-center">Terkirim / Total</th>
+                            <th class="px-4 py-3 text-center">Jeda</th>
+                            <th class="px-4 py-3 text-center">Status</th>
+                            <th class="px-4 py-3 rounded-r-xl text-right">Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                        @forelse($broadcasts as $bc)
+                            <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                                <td class="px-4 py-3.5">
+                                    <div class="font-bold text-slate-900 dark:text-white">
+                                        #{{ $bc->id }} - {{ $bc->title ?: 'Broadcast Pesan Custom' }}
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 truncate max-w-xs mt-0.5">
+                                        "{{ Str::limit($bc->message, 50) }}"
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3.5">
+                                    <span class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                        {{ $bc->target_label }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3.5 text-center font-bold">
+                                    <span class="text-emerald-600">{{ $bc->sent_count }}</span> / <span class="text-slate-800 dark:text-white">{{ $bc->total_recipients }}</span>
+                                    @if($bc->failed_count > 0)
+                                        <span class="text-[10px] text-red-500 font-normal ml-1">({{ $bc->failed_count }} gagal)</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3.5 text-center">
+                                    <span class="text-slate-500 font-mono">{{ $bc->delay_seconds }}s</span>
+                                </td>
+                                <td class="px-4 py-3.5 text-center">
+                                    @if($bc->status === 'completed')
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-black uppercase text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                                            <i class="fa-solid fa-check text-[9px]"></i> Selesai
+                                        </span>
+                                    @elseif($bc->status === 'processing')
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-black uppercase text-blue-800 dark:bg-blue-950/80 dark:text-blue-300">
+                                            <i class="fa-solid fa-spinner fa-spin text-[9px]"></i> Berjalan
+                                        </span>
+                                    @elseif($bc->status === 'pending')
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-black uppercase text-amber-800 dark:bg-amber-950/80 dark:text-amber-300">
+                                            Pending
+                                        </span>
+                                    @elseif($bc->status === 'cancelled')
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-black uppercase text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                            Dibatalkan
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] font-black uppercase text-red-800 dark:bg-red-950/80 dark:text-red-300">
+                                            Gagal
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3.5 text-right text-[11px] text-slate-400">
+                                    {{ $bc->created_at?->format('d M Y H:i') }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-4 py-6 text-center text-slate-400 italic">
+                                    Belum ada riwayat campaign broadcast tercatat.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         {{-- SECTION DIAGNOSA KONEKSI TERPUTUS --}}
         <div class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-4">
             <div class="flex items-center justify-between">
@@ -426,6 +788,86 @@
         </div>
     </div>
 
+    {{-- MODAL KONFIRMASI BROADCAST SUBMIT --}}
+    <div id="modal-confirm-broadcast" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex items-center gap-3 text-emerald-600 dark:text-emerald-400">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/80">
+                    <i class="fa-solid fa-paper-plane text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-slate-900 dark:text-white">Konfirmasi Pengiriman Broadcast</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Pesan akan dikirim secara bertahap</p>
+                </div>
+            </div>
+
+            <div class="text-xs text-slate-600 dark:text-slate-300 space-y-2 bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Target Penerima:</span>
+                    <span id="modal-target-label" class="font-bold text-emerald-700 dark:text-emerald-400">Semua Users</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Total User Terisi WA:</span>
+                    <span id="modal-recipient-count" class="font-bold">0 User</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Proteksi Anti-Ban Delay:</span>
+                    <span id="modal-delay-seconds" class="font-bold">3 Detik / Pesan</span>
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Pengiriman akan berjalan di background server tanpa mengganggu koneksi Anda. Anda dapat memantau statusnya di halaman ini.
+            </p>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button
+                    type="button"
+                    onclick="closeBroadcastModal()"
+                    class="rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition cursor-pointer"
+                >
+                    Batal
+                </button>
+                <button
+                    type="button"
+                    onclick="submitBroadcastForm()"
+                    class="rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-md transition cursor-pointer"
+                >
+                    Ya, Kirim Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL WARNING PERINGATAN (Subtitusi alert bawaan browser) --}}
+    <div id="modal-validation-warning" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex items-center gap-3 text-amber-600 dark:text-amber-400">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-950/80">
+                    <i class="fa-solid fa-circle-exclamation text-xl"></i>
+                </div>
+                <div>
+                    <h3 id="modal-warning-title" class="text-base font-black text-slate-900 dark:text-white">Perhatian</h3>
+                    <p id="modal-warning-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Peringatan Pengiriman Broadcast</p>
+                </div>
+            </div>
+
+            <p id="modal-warning-message" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-amber-50/70 dark:bg-amber-950/30 p-3.5 rounded-2xl border border-amber-100 dark:border-amber-900/40">
+                Mohon isi pesan kustom WhatsApp terlebih dahulu sebelum membuat campaign broadcast.
+            </p>
+
+            <div class="flex items-center justify-end pt-2">
+                <button
+                    type="button"
+                    onclick="closeWarningModal()"
+                    class="rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 shadow-xs transition cursor-pointer"
+                >
+                    Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
     {{-- SCRIPT MANAGEMENT & POLLING --}}
     <script>
         (function () {
@@ -433,6 +875,7 @@
             if (!configEl) return;
 
             const STATUS_URL = configEl.dataset.statusUrl;
+            const RECIPIENT_COUNT_URL = configEl.dataset.recipientCountUrl;
             const ACTIONS = {
                 start: configEl.dataset.startUrl,
                 stop: configEl.dataset.stopUrl,
@@ -555,6 +998,34 @@
                 if (pulseEl) {
                     pulseEl.querySelector('.animate-ping').className = `animate-ping absolute inline-flex h-full w-full rounded-full ${config.pulseClass} opacity-75`;
                     pulseEl.querySelector('.relative').className = `relative inline-flex rounded-full h-3.5 w-3.5 ${config.dotClass}`;
+                }
+
+                // Track WhatsApp Connection State for Broadcast Form Validation
+                window.isWhatsAppConnected = !!(data.is_connected && data.connected_number);
+
+                const broadcastWarnBanner = document.getElementById('broadcast-conn-warning-banner');
+                const broadcastSuccBanner = document.getElementById('broadcast-conn-success-banner');
+                const bannerPhone = document.getElementById('banner-connected-phone');
+
+                if (window.isWhatsAppConnected) {
+                    if (broadcastWarnBanner) {
+                        broadcastWarnBanner.classList.add('hidden');
+                        broadcastWarnBanner.classList.remove('flex');
+                    }
+                    if (broadcastSuccBanner) {
+                        broadcastSuccBanner.classList.remove('hidden');
+                        broadcastSuccBanner.classList.add('flex');
+                    }
+                    if (bannerPhone) bannerPhone.textContent = '+' + data.connected_number;
+                } else {
+                    if (broadcastSuccBanner) {
+                        broadcastSuccBanner.classList.add('hidden');
+                        broadcastSuccBanner.classList.remove('flex');
+                    }
+                    if (broadcastWarnBanner) {
+                        broadcastWarnBanner.classList.remove('hidden');
+                        broadcastWarnBanner.classList.add('flex');
+                    }
                 }
 
                 // Update Connection Info
@@ -694,7 +1165,6 @@
                     }
                 }
 
-                // Instant Optimistic UI Swap
                 if (actionType === 'start') {
                     toggleBtnVisibility(btnStart, false);
                     toggleBtnVisibility(btnStop, true);
@@ -768,6 +1238,221 @@
                     await executeAction('reset', triggerBtn, 'Mereset...');
                 }
             };
+
+            // Dynamic Recipient Counter Update
+            window.updateRecipientCount = async function (targetValue) {
+                const countNumEl = document.getElementById('count-number');
+                if (!countNumEl) return;
+
+                try {
+                    const url = `${RECIPIENT_COUNT_URL}?target=${targetValue}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    if (data && typeof data.count !== 'undefined') {
+                        countNumEl.textContent = data.count;
+                    }
+                } catch (e) {
+                    console.warn('Failed to update recipient count:', e);
+                }
+            };
+
+            // Textarea Placeholder Helper
+            window.insertPlaceholder = function (tag) {
+                const textarea = document.getElementById('broadcast-message-textarea');
+                if (!textarea) return;
+
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const text = textarea.value;
+
+                textarea.value = text.substring(0, start) + tag + text.substring(end);
+                textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+                textarea.focus();
+
+                updateMessagePreview(textarea.value);
+            };
+
+            // WhatsApp Chat Bubble Live Preview Generator
+            window.updateMessagePreview = function (text) {
+                const previewEl = document.getElementById('whatsapp-preview-text');
+                if (!previewEl) return;
+
+                if (!text || text.trim() === '') {
+                    previewEl.innerHTML = '<span class="italic text-slate-400">Pesan preview akan muncul di sini saat Anda mengetik...</span>';
+                    return;
+                }
+
+                // Formatter sederhana untuk WhatsApp (*bold*, _italic_, ~strike~)
+                let formatted = text
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/\*(.*?)\*/g, "<strong>$1</strong>")
+                    .replace(/_(.*?)_/g, "<em>$1</em>")
+                    .replace(/~(.*?)~/g, "<del>$1</del>")
+                    .replace(/\{name\}/g, '<span class="font-bold text-emerald-600 dark:text-emerald-400">[Nama User]</span>')
+                    .replace(/\{kelas\}/g, '<span class="font-bold text-emerald-600 dark:text-emerald-400">[Kelas/Grup]</span>');
+
+                previewEl.innerHTML = formatted;
+            };
+
+            const TARGET_LABELS = {
+                'all': 'Semua Users (Guru & Siswa)',
+                'teacher': 'Dewan Guru & Staf',
+                'student_10': 'Siswa Kelas 10 (X)',
+                'student_11': 'Siswa Kelas 11 (XI)',
+                'student_12': 'Siswa Kelas 12 (XII)'
+            };
+
+            const DELAY_LABELS = {
+                '2': '2 Detik per pesan (Cepat)',
+                '3': '3 Detik per pesan (Direkomendasikan — Safe Anti-Ban)',
+                '5': '5 Detik per pesan (Ekstra Aman)',
+                '10': '10 Detik per pesan (Sangat Aman / Pesan Banyak)'
+            };
+
+            // Event listener untuk x-custom-select target_type
+            document.addEventListener('DOMContentLoaded', function() {
+                const targetInput = document.getElementById('select-target-type');
+                if (targetInput) {
+                    targetInput.addEventListener('change', function(e) {
+                        if (typeof window.updateRecipientCount === 'function') {
+                            window.updateRecipientCount(e.target.value);
+                        }
+                    });
+                }
+            });
+
+            // Custom Warning Modal Handler (Menggantikan alert bawaan browser)
+            window.showWarningModal = function(title, message, subtitle = 'Peringatan Pengiriman Broadcast') {
+                const titleEl = document.getElementById('modal-warning-title');
+                const subtitleEl = document.getElementById('modal-warning-subtitle');
+                const messageEl = document.getElementById('modal-warning-message');
+
+                if (titleEl) titleEl.textContent = title;
+                if (subtitleEl) subtitleEl.textContent = subtitle;
+                if (messageEl) messageEl.textContent = message;
+
+                const modal = document.getElementById('modal-validation-warning');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            };
+
+            window.closeWarningModal = function() {
+                const modal = document.getElementById('modal-validation-warning');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            };
+
+            // Broadcast Submit Modal Handlers
+            window.openBroadcastModal = function () {
+                const form = document.getElementById('form-send-broadcast');
+                if (!form) return;
+
+                // 1. Validasi Status Koneksi WA Bot
+                if (!window.isWhatsAppConnected) {
+                    showWarningModal(
+                        'WhatsApp Belum Terhubung',
+                        'Bot WhatsApp saat ini belum aktif atau belum terhubung (QR Code belum di-scan). Silakan aktifkan bot dan pindai QR Code terlebih dahulu agar pesan broadcast dapat terkirim.',
+                        'Koneksi Bot Dibutuhkan'
+                    );
+                    return;
+                }
+
+                // 2. Validasi Isi Pesan Custom
+                const textarea = document.getElementById('broadcast-message-textarea');
+                if (!textarea || !textarea.value.trim()) {
+                    if (textarea) {
+                        textarea.classList.add('border-red-500', 'ring-2', 'ring-red-100');
+                        textarea.focus();
+                    }
+                    showWarningModal(
+                        'Isi Pesan Kosong',
+                        'Mohon isi pesan custom WhatsApp terlebih dahulu sebelum membuat campaign broadcast.',
+                        'Form Tidak Lengkap'
+                    );
+                    return;
+                } else {
+                    textarea.classList.remove('border-red-500', 'ring-2', 'ring-red-100');
+                }
+
+                const targetVal = document.getElementById('select-target-type')?.value || 'all';
+                const delayVal = document.getElementById('select-delay-seconds')?.value || '3';
+
+                const targetText = TARGET_LABELS[targetVal] || targetVal;
+                const countText = document.getElementById('count-number')?.textContent || '0';
+                const delayText = DELAY_LABELS[delayVal] || `${delayVal} Detik`;
+
+                document.getElementById('modal-target-label').textContent = targetText;
+                document.getElementById('modal-recipient-count').textContent = `${countText} User`;
+                document.getElementById('modal-delay-seconds').textContent = delayText;
+
+                const modal = document.getElementById('modal-confirm-broadcast');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            };
+
+            window.closeBroadcastModal = function () {
+                const modal = document.getElementById('modal-confirm-broadcast');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            };
+
+            window.submitBroadcastForm = function () {
+                closeBroadcastModal();
+                const form = document.getElementById('form-send-broadcast');
+                if (form) {
+                    form.submit();
+                }
+            };
+
+            // Polling Active Broadcast Progress (If active broadcast exists)
+            const activeCard = document.getElementById('active-broadcast-card');
+            if (activeCard) {
+                const broadcastStatusUrl = activeCard.dataset.statusUrl;
+
+                async function pollBroadcastProgress() {
+                    try {
+                        const res = await fetch(broadcastStatusUrl, {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (!res.ok) return;
+
+                        const data = await res.json();
+                        if (data) {
+                            const sentCount = document.getElementById('active-sent-count');
+                            const totalCount = document.getElementById('active-total-count');
+                            const percentText = document.getElementById('active-percent-text');
+                            const progressBar = document.getElementById('active-progress-bar');
+                            const statSent = document.getElementById('stat-sent-count');
+                            const statFailed = document.getElementById('stat-failed-count');
+
+                            if (sentCount) sentCount.textContent = data.sent_count;
+                            if (totalCount) totalCount.textContent = data.total_recipients;
+                            if (percentText) percentText.textContent = `${data.progress_percent}%`;
+                            if (progressBar) progressBar.style.width = `${data.progress_percent}%`;
+                            if (statSent) statSent.textContent = data.sent_count;
+                            if (statFailed) statFailed.textContent = data.failed_count;
+
+                            if (data.status === 'completed' || data.status === 'cancelled' || data.status === 'failed') {
+                                setTimeout(() => window.location.reload(), 1500);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Broadcast status poll error:', e);
+                    }
+                }
+
+                setInterval(pollBroadcastProgress, 2500);
+            }
 
             // Sync initial state instantly on load
             renderUI(INITIAL_STATUS);

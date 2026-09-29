@@ -84,10 +84,10 @@ class SchoolApiService
                         if (!empty($userFormatted['is_graduated'])) {
                             continue;
                         }
-                        $c = $userFormatted['class_room'] ?? null;
-                        if (!empty($c) && preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $c))) {
-                            return $userFormatted;
+                        if (empty($userFormatted['class_room'])) {
+                            $userFormatted['class_room'] = 'Siswa Aktif';
                         }
+                        return $userFormatted;
                     }
                 }
 
@@ -301,7 +301,7 @@ class SchoolApiService
             $username = $item['nama'] ?? $item['name'] ?? $item['user']['name'] ?? $item['username'] ?? ('User ' . $nisNip);
 
             // Prioritaskan nomor HP/WA lokal yang sudah diisi di Eskasaba sebagai data utama
-            $sipintuPhone  = !empty($item['hp'] ?? $item['telepon'] ?? $item['phone'] ?? null) ? trim((string) ($item['hp'] ?? $item['telepon'] ?? $item['phone'])) : null;
+            $sipintuPhone  = self::extractPhone($item);
             $existingPhone = $existingUserPhones[(string) $nisNip] ?? null;
             $finalPhone    = !empty($existingPhone) ? $existingPhone : $sipintuPhone;
 
@@ -360,13 +360,6 @@ class SchoolApiService
             );
         }
 
-        // Clean up non-active/alumni students from local database so only active grade 10, 11, 12 students remain
-        if (!empty($activeStudentNisNips)) {
-            User::where('role', 'student')
-                ->whereNotIn('nis_nip', $activeStudentNisNips)
-                ->delete();
-        }
-
         return $syncedCount;
     }
 
@@ -391,6 +384,33 @@ class SchoolApiService
         return false;
     }
 
+    /**
+     * Ekstraksi nomor telepon / WhatsApp dari berbagai skema field SiPintu API Gateway.
+     */
+    public static function extractPhone(array $data): ?string
+    {
+        $raw = $data['hp']
+            ?? $data['telepon']
+            ?? $data['phone']
+            ?? $data['no_hp']
+            ?? $data['no_wa']
+            ?? $data['whatsapp']
+            ?? $data['nomor_hp']
+            ?? $data['phone_number']
+            ?? $data['mobile']
+            ?? $data['user']['hp']
+            ?? $data['user']['telepon']
+            ?? $data['user']['phone']
+            ?? $data['user']['no_hp']
+            ?? $data['user']['no_wa']
+            ?? $data['user']['whatsapp']
+            ?? $data['user']['nomor_hp']
+            ?? $data['user']['phone_number']
+            ?? null;
+
+        return !empty($raw) ? trim((string) $raw) : null;
+    }
+
     protected function formatUserData(array $data, string $defaultRole): array
     {
         $nisNip = $data['nis_nip'] ?? $data['nis'] ?? $data['nip'] ?? null;
@@ -412,7 +432,7 @@ class SchoolApiService
             'nama'           => $data['nama'] ?? $data['name'] ?? $data['username'] ?? ('User ' . $nisNip),
             'jenis_pengguna' => $isTeacher ? 'guru' : 'siswa',
             'class_room'     => $classRoom ?? ($isTeacher ? 'Dewan Guru' : null),
-            'telepon'        => $data['hp'] ?? $data['telepon'] ?? $data['phone'] ?? null,
+            'telepon'        => self::extractPhone($data),
             'email'          => $data['user']['email'] ?? $data['email'] ?? null,
             'is_graduated'   => self::isAlumni($data),
         ];

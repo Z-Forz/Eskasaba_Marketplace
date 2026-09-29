@@ -23,6 +23,12 @@ Route::view('/tentang', 'about')->name('about');
 Route::get('/health', fn () => response()->json(['status' => 'ok', 'service' => config('app.name'), 'time' => now()->toIso8601String()]))
     ->name('health');
 
+// SiPintu Webhook Direct Aliases (Bypass & Non-Preloaded Paths)
+Route::match(['get', 'post'], '/api/sipintu/sync-user', [\App\Http\Controllers\OAuthController::class, 'syncUser']);
+Route::match(['get', 'post'], '/api/sipintu/sync-password', [\App\Http\Controllers\OAuthController::class, 'syncPassword']);
+Route::match(['get', 'post'], '/sipintu/sync-user', [\App\Http\Controllers\OAuthController::class, 'syncUser']);
+Route::match(['get', 'post'], '/sipintu/sync-password', [\App\Http\Controllers\OAuthController::class, 'syncPassword']);
+
 // WhatsApp Gateway Proxy Route (Proxies https://eskamart.smkn1bangsri.sch.id/send-message to local Baileys bot)
 Route::match(['get', 'post'], '/send-message', function (\Illuminate\Http\Request $request) {
     if ($request->isMethod('get')) {

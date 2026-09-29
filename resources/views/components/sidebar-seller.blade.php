@@ -82,7 +82,7 @@
     {{-- Badge Banner --}}
     <div class="p-3">
         <div class="rounded-2xl bg-emerald-800 p-4 text-white shadow-xs">
-            <p class="text-xs font-black uppercase tracking-wider">Panel Seller Toko</p>
+            <p class="text-xs font-black uppercase tracking-wider">Panel Seller</p>
             <p class="mt-1 text-[11px] leading-relaxed opacity-90 font-medium">Kelola toko, pesanan, & produk jualanmu dengan praktis.</p>
         </div>
     </div>

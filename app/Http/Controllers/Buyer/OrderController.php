@@ -17,6 +17,8 @@ class OrderController extends Controller
      */
     public function index(Request $request): View
     {
+        Order::autoCompleteExpiredOrders();
+
         $query = Order::with([
             'seller.user',
             'items.product',
@@ -40,6 +42,9 @@ class OrderController extends Controller
     public function show(Order $order): View
     {
         abort_unless($order->user_id === Auth::id(), 403);
+
+        Order::autoCompleteExpiredOrders();
+        $order->refresh();
 
         $order->load([
             'seller.user',
@@ -103,8 +108,8 @@ class OrderController extends Controller
     {
         abort_unless($order->user_id === Auth::id(), 403);
 
-        if (!in_array($order->status, ['pending', 'confirmed', 'processing'])) {
-            return back()->with('error', 'Pesanan yang sudah siap diambil, selesai, atau dalam proses pembatalan/return tidak dapat dibatalkan.');
+        if (!in_array($order->status, ['pending', 'confirmed'])) {
+            return back()->with('error', 'Pesanan yang sudah diproses, siap diambil, selesai, atau dalam proses pembatalan/return tidak dapat dibatalkan.');
         }
 
         $request->validate([
@@ -259,5 +264,49 @@ class OrderController extends Controller
         WhatsAppService::sendRefundConfirmedByBuyerNotification($order);
 
         return back()->with('success', 'Terima kasih! Anda telah mengonfirmasi penerimaan pengembalian dana. Transaksi pembatalan/return telah selesai secara resmi.');
+    }
+
+    /**
+     * Confirm receipt of order items by buyer (updates order status to completed).
+     */
+    public function confirmReceived(Request $request, Order $order)
+    {
+        abort_unless($order->user_id === Auth::id(), 403);
+
+        if ($order->status === 'completed') {
+            return back()->with('info', 'Pesanan ini sudah berstatus Selesai.');
+        }
+
+        if (!in_array($order->status, ['delivered', 'ready_for_pickup'])) {
+            return back()->with('error', 'Status pesanan saat ini belum diserahkan oleh penjual sehingga tidak dapat dikonfirmasi penerimaannya.');
+        }
+
+        $order->loadMissing(['seller.user', 'payment']);
+
+        $order->update([
+            'status' => 'completed',
+        ]);
+
+        // Auto verify payment if COD and still pending
+        if ($order->payment && $order->payment->status === 'pending') {
+            $order->payment->update([
+                'status'      => 'verified',
+                'verified_at' => now(),
+            ]);
+        }
+
+        // Notify seller via in-app notification
+        \App\Models\Notification::create([
+            'user_id' => $order->seller->user_id,
+            'title'   => 'Pesanan Telah Diterima Pembeli 🎉',
+            'message' => 'Pembeli ' . Auth::user()->username . ' telah mengonfirmasi bahwa pesanan #' . ($order->invoice_number ?? $order->id) . ' telah diterima. Pesanan kini resmi Selesai!',
+            'type'    => 'order_completed',
+            'link'    => route('seller.orders.show', $order),
+        ]);
+
+        // Send WhatsApp notification
+        WhatsAppService::sendOrderStatusNotification($order);
+
+        return back()->with('success', 'Terima kasih! Anda telah mengonfirmasi penerimaan pesanan. Transaksi telah Selesai!');
     }
 }
