@@ -1,14 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Seller\DashboardController;
-use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Seller\OrderController;
 use App\Http\Controllers\Seller\PaymentController;
 use App\Http\Controllers\Seller\PickupScheduleController;
+use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Seller\ProfileController;
 use App\Http\Controllers\Seller\SellerRequestController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'seller.approved'])
     ->prefix('seller')

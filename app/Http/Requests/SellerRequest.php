@@ -43,9 +43,9 @@ class SellerRequest extends FormRequest
         return [
 
             'description.string' => 'Deskripsi toko harus berupa teks.',
-            'description.max'    => 'Deskripsi toko maksimal 1000 karakter.',
+            'description.max' => 'Deskripsi toko maksimal 1000 karakter.',
 
-            'status.in'          => 'Status penjual tidak valid.',
+            'status.in' => 'Status penjual tidak valid.',
 
         ];
     }

@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Services\WhatsAppService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -40,7 +41,7 @@ class PaymentCallbackController extends Controller
 
         if (! $invoiceNumber) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Invoice number or order ID is required in callback payload.',
             ], 400);
         }
@@ -53,7 +54,7 @@ class PaymentCallbackController extends Controller
 
         if (! $order) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => "Order with invoice {$invoiceNumber} not found.",
             ], 404);
         }
@@ -71,14 +72,14 @@ class PaymentCallbackController extends Controller
 
             if ($isPaid) {
                 $payment->status = 'verified';
-                $payment->verified_at = \Illuminate\Support\Carbon::now();
-                
-                if (!in_array($order->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested'])) {
+                $payment->verified_at = Carbon::now();
+
+                if (! in_array($order->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested'])) {
                     $order->status = 'confirmed';
                 }
             } elseif ($isFailed) {
                 $payment->status = 'failed';
-                if (!in_array($order->status, ['refunded', 'returned', 'refund_pending_buyer_confirmation'])) {
+                if (! in_array($order->status, ['refunded', 'returned', 'refund_pending_buyer_confirmation'])) {
                     $order->status = 'cancelled';
                 }
             } else {
@@ -94,29 +95,29 @@ class PaymentCallbackController extends Controller
             if ($order->seller?->user_id) {
                 Notification::create([
                     'user_id' => $order->seller->user_id,
-                    'title'   => 'Pembayaran Terkonfirmasi Callback',
+                    'title' => 'Pembayaran Terkonfirmasi Callback',
                     'message' => "Pembayaran pesanan #{$order->invoice_number} telah diverifikasi otomatis via Callback.",
-                    'type'    => 'payment_verified',
-                    'link'    => route('seller.orders.show', $order),
+                    'type' => 'payment_verified',
+                    'link' => route('seller.orders.show', $order),
                 ]);
             }
 
             Notification::create([
                 'user_id' => $order->user_id,
-                'title'   => 'Pembayaran Berhasil',
+                'title' => 'Pembayaran Berhasil',
                 'message' => "Pembayaran untuk pesanan #{$order->invoice_number} berhasil dikonfirmasi.",
-                'type'    => 'payment_verified',
-                'link'    => route('buyer.orders.show', $order),
+                'type' => 'payment_verified',
+                'link' => route('buyer.orders.show', $order),
             ]);
 
             WhatsAppService::sendNewOrderNotification($order);
         }
 
         return response()->json([
-            'status'         => true,
-            'message'        => 'Callback processed successfully.',
+            'status' => true,
+            'message' => 'Callback processed successfully.',
             'invoice_number' => $order->invoice_number,
-            'order_status'   => $order->status,
+            'order_status' => $order->status,
             'payment_status' => $order->payment?->status,
         ]);
     }

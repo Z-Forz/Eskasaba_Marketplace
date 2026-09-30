@@ -28,8 +28,8 @@ class PaymentController extends Controller
         $payments = $query->paginate(15)->withQueryString();
 
         $counts = [
-            'all'      => Payment::count(),
-            'pending'  => Payment::where('status', 'pending')->count(),
+            'all' => Payment::count(),
+            'pending' => Payment::where('status', 'pending')->count(),
             'verified' => Payment::whereIn('status', ['verified', 'paid'])->count(),
             'rejected' => Payment::where('status', 'rejected')->count(),
         ];
@@ -43,6 +43,7 @@ class PaymentController extends Controller
     public function show(Payment $payment): View
     {
         $payment->load(['order.user', 'order.seller.user', 'order.items.product']);
+
         return view('admin.payments.show', compact('payment'));
     }
 
@@ -59,7 +60,7 @@ class PaymentController extends Controller
         $payment->update(['status' => $newStatus]);
 
         if (in_array($newStatus, ['verified', 'paid']) && $payment->order) {
-            if (!in_array($payment->order->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested']) && $payment->order->status === 'pending') {
+            if (! in_array($payment->order->status, ['cancelled', 'refunded', 'returned', 'refund_pending_buyer_confirmation', 'cancel_requested', 'return_requested']) && $payment->order->status === 'pending') {
                 $payment->order->update(['status' => 'processing']);
             }
         }

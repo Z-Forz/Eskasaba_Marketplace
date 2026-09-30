@@ -86,22 +86,22 @@ class ReviewRequest extends FormRequest
         return [
 
             'order_id.required' => 'Pesanan wajib diisi.',
-            'order_id.exists'   => 'Pesanan tidak valid atau belum selesai.',
+            'order_id.exists' => 'Pesanan tidak valid atau belum selesai.',
 
             'product_id.required' => 'Produk wajib dipilih.',
-            'product_id.exists'   => 'Produk tidak ditemukan atau bukan bagian dari pesanan ini.',
-            'product_id.unique'   => 'Produk ini sudah pernah Anda review.',
+            'product_id.exists' => 'Produk tidak ditemukan atau bukan bagian dari pesanan ini.',
+            'product_id.unique' => 'Produk ini sudah pernah Anda review.',
 
             'rating.required' => 'Rating wajib diisi.',
-            'rating.integer'  => 'Rating harus berupa angka.',
-            'rating.between'  => 'Rating harus bernilai 1 sampai 5.',
+            'rating.integer' => 'Rating harus berupa angka.',
+            'rating.between' => 'Rating harus bernilai 1 sampai 5.',
 
             'comment.string' => 'Komentar harus berupa teks.',
-            'comment.max'    => 'Komentar maksimal 1000 karakter.',
+            'comment.max' => 'Komentar maksimal 1000 karakter.',
 
             'image.image' => 'File ulasan harus berupa gambar.',
             'image.mimes' => 'Format gambar ulasan yang diperbolehkan: jpeg, png, jpg, webp.',
-            'image.max'   => 'Ukuran gambar maksimal 10MB.',
+            'image.max' => 'Ukuran gambar maksimal 10MB.',
 
         ];
     }

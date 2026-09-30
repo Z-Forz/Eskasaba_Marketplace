@@ -52,12 +52,12 @@ class DashboardController extends Controller
         $topProducts = OrderItem::whereHas('order', function ($q) use ($seller, $validStatuses) {
             $q->where('seller_id', $seller->id)->whereIn('status', $validStatuses);
         })
-        ->select('product_id', 'product_name', DB::raw('SUM(quantity) as total_sold'), DB::raw('SUM(quantity * price) as total_revenue'))
-        ->groupBy('product_id', 'product_name')
-        ->with('product.images')
-        ->orderByDesc('total_sold')
-        ->take(5)
-        ->get();
+            ->select('product_id', 'product_name', DB::raw('SUM(quantity) as total_sold'), DB::raw('SUM(quantity * price) as total_revenue'))
+            ->groupBy('product_id', 'product_name')
+            ->with('product.images')
+            ->orderByDesc('total_sold')
+            ->take(5)
+            ->get();
 
         // 4. Recent Orders
         $recentOrders = Order::with(['user', 'items.product', 'payment'])

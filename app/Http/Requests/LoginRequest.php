@@ -13,7 +13,7 @@ class LoginRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->has('email') && !$this->has('nis_nip')) {
+        if ($this->has('email') && ! $this->has('nis_nip')) {
             $this->merge([
                 'nis_nip' => $this->input('email'),
             ]);
@@ -23,7 +23,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nis_nip'  => ['required', 'string'],
+            'nis_nip' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -31,7 +31,7 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nis_nip.required'  => 'NIS / NIP / Email wajib diisi.',
+            'nis_nip.required' => 'NIS / NIP / Email wajib diisi.',
             'password.required' => 'Kata sandi wajib diisi.',
         ];
     }

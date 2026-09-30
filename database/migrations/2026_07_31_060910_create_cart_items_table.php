@@ -15,25 +15,20 @@ return new class extends Migration
 
             $table->id();
 
-
             $table->foreignId('cart_id')
                 ->constrained()
                 ->cascadeOnDelete();
-
 
             $table->foreignId('product_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-
             // jumlah barang
             $table->integer('quantity')
                 ->default(1);
 
-
             // menyimpan harga saat dimasukkan ke cart
             $table->decimal('price', 12, 2);
-
 
             $table->timestamps();
 

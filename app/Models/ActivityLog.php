@@ -37,12 +37,12 @@ class ActivityLog extends Model
         $req = $request ?? request();
 
         return self::create([
-            'user_id'     => $userId,
-            'admin_id'    => $adminId,
-            'event'       => $event,
+            'user_id' => $userId,
+            'admin_id' => $adminId,
+            'event' => $event,
             'description' => $description,
-            'ip_address'  => $req->ip() ?? '127.0.0.1',
-            'user_agent'  => substr((string) $req->userAgent(), 0, 500),
+            'ip_address' => $req->ip() ?? '127.0.0.1',
+            'user_agent' => substr((string) $req->userAgent(), 0, 500),
         ]);
     }
 
@@ -90,11 +90,11 @@ class ActivityLog extends Model
     public function getIconAttribute(): string
     {
         return match ($this->event) {
-            'login'                => 'fa-solid fa-right-to-bracket text-emerald-600',
-            'password_changed'     => 'fa-solid fa-key text-blue-600',
-            'profile_updated'      => 'fa-solid fa-user-pen text-indigo-600',
+            'login' => 'fa-solid fa-right-to-bracket text-emerald-600',
+            'password_changed' => 'fa-solid fa-key text-blue-600',
+            'profile_updated' => 'fa-solid fa-user-pen text-indigo-600',
             'password_reset_admin' => 'fa-solid fa-shield-halved text-amber-600',
-            default                => 'fa-solid fa-circle-info text-slate-500',
+            default => 'fa-solid fa-circle-info text-slate-500',
         };
     }
 }

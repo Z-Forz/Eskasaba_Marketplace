@@ -28,7 +28,7 @@ class OrderController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhere('id', $search);
+                    ->orWhere('id', $search);
             });
         }
 

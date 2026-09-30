@@ -41,13 +41,13 @@ return [
     'guards' => [
         // Guard default untuk siswa & guru (login via API sekolah)
         'web' => [
-            'driver'   => 'session',
+            'driver' => 'session',
             'provider' => 'users',
         ],
 
         // Guard khusus admin panel (login lokal, tabel admins)
         'admin' => [
-            'driver'   => 'session',
+            'driver' => 'session',
             'provider' => 'admins',
         ],
     ],
@@ -73,13 +73,13 @@ return [
         // Provider untuk siswa & guru
         'users' => [
             'driver' => 'eloquent',
-            'model'  => env('AUTH_MODEL', User::class),
+            'model' => env('AUTH_MODEL', User::class),
         ],
 
         // Provider untuk admin panel
         'admins' => [
             'driver' => 'eloquent',
-            'model'  => Admin::class,
+            'model' => Admin::class,
         ],
     ],
 

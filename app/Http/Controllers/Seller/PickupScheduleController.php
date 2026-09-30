@@ -26,8 +26,8 @@ class PickupScheduleController extends Controller
             'payment',
             'pickupSchedule',
         ])
-        ->where('seller_id', $seller->id)
-        ->whereNotNull('pickup_location');
+            ->where('seller_id', $seller->id)
+            ->whereNotNull('pickup_location');
 
         if ($status === 'active') {
             // Default view: exclude completed & cancelled orders so completed orders will clear out automatically
@@ -78,7 +78,7 @@ class PickupScheduleController extends Controller
 
         $data = $request->validate([
             'pickup_location' => ['required', 'string', 'max:255'],
-            'status'          => ['nullable', 'in:pending,confirmed,processing,ready_for_pickup,completed,cancelled'],
+            'status' => ['nullable', 'in:pending,confirmed,processing,ready_for_pickup,completed,cancelled'],
         ]);
 
         $order->update(array_filter($data, fn ($v) => ! is_null($v)));

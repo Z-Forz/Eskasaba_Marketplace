@@ -53,22 +53,22 @@ class SellerRequestController extends Controller
         $seller = Auth::user()->seller;
 
         $data = $request->validate([
-            'type'        => ['required', 'string', 'in:category,feature,other'],
-            'title'       => ['required', 'string', 'max:255'],
+            'type' => ['required', 'string', 'in:category,feature,other'],
+            'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
         ], [
             'title.required' => 'Nama kategori / judul request wajib diisi.',
-            'title.max'      => 'Nama kategori terlalu panjang (maksimal 255 karakter).',
-            'type.required'  => 'Tipe request wajib dipilih.',
+            'title.max' => 'Nama kategori terlalu panjang (maksimal 255 karakter).',
+            'type.required' => 'Tipe request wajib dipilih.',
         ]);
 
         $sellerRequest = SellerRequest::create([
-            'seller_id'   => $seller->id,
-            'type'        => $data['type'],
-            'title'       => $data['title'],
+            'seller_id' => $seller->id,
+            'type' => $data['type'],
+            'title' => $data['title'],
             'description' => $data['description'] ?? '-',
-            'status'      => 'pending',
-            'is_read'     => false,
+            'status' => 'pending',
+            'is_read' => false,
         ]);
 
         // Kirim Notifikasi WhatsApp ke Admin

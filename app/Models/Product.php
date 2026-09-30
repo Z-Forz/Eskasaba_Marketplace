@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -46,11 +47,11 @@ class Product extends Model
      */
     public static function generateUniqueSlug(string $name): string
     {
-        $baseSlug = \Illuminate\Support\Str::slug($name) ?: 'produk';
-        $slug = $baseSlug . '-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6));
+        $baseSlug = Str::slug($name) ?: 'produk';
+        $slug = $baseSlug.'-'.Str::lower(Str::random(6));
 
         while (static::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6));
+            $slug = $baseSlug.'-'.Str::lower(Str::random(6));
         }
 
         return $slug;
@@ -77,7 +78,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'price'    => 'decimal:2',
+            'price' => 'decimal:2',
             'discount' => 'decimal:2',
             'variants' => 'array',
         ];

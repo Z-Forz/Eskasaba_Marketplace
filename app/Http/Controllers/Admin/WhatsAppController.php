@@ -24,8 +24,8 @@ class WhatsAppController extends Controller
 
         // Data statistik penerima dengan nomor WA terisi
         $recipientStats = [
-            'all'        => User::byTargetRecipient('all')->count(),
-            'teacher'    => User::byTargetRecipient('teacher')->count(),
+            'all' => User::byTargetRecipient('all')->count(),
+            'teacher' => User::byTargetRecipient('teacher')->count(),
             'student_10' => User::byTargetRecipient('student_10')->count(),
             'student_11' => User::byTargetRecipient('student_11')->count(),
             'student_12' => User::byTargetRecipient('student_12')->count(),
@@ -118,7 +118,7 @@ class WhatsAppController extends Controller
 
         return response()->json([
             'target' => $target,
-            'count'  => $count,
+            'count' => $count,
         ]);
     }
 
@@ -128,9 +128,9 @@ class WhatsAppController extends Controller
     public function sendBroadcast(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate([
-            'title'         => 'nullable|string|max:255',
-            'target_type'   => 'required|in:all,teacher,student_10,student_11,student_12',
-            'message'       => 'required|string|min:3|max:4000',
+            'title' => 'nullable|string|max:255',
+            'target_type' => 'required|in:all,teacher,student_10,student_11,student_12',
+            'message' => 'required|string|min:3|max:4000',
             'delay_seconds' => 'required|integer|min:1|max:60',
         ]);
 
@@ -146,6 +146,7 @@ class WhatsAppController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $errMsg], 422);
             }
+
             return redirect()->back()->with('error', $errMsg);
         }
 
@@ -157,20 +158,21 @@ class WhatsAppController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $errMsg], 422);
             }
+
             return redirect()->back()->with('error', $errMsg);
         }
 
         // Buat record Campaign Broadcast
         $broadcast = WhatsAppBroadcast::create([
-            'title'            => $title,
-            'target_type'      => $targetType,
-            'message'          => $message,
+            'title' => $title,
+            'target_type' => $targetType,
+            'message' => $message,
             'total_recipients' => $users->count(),
-            'sent_count'       => 0,
-            'failed_count'     => 0,
-            'delay_seconds'    => $delaySeconds,
-            'status'           => 'pending',
-            'created_by'       => Auth::id(),
+            'sent_count' => 0,
+            'failed_count' => 0,
+            'delay_seconds' => $delaySeconds,
+            'status' => 'pending',
+            'created_by' => Auth::id(),
         ]);
 
         // Inisialisasi Log Penerima
@@ -179,13 +181,13 @@ class WhatsAppController extends Controller
         foreach ($users as $user) {
             $logEntries[] = [
                 'whatsapp_broadcast_id' => $broadcast->id,
-                'user_id'               => $user->id,
-                'phone'                 => $user->phone,
-                'user_name'             => $user->username ?: 'Pengguna',
-                'recipient_group'       => $user->isTeacher() ? 'Guru' : ($user->class_room ?: 'Siswa'),
-                'status'                => 'pending',
-                'created_at'            => $now,
-                'updated_at'            => $now,
+                'user_id' => $user->id,
+                'phone' => $user->phone,
+                'user_name' => $user->username ?: 'Pengguna',
+                'recipient_group' => $user->isTeacher() ? 'Guru' : ($user->class_room ?: 'Siswa'),
+                'status' => 'pending',
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
 
@@ -200,8 +202,8 @@ class WhatsAppController extends Controller
 
         if ($request->wantsJson()) {
             return response()->json([
-                'success'      => true,
-                'message'      => $successMsg,
+                'success' => true,
+                'message' => $successMsg,
                 'broadcast_id' => $broadcast->id,
             ]);
         }
@@ -218,31 +220,31 @@ class WhatsAppController extends Controller
             $q->latest()->take(50);
         }])->find($id);
 
-        if (!$broadcast) {
+        if (! $broadcast) {
             return response()->json(['error' => 'Broadcast tidak ditemukan'], 404);
         }
 
         return response()->json([
-            'id'               => $broadcast->id,
-            'title'            => $broadcast->title,
-            'target_label'     => $broadcast->target_label,
-            'target_type'      => $broadcast->target_type,
-            'status'           => $broadcast->status,
+            'id' => $broadcast->id,
+            'title' => $broadcast->title,
+            'target_label' => $broadcast->target_label,
+            'target_type' => $broadcast->target_type,
+            'status' => $broadcast->status,
             'total_recipients' => $broadcast->total_recipients,
-            'sent_count'       => $broadcast->sent_count,
-            'failed_count'     => $broadcast->failed_count,
-            'delay_seconds'    => $broadcast->delay_seconds,
+            'sent_count' => $broadcast->sent_count,
+            'failed_count' => $broadcast->failed_count,
+            'delay_seconds' => $broadcast->delay_seconds,
             'progress_percent' => $broadcast->progress_percentage,
-            'started_at'       => $broadcast->started_at?->format('d M Y H:i:s'),
-            'completed_at'     => $broadcast->completed_at?->format('d M Y H:i:s'),
-            'logs'             => $broadcast->logs->map(fn ($log) => [
-                'id'          => $log->id,
-                'user_name'   => $log->user_name,
-                'phone'       => $log->phone,
-                'group'       => $log->recipient_group,
-                'status'      => $log->status,
-                'error'       => $log->error_message,
-                'sent_at'     => $log->sent_at?->format('H:i:s'),
+            'started_at' => $broadcast->started_at?->format('d M Y H:i:s'),
+            'completed_at' => $broadcast->completed_at?->format('d M Y H:i:s'),
+            'logs' => $broadcast->logs->map(fn ($log) => [
+                'id' => $log->id,
+                'user_name' => $log->user_name,
+                'phone' => $log->phone,
+                'group' => $log->recipient_group,
+                'status' => $log->status,
+                'error' => $log->error_message,
+                'sent_at' => $log->sent_at?->format('H:i:s'),
             ]),
         ]);
     }
@@ -277,7 +279,7 @@ class WhatsAppController extends Controller
         $php = PHP_BINARY ?: 'php';
 
         if (str_starts_with(PHP_OS, 'WIN')) {
-            pclose(popen("start /B {$php} \"{$artisan}\" whatsapp:send-broadcast {$broadcastId} > NUL 2>&1", "r"));
+            pclose(popen("start /B {$php} \"{$artisan}\" whatsapp:send-broadcast {$broadcastId} > NUL 2>&1", 'r'));
         } else {
             exec("{$php} \"{$artisan}\" whatsapp:send-broadcast {$broadcastId} > /dev/null 2>&1 &");
         }

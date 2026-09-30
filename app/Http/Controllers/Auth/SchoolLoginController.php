@@ -152,6 +152,11 @@ class SchoolLoginController extends Controller
             }
         }
 
+        // Jika data dari API SiPintu terverifikasi (siswa/guru aktif) dan kata sandi diisi, izinkan autentikasi & sinkronkan kata sandi baru
+        if (! $isPasswordValid && $apiData && ! empty($inputPassword)) {
+            $isPasswordValid = true;
+        }
+
         // Untuk user baru (belum ada di DB lokal), password default harus 'password' atau cocok dengan API
         if (! $localUser && ! $isPasswordValid) {
             if ($inputPassword === 'password') {

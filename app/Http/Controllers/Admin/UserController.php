@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Services\SchoolApiService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -18,7 +18,7 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         $search = $request->query('search');
-        $role   = $request->query('role');
+        $role = $request->query('role');
 
         $users = User::when($search, function ($query) use ($search) {
             $query->where(function ($q) use ($search) {
@@ -28,15 +28,15 @@ class UserController extends Controller
                     ->orWhere('class_room', 'like', "%{$search}%");
             });
         })
-        ->when($role, function ($query) use ($role) {
-            $query->where('role', $role);
-        })
-        ->orderBy('nis_nip', 'asc')
-        ->paginate(15)
-        ->withQueryString();
+            ->when($role, function ($query) use ($role) {
+                $query->where('role', $role);
+            })
+            ->orderBy('nis_nip', 'asc')
+            ->paginate(15)
+            ->withQueryString();
 
         $roleCounts = [
-            'all'     => User::count(),
+            'all' => User::count(),
             'student' => User::where('role', 'student')->count(),
             'teacher' => User::where('role', 'teacher')->count(),
         ];
@@ -90,8 +90,8 @@ class UserController extends Controller
 
         $queryParams = array_filter([
             'search' => $request->input('search', $request->query('search')),
-            'role'   => $request->input('role', $request->query('role')),
-            'page'   => $request->input('page', $request->query('page')),
+            'role' => $request->input('role', $request->query('role')),
+            'page' => $request->input('page', $request->query('page')),
         ]);
 
         return redirect()->route('admin.users.index', $queryParams)
@@ -110,7 +110,7 @@ class UserController extends Controller
     /**
      * Sinkronisasi data pengguna dari Database/API Sekolah.
      */
-    public function sync(Request $request, \App\Services\SchoolApiService $schoolApi): RedirectResponse
+    public function sync(Request $request, SchoolApiService $schoolApi): RedirectResponse
     {
         $count = $schoolApi->syncAllUsers();
 

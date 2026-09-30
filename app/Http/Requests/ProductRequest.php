@@ -44,7 +44,7 @@ class ProductRequest extends FormRequest
         if ($this->has('variants') && is_array($this->variants)) {
             $cleanedVariants = [];
             foreach ($this->variants as $variant) {
-                if (is_array($variant) && !empty($variant['name'])) {
+                if (is_array($variant) && ! empty($variant['name'])) {
                     $strV = isset($variant['price']) ? trim((string) $variant['price']) : '0';
                     if (preg_match('/\.00$/', $strV)) {
                         $strV = substr($strV, 0, -3);
@@ -52,18 +52,18 @@ class ProductRequest extends FormRequest
                     $rawVarPrice = preg_replace('/[^\d]/', '', $strV);
                     $rawVarStock = isset($variant['stock']) ? (int) $variant['stock'] : 0;
                     $cleanedVariants[] = [
-                        'name'  => trim($variant['name']),
+                        'name' => trim($variant['name']),
                         'price' => (float) ($rawVarPrice !== '' ? $rawVarPrice : 0),
                         'stock' => max(0, $rawVarStock),
                     ];
                 }
             }
 
-            if (!empty($cleanedVariants)) {
+            if (! empty($cleanedVariants)) {
                 $totalStock = array_sum(array_column($cleanedVariants, 'stock'));
                 $this->merge([
                     'variants' => $cleanedVariants,
-                    'stock'    => $totalStock,
+                    'stock' => $totalStock,
                 ]);
             } else {
                 $this->merge([
@@ -173,30 +173,30 @@ class ProductRequest extends FormRequest
         return [
 
             'category_id.required' => 'Kategori wajib dipilih.',
-            'category_id.exists'   => 'Kategori tidak ditemukan.',
+            'category_id.exists' => 'Kategori tidak ditemukan.',
 
             'name.required' => 'Nama produk wajib diisi.',
-            'name.string'   => 'Nama produk harus berupa teks.',
-            'name.max'      => 'Nama produk maksimal 255 karakter.',
+            'name.string' => 'Nama produk harus berupa teks.',
+            'name.max' => 'Nama produk maksimal 255 karakter.',
 
             'price.required' => 'Harga produk wajib diisi.',
-            'price.numeric'  => 'Harga produk harus berupa angka.',
-            'price.min'      => 'Harga produk tidak boleh kurang dari 0.',
+            'price.numeric' => 'Harga produk harus berupa angka.',
+            'price.min' => 'Harga produk tidak boleh kurang dari 0.',
 
             'stock.required' => 'Stok produk wajib diisi.',
-            'stock.integer'  => 'Stok produk harus berupa angka.',
-            'stock.min'      => 'Stok produk tidak boleh kurang dari 0.',
+            'stock.integer' => 'Stok produk harus berupa angka.',
+            'stock.min' => 'Stok produk tidak boleh kurang dari 0.',
 
             'description.string' => 'Deskripsi harus berupa teks.',
-            'condition.string'   => 'Kondisi/varian harus berupa teks.',
-            'condition.max'      => 'Kondisi/varian maksimal 100 karakter.',
+            'condition.string' => 'Kondisi/varian harus berupa teks.',
+            'condition.max' => 'Kondisi/varian maksimal 100 karakter.',
 
             'status.in' => 'Status produk tidak valid.',
 
-            'images.max'      => 'Maksimal foto produk yang dapat diunggah adalah 5 foto.',
-            'images.*.image'  => 'File yang diunggah harus berupa gambar.',
-            'images.*.mimes'  => 'Format gambar harus jpeg, png, jpg, atau webp.',
-            'images.*.max'    => 'Ukuran masing-masing foto maksimal 5 MB.',
+            'images.max' => 'Maksimal foto produk yang dapat diunggah adalah 5 foto.',
+            'images.*.image' => 'File yang diunggah harus berupa gambar.',
+            'images.*.mimes' => 'Format gambar harus jpeg, png, jpg, atau webp.',
+            'images.*.max' => 'Ukuran masing-masing foto maksimal 5 MB.',
 
         ];
     }

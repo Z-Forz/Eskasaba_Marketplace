@@ -15,7 +15,7 @@ return new class extends Migration
         // Modify enum for orders.status if MySQL
         try {
             DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'confirmed', 'processing', 'ready_for_pickup', 'completed', 'cancelled', 'cancel_requested') DEFAULT 'pending'");
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Fallback for drivers that don't support ALTER ENUM directly
         }
 

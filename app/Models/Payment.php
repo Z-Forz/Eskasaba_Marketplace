@@ -25,9 +25,9 @@ class Payment extends Model
     protected function casts(): array
     {
         return [
-            'amount'                 => 'decimal:2',
-            'verified_at'            => 'datetime',
-            'refunded_at'            => 'datetime',
+            'amount' => 'decimal:2',
+            'verified_at' => 'datetime',
+            'refunded_at' => 'datetime',
             'buyer_confirmed_refund' => 'boolean',
         ];
     }

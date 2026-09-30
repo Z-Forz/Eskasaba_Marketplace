@@ -15,20 +15,16 @@ return new class extends Migration
 
             $table->id();
 
-
             $table->foreignId('product_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-
             // lokasi file gambar
             $table->string('image');
-
 
             // penanda gambar utama
             $table->boolean('is_primary')
                 ->default(false);
-
 
             $table->timestamps();
 

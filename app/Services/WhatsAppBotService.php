@@ -18,10 +18,10 @@ class WhatsAppBotService
         $gatewayUrl = config('services.whatsapp.url', 'http://127.0.0.1:4545/send-message');
         $parsed = parse_url($gatewayUrl);
         $scheme = $parsed['scheme'] ?? 'http';
-        $host   = $parsed['host'] ?? '127.0.0.1';
-        $port   = isset($parsed['port']) ? ':' . $parsed['port'] : ':4545';
+        $host = $parsed['host'] ?? '127.0.0.1';
+        $port = isset($parsed['port']) ? ':'.$parsed['port'] : ':4545';
 
-        if ($host === 'localhost' || !filter_var($host, FILTER_VALIDATE_IP)) {
+        if ($host === 'localhost' || ! filter_var($host, FILTER_VALIDATE_IP)) {
             $host = '127.0.0.1';
         }
 
@@ -33,19 +33,19 @@ class WhatsAppBotService
      */
     protected static function fastHttpGet(string $url, float $timeoutSeconds = 1.5): ?array
     {
-        if (!function_exists('curl_init')) {
+        if (! function_exists('curl_init')) {
             return null;
         }
 
         $ch = curl_init();
         curl_setopt_array($ch, [
-            CURLOPT_URL            => $url,
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT_MS => 800,
-            CURLOPT_TIMEOUT_MS     => (int) ($timeoutSeconds * 1000),
+            CURLOPT_TIMEOUT_MS => (int) ($timeoutSeconds * 1000),
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_USERAGENT      => 'EskasabaFastCurl/1.0',
+            CURLOPT_USERAGENT => 'EskasabaFastCurl/1.0',
         ]);
         $output = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -53,6 +53,7 @@ class WhatsAppBotService
 
         if ($output !== false && $httpCode === 200) {
             $data = json_decode($output, true);
+
             return is_array($data) ? $data : null;
         }
 
@@ -67,7 +68,7 @@ class WhatsAppBotService
         $pidFile = storage_path('app/whatsapp-bot.pid');
         if (File::exists($pidFile)) {
             $pid = trim((string) File::get($pidFile));
-            if (!empty($pid) && is_numeric($pid)) {
+            if (! empty($pid) && is_numeric($pid)) {
                 try {
                     if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
                         if (function_exists('exec')) {
@@ -84,7 +85,8 @@ class WhatsAppBotService
                             }
                         }
                     }
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                }
             }
             File::delete($pidFile);
         }
@@ -123,26 +125,26 @@ class WhatsAppBotService
                 return $data;
             }
 
-            $httpError = 'Gagal terhubung ke ' . $baseUrl . '/status';
+            $httpError = 'Gagal terhubung ke '.$baseUrl.'/status';
             $enabledSetting = WebsiteSetting::get('wa_bot_enabled', '0');
             $isBotEnabled = ($enabledSetting === '1' || $enabledSetting === 1 || $enabledSetting === true);
 
             // Jika setting aktif tapi service mati, spawn secara cepat tanpa HTTP retry ganda
-            if ($isBotEnabled && !self::isPidRunningOnly()) {
+            if ($isBotEnabled && ! self::isPidRunningOnly()) {
                 self::spawnNodeProcess();
             }
 
             return [
-                'status'               => $isBotEnabled ? 'menjalankan' : 'nonaktif',
-                'bot_enabled'          => $isBotEnabled,
-                'setting_enabled'      => $isBotEnabled,
-                'is_connected'         => false,
-                'qr_code'              => null,
-                'connected_number'     => null,
-                'connected_name'       => null,
-                'last_connected_at'    => null,
+                'status' => $isBotEnabled ? 'menjalankan' : 'nonaktif',
+                'bot_enabled' => $isBotEnabled,
+                'setting_enabled' => $isBotEnabled,
+                'is_connected' => false,
+                'qr_code' => null,
+                'connected_number' => null,
+                'connected_name' => null,
+                'last_connected_at' => null,
                 'last_disconnected_at' => null,
-                'last_error'           => $isBotEnabled ? 'Memulai service Baileys Node.js...' : ($httpError ?? 'Service Baileys Node.js tidak berjalan'),
+                'last_error' => $isBotEnabled ? 'Memulai service Baileys Node.js...' : ($httpError ?? 'Service Baileys Node.js tidak berjalan'),
             ];
         });
     }
@@ -177,7 +179,8 @@ class WhatsAppBotService
                         $isServiceUp = true;
                         break;
                     }
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                }
             }
         }
 
@@ -188,20 +191,21 @@ class WhatsAppBotService
 
             if ($response->successful()) {
                 usleep(300000);
+
                 return [
                     'success' => true,
                     'message' => 'Bot WhatsApp berhasil diaktifkan.',
-                    'data'    => self::getStatus()
+                    'data' => self::getStatus(),
                 ];
             }
         } catch (\Throwable $e) {
-            Log::error("WhatsAppBotService start error: " . $e->getMessage());
+            Log::error('WhatsAppBotService start error: '.$e->getMessage());
         }
 
         return [
             'success' => true,
             'message' => 'Proses Bot WhatsApp dijalankan.',
-            'data'    => self::getStatus()
+            'data' => self::getStatus(),
         ];
     }
 
@@ -234,7 +238,7 @@ class WhatsAppBotService
         return [
             'success' => true,
             'message' => 'Bot WhatsApp berhasil dinonaktifkan.',
-            'data'    => self::getStatus()
+            'data' => self::getStatus(),
         ];
     }
 
@@ -252,20 +256,21 @@ class WhatsAppBotService
 
             if ($response->successful()) {
                 usleep(500000);
+
                 return [
                     'success' => true,
                     'message' => 'Koneksi WhatsApp berhasil diputuskan.',
-                    'data'    => self::getStatus()
+                    'data' => self::getStatus(),
                 ];
             }
         } catch (\Exception $e) {
-            Log::error("WhatsAppBotService disconnect error: " . $e->getMessage());
+            Log::error('WhatsAppBotService disconnect error: '.$e->getMessage());
         }
 
         return [
             'success' => false,
             'message' => 'Gagal terhubung ke service Bot WhatsApp untuk memutuskan koneksi.',
-            'data'    => self::getStatus()
+            'data' => self::getStatus(),
         ];
     }
 
@@ -284,14 +289,15 @@ class WhatsAppBotService
 
             if ($response->successful()) {
                 usleep(1000000);
+
                 return [
                     'success' => true,
                     'message' => 'Sesi WhatsApp berhasil di-reset. QR Code baru disiapkan.',
-                    'data'    => self::getStatus()
+                    'data' => self::getStatus(),
                 ];
             }
         } catch (\Exception $e) {
-            Log::error("WhatsAppBotService resetSession HTTP error: " . $e->getMessage());
+            Log::error('WhatsAppBotService resetSession HTTP error: '.$e->getMessage());
         }
 
         // Fallback jika HTTP tidak dapat dijangkau: Hapus folder auth_info_baileys
@@ -307,7 +313,7 @@ class WhatsAppBotService
         return [
             'success' => true,
             'message' => 'Sesi WhatsApp berhasil di-reset secara manual. Menjalankan ulang bot...',
-            'data'    => self::getStatus()
+            'data' => self::getStatus(),
         ];
     }
 
@@ -323,17 +329,18 @@ class WhatsAppBotService
         if (function_exists('shell_exec')) {
             try {
                 $which = trim((string) @shell_exec('which node 2>/dev/null'));
-                if (!empty($which) && File::exists($which)) {
+                if (! empty($which) && File::exists($which)) {
                     return escapeshellarg($which);
                 }
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         }
 
         $homeDir = $_SERVER['HOME'] ?? getenv('HOME') ?: '/root';
         $globPaths = array_merge(
             glob('/usr/local/nvm/versions/node/*/bin/node') ?: [],
             glob('/home/*/.nvm/versions/node/*/bin/node') ?: [],
-            glob($homeDir . '/.nvm/versions/node/*/bin/node') ?: []
+            glob($homeDir.'/.nvm/versions/node/*/bin/node') ?: []
         );
 
         foreach ($globPaths as $path) {
@@ -368,22 +375,22 @@ class WhatsAppBotService
 
         try {
             $nodeBin = self::getNodeBinary();
-            $botDir  = base_path('whatsapp-bot');
+            $botDir = base_path('whatsapp-bot');
             $logFile = storage_path('logs/whatsapp-bot.log');
             $pidFile = storage_path('app/whatsapp-bot.pid');
 
             if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
                 if (function_exists('popen') && function_exists('pclose')) {
-                    @pclose(@popen("start /B {$nodeBin} {$botDir}/index.js > {$logFile} 2>&1", "r"));
+                    @pclose(@popen("start /B {$nodeBin} {$botDir}/index.js > {$logFile} 2>&1", 'r'));
                 }
             } else {
                 if (function_exists('exec')) {
-                    $command = "cd " . escapeshellarg($botDir) . " && (nohup {$nodeBin} index.js > " . escapeshellarg($logFile) . " 2>&1 < /dev/null &) && pgrep -f 'node.*whatsapp-bot/index.js' > " . escapeshellarg($pidFile);
+                    $command = 'cd '.escapeshellarg($botDir)." && (nohup {$nodeBin} index.js > ".escapeshellarg($logFile)." 2>&1 < /dev/null &) && pgrep -f 'node.*whatsapp-bot/index.js' > ".escapeshellarg($pidFile);
                     @exec($command);
                 }
             }
         } catch (\Throwable $e) {
-            Log::warning("WhatsAppBotService spawnNodeProcess error: " . $e->getMessage());
+            Log::warning('WhatsAppBotService spawnNodeProcess error: '.$e->getMessage());
         }
     }
 
@@ -397,7 +404,7 @@ class WhatsAppBotService
         try {
             if (File::exists($pidFile)) {
                 $pid = trim((string) File::get($pidFile));
-                if (!empty($pid) && is_numeric($pid) && function_exists('exec')) {
+                if (! empty($pid) && is_numeric($pid) && function_exists('exec')) {
                     if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
                         @exec("taskkill /F /PID {$pid}");
                     } else {
@@ -410,6 +417,7 @@ class WhatsAppBotService
             if (strncasecmp(PHP_OS, 'WIN', 3) !== 0 && function_exists('exec')) {
                 @exec("pkill -f 'node.*whatsapp-bot/index.js' 2>/dev/null");
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
     }
 }

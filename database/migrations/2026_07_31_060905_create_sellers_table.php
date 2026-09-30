@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('sellers', function (Blueprint $table) {
 
             $table->id();
-            
+
             // Pemilik toko
             $table->foreignId('user_id')
                 ->constrained()
@@ -27,19 +27,16 @@ return new class extends Migration
             $table->text('description')
                 ->nullable();
 
-
             // Status verifikasi admin
             $table->enum('status', [
                 'pending',
                 'approved',
-                'rejected'
+                'rejected',
             ])->default('pending');
-
 
             // Waktu disetujui admin
             $table->timestamp('approved_at')
                 ->nullable();
-
 
             $table->timestamps();
 

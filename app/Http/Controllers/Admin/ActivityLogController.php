@@ -21,17 +21,17 @@ class ActivityLogController extends Controller
         if ($search = trim((string) $request->input('search', ''))) {
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")
-                  ->orWhere('ip_address', 'like', "%{$search}%")
-                  ->orWhere('event', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($u) use ($search) {
-                      $u->where('username', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('nis_nip', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('admin', function ($a) use ($search) {
-                      $a->where('name', 'like', "%{$search}%")
-                        ->orWhere('username', 'like', "%{$search}%");
-                  });
+                    ->orWhere('ip_address', 'like', "%{$search}%")
+                    ->orWhere('event', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($u) use ($search) {
+                        $u->where('username', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('nis_nip', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('admin', function ($a) use ($search) {
+                        $a->where('name', 'like', "%{$search}%")
+                            ->orWhere('username', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -53,14 +53,14 @@ class ActivityLogController extends Controller
 
         // Stats
         $stats = [
-            'total_logs'    => ActivityLog::count(),
-            'today_logins'  => ActivityLog::whereDate('created_at', today())
-                                    ->whereIn('event', ['login', 'admin_login'])
-                                    ->count(),
-            'unique_users'  => ActivityLog::whereDate('created_at', today())
-                                    ->whereNotNull('user_id')
-                                    ->distinct('user_id')
-                                    ->count('user_id'),
+            'total_logs' => ActivityLog::count(),
+            'today_logins' => ActivityLog::whereDate('created_at', today())
+                ->whereIn('event', ['login', 'admin_login'])
+                ->count(),
+            'unique_users' => ActivityLog::whereDate('created_at', today())
+                ->whereNotNull('user_id')
+                ->distinct('user_id')
+                ->count('user_id'),
             'admin_actions' => ActivityLog::whereNotNull('admin_id')->count(),
         ];
 

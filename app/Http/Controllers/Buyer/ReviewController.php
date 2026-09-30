@@ -23,9 +23,9 @@ class ReviewController extends Controller
             'product.images',
             'order',
         ])
-        ->where('user_id', Auth::id())
-        ->latest()
-        ->paginate(10);
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
 
         return view('buyer.reviews.index', compact(
             'reviews'

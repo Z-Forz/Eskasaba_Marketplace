@@ -15,28 +15,22 @@ return new class extends Migration
 
             $table->id();
 
-
             $table->foreignId('order_id')
                 ->constrained()
                 ->cascadeOnDelete();
-
 
             $table->foreignId('product_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-
             // snapshot nama produk
             $table->string('product_name');
-
 
             // jumlah barang
             $table->integer('quantity');
 
-
             // harga saat transaksi
             $table->decimal('price', 12, 2);
-
 
             $table->timestamps();
 

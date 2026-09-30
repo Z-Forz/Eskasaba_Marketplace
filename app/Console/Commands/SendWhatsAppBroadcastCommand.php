@@ -32,19 +32,21 @@ class SendWhatsAppBroadcastCommand extends Command
         $broadcastId = (int) $this->argument('broadcastId');
         $broadcast = WhatsAppBroadcast::find($broadcastId);
 
-        if (!$broadcast) {
+        if (! $broadcast) {
             $this->error("Campaign Broadcast dengan ID #{$broadcastId} tidak ditemukan.");
+
             return self::FAILURE;
         }
 
         if ($broadcast->status === 'cancelled') {
             $this->warn("Campaign Broadcast #{$broadcastId} telah dibatalkan.");
+
             return self::SUCCESS;
         }
 
         // Tandai status broadcast sebagai processing
         $broadcast->update([
-            'status'     => 'processing',
+            'status' => 'processing',
             'started_at' => now(),
         ]);
 
@@ -61,6 +63,7 @@ class SendWhatsAppBroadcastCommand extends Command
             if ($freshBroadcast && $freshBroadcast->status === 'cancelled') {
                 $this->warn("Pengiriman broadcast #{$broadcast->id} dibatalkan oleh Admin.");
                 Log::info("WhatsApp Broadcast #{$broadcast->id} cancelled by admin during processing.");
+
                 return self::SUCCESS;
             }
 
@@ -73,20 +76,20 @@ class SendWhatsAppBroadcastCommand extends Command
 
             if ($sent) {
                 $log->update([
-                    'status'  => 'sent',
+                    'status' => 'sent',
                     'sent_at' => now(),
                 ]);
 
                 $broadcast->increment('sent_count');
-                $this->info("✅ SUKSES");
+                $this->info('✅ SUKSES');
             } else {
                 $log->update([
-                    'status'        => 'failed',
+                    'status' => 'failed',
                     'error_message' => 'Gagal terhubung atau ditolak oleh WhatsApp Gateway',
                 ]);
 
                 $broadcast->increment('failed_count');
-                $this->error("❌ GAGAL");
+                $this->error('❌ GAGAL');
             }
 
             // Jeda bertahap antar pesan (Anti-Ban delay)
@@ -98,7 +101,7 @@ class SendWhatsAppBroadcastCommand extends Command
         $freshBroadcast = WhatsAppBroadcast::find($broadcast->id);
         if ($freshBroadcast && $freshBroadcast->status !== 'cancelled') {
             $freshBroadcast->update([
-                'status'       => 'completed',
+                'status' => 'completed',
                 'completed_at' => now(),
             ]);
 
@@ -113,14 +116,14 @@ class SendWhatsAppBroadcastCommand extends Command
      */
     protected function replacePlaceholders(string $message, WhatsAppBroadcastLog $log): string
     {
-        $userName  = $log->user_name ?: 'Pengguna';
+        $userName = $log->user_name ?: 'Pengguna';
         $userGroup = $log->recipient_group ?: '-';
 
         $replacements = [
-            '{name}'    => $userName,
-            '{nama}'    => $userName,
-            '{kelas}'   => $userGroup,
-            '{group}'   => $userGroup,
+            '{name}' => $userName,
+            '{nama}' => $userName,
+            '{kelas}' => $userGroup,
+            '{group}' => $userGroup,
         ];
 
         return strtr($message, $replacements);

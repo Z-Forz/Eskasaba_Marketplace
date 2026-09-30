@@ -33,7 +33,7 @@ return new class extends Migration
             $table->enum('status', [
                 'pending',
                 'verified',
-                'rejected'
+                'rejected',
             ])->default('pending');
 
             $table->timestamp('verified_at')

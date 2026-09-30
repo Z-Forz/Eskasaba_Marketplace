@@ -24,14 +24,14 @@ class PaymentController extends Controller
         $payments = Payment::with([
             'order.user',
         ])
-        ->whereHas('order', function ($query) use ($seller) {
-            $query->where(
-                'seller_id',
-                $seller->id
-            );
-        })
-        ->latest()
-        ->paginate(10);
+            ->whereHas('order', function ($query) use ($seller) {
+                $query->where(
+                    'seller_id',
+                    $seller->id
+                );
+            })
+            ->latest()
+            ->paginate(10);
 
         return view('seller.payments.index', compact(
             'payments'
@@ -67,7 +67,7 @@ class PaymentController extends Controller
 
         if ($payment->method === 'qris') {
             $payment->update([
-                'status'      => 'verified',
+                'status' => 'verified',
                 'verified_at' => now(),
             ]);
         }

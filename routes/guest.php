@@ -1,7 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OAuthController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
@@ -18,37 +21,37 @@ Route::get('/sellers/{seller}', [HomeController::class, 'sellerProfile'])
 Route::view('/panduan', 'guide')->name('guide');
 
 Route::view('/tentang', 'about')->name('about');
- 
+
 // Health Check Endpoint (SiPintu Downstream Monitoring)
 Route::get('/health', fn () => response()->json(['status' => 'ok', 'service' => config('app.name'), 'time' => now()->toIso8601String()]))
     ->name('health');
 
 // SiPintu Webhook Direct Aliases (Bypass & Non-Preloaded Paths)
-Route::match(['get', 'post'], '/api/sipintu/sync-user', [\App\Http\Controllers\OAuthController::class, 'syncUser']);
-Route::match(['get', 'post'], '/api/sipintu/sync-password', [\App\Http\Controllers\OAuthController::class, 'syncPassword']);
-Route::match(['get', 'post'], '/sipintu/sync-user', [\App\Http\Controllers\OAuthController::class, 'syncUser']);
-Route::match(['get', 'post'], '/sipintu/sync-password', [\App\Http\Controllers\OAuthController::class, 'syncPassword']);
+Route::match(['get', 'post'], '/api/sipintu/sync-user', [OAuthController::class, 'syncUser']);
+Route::match(['get', 'post'], '/api/sipintu/sync-password', [OAuthController::class, 'syncPassword']);
+Route::match(['get', 'post'], '/sipintu/sync-user', [OAuthController::class, 'syncUser']);
+Route::match(['get', 'post'], '/sipintu/sync-password', [OAuthController::class, 'syncPassword']);
 
 // WhatsApp Gateway Proxy Route (Proxies https://eskamart.smkn1bangsri.sch.id/send-message to local Baileys bot)
-Route::match(['get', 'post'], '/send-message', function (\Illuminate\Http\Request $request) {
+Route::match(['get', 'post'], '/send-message', function (Request $request) {
     if ($request->isMethod('get')) {
         return response()->json([
-            'status'  => true,
+            'status' => true,
             'message' => 'WhatsApp Gateway Proxy Endpoint Active',
             'gateway' => 'Eskasaba Baileys Bot',
         ]);
     }
 
     try {
-        $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+        $response = Http::withoutVerifying()
             ->timeout(10)
             ->post('http://localhost:3000/send-message', $request->all());
 
         return response()->json($response->json(), $response->status());
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         return response()->json([
-            'status'  => false,
-            'message' => 'Gagal terhubung ke WhatsApp Baileys Bot lokal: ' . $e->getMessage(),
+            'status' => false,
+            'message' => 'Gagal terhubung ke WhatsApp Baileys Bot lokal: '.$e->getMessage(),
         ], 503);
     }
 })->name('wa.send-message');

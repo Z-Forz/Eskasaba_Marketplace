@@ -24,8 +24,8 @@ class SellerRequest extends Model
     protected function casts(): array
     {
         return [
-            'is_read'      => 'boolean',
-            'read_at'      => 'datetime',
+            'is_read' => 'boolean',
+            'read_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
     }
@@ -54,8 +54,8 @@ class SellerRequest extends Model
     {
         return match ($this->type) {
             'category' => 'Kategori Produk',
-            'feature'  => 'Usulan Fitur',
-            default    => 'Lainnya',
+            'feature' => 'Usulan Fitur',
+            default => 'Lainnya',
         };
     }
 
@@ -63,8 +63,8 @@ class SellerRequest extends Model
     {
         return match ($this->status) {
             'completed' => 'Disetujui & Selesai',
-            'rejected'  => 'Ditolak',
-            default     => 'Menunggu Tinjauan Admin',
+            'rejected' => 'Ditolak',
+            default => 'Menunggu Tinjauan Admin',
         };
     }
 
@@ -72,8 +72,8 @@ class SellerRequest extends Model
     {
         return match ($this->status) {
             'completed' => 'green',
-            'rejected'  => 'red',
-            default     => 'blue',
+            'rejected' => 'red',
+            default => 'blue',
         };
     }
 }

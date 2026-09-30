@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Buyer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PickupSchedule;
 use App\Models\Product;
 use App\Services\WhatsAppService;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -26,8 +27,8 @@ class CheckoutController extends Controller
         $cart = Cart::with([
             'items.product.seller.user',
         ])
-        ->where('user_id', Auth::id())
-        ->first();
+            ->where('user_id', Auth::id())
+            ->first();
 
         if (! $cart || $cart->items->isEmpty()) {
             return redirect()
@@ -88,10 +89,10 @@ class CheckoutController extends Controller
                 'max:1000',
             ],
         ], [
-            'phone.required'           => 'Nomor WhatsApp wajib diisi agar Anda menerima notifikasi rincian pesanan.',
-            'phone.min'                => 'Nomor WhatsApp minimal 8 digit.',
+            'phone.required' => 'Nomor WhatsApp wajib diisi agar Anda menerima notifikasi rincian pesanan.',
+            'phone.min' => 'Nomor WhatsApp minimal 8 digit.',
             'pickup_location.required' => 'Lokasi/titik pengambilan wajib diisi.',
-            'payment_method.required'  => 'Metode pembayaran wajib dipilih.',
+            'payment_method.required' => 'Metode pembayaran wajib dipilih.',
         ]);
 
         // Synchronize/save user phone number if empty or updated
@@ -103,8 +104,8 @@ class CheckoutController extends Controller
         $cart = Cart::with([
             'items.product.seller',
         ])
-        ->where('user_id', Auth::id())
-        ->first();
+            ->where('user_id', Auth::id())
+            ->first();
 
         if (! $cart || $cart->items->isEmpty()) {
             return redirect()
@@ -144,20 +145,20 @@ class CheckoutController extends Controller
                 });
 
                 $order = Order::create([
-                    'invoice_number'  => 'INV-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6)),
-                    'user_id'         => Auth::id(),
-                    'seller_id'       => $sellerId,
-                    'total_price'     => $totalPrice,
+                    'invoice_number' => 'INV-'.now()->format('Ymd').'-'.strtoupper(Str::random(6)),
+                    'user_id' => Auth::id(),
+                    'seller_id' => $sellerId,
+                    'total_price' => $totalPrice,
                     'pickup_location' => $request->pickup_location,
-                    'note'            => $request->note,
-                    'status'          => 'pending',
+                    'note' => $request->note,
+                    'status' => 'pending',
                 ]);
 
                 foreach ($cart->items as $item) {
                     $product = Product::where('id', $item->product_id)->lockForUpdate()->first() ?? $item->product;
                     $variantName = $item->variant_name ?: $item->note;
 
-                    if ($product->hasVariants() && !empty($variantName)) {
+                    if ($product->hasVariants() && ! empty($variantName)) {
                         $variants = $product->variants;
                         $variantFound = false;
                         foreach ($variants as $idx => $var) {
@@ -176,7 +177,7 @@ class CheckoutController extends Controller
 
                         if ($variantFound) {
                             $product->variants = $variants;
-                            if (array_filter($variants, fn($v) => isset($v['stock']))) {
+                            if (array_filter($variants, fn ($v) => isset($v['stock']))) {
                                 $product->stock = array_sum(array_column($variants, 'stock'));
                             } else {
                                 $product->stock = max(0, $product->stock - $item->quantity);
@@ -196,29 +197,29 @@ class CheckoutController extends Controller
                     }
 
                     $order->items()->create([
-                        'product_id'   => $item->product_id,
+                        'product_id' => $item->product_id,
                         'product_name' => $product->name,
                         'variant_name' => $variantName,
-                        'quantity'     => $item->quantity,
-                        'price'        => $item->price,
-                        'note'         => $item->note,
+                        'quantity' => $item->quantity,
+                        'price' => $item->price,
+                        'note' => $item->note,
                     ]);
                 }
 
                 Payment::create([
                     'order_id' => $order->id,
-                    'amount'   => $totalPrice,
-                    'method'   => $request->payment_method,
-                    'status'   => $request->payment_method === 'cod'
+                    'amount' => $totalPrice,
+                    'method' => $request->payment_method,
+                    'status' => $request->payment_method === 'cod'
                         ? 'verified'
                         : 'pending',
                 ]);
 
                 // Create default Pickup Schedule for the order
                 PickupSchedule::create([
-                    'order_id'     => $order->id,
-                    'pickup_date'  => now()->addDays(1)->format('Y-m-d'),
-                    'pickup_time'  => '10:00',
+                    'order_id' => $order->id,
+                    'pickup_date' => now()->addDays(1)->format('Y-m-d'),
+                    'pickup_time' => '10:00',
                     'is_picked_up' => false,
                 ]);
 
@@ -234,22 +235,22 @@ class CheckoutController extends Controller
 
         // Send notification to Seller
         if ($order->seller?->user_id) {
-            \App\Models\Notification::create([
+            Notification::create([
                 'user_id' => $order->seller->user_id,
-                'title'   => 'Pesanan Baru Masuk!',
-                'message' => 'Anda mendapatkan pesanan baru dengan invoice #' . $order->invoice_number,
-                'type'    => 'new_order',
-                'link'    => route('seller.orders.show', $order),
+                'title' => 'Pesanan Baru Masuk!',
+                'message' => 'Anda mendapatkan pesanan baru dengan invoice #'.$order->invoice_number,
+                'type' => 'new_order',
+                'link' => route('seller.orders.show', $order),
             ]);
         }
 
         // Send notification to Buyer
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => Auth::id(),
-            'title'   => 'Pesanan Berhasil Dibuat',
-            'message' => 'Pesanan #' . $order->invoice_number . ' telah berhasil dibuat. Silakan hubungi penjual.',
-            'type'    => 'order_created',
-            'link'    => route('buyer.orders.show', $order),
+            'title' => 'Pesanan Berhasil Dibuat',
+            'message' => 'Pesanan #'.$order->invoice_number.' telah berhasil dibuat. Silakan hubungi penjual.',
+            'type' => 'order_created',
+            'link' => route('buyer.orders.show', $order),
         ]);
 
         // Send WhatsApp Notification to Seller & Buyer

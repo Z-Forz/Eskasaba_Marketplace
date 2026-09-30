@@ -32,11 +32,11 @@ class ProfileController extends Controller
 
         $data = $request->validate([
             'whatsapp_number' => ['required', 'string', 'max:20'],
-            'description'     => ['nullable', 'string', 'max:1000'],
-            'qris_image'      => ['nullable', 'image', 'max:10240'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'qris_image' => ['nullable', 'image', 'max:10240'],
         ], [
             'whatsapp_number.required' => 'Nomor WhatsApp wajib diisi.',
-            'qris_image.image'         => 'File QRIS harus berupa gambar.',
+            'qris_image.image' => 'File QRIS harus berupa gambar.',
         ]);
 
         if ($request->hasFile('qris_image')) {

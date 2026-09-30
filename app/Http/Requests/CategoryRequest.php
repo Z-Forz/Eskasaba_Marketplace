@@ -25,7 +25,7 @@ class CategoryRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:categories,name,' . $this->category?->id,
+                'unique:categories,name,'.$this->category?->id,
             ],
 
             'icon' => [
@@ -50,12 +50,12 @@ class CategoryRequest extends FormRequest
         return [
 
             'name.required' => 'Nama kategori wajib diisi.',
-            'name.string'   => 'Nama kategori harus berupa teks.',
-            'name.max'      => 'Nama kategori maksimal 255 karakter.',
-            'name.unique'   => 'Nama kategori sudah digunakan.',
+            'name.string' => 'Nama kategori harus berupa teks.',
+            'name.max' => 'Nama kategori maksimal 255 karakter.',
+            'name.unique' => 'Nama kategori sudah digunakan.',
 
-            'icon.string'   => 'Icon harus berupa teks class FontAwesome.',
-            'icon.max'      => 'Icon maksimal 255 karakter.',
+            'icon.string' => 'Icon harus berupa teks class FontAwesome.',
+            'icon.max' => 'Icon maksimal 255 karakter.',
 
             'description.string' => 'Deskripsi harus berupa teks.',
 

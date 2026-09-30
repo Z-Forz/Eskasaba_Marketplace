@@ -108,7 +108,7 @@ class Seller extends Model
             'approved' => 'green',
             'rejected' => 'red',
             'revision' => 'yellow',
-            default    => 'blue', // pending
+            default => 'blue', // pending
         };
     }
 
@@ -121,7 +121,7 @@ class Seller extends Model
             'approved' => 'Disetujui',
             'rejected' => 'Ditolak',
             'revision' => 'Perlu Revisi',
-            default    => 'Menunggu Verifikasi',
+            default => 'Menunggu Verifikasi',
         };
     }
 }

@@ -2,7 +2,9 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 return new class extends Migration
 {
@@ -16,10 +18,10 @@ return new class extends Migration
         });
 
         // Generate slug for existing products
-        $products = \Illuminate\Support\Facades\DB::table('products')->get();
+        $products = DB::table('products')->get();
         foreach ($products as $product) {
-            $slug = \Illuminate\Support\Str::slug($product->name) . '-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6));
-            \Illuminate\Support\Facades\DB::table('products')
+            $slug = Str::slug($product->name).'-'.Str::lower(Str::random(6));
+            DB::table('products')
                 ->where('id', $product->id)
                 ->update(['slug' => $slug]);
         }

@@ -1,14 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Buyer\DashboardController;
 use App\Http\Controllers\Buyer\CartController;
 use App\Http\Controllers\Buyer\CheckoutController;
+use App\Http\Controllers\Buyer\DashboardController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ReviewController;
-use App\Http\Controllers\SellerApplicationController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SellerApplicationController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])
     ->prefix('buyer')

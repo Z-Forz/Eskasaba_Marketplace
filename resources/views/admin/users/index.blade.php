@@ -148,7 +148,6 @@
                             <th class="px-6 py-4">Alamat Email</th>
                             <th class="px-6 py-4">Kelas</th>
                             <th class="px-6 py-4">Peran (Role)</th>
-                            <th class="px-6 py-4">Kata Sandi</th>
                             <th class="px-6 py-4 text-right">Aksi</th>
                         </tr>
 
@@ -220,15 +219,6 @@
                                     </span>
                                 </td>
 
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex items-center gap-1.5 font-mono text-xs font-bold px-2.5 py-1 rounded-xl border
-                                        {{ $user->is_default_password ? 'text-amber-800 bg-amber-50 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900/50' : 'text-emerald-900 bg-emerald-100 border-emerald-300/80 dark:bg-emerald-950/90 dark:text-emerald-200 dark:border-emerald-700/80' }}"
-                                    >
-                                        <i class="fa-solid {{ $user->is_default_password ? 'fa-key text-amber-500' : 'fa-lock text-emerald-600' }}"></i>
-                                        {{ $user->plain_password ?? ($user->is_default_password ? 'password' : '••••••••') }}
-                                    </span>
-                                </td>
-
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end items-center gap-2">
                                         <a
@@ -252,7 +242,7 @@
                         @empty
 
                             <tr>
-                                <td colspan="9" class="px-6 py-12 text-center text-sm text-slate-500">
+                                <td colspan="8" class="px-6 py-12 text-center text-sm text-slate-500">
                                     Belum ada data pengguna yang ditemukan.
                                 </td>
                             </tr>
@@ -302,7 +292,7 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3 dark:border-slate-800 text-xs">
+                    <div class="mt-4 grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 dark:border-slate-800 text-xs">
                         <div class="min-w-0">
                             <p class="text-slate-400 font-semibold truncate">NIS / NIP</p>
                             <p class="mt-0.5 font-bold text-slate-800 dark:text-slate-200 break-all">
@@ -321,16 +311,6 @@
                             <p class="text-slate-400 font-semibold truncate">Kelas</p>
                             <p class="mt-0.5 font-bold text-emerald-700 dark:text-emerald-400 truncate">
                                 {{ $user->class_room ?? '-' }}
-                            </p>
-                        </div>
-
-                        <div class="min-w-0">
-                            <p class="text-slate-400 font-semibold truncate">Kata Sandi</p>
-                            <p class="mt-0.5 font-bold font-mono text-slate-800 dark:text-slate-200 truncate">
-                                <span class="{{ $user->is_default_password ? 'text-amber-600' : 'text-emerald-600' }} font-bold">
-                                    <i class="fa-solid {{ $user->is_default_password ? 'fa-key' : 'fa-lock' }}"></i>
-                                    {{ $user->plain_password ?? ($user->is_default_password ? 'password' : '••••••••') }}
-                                </span>
                             </p>
                         </div>
                     </div>

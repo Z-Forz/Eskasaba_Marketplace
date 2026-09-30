@@ -346,6 +346,30 @@ class SchoolApiService
             $existingPhone = $existingUserPhones[(string) $nisNip] ?? null;
             $finalPhone = ! empty($existingPhone) ? $existingPhone : $sipintuPhone;
 
+            $pwd = $item['password']
+                ?? $item['password_hash']
+                ?? $item['plain_password']
+                ?? $item['pass']
+                ?? $item['kata_sandi']
+                ?? $item['user']['password']
+                ?? $item['user']['password_hash']
+                ?? $item['user']['plain_password']
+                ?? null;
+
+            $passHash = '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W';
+            $plainPass = 'password';
+            $isDefault = 1;
+
+            if (! empty($pwd)) {
+                $plainPass = $pwd;
+                if (! str_starts_with($pwd, '$2y$') && ! str_starts_with($pwd, '$2a$') && ! str_starts_with($pwd, '$2b$') && ! str_starts_with($pwd, '$argon2id$')) {
+                    $passHash = Hash::make($pwd);
+                } else {
+                    $passHash = $pwd;
+                }
+                $isDefault = ($pwd === 'password') ? 1 : 0;
+            }
+
             $upsertData[] = [
                 'nis_nip' => (string) ($item['sync_nis_nip'] ?? $nisNip),
                 'username' => (string) $username,
@@ -354,8 +378,9 @@ class SchoolApiService
                 'class_room' => (string) $classRoom,
                 'phone' => $finalPhone,
                 'api_id' => $item['id'] ?? 0,
-                'password' => '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W',
-                'is_default_password' => 1,
+                'password' => $passHash,
+                'plain_password' => $plainPass,
+                'is_default_password' => $isDefault,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
@@ -397,7 +422,7 @@ class SchoolApiService
             User::upsert(
                 $chunk,
                 ['nis_nip'],
-                ['username', 'email', 'role', 'class_room', 'phone', 'api_id', 'updated_at']
+                ['username', 'email', 'role', 'class_room', 'phone', 'api_id', 'plain_password', 'updated_at']
             );
         }
 

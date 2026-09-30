@@ -21,9 +21,9 @@ class CartController extends Controller
             'items.product.images',
             'items.product.seller.user',
         ])
-        ->firstOrCreate([
-            'user_id' => Auth::id(),
-        ]);
+            ->firstOrCreate([
+                'user_id' => Auth::id(),
+            ]);
 
         return view('buyer.cart.index', compact(
             'cart'
@@ -36,16 +36,16 @@ class CartController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'product_id'   => ['required', 'exists:products,id'],
-            'quantity'     => ['nullable', 'integer', 'min:1'],
+            'product_id' => ['required', 'exists:products,id'],
+            'quantity' => ['nullable', 'integer', 'min:1'],
             'variant_name' => ['nullable', 'string', 'max:255'],
-            'note'         => ['nullable', 'string', 'max:255'],
+            'note' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $productId   = $request->input('product_id');
-        $quantity    = max(1, (int) $request->input('quantity', 1));
+        $productId = $request->input('product_id');
+        $quantity = max(1, (int) $request->input('quantity', 1));
         $variantName = $request->input('variant_name') ?: $request->input('note');
-        $note        = $request->input('note');
+        $note = $request->input('note');
 
         $product = Product::with('seller')->findOrFail($productId);
 
@@ -58,7 +58,7 @@ class CartController extends Controller
         $itemPrice = $product->final_price;
         $availableStock = (int) $product->stock;
 
-        if ($product->hasVariants() && !empty($variantName)) {
+        if ($product->hasVariants() && ! empty($variantName)) {
             foreach ($product->variants as $var) {
                 if (isset($var['name']) && strcasecmp(trim($var['name']), trim($variantName)) === 0) {
                     $itemPrice = (float) $var['price'];
@@ -80,9 +80,9 @@ class CartController extends Controller
 
         $cartItem = $cart->items()
             ->where('product_id', $product->id)
-            ->where(function($q) use ($variantName, $note) {
+            ->where(function ($q) use ($variantName, $note) {
                 $q->where('variant_name', $variantName)
-                  ->orWhere('note', $note);
+                    ->orWhere('note', $note);
             })
             ->first();
 
@@ -91,11 +91,11 @@ class CartController extends Controller
             $cartItem->save();
         } else {
             $cart->items()->create([
-                'product_id'   => $product->id,
+                'product_id' => $product->id,
                 'variant_name' => $variantName,
-                'quantity'     => $quantity,
-                'price'        => $itemPrice,
-                'note'         => $note,
+                'quantity' => $quantity,
+                'price' => $itemPrice,
+                'note' => $note,
             ]);
         }
 
@@ -136,14 +136,14 @@ class CartController extends Controller
             $itemSubtotal = $cartItem->quantity * ($cartItem->price ?? $cartItem->product?->price ?? 0);
 
             return response()->json([
-                'success'        => true,
-                'message'        => 'Jumlah produk berhasil diperbarui.',
-                'item_id'        => $cartItem->id,
-                'item_quantity'  => $cartItem->quantity,
-                'item_subtotal'  => 'Rp ' . number_format($itemSubtotal, 0, ',', '.'),
-                'total_quantity' => $totalQuantity . ' Pcs',
-                'subtotal'       => 'Rp ' . number_format($subtotal, 0, ',', '.'),
-                'total_pay'      => 'Rp ' . number_format($subtotal, 0, ',', '.'),
+                'success' => true,
+                'message' => 'Jumlah produk berhasil diperbarui.',
+                'item_id' => $cartItem->id,
+                'item_quantity' => $cartItem->quantity,
+                'item_subtotal' => 'Rp '.number_format($itemSubtotal, 0, ',', '.'),
+                'total_quantity' => $totalQuantity.' Pcs',
+                'subtotal' => 'Rp '.number_format($subtotal, 0, ',', '.'),
+                'total_pay' => 'Rp '.number_format($subtotal, 0, ',', '.'),
             ]);
         }
 

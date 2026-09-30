@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Seller;
 use App\Models\User;
 use App\Services\WhatsAppService;
@@ -28,13 +29,13 @@ class SellerController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->whereHas('user', function ($uq) use ($search) {
                     $uq->where('username', 'like', "%{$search}%")
-                       ->orWhere('email', 'like', "%{$search}%")
-                       ->orWhere('nis_nip', 'like', "%{$search}%")
-                       ->orWhere('class_room', 'like', "%{$search}%")
-                       ->orWhere('phone_number', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('nis_nip', 'like', "%{$search}%")
+                        ->orWhere('class_room', 'like', "%{$search}%")
+                        ->orWhere('phone_number', 'like', "%{$search}%");
                 })
-                ->orWhere('whatsapp_number', 'like', "%{$search}%")
-                ->orWhere('store_name', 'like', "%{$search}%");
+                    ->orWhere('whatsapp_number', 'like', "%{$search}%")
+                    ->orWhere('store_name', 'like', "%{$search}%");
             });
         }
 
@@ -64,13 +65,13 @@ class SellerController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->whereHas('user', function ($uq) use ($search) {
                     $uq->where('username', 'like', "%{$search}%")
-                       ->orWhere('email', 'like', "%{$search}%")
-                       ->orWhere('nis_nip', 'like', "%{$search}%")
-                       ->orWhere('class_room', 'like', "%{$search}%")
-                       ->orWhere('phone_number', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('nis_nip', 'like', "%{$search}%")
+                        ->orWhere('class_room', 'like', "%{$search}%")
+                        ->orWhere('phone_number', 'like', "%{$search}%");
                 })
-                ->orWhere('whatsapp_number', 'like', "%{$search}%")
-                ->orWhere('store_name', 'like', "%{$search}%");
+                    ->orWhere('whatsapp_number', 'like', "%{$search}%")
+                    ->orWhere('store_name', 'like', "%{$search}%");
             });
         }
 
@@ -79,10 +80,10 @@ class SellerController extends Controller
             ->withQueryString();
 
         $counts = [
-            'pending'  => Seller::where('status', 'pending')->count(),
+            'pending' => Seller::where('status', 'pending')->count(),
             'revision' => Seller::where('status', 'revision')->count(),
             'rejected' => Seller::where('status', 'rejected')->count(),
-            'all'      => Seller::whereIn('status', ['pending', 'revision', 'rejected'])->count(),
+            'all' => Seller::whereIn('status', ['pending', 'revision', 'rejected'])->count(),
         ];
 
         return view('admin.sellers.verifications', compact('sellers', 'status', 'counts'));
@@ -104,25 +105,25 @@ class SellerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'user_id'          => ['required', 'exists:users,id'],
-            'whatsapp_number'  => ['nullable', 'string', 'max:20'],
-            'description'      => ['nullable', 'string'],
+            'user_id' => ['required', 'exists:users,id'],
+            'whatsapp_number' => ['nullable', 'string', 'max:20'],
+            'description' => ['nullable', 'string'],
         ]);
 
         $seller = Seller::create(array_merge($data, [
-            'status'      => 'approved',
+            'status' => 'approved',
             'approved_at' => now(),
         ]));
 
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => $seller->user_id,
-            'title'   => 'Pengajuan Seller Disetujui! 🎉',
+            'title' => 'Pengajuan Seller Disetujui! 🎉',
             'message' => 'Selamat! Akun Anda telah resmi terdaftar sebagai Penjual di Eskasaba Marketplace. Anda dapat mulai menambahkan produk toko Anda.',
-            'type'    => 'seller_approval',
+            'type' => 'seller_approval',
             'is_read' => false,
         ]);
 
-        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
+        WhatsAppService::sendSellerVerificationResultNotification($seller);
 
         return redirect()
             ->route('admin.sellers.index')
@@ -155,17 +156,17 @@ class SellerController extends Controller
     public function update(Request $request, Seller $seller): RedirectResponse
     {
         $data = $request->validate([
-            'status'           => ['required', 'in:pending,approved,rejected,revision'],
-            'whatsapp_number'  => ['nullable', 'string', 'max:20'],
-            'description'      => ['nullable', 'string'],
-            'rejection_note'   => ['nullable', 'string'],
+            'status' => ['required', 'in:pending,approved,rejected,revision'],
+            'whatsapp_number' => ['nullable', 'string', 'max:20'],
+            'description' => ['nullable', 'string'],
+            'rejection_note' => ['nullable', 'string'],
         ]);
 
         $updateData = [
-            'status'          => $data['status'],
+            'status' => $data['status'],
             'whatsapp_number' => $data['whatsapp_number'] ?? $seller->whatsapp_number,
-            'description'     => $data['description'] ?? $seller->description,
-            'rejection_note'  => $data['rejection_note'] ?? $seller->rejection_note,
+            'description' => $data['description'] ?? $seller->description,
+            'rejection_note' => $data['rejection_note'] ?? $seller->rejection_note,
         ];
 
         if ($data['status'] === 'approved' && ! $seller->approved_at) {
@@ -174,14 +175,14 @@ class SellerController extends Controller
 
         $seller->update($updateData);
 
-        if ($seller->user && !empty($updateData['whatsapp_number'])) {
+        if ($seller->user && ! empty($updateData['whatsapp_number'])) {
             $seller->user->update([
                 'phone' => $updateData['whatsapp_number'],
             ]);
         }
 
         // Kirim notifikasi WA hasil verifikasi
-        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
+        WhatsAppService::sendSellerVerificationResultNotification($seller);
 
         return redirect()
             ->route('admin.sellers.show', $seller)
@@ -194,7 +195,7 @@ class SellerController extends Controller
     public function destroy(Seller $seller): RedirectResponse
     {
         // Kirim notifikasi WA pencabutan status seller
-        \App\Services\WhatsAppService::sendSellerRevokedNotification($seller);
+        WhatsAppService::sendSellerRevokedNotification($seller);
 
         $seller->delete();
 
@@ -209,20 +210,20 @@ class SellerController extends Controller
     public function approve(Seller $seller): RedirectResponse
     {
         $seller->update([
-            'status'         => 'approved',
-            'approved_at'    => now(),
+            'status' => 'approved',
+            'approved_at' => now(),
             'rejection_note' => null,
         ]);
 
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => $seller->user_id,
-            'title'   => 'Pengajuan Seller Disetujui! 🎉',
+            'title' => 'Pengajuan Seller Disetujui! 🎉',
             'message' => 'Selamat! Pengajuan toko Anda telah disetujui oleh admin. Anda sekarang dapat mengakses panel seller & mengelola produk.',
-            'type'    => 'seller_approved',
-            'link'    => route('seller.dashboard'),
+            'type' => 'seller_approved',
+            'link' => route('seller.dashboard'),
         ]);
 
-        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
+        WhatsAppService::sendSellerVerificationResultNotification($seller);
 
         return redirect()
             ->route('admin.sellers.show', $seller)
@@ -238,24 +239,24 @@ class SellerController extends Controller
             'rejection_note' => ['required', 'string', 'min:5'],
         ], [
             'rejection_note.required' => 'Alasan penolakan wajib diisi.',
-            'rejection_note.min'      => 'Alasan terlalu singkat.',
+            'rejection_note.min' => 'Alasan terlalu singkat.',
         ]);
 
         $seller->update([
-            'status'         => 'rejected',
+            'status' => 'rejected',
             'rejection_note' => $request->rejection_note,
-            'approved_at'    => null,
+            'approved_at' => null,
         ]);
 
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => $seller->user_id,
-            'title'   => 'Pengajuan Seller Ditolak',
-            'message' => 'Pengajuan toko Anda belum disetujui. Catatan admin: ' . $request->rejection_note,
-            'type'    => 'seller_rejected',
-            'link'    => route('profile.index'),
+            'title' => 'Pengajuan Seller Ditolak',
+            'message' => 'Pengajuan toko Anda belum disetujui. Catatan admin: '.$request->rejection_note,
+            'type' => 'seller_rejected',
+            'link' => route('profile.index'),
         ]);
 
-        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
+        WhatsAppService::sendSellerVerificationResultNotification($seller);
 
         return redirect()
             ->route('admin.sellers.show', $seller)
@@ -271,23 +272,23 @@ class SellerController extends Controller
             'rejection_note' => ['required', 'string', 'min:5'],
         ], [
             'rejection_note.required' => 'Catatan revisi wajib diisi.',
-            'rejection_note.min'      => 'Catatan terlalu singkat.',
+            'rejection_note.min' => 'Catatan terlalu singkat.',
         ]);
 
         $seller->update([
-            'status'         => 'revision',
+            'status' => 'revision',
             'rejection_note' => $request->rejection_note,
         ]);
 
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => $seller->user_id,
-            'title'   => 'Permintaan Revisi Seller 📝',
-            'message' => 'Pengajuan toko Anda memerlukan revisi. Catatan: ' . $request->rejection_note,
-            'type'    => 'seller_revision',
-            'link'    => route('buyer.apply-seller'),
+            'title' => 'Permintaan Revisi Seller 📝',
+            'message' => 'Pengajuan toko Anda memerlukan revisi. Catatan: '.$request->rejection_note,
+            'type' => 'seller_revision',
+            'link' => route('buyer.apply-seller'),
         ]);
 
-        \App\Services\WhatsAppService::sendSellerVerificationResultNotification($seller);
+        WhatsAppService::sendSellerVerificationResultNotification($seller);
 
         return redirect()
             ->route('admin.sellers.show', $seller)

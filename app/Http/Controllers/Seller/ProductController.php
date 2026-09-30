@@ -29,9 +29,9 @@ class ProductController extends Controller
             'category',
             'images',
         ])
-        ->where('seller_id', $seller->id)
-        ->latest()
-        ->paginate(10);
+            ->where('seller_id', $seller->id)
+            ->latest()
+            ->paginate(10);
 
         return view('seller.products.index', compact(
             'products'
@@ -70,7 +70,7 @@ class ProductController extends Controller
             'seller_id' => $seller->id,
         ]);
 
-        if (!empty($uploadedFiles)) {
+        if (! empty($uploadedFiles)) {
             foreach ($uploadedFiles as $file) {
                 $path = ImageCompressor::compressAndStore($file, 'products');
                 $product->images()->create([
@@ -136,7 +136,7 @@ class ProductController extends Controller
         }
 
         // 3. Upload and save new images
-        if (!empty($uploadedFiles)) {
+        if (! empty($uploadedFiles)) {
             foreach ($uploadedFiles as $file) {
                 $path = ImageCompressor::compressAndStore($file, 'products');
                 $product->images()->create([

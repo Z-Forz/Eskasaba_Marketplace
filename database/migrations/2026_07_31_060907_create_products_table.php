@@ -15,38 +15,30 @@ return new class extends Migration
 
             $table->id();
 
-
             // Penjual produk
             $table->foreignId('seller_id')
                 ->constrained()
                 ->cascadeOnDelete();
-
 
             // Kategori produk
             $table->foreignId('category_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-
             $table->string('name');
 
-
             $table->decimal('price', 12, 2);
-
 
             $table->integer('stock')
                 ->default(0);
 
-
             $table->text('description')
                 ->nullable();
 
-
             $table->enum('status', [
                 'active',
-                'inactive'
+                'inactive',
             ])->default('active');
-
 
             $table->timestamps();
 

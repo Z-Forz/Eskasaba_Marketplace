@@ -22,15 +22,12 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-
             // penjual
             $table->foreignId('seller_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-
             $table->decimal('total_price', 12, 2);
-
 
             $table->enum('status', [
                 'pending',
@@ -40,7 +37,6 @@ return new class extends Migration
                 'completed',
                 'cancelled',
             ])->default('pending');
-
 
             $table->timestamps();
 

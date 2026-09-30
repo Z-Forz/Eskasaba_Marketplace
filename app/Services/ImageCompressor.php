@@ -11,12 +11,11 @@ class ImageCompressor
     /**
      * Compress an uploaded image file to <= 200KB (~100KB - 200KB) and save to storage.
      *
-     * @param  UploadedFile  $file
      * @param  string  $directory  Storage folder relative to disk (e.g. 'avatars', 'products', 'settings', 'review_images')
-     * @param  string  $disk       Storage disk name (default: 'public')
-     * @param  int     $targetMin  Target minimum size in KB (default: 100)
-     * @param  int     $targetMax  Target maximum size in KB (default: 200)
-     * @return string  Relative storage path
+     * @param  string  $disk  Storage disk name (default: 'public')
+     * @param  int  $targetMin  Target minimum size in KB (default: 100)
+     * @param  int  $targetMax  Target maximum size in KB (default: 200)
+     * @return string Relative storage path
      */
     public static function compressAndStore(
         UploadedFile $file,
@@ -44,7 +43,7 @@ class ImageCompressor
             }
         }
 
-        if (!$srcImage) {
+        if (! $srcImage) {
             if (str_contains($mime, 'jpeg') || str_contains($mime, 'jpg') || in_array($originalExtension, ['jpg', 'jpeg'])) {
                 $srcImage = @imagecreatefromjpeg($realPath);
             } elseif (str_contains($mime, 'png') || $originalExtension === 'png') {
@@ -135,8 +134,8 @@ class ImageCompressor
             default => 'jpg',
         };
 
-        $filename = Str::random(40) . '.' . $outExt;
-        $targetPath = trim($directory, '/') . '/' . $filename;
+        $filename = Str::random(40).'.'.$outExt;
+        $targetPath = trim($directory, '/').'/'.$filename;
 
         // Put compressed image buffer to disk
         Storage::disk($disk)->put($targetPath, $bestBuffer);

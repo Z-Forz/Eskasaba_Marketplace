@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\Seller;
+use App\Models\WebsiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -31,13 +32,13 @@ class HomeController extends Controller
             'category',
             'images',
         ])
-        ->withAvg('reviews', 'rating')
-        ->withCount('reviews')
-        ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
-            $query->whereHas('order', function ($q) {
-                $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
-            });
-        }], 'quantity');
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
+                $query->whereHas('order', function ($q) {
+                    $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
+                });
+            }], 'quantity');
 
         if (! empty($keyword)) {
             $productsQuery->where('name', 'like', "%{$keyword}%");
@@ -53,19 +54,19 @@ class HomeController extends Controller
             'category',
             'images',
         ])
-        ->withAvg('reviews', 'rating')
-        ->withCount('reviews')
-        ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
-            $query->whereHas('order', function ($q) {
-                $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
-            });
-        }], 'quantity')
-        ->orderByRaw('COALESCE(order_items_sum_quantity, 0) * 1000 + COALESCE(reviews_avg_rating, 0) * 10 + reviews_count DESC')
-        ->latest()
-        ->take(8)
-        ->get();
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
+                $query->whereHas('order', function ($q) {
+                    $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
+                });
+            }], 'quantity')
+            ->orderByRaw('COALESCE(order_items_sum_quantity, 0) * 1000 + COALESCE(reviews_avg_rating, 0) * 10 + reviews_count DESC')
+            ->latest()
+            ->take(8)
+            ->get();
 
-        $allSettings = \App\Models\WebsiteSetting::allSettings();
+        $allSettings = WebsiteSetting::allSettings();
         $settings = (object) (is_array($allSettings) ? $allSettings : []);
 
         return view('home.index', compact(
@@ -93,33 +94,33 @@ class HomeController extends Controller
             'category',
             'images',
         ])
-        ->withAvg('reviews', 'rating')
-        ->withCount('reviews')
-        ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
-            $query->whereHas('order', function ($q) {
-                $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
-            });
-        }], 'quantity')
-        ->when($search, function ($query) use ($search) {
-            $query->where('name', 'like', "%{$search}%");
-        })
-        ->when($categoryId, function ($query) use ($categoryId) {
-            $query->where('category_id', $categoryId);
-        })
-        ->when($sort, function ($query) use ($sort) {
-            match ($sort) {
-                'price_low'   => $query->orderBy('price', 'asc'),
-                'price_high'  => $query->orderBy('price', 'desc'),
-                'name'        => $query->orderBy('name', 'asc'),
-                'best_seller' => $query->orderByDesc('reviews_count')->latest(),
-                'rating'      => $query->orderByDesc('reviews_count')->latest(),
-                default       => $query->latest(),
-            };
-        }, function ($query) {
-            $query->latest();
-        })
-        ->paginate(12)
-        ->withQueryString();
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
+                $query->whereHas('order', function ($q) {
+                    $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
+                });
+            }], 'quantity')
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->where('category_id', $categoryId);
+            })
+            ->when($sort, function ($query) use ($sort) {
+                match ($sort) {
+                    'price_low' => $query->orderBy('price', 'asc'),
+                    'price_high' => $query->orderBy('price', 'desc'),
+                    'name' => $query->orderBy('name', 'asc'),
+                    'best_seller' => $query->orderByDesc('reviews_count')->latest(),
+                    'rating' => $query->orderByDesc('reviews_count')->latest(),
+                    default => $query->latest(),
+                };
+            }, function ($query) {
+                $query->latest();
+            })
+            ->paginate(12)
+            ->withQueryString();
 
         return view('products.index', compact(
             'products',
@@ -141,8 +142,8 @@ class HomeController extends Controller
             'images',
             'reviews.user',
         ])
-        ->loadAvg('reviews', 'rating')
-        ->loadCount('reviews');
+            ->loadAvg('reviews', 'rating')
+            ->loadCount('reviews');
 
         return view('products.show', compact(
             'product'
@@ -189,12 +190,12 @@ class HomeController extends Controller
             })
             ->when($sort, function ($query) use ($sort) {
                 match ($sort) {
-                    'price_low'   => $query->orderBy('price', 'asc'),
-                    'price_high'  => $query->orderBy('price', 'desc'),
-                    'name'        => $query->orderBy('name', 'asc'),
+                    'price_low' => $query->orderBy('price', 'asc'),
+                    'price_high' => $query->orderBy('price', 'desc'),
+                    'name' => $query->orderBy('name', 'asc'),
                     'best_seller' => $query->orderByDesc('reviews_count')->latest(),
-                    'rating'      => $query->orderByDesc('reviews_count')->latest(),
-                    default       => $query->latest(),
+                    'rating' => $query->orderByDesc('reviews_count')->latest(),
+                    default => $query->latest(),
                 };
             }, function ($query) {
                 $query->latest();
@@ -214,9 +215,9 @@ class HomeController extends Controller
 
         $stats = [
             'total_products' => $seller->products_count,
-            'total_sales'    => $totalSalesCount,
-            'avg_rating'     => number_format($avgSellerRating ?: 0, 1),
-            'total_reviews'  => $totalReviewsCount,
+            'total_sales' => $totalSalesCount,
+            'avg_rating' => number_format($avgSellerRating ?: 0, 1),
+            'total_reviews' => $totalReviewsCount,
         ];
 
         return view('sellers.show', compact(

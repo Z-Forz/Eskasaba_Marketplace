@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\OAuthController;
 use App\Models\ActivityLog;
 use App\Models\User;
 use App\Services\SchoolApiService;
@@ -47,13 +48,14 @@ class SchoolCallbackController extends Controller
         // Jika request membawa authorization code / SSO token, delegasikan ke OAuthController
         if ($code) {
             $request->merge(['code' => $code]);
-            return app(\App\Http\Controllers\OAuthController::class)->callback($request);
+
+            return app(OAuthController::class)->callback($request);
         }
 
         if (! $nisNip) {
             if ($request->expectsJson()) {
                 return response()->json([
-                    'status'  => false,
+                    'status' => false,
                     'message' => 'Parameter NIS/NIP/Email wajib diisi untuk SSO.',
                 ], 400);
             }
@@ -68,7 +70,7 @@ class SchoolCallbackController extends Controller
         $localUser = User::where('nis_nip', (string) $cleanIdentifier)
             ->orWhere('nis_nip', (string) $extractedNis)
             ->orWhere('email', $cleanIdentifier)
-            ->orWhere('email', 'like', $extractedNis . '@%')
+            ->orWhere('email', 'like', $extractedNis.'@%')
             ->first();
 
         if ($localUser) {
@@ -76,10 +78,11 @@ class SchoolCallbackController extends Controller
                 $localUser->delete();
                 if ($request->expectsJson()) {
                     return response()->json([
-                        'status'  => false,
+                        'status' => false,
                         'message' => 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
                     ], 403);
                 }
+
                 return redirect()->route('login')->with('error', 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.');
             }
 
@@ -90,9 +93,9 @@ class SchoolCallbackController extends Controller
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'status'   => true,
-                    'message'  => 'Berhasil login.',
-                    'user'     => $localUser,
+                    'status' => true,
+                    'message' => 'Berhasil login.',
+                    'user' => $localUser,
                     'redirect' => route('profile.index'),
                 ]);
             }
@@ -106,7 +109,7 @@ class SchoolCallbackController extends Controller
         if (! $apiData) {
             if ($request->expectsJson()) {
                 return response()->json([
-                    'status'  => false,
+                    'status' => false,
                     'message' => 'Pengguna tidak terdaftar pada API Sekolah atau akun Anda berstatus Alumni (Lulus).',
                 ], 404);
             }
@@ -117,21 +120,22 @@ class SchoolCallbackController extends Controller
         $role = ($apiData['jenis_pengguna'] ?? 'siswa') === 'guru' ? 'teacher' : 'student';
 
         if ($role === 'student') {
-            if (!empty($apiData['is_graduated']) || SchoolApiService::isAlumni($apiData)) {
+            if (! empty($apiData['is_graduated']) || SchoolApiService::isAlumni($apiData)) {
                 if ($request->expectsJson()) {
                     return response()->json([
-                        'status'  => false,
+                        'status' => false,
                         'message' => 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.',
                     ], 403);
                 }
+
                 return redirect()->route('login')->with('error', 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.');
             }
 
             $classRoom = $apiData['class_room'] ?? null;
-            if (empty($classRoom) || !preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
+            if (empty($classRoom) || ! preg_match('/^(kelas\s+|kls\s+)?(X|XI|XII|10|11|12)(\s+|-|:|$)/i', trim((string) $classRoom))) {
                 if ($request->expectsJson()) {
                     return response()->json([
-                        'status'  => false,
+                        'status' => false,
                         'message' => 'Hanya siswa aktif (Kelas 10, 11, dan 12) yang dapat mengakses sistem.',
                     ], 403);
                 }
@@ -141,19 +145,19 @@ class SchoolCallbackController extends Controller
         }
 
         $existingLocalUser = User::where('nis_nip', $apiData['nis_nip'])->first();
-        $extractedPhone    = SchoolApiService::extractPhone($apiData);
-        $finalPhone        = ($existingLocalUser && ! empty($existingLocalUser->phone)) ? $existingLocalUser->phone : $extractedPhone;
+        $extractedPhone = SchoolApiService::extractPhone($apiData);
+        $finalPhone = ($existingLocalUser && ! empty($existingLocalUser->phone)) ? $existingLocalUser->phone : $extractedPhone;
 
         $user = User::updateOrCreate(
             ['nis_nip' => $apiData['nis_nip']],
             [
-                'username'            => $apiData['nama'],
-                'email'               => $apiData['email'] ?? ($apiData['nis_nip'] . '@smkn1bangsri.sch.id'),
-                'role'                => $role,
-                'class_room'          => $apiData['class_room'] ?? null,
-                'phone'               => $finalPhone,
-                'api_id'              => $apiData['id'] ?? ($existingLocalUser ? $existingLocalUser->api_id : null),
-                'password'            => $existingLocalUser ? $existingLocalUser->password : Hash::make('password'),
+                'username' => $apiData['nama'],
+                'email' => $apiData['email'] ?? ($apiData['nis_nip'].'@smkn1bangsri.sch.id'),
+                'role' => $role,
+                'class_room' => $apiData['class_room'] ?? null,
+                'phone' => $finalPhone,
+                'api_id' => $apiData['id'] ?? ($existingLocalUser ? $existingLocalUser->api_id : null),
+                'password' => $existingLocalUser ? $existingLocalUser->password : Hash::make('password'),
                 'is_default_password' => $existingLocalUser ? $existingLocalUser->is_default_password : true,
             ]
         );
@@ -165,9 +169,9 @@ class SchoolCallbackController extends Controller
 
         if ($request->expectsJson()) {
             return response()->json([
-                'status'   => true,
-                'message'  => 'Berhasil login.',
-                'user'     => $user,
+                'status' => true,
+                'message' => 'Berhasil login.',
+                'user' => $user,
                 'redirect' => route('profile.index'),
             ]);
         }

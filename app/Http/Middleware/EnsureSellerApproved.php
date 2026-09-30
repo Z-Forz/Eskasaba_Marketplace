@@ -15,7 +15,7 @@ class EnsureSellerApproved
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user   = Auth::guard('web')->user();
+        $user = Auth::guard('web')->user();
         $seller = $user?->seller;
 
         if (! $seller || ! $seller->isApproved()) {

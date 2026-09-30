@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -13,6 +11,7 @@ use App\Http\Controllers\Admin\SellerRequestController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WebsiteSettingController;
 use App\Http\Controllers\Admin\WhatsAppController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:admin'])
     ->prefix('admin')

@@ -69,14 +69,14 @@ class SellerRequestController extends Controller
 
         $defaultResponse = $sellerRequest->type === 'category'
             ? "Kategori \"{$sellerRequest->title}\" telah ditambahkan ke sistem. Silakan gunakan kategori tersebut saat mengunggah atau mengedit produk Anda."
-            : "Request Anda telah diproses dan disetujui oleh Admin.";
+            : 'Request Anda telah diproses dan disetujui oleh Admin.';
 
         $adminResponse = ! empty($data['admin_response']) ? $data['admin_response'] : $defaultResponse;
 
         $sellerRequest->update([
-            'status'         => 'completed',
+            'status' => 'completed',
             'admin_response' => $adminResponse,
-            'completed_at'   => now(),
+            'completed_at' => now(),
         ]);
 
         $sellerRequest->loadMissing('seller.user');
@@ -85,9 +85,9 @@ class SellerRequestController extends Controller
         if ($sellerRequest->seller?->user_id) {
             Notification::create([
                 'user_id' => $sellerRequest->seller->user_id,
-                'title'   => 'Request Disetujui & Diproses Admin 🎉',
+                'title' => 'Request Disetujui & Diproses Admin 🎉',
                 'message' => "Request Anda \"{$sellerRequest->title}\" telah disetujui. Balasan Admin: {$adminResponse}",
-                'type'    => 'seller_request_completed',
+                'type' => 'seller_request_completed',
                 'is_read' => false,
             ]);
         }
@@ -111,7 +111,7 @@ class SellerRequestController extends Controller
         ]);
 
         $sellerRequest->update([
-            'status'         => 'rejected',
+            'status' => 'rejected',
             'admin_response' => $data['admin_response'],
         ]);
 
@@ -121,9 +121,9 @@ class SellerRequestController extends Controller
         if ($sellerRequest->seller?->user_id) {
             Notification::create([
                 'user_id' => $sellerRequest->seller->user_id,
-                'title'   => 'Tanggapan Admin Atas Request ℹ️',
+                'title' => 'Tanggapan Admin Atas Request ℹ️',
                 'message' => "Admin telah meninjau request Anda \"{$sellerRequest->title}\". Catatan: {$data['admin_response']}",
-                'type'    => 'seller_request_rejected',
+                'type' => 'seller_request_rejected',
                 'is_read' => false,
             ]);
         }

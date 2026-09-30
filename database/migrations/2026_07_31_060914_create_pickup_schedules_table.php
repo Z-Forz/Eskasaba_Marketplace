@@ -15,25 +15,19 @@ return new class extends Migration
 
             $table->id();
 
-
             $table->foreignId('order_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-
             $table->date('pickup_date');
 
-
             $table->time('pickup_time');
-
 
             $table->boolean('is_picked_up')
                 ->default(false);
 
-
             $table->timestamp('picked_up_at')
                 ->nullable();
-
 
             $table->timestamps();
 

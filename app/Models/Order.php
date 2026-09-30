@@ -42,25 +42,25 @@ class Order extends Model
 
             if ($order->payment && $order->payment->status === 'pending') {
                 $order->payment->update([
-                    'status'      => 'verified',
+                    'status' => 'verified',
                     'verified_at' => now(),
                 ]);
             }
 
-            \App\Models\Notification::create([
+            Notification::create([
                 'user_id' => $order->user_id,
-                'title'   => 'Pesanan Otomatis Selesai 📦',
-                'message' => 'Pesanan #' . ($order->invoice_number ?? $order->id) . ' telah otomatis dikonfirmasi Selesai oleh sistem (3 hari setelah diserahkan oleh penjual).',
-                'type'    => 'order_completed',
-                'link'    => route('buyer.orders.show', $order),
+                'title' => 'Pesanan Otomatis Selesai 📦',
+                'message' => 'Pesanan #'.($order->invoice_number ?? $order->id).' telah otomatis dikonfirmasi Selesai oleh sistem (3 hari setelah diserahkan oleh penjual).',
+                'type' => 'order_completed',
+                'link' => route('buyer.orders.show', $order),
             ]);
 
-            \App\Models\Notification::create([
+            Notification::create([
                 'user_id' => $order->seller->user_id,
-                'title'   => 'Pesanan Otomatis Selesai 📦',
-                'message' => 'Pesanan #' . ($order->invoice_number ?? $order->id) . ' telah otomatis dikonfirmasi Selesai oleh sistem (3 hari setelah diserahkan).',
-                'type'    => 'order_completed',
-                'link'    => route('seller.orders.show', $order),
+                'title' => 'Pesanan Otomatis Selesai 📦',
+                'message' => 'Pesanan #'.($order->invoice_number ?? $order->id).' telah otomatis dikonfirmasi Selesai oleh sistem (3 hari setelah diserahkan).',
+                'type' => 'order_completed',
+                'link' => route('seller.orders.show', $order),
             ]);
 
             $count++;
@@ -106,6 +106,7 @@ class Order extends Model
                         $product->increment('stock', $qty);
                     }
                     $product->save();
+
                     continue;
                 }
             }
@@ -117,7 +118,7 @@ class Order extends Model
     protected function casts(): array
     {
         return [
-            'total_price'         => 'decimal:2',
+            'total_price' => 'decimal:2',
             'refund_confirmed_at' => 'datetime',
         ];
     }

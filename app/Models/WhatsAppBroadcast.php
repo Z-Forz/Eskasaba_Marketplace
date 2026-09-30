@@ -28,11 +28,11 @@ class WhatsAppBroadcast extends Model
 
     protected $casts = [
         'total_recipients' => 'integer',
-        'sent_count'       => 'integer',
-        'failed_count'     => 'integer',
-        'delay_seconds'    => 'integer',
-        'started_at'       => 'datetime',
-        'completed_at'     => 'datetime',
+        'sent_count' => 'integer',
+        'failed_count' => 'integer',
+        'delay_seconds' => 'integer',
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     public function logs(): HasMany
@@ -55,12 +55,12 @@ class WhatsAppBroadcast extends Model
     public function getTargetLabelAttribute(): string
     {
         return match ($this->target_type) {
-            'teacher'    => 'Guru & Staf',
+            'teacher' => 'Guru & Staf',
             'student_10' => 'Siswa Kelas 10 (X)',
             'student_11' => 'Siswa Kelas 11 (XI)',
             'student_12' => 'Siswa Kelas 12 (XII)',
-            'all'        => 'Semua Users (Guru & Siswa)',
-            default      => 'Semua Users',
+            'all' => 'Semua Users (Guru & Siswa)',
+            default => 'Semua Users',
         };
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\Seller;
 use App\Services\ImageCompressor;
 use App\Services\WhatsAppService;
@@ -18,7 +19,7 @@ class SellerApplicationController extends Controller
      */
     public function create(): View|RedirectResponse
     {
-        $user   = Auth::user();
+        $user = Auth::user();
         $seller = $user->seller;
 
         // Sudah approved → langsung ke seller panel
@@ -41,7 +42,7 @@ class SellerApplicationController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $user   = Auth::user();
+        $user = Auth::user();
         $seller = $user->seller;
 
         if (empty($user->phone)) {
@@ -50,10 +51,10 @@ class SellerApplicationController extends Controller
         }
 
         $data = $request->validate([
-            'reason'     => ['required', 'string', 'max:1000'],
+            'reason' => ['required', 'string', 'max:1000'],
             'qris_image' => ['nullable', 'image', 'max:10240'],
         ], [
-            'reason.required'  => 'Alasan wajib diisi.',
+            'reason.required' => 'Alasan wajib diisi.',
             'qris_image.image' => 'File QRIS harus berupa gambar.',
         ]);
 
@@ -75,9 +76,9 @@ class SellerApplicationController extends Controller
 
             $updateData = [
                 'whatsapp_number' => $whatsappNumber,
-                'reason'          => $data['reason'],
-                'status'          => 'pending',
-                'rejection_note'  => null,
+                'reason' => $data['reason'],
+                'status' => 'pending',
+                'rejection_note' => null,
             ];
 
             if (isset($data['qris_image'])) {
@@ -88,25 +89,25 @@ class SellerApplicationController extends Controller
         } else {
             // Pengajuan pertama kali
             $seller = Seller::create([
-                'user_id'         => $user->id,
+                'user_id' => $user->id,
                 'whatsapp_number' => $whatsappNumber,
-                'reason'          => $data['reason'],
-                'qris_image'      => $data['qris_image'] ?? null,
-                'status'          => 'pending',
+                'reason' => $data['reason'],
+                'qris_image' => $data['qris_image'] ?? null,
+                'status' => 'pending',
             ]);
         }
 
         // Buat notifikasi di aplikasi untuk pendaftar
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => $user->id,
-            'title'   => 'Pengajuan Seller Berhasil Dikirim 📝',
+            'title' => 'Pengajuan Seller Berhasil Dikirim 📝',
             'message' => 'Pengajuan Anda untuk menjadi Penjual di Eskasaba Marketplace telah berhasil dikirim dan sedang dalam proses verifikasi Admin.',
-            'type'    => 'seller_application',
+            'type' => 'seller_application',
             'is_read' => false,
         ]);
 
         // Kirim notifikasi WhatsApp pengajuan seller ke pendaftar & admin
-        \App\Services\WhatsAppService::sendSellerApplicationNotification($seller);
+        WhatsAppService::sendSellerApplicationNotification($seller);
 
         return redirect()->route('profile.index')
             ->with('success', 'Pengajuan berhasil dikirim! Admin akan memverifikasi dalam 1×24 jam.');

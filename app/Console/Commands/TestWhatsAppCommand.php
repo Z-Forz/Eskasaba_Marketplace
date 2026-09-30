@@ -35,11 +35,13 @@ class TestWhatsAppCommand extends Command
         $success = WhatsAppService::send($phone, $message);
 
         if ($success) {
-            $this->output->success("✅ Pesan WhatsApp BERHASIL dikirim!");
+            $this->output->success('✅ Pesan WhatsApp BERHASIL dikirim!');
+
             return Command::SUCCESS;
         }
 
-        $this->output->error("❌ Pesan WhatsApp GAGAL dikirim. Pastikan server Baileys bot (node index.js) sudah aktif di port 3000 dan QR Code telah di-scan.");
+        $this->output->error('❌ Pesan WhatsApp GAGAL dikirim. Pastikan server Baileys bot (node index.js) sudah aktif di port 3000 dan QR Code telah di-scan.');
+
         return Command::FAILURE;
     }
 }

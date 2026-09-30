@@ -37,21 +37,21 @@ return [
 
     'whatsapp' => [
         'enabled' => env('WA_ENABLE_NOTIFICATION', true),
-        'url'     => env('WA_GATEWAY_URL', 'http://127.0.0.1:4545/send-message'),
-        'token'   => env('WA_GATEWAY_TOKEN', ''),
+        'url' => env('WA_GATEWAY_URL', 'http://127.0.0.1:4545/send-message'),
+        'token' => env('WA_GATEWAY_TOKEN', ''),
     ],
 
     'school_api' => [
-        'url'   => env('SCHOOL_API_URL', 'https://api.sekolah.example'),
+        'url' => env('SCHOOL_API_URL', 'https://api.sekolah.example'),
         'token' => env('SCHOOL_API_TOKEN', ''),
     ],
 
     'sipintu' => [
-        'base_url'      => env('SIPINTU_BASE_URL', env('SIPINTU_API_URL', 'https://sipintu.smkn1bangsri.sch.id')),
-        'url'           => env('SIPINTU_BASE_URL', env('SIPINTU_API_URL', 'https://sipintu.smkn1bangsri.sch.id')),
-        'client_id'     => env('SIPINTU_CLIENT_ID', ''),
+        'base_url' => env('SIPINTU_BASE_URL', env('SIPINTU_API_URL', 'https://sipintu.smkn1bangsri.sch.id')),
+        'url' => env('SIPINTU_BASE_URL', env('SIPINTU_API_URL', 'https://sipintu.smkn1bangsri.sch.id')),
+        'client_id' => env('SIPINTU_CLIENT_ID', ''),
         'client_secret' => env('SIPINTU_CLIENT_SECRET', ''),
-        'redirect_uri'  => env('SIPINTU_REDIRECT_URI', env('APP_URL', 'http://localhost:8000') . '/oauth/callback'),
+        'redirect_uri' => env('SIPINTU_REDIRECT_URI', env('APP_URL', 'http://localhost:8000').'/oauth/callback'),
     ],
 
 ];

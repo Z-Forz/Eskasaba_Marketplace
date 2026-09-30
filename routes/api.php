@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\PaymentCallbackController;
 use App\Http\Controllers\Auth\SchoolCallbackController;
+use App\Http\Controllers\OAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,9 +23,8 @@ Route::match(['get', 'post'], '/school/callback', [SchoolCallbackController::cla
     ->name('api.school.callback');
 
 // SiPintu Webhook: Sinkronisasi Otomatis Data Pengguna & Password Real-time
-Route::match(['get', 'post'], '/sipintu/sync-user', [\App\Http\Controllers\OAuthController::class, 'syncUser'])
+Route::match(['get', 'post'], '/sipintu/sync-user', [OAuthController::class, 'syncUser'])
     ->name('api.sipintu.sync-user');
 
-Route::match(['get', 'post'], '/sipintu/sync-password', [\App\Http\Controllers\OAuthController::class, 'syncPassword'])
+Route::match(['get', 'post'], '/sipintu/sync-password', [OAuthController::class, 'syncPassword'])
     ->name('api.sipintu.sync-password');
-

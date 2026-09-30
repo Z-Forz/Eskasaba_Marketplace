@@ -15,7 +15,7 @@ return new class extends Migration
         // Modify enum for orders.status if MySQL to support return_requested and refund_pending_buyer_confirmation
         try {
             DB::statement("ALTER TABLE orders MODIFY COLUMN status VARCHAR(50) DEFAULT 'pending'");
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Fallback for drivers that don't support statement
         }
 
