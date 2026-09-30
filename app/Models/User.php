@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -18,8 +19,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string|null $kelas
  * @property int $api_id
  * @property string|null $phone
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class User extends Authenticatable
 {
@@ -30,6 +31,7 @@ class User extends Authenticatable
         'nis_nip',
         'email',
         'password',
+        'plain_password',
         'role',
         'class_room',
         'is_default_password',
@@ -46,7 +48,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password'            => 'hashed',
+            'password' => 'hashed',
             'is_default_password' => 'boolean',
         ];
     }

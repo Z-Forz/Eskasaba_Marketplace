@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Services\SchoolApiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -26,7 +28,7 @@ class OAuthController extends Controller
             $errorMsg = 'Otorisasi SSO SiPintu gagal: Kode otorisasi (code) tidak ditemukan.';
             if ($request->expectsJson()) {
                 return response()->json([
-                    'status'  => false,
+                    'status' => false,
                     'message' => $errorMsg,
                 ], 400);
             }
@@ -34,10 +36,10 @@ class OAuthController extends Controller
             return redirect()->route('login')->with('error', $errorMsg);
         }
 
-        $baseUrl      = rtrim(config('services.sipintu.base_url', env('SIPINTU_BASE_URL', 'https://sipintu.smkn1bangsri.sch.id')), '/');
-        $clientId     = config('services.sipintu.client_id', env('SIPINTU_CLIENT_ID', ''));
+        $baseUrl = rtrim(config('services.sipintu.base_url', env('SIPINTU_BASE_URL', 'https://sipintu.smkn1bangsri.sch.id')), '/');
+        $clientId = config('services.sipintu.client_id', env('SIPINTU_CLIENT_ID', ''));
         $clientSecret = config('services.sipintu.client_secret', env('SIPINTU_CLIENT_SECRET', ''));
-        $redirectUri  = config('services.sipintu.redirect_uri', env('SIPINTU_REDIRECT_URI', url('/oauth/callback')));
+        $redirectUri = config('services.sipintu.redirect_uri', env('SIPINTU_REDIRECT_URI', url('/oauth/callback')));
 
         // 2. Tukar Code dengan Access Token (Backend-to-Backend HTTP POST)
         $tokenResponse = null;
@@ -47,14 +49,14 @@ class OAuthController extends Controller
                 ->acceptJson()
                 ->timeout(10)
                 ->post("{$baseUrl}/oauth/token", [
-                    'grant_type'    => 'authorization_code',
-                    'client_id'     => $clientId,
+                    'grant_type' => 'authorization_code',
+                    'client_id' => $clientId,
                     'client_secret' => $clientSecret,
-                    'redirect_uri'  => $redirectUri,
-                    'code'          => $code,
+                    'redirect_uri' => $redirectUri,
+                    'code' => $code,
                 ]);
         } catch (\Exception $e) {
-            Log::error('SSO Token Exchange Connection Exception: ' . $e->getMessage());
+            Log::error('SSO Token Exchange Connection Exception: '.$e->getMessage());
         }
 
         if (! $tokenResponse || $tokenResponse->failed()) {
@@ -63,7 +65,7 @@ class OAuthController extends Controller
                 ?? 'Otorisasi SSO gagal: Kode otorisasi tidak valid atau telah kadaluarsa.';
 
             Log::error("SSO Token Exchange Failed: {$errorMsg}", [
-                'client_id'    => $clientId,
+                'client_id' => $clientId,
                 'redirect_uri' => $redirectUri,
             ]);
 
@@ -91,7 +93,7 @@ class OAuthController extends Controller
                 ->timeout(10)
                 ->get("{$baseUrl}/api/v1/user");
         } catch (\Exception $e) {
-            Log::error('SSO User Fetch Exception: ' . $e->getMessage());
+            Log::error('SSO User Fetch Exception: '.$e->getMessage());
 
             if ($request->expectsJson()) {
                 return response()->json(['status' => false, 'message' => 'Gagal menghubungi endpoint profil pengguna SiPintu.'], 500);
@@ -121,7 +123,7 @@ class OAuthController extends Controller
     protected function processAuthenticatedUser(Request $request, array $sipintuUser): RedirectResponse|JsonResponse
     {
         $externalId = $sipintuUser['external_id'] ?? null;
-        $nisNip     = $sipintuUser['nis_nip']
+        $nisNip = $sipintuUser['nis_nip']
             ?? $sipintuUser['nis']
             ?? $sipintuUser['nip']
             ?? $externalId
@@ -144,11 +146,11 @@ class OAuthController extends Controller
         $isTeacher = in_array($roleRaw, ['guru', 'teacher', 'dewan guru']);
 
         // Jika akun siswa berstatus Alumni (graduates=true / is_graduated=true), tolak login SSO & hapus akun lokal jika ada
-        if (!$isTeacher && \App\Services\SchoolApiService::isAlumni($sipintuUser)) {
+        if (! $isTeacher && SchoolApiService::isAlumni($sipintuUser)) {
             if ($user) {
                 $user->delete();
             }
-            $errorMsg = "Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.";
+            $errorMsg = 'Akun Anda telah berstatus Alumni / Akun Anda tidak terdaftar. Pengaksesan Eskasaba Marketplace hanya diperuntukkan bagi siswa/guru aktif.';
             Log::warning("SSO Login Rejected: User {$nisNip} is an alumni.");
 
             if ($request->expectsJson()) {
@@ -161,7 +163,7 @@ class OAuthController extends Controller
         // Jika user tidak ditemukan, tolak login SSO
         if (! $user) {
             $identifier = $nisNip ?? $email ?? 'Pengguna';
-            $errorMsg   = "Akun SiPintu Anda ({$identifier}) belum terdaftar pada aplikasi Eskasaba Marketplace. Silakan hubungi administrator.";
+            $errorMsg = "Akun SiPintu Anda ({$identifier}) belum terdaftar pada aplikasi Eskasaba Marketplace. Silakan hubungi administrator.";
 
             Log::warning("SSO Login Rejected: User {$identifier} not found in local database.");
 
@@ -210,9 +212,9 @@ class OAuthController extends Controller
 
         if ($request->expectsJson()) {
             return response()->json([
-                'status'   => true,
-                'message'  => "Login SSO berhasil. Selamat datang kembali, {$user->username}!",
-                'user'     => $user,
+                'status' => true,
+                'message' => "Login SSO berhasil. Selamat datang kembali, {$user->username}!",
+                'user' => $user,
                 'redirect' => route('profile.index'),
             ]);
         }
@@ -228,10 +230,10 @@ class OAuthController extends Controller
         // 1. Tangani Probe / Health Check Ping (GET / POST tanpa payload) dari engine SiPintu
         if ($request->isMethod('get') || $request->has('ping')) {
             return response()->json([
-                'status'  => 'ok',
+                'status' => 'ok',
                 'service' => config('app.name'),
                 'message' => 'Endpoint Webhook Sinkronisasi Real-Time SiPintu aktif.',
-                'time'    => now()->toIso8601String(),
+                'time' => now()->toIso8601String(),
             ], 200);
         }
 
@@ -250,12 +252,12 @@ class OAuthController extends Controller
         $previous = $request->input('previous', []);
 
         // Jika request kosong (probe test dari SiPintu SSO scanner)
-        if (empty($userData) || (!isset($userData['external_id']) && !isset($userData['nis_nip']) && !isset($userData['email']) && !isset($userData['nis']) && !isset($userData['nip']) && !isset($userData['username']) && !isset($userData['name']))) {
+        if (empty($userData) || (! isset($userData['external_id']) && ! isset($userData['nis_nip']) && ! isset($userData['email']) && ! isset($userData['nis']) && ! isset($userData['nip']) && ! isset($userData['username']) && ! isset($userData['name']))) {
             return response()->json([
-                'status'  => 'ok',
+                'status' => 'ok',
                 'service' => config('app.name'),
                 'message' => 'Endpoint Webhook SiPintu aktif (Health Check OK). Siap menerima payload pengguna/password.',
-                'time'    => now()->toIso8601String(),
+                'time' => now()->toIso8601String(),
             ], 200);
         }
 
@@ -279,17 +281,18 @@ class OAuthController extends Controller
         $role = in_array($roleRaw, ['guru', 'teacher']) ? 'teacher' : 'student';
 
         // Jika data siswa dari Webhook SiPintu berstatus Alumni, hapus akun jika ada & abaikan sinkronisasi
-        if ($role === 'student' && \App\Services\SchoolApiService::isAlumni($userData)) {
+        if ($role === 'student' && SchoolApiService::isAlumni($userData)) {
             if ($user) {
                 $user->delete();
             }
+
             return response()->json(['status' => 'success', 'message' => 'Siswa berstatus alumni diabaikan/dihapus dari marketplace'], 200);
         }
 
         // 4. Siapkan data pembaruan
         $updateFields = [
             'username' => $userData['name'] ?? $userData['username'] ?? 'User',
-            'role'     => $role,
+            'role' => $role,
         ];
 
         if ($email) {
@@ -299,16 +302,26 @@ class OAuthController extends Controller
             $updateFields['nis_nip'] = (string) $nisNip;
         }
 
-        // Sinkronkan password hash jika ada
-        if (! empty($userData['password'])) {
-            $updateFields['password'] = $userData['password'];
-            $updateFields['is_default_password'] = false;
-        } elseif (! empty($userData['password_hash'])) {
-            $updateFields['password'] = $userData['password_hash'];
+        // Sinkronkan password hash jika dikirim dari SiPintu Gateway
+        $pwd = $userData['password']
+            ?? $userData['password_hash']
+            ?? $userData['new_password']
+            ?? $userData['pass']
+            ?? $userData['kata_sandi']
+            ?? $userData['user']['password']
+            ?? $userData['user']['password_hash']
+            ?? null;
+
+        if (! empty($pwd)) {
+            if (! str_starts_with($pwd, '$2y$') && ! str_starts_with($pwd, '$2a$') && ! str_starts_with($pwd, '$2b$') && ! str_starts_with($pwd, '$argon2id$')) {
+                $updateFields['password'] = Hash::make($pwd);
+            } else {
+                $updateFields['password'] = $pwd;
+            }
             $updateFields['is_default_password'] = false;
         }
 
-        if (isset($userData['phone']) || isset($userData['telepon'])) {
+        if ((isset($userData['phone']) || isset($userData['telepon'])) && (empty($user) || empty($user->phone))) {
             $updateFields['phone'] = $userData['phone'] ?? $userData['telepon'];
         }
         if (isset($userData['classroom']) || isset($userData['class_room']) || isset($userData['kelas'])) {
@@ -330,8 +343,8 @@ class OAuthController extends Controller
         }
 
         return response()->json([
-            'status'  => 'success',
-            'action'  => $action,
+            'status' => 'success',
+            'action' => $action,
             'message' => "User {$user->username} ({$user->email}) berhasil disinkronkan di Eskasaba Marketplace.",
             'user_id' => $user->id,
         ]);

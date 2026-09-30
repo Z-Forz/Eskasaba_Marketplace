@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\EnsureSellerApproved;
+use App\Http\Middleware\IsolateSession;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,9 +16,27 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prependToGroup('web', IsolateSession::class);
+
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return route('admin.login');
+            }
+
+            return route('login');
+        });
+
+        $middleware->redirectUsersTo(function (Request $request) {
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return route('admin.dashboard');
+            }
+
+            return route('dashboard');
+        });
+
         $middleware->alias([
-            'role'            => \App\Http\Middleware\EnsureRole::class,
-            'seller.approved' => \App\Http\Middleware\EnsureSellerApproved::class,
+            'role' => EnsureRole::class,
+            'seller.approved' => EnsureSellerApproved::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

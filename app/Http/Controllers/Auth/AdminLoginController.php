@@ -14,8 +14,12 @@ class AdminLoginController extends Controller
     /**
      * Display admin login page.
      */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         return view('auth.admin.login');
     }
 
@@ -44,7 +48,7 @@ class AdminLoginController extends Controller
         ActivityLog::record(
             userId: null,
             event: 'admin_login',
-            description: 'Admin ' . $admin->name . ' (' . $admin->username . ') berhasil login.',
+            description: 'Admin '.$admin->name.' ('.$admin->username.') berhasil login.',
             request: $request,
             adminId: $admin->id
         );
@@ -62,7 +66,7 @@ class AdminLoginController extends Controller
             ActivityLog::record(
                 userId: null,
                 event: 'admin_logout',
-                description: 'Admin ' . $admin->name . ' (' . $admin->username . ') logout dari sistem.',
+                description: 'Admin '.$admin->name.' ('.$admin->username.') logout dari sistem.',
                 request: $request,
                 adminId: $admin->id
             );

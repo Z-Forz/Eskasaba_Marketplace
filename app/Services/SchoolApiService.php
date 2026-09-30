@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -15,16 +13,19 @@ use Illuminate\Support\Facades\Log;
 class SchoolApiService
 {
     protected string $baseUrl;
+
     protected string $clientId;
+
     protected string $clientSecret;
+
     protected string $redirectUri;
 
     public function __construct()
     {
-        $this->baseUrl      = rtrim(config('services.sipintu.url', 'https://sipintu.smkn1bangsri.sch.id'), '/');
-        $this->clientId     = config('services.sipintu.client_id', 'app_2o8jtpekzdeh');
+        $this->baseUrl = rtrim(config('services.sipintu.url', 'https://sipintu.smkn1bangsri.sch.id'), '/');
+        $this->clientId = config('services.sipintu.client_id', 'app_2o8jtpekzdeh');
         $this->clientSecret = config('services.sipintu.client_secret', 'sec_BpEVnzLBIIP4eR4cdjhXHtdPF67Dj3OO');
-        $this->redirectUri  = config('services.sipintu.redirect_uri', url('/auth/school/callback'));
+        $this->redirectUri = config('services.sipintu.redirect_uri', url('/auth/school/callback'));
     }
 
     /**
@@ -66,36 +67,43 @@ class SchoolApiService
                 // First try SiPintu Server-to-Server Gateway Students endpoints
                 $response = Http::withoutVerifying()->timeout(8)
                     ->withHeaders([
-                        'X-Client-ID'     => $this->clientId,
+                        'X-Client-ID' => $this->clientId,
                         'X-Client-Secret' => $this->clientSecret,
-                        'Accept'          => 'application/json',
+                        'Accept' => 'application/json',
                     ])
                     ->get("{$this->baseUrl}/api/v1/sijuna/students", ['nis' => $key]);
 
                 if ($response->successful()) {
                     $data = $response->json()['data'] ?? $response->json();
+                    if (is_array($data) && isset($data['status']) && $data['status'] === 'error') {
+                        $data = null;
+                    }
                     $items = null;
                     if (is_array($data) && isset($data[0])) {
                         $items = collect($data)->first(function ($st) use ($key) {
-                            $stNis = (string) ($st['nis_nip'] ?? $st['nis'] ?? $st['id'] ?? '');
+                            $stNis = (string) ($st['external_id'] ?? $st['nis_nip'] ?? $st['nis'] ?? $st['id'] ?? '');
+
                             return $stNis === (string) $key;
                         });
                     } else {
                         $items = $data;
                     }
 
-                    if (!empty($items['nis_nip']) || !empty($items['nis']) || !empty($items['id'])) {
+                    $foundNis = $items['external_id'] ?? $items['nis_nip'] ?? $items['nis'] ?? $items['id'] ?? null;
+                    if (! empty($foundNis) && (! isset($items['status']) || $items['status'] !== 'error')) {
                         if (self::isAlumni($items)) {
-                            Log::info("SchoolApiService validate: Ignored alumni student " . ($items['nis'] ?? $items['nis_nip'] ?? $key));
+                            Log::info('SchoolApiService validate: Ignored alumni student '.($foundNis ?? $key));
+
                             continue;
                         }
                         $userFormatted = $this->formatUserData($items, 'student');
-                        if (!empty($userFormatted['is_graduated'])) {
+                        if (! empty($userFormatted['is_graduated'])) {
                             continue;
                         }
                         if (empty($userFormatted['class_room'])) {
                             $userFormatted['class_room'] = 'Siswa Aktif';
                         }
+
                         return $userFormatted;
                     }
                 }
@@ -103,25 +111,30 @@ class SchoolApiService
                 // Try Teachers endpoint (with nip query parameter)
                 $responseTeacher = Http::withoutVerifying()->timeout(8)
                     ->withHeaders([
-                        'X-Client-ID'     => $this->clientId,
+                        'X-Client-ID' => $this->clientId,
                         'X-Client-Secret' => $this->clientSecret,
-                        'Accept'          => 'application/json',
+                        'Accept' => 'application/json',
                     ])
                     ->get("{$this->baseUrl}/api/v1/sijuna/teachers", ['nip' => $key]);
 
                 if ($responseTeacher->successful()) {
                     $data = $responseTeacher->json()['data'] ?? $responseTeacher->json();
+                    if (is_array($data) && isset($data['status']) && $data['status'] === 'error') {
+                        $data = null;
+                    }
                     $items = null;
                     if (is_array($data) && isset($data[0])) {
                         $items = collect($data)->first(function ($tc) use ($key) {
-                            $tcNip = (string) ($tc['nis_nip'] ?? $tc['nip'] ?? $tc['id'] ?? '');
+                            $tcNip = (string) ($tc['external_id'] ?? $tc['nis_nip'] ?? $tc['nip'] ?? $tc['id'] ?? '');
+
                             return $tcNip === (string) $key;
                         });
                     } else {
                         $items = $data;
                     }
 
-                    if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
+                    $foundNip = $items['external_id'] ?? $items['nis_nip'] ?? $items['nip'] ?? $items['id'] ?? null;
+                    if (! empty($foundNip) && (! isset($items['status']) || $items['status'] !== 'error')) {
                         return $this->formatUserData($items, 'teacher');
                     }
                 }
@@ -129,16 +142,20 @@ class SchoolApiService
                 // Try Teachers endpoint (with nis_nip query parameter as fallback)
                 $responseTeacherNisNip = Http::withoutVerifying()->timeout(8)
                     ->withHeaders([
-                        'X-Client-ID'     => $this->clientId,
+                        'X-Client-ID' => $this->clientId,
                         'X-Client-Secret' => $this->clientSecret,
-                        'Accept'          => 'application/json',
+                        'Accept' => 'application/json',
                     ])
                     ->get("{$this->baseUrl}/api/v1/sijuna/teachers", ['nis_nip' => $key]);
 
                 if ($responseTeacherNisNip->successful()) {
                     $data = $responseTeacherNisNip->json()['data'] ?? $responseTeacherNisNip->json();
+                    if (is_array($data) && isset($data['status']) && $data['status'] === 'error') {
+                        $data = null;
+                    }
                     $items = is_array($data) ? ($data[0] ?? $data) : $data;
-                    if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
+                    $foundNip = $items['external_id'] ?? $items['nis_nip'] ?? $items['nip'] ?? $items['id'] ?? null;
+                    if (! empty($foundNip) && (! isset($items['status']) || $items['status'] !== 'error')) {
                         return $this->formatUserData($items, 'teacher');
                     }
                 }
@@ -147,22 +164,26 @@ class SchoolApiService
                 if (str_contains($key, '@')) {
                     $responseTeacherEmail = Http::withoutVerifying()->timeout(8)
                         ->withHeaders([
-                            'X-Client-ID'     => $this->clientId,
+                            'X-Client-ID' => $this->clientId,
                             'X-Client-Secret' => $this->clientSecret,
-                            'Accept'          => 'application/json',
+                            'Accept' => 'application/json',
                         ])
                         ->get("{$this->baseUrl}/api/v1/sijuna/teachers", ['email' => $key]);
 
                     if ($responseTeacherEmail->successful()) {
                         $data = $responseTeacherEmail->json()['data'] ?? $responseTeacherEmail->json();
+                        if (is_array($data) && isset($data['status']) && $data['status'] === 'error') {
+                            $data = null;
+                        }
                         $items = is_array($data) ? ($data[0] ?? $data) : $data;
-                        if (!empty($items['nis_nip']) || !empty($items['nip']) || !empty($items['id'])) {
+                        $foundNip = $items['external_id'] ?? $items['nis_nip'] ?? $items['nip'] ?? $items['id'] ?? null;
+                        if (! empty($foundNip) && (! isset($items['status']) || $items['status'] !== 'error')) {
                             return $this->formatUserData($items, 'teacher');
                         }
                     }
                 }
             } catch (\Exception $e) {
-                Log::warning("SchoolApiService validate exception for {$key}: " . $e->getMessage());
+                Log::warning("SchoolApiService validate exception for {$key}: ".$e->getMessage());
             }
         }
 
@@ -187,22 +208,22 @@ class SchoolApiService
             $respStudents = Http::withoutVerifying()
                 ->withOptions([
                     'connect_timeout' => 30,
-                    'curl'            => [
-                        CURLOPT_ENCODING  => '',
+                    'curl' => [
+                        CURLOPT_ENCODING => '',
                         CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
                     ],
                 ])
                 ->timeout(180)
                 ->withHeaders([
-                    'X-Client-ID'     => $this->clientId,
+                    'X-Client-ID' => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
-                    'Accept'          => 'application/json',
+                    'Accept' => 'application/json',
                 ])
                 ->get("{$this->baseUrl}/api/v1/sijuna/students");
 
             if ($respStudents->successful()) {
                 $students = $respStudents->json()['data'] ?? $respStudents->json();
-                if (is_array($students) && !empty($students)) {
+                if (is_array($students) && ! empty($students)) {
                     $studentsFetched = true;
                     foreach ($students as $st) {
                         $st['role'] = 'student';
@@ -210,10 +231,10 @@ class SchoolApiService
                     }
                 }
             } else {
-                Log::warning("SiPintu Students HTTP status: " . $respStudents->status());
+                Log::warning('SiPintu Students HTTP status: '.$respStudents->status());
             }
         } catch (\Exception $e) {
-            Log::error("SchoolApiService syncAllUsers students API exception: " . $e->getMessage());
+            Log::error('SchoolApiService syncAllUsers students API exception: '.$e->getMessage());
         }
 
         // Fetch Active Teachers from SiPintu Gateway Proxy
@@ -221,16 +242,16 @@ class SchoolApiService
             $respTeachers = Http::withoutVerifying()
                 ->withOptions([
                     'connect_timeout' => 30,
-                    'curl'            => [
-                        CURLOPT_ENCODING  => '',
+                    'curl' => [
+                        CURLOPT_ENCODING => '',
                         CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
                     ],
                 ])
                 ->timeout(180)
                 ->withHeaders([
-                    'X-Client-ID'     => $this->clientId,
+                    'X-Client-ID' => $this->clientId,
                     'X-Client-Secret' => $this->clientSecret,
-                    'Accept'          => 'application/json',
+                    'Accept' => 'application/json',
                 ])
                 ->get("{$this->baseUrl}/api/v1/sijuna/teachers");
 
@@ -243,14 +264,15 @@ class SchoolApiService
                     }
                 }
             } else {
-                Log::warning("SiPintu Teachers HTTP status: " . $respTeachers->status());
+                Log::warning('SiPintu Teachers HTTP status: '.$respTeachers->status());
             }
         } catch (\Exception $e) {
-            Log::error("SchoolApiService syncAllUsers teachers API exception: " . $e->getMessage());
+            Log::error('SchoolApiService syncAllUsers teachers API exception: '.$e->getMessage());
         }
 
         if (empty($allUsersData)) {
-            Log::warning("SchoolApiService syncAllUsers: No user data returned from SiPintu Gateway.");
+            Log::warning('SchoolApiService syncAllUsers: No user data returned from SiPintu Gateway.');
+
             return 0;
         }
 
@@ -260,7 +282,7 @@ class SchoolApiService
             $rawNisNip = $item['nis_nip'] ?? $item['nis'] ?? $item['nip'] ?? null;
             if ($rawNisNip !== null && $rawNisNip !== '') {
                 $key = (string) $rawNisNip;
-                if (!isset($uniqueUsers[$key])) {
+                if (! isset($uniqueUsers[$key])) {
                     $item['sync_nis_nip'] = $key;
                     $uniqueUsers[$key] = $item;
                 }
@@ -278,7 +300,7 @@ class SchoolApiService
         foreach ($uniqueUsers as $nisNip => $item) {
             $role = match (strtolower($item['jenis_pengguna'] ?? $item['role'] ?? 'siswa')) {
                 'guru', 'teacher' => 'teacher',
-                default           => 'student',
+                default => 'student',
             };
 
             $classRoom = null;
@@ -295,7 +317,8 @@ class SchoolApiService
             // Exclude alumni (only keep non-alumni students including PKL students)
             if ($role === 'student') {
                 if (self::isAlumni($item)) {
-                    Log::info("SchoolApiService syncAllUsers: Excluded alumni student " . ($nisNip ?? 'unknown'));
+                    Log::info('SchoolApiService syncAllUsers: Excluded alumni student '.($nisNip ?? 'unknown'));
+
                     continue;
                 }
 
@@ -313,28 +336,28 @@ class SchoolApiService
             if (empty($email)) {
                 $isJunior = preg_match('/^(kelas\s+|kls\s+)?(X|XI)(\s+|-|:|$)/i', trim((string) $classRoom));
                 $domain = $isJunior ? 'sijuna.com' : 'smkn1bangsri.sch.id';
-                $email = $nisNip . '@' . $domain;
+                $email = $nisNip.'@'.$domain;
             }
 
-            $username = $item['nama'] ?? $item['name'] ?? $item['user']['name'] ?? $item['username'] ?? ('User ' . $nisNip);
+            $username = $item['nama'] ?? $item['name'] ?? $item['user']['name'] ?? $item['username'] ?? ('User '.$nisNip);
 
             // Prioritaskan nomor HP/WA lokal yang sudah diisi di Eskasaba sebagai data utama
-            $sipintuPhone  = self::extractPhone($item);
+            $sipintuPhone = self::extractPhone($item);
             $existingPhone = $existingUserPhones[(string) $nisNip] ?? null;
-            $finalPhone    = !empty($existingPhone) ? $existingPhone : $sipintuPhone;
+            $finalPhone = ! empty($existingPhone) ? $existingPhone : $sipintuPhone;
 
             $upsertData[] = [
-                'nis_nip'             => (string) ($item['sync_nis_nip'] ?? $nisNip),
-                'username'            => (string) $username,
-                'email'               => (string) $email,
-                'role'                => (string) $role,
-                'class_room'          => (string) $classRoom,
-                'phone'               => $finalPhone,
-                'api_id'              => $item['id'] ?? 0,
-                'password'            => '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W',
+                'nis_nip' => (string) ($item['sync_nis_nip'] ?? $nisNip),
+                'username' => (string) $username,
+                'email' => (string) $email,
+                'role' => (string) $role,
+                'class_room' => (string) $classRoom,
+                'phone' => $finalPhone,
+                'api_id' => $item['id'] ?? 0,
+                'password' => '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W',
                 'is_default_password' => 1,
-                'created_at'          => $now,
-                'updated_at'          => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
 
@@ -350,11 +373,11 @@ class SchoolApiService
             if (isset($uniqueEmails[$email])) {
                 $isJunior = preg_match('/^(kelas\s+|kls\s+)?(X|XI)(\s+|-|:|$)/i', trim((string) ($row['class_room'] ?? '')));
                 $domain = $isJunior ? 'sijuna.com' : 'smkn1bangsri.sch.id';
-                $email = $nisNip . '@' . $domain;
+                $email = $nisNip.'@'.$domain;
 
                 $counter = 1;
                 while (isset($uniqueEmails[$email])) {
-                    $email = $nisNip . '_' . $counter . '@' . $domain;
+                    $email = $nisNip.'_'.$counter.'@'.$domain;
                     $counter++;
                 }
             }
@@ -395,7 +418,7 @@ class SchoolApiService
 
         // Status alumni eksplisit
         $statusStr = strtolower(trim((string) ($item['status'] ?? '')));
-        if ($statusStr === 'alumni' || !empty($item['is_graduated'])) {
+        if ($statusStr === 'alumni' || ! empty($item['is_graduated'])) {
             return true;
         }
 
@@ -426,12 +449,12 @@ class SchoolApiService
             ?? $data['user']['phone_number']
             ?? null;
 
-        return !empty($raw) ? trim((string) $raw) : null;
+        return ! empty($raw) ? trim((string) $raw) : null;
     }
 
     protected function formatUserData(array $data, string $defaultRole): array
     {
-        $nisNip = $data['nis_nip'] ?? $data['nis'] ?? $data['nip'] ?? null;
+        $nisNip = $data['external_id'] ?? $data['nis_nip'] ?? $data['nis'] ?? $data['nip'] ?? null;
         $classRoom = null;
         if (isset($data['classroom']) && is_array($data['classroom'])) {
             $classRoom = $data['classroom']['name'] ?? $data['classroom']['nama'] ?? null;
@@ -445,14 +468,14 @@ class SchoolApiService
         $isTeacher = in_array($rawRole, ['guru', 'teacher', 'dewan guru']);
 
         return [
-            'id'             => $data['id'] ?? null,
-            'nis_nip'        => $nisNip,
-            'nama'           => $data['nama'] ?? $data['name'] ?? $data['username'] ?? ('User ' . $nisNip),
+            'id' => $data['id'] ?? null,
+            'nis_nip' => $nisNip,
+            'nama' => $data['nama'] ?? $data['name'] ?? $data['username'] ?? ('User '.$nisNip),
             'jenis_pengguna' => $isTeacher ? 'guru' : 'siswa',
-            'class_room'     => $classRoom ?? ($isTeacher ? 'Dewan Guru' : null),
-            'telepon'        => self::extractPhone($data),
-            'email'          => $data['user']['email'] ?? $data['email'] ?? null,
-            'is_graduated'   => self::isAlumni($data),
+            'class_room' => $classRoom ?? ($isTeacher ? 'Dewan Guru' : null),
+            'telepon' => self::extractPhone($data),
+            'email' => $data['user']['email'] ?? $data['email'] ?? null,
+            'is_graduated' => self::isAlumni($data),
         ];
     }
 }
