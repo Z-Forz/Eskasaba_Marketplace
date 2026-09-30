@@ -18,77 +18,52 @@ class HomeController extends Controller
     {
         $keyword = $request->keyword;
 
-        $categories = \Illuminate\Support\Facades\Cache::remember('home_categories_v3', 300, function () {
-            return Category::withCount('products')
-                ->withAvg('reviews', 'rating')
-                ->withCount('reviews')
-                ->orderByDesc('products_count')
-                ->orderBy('name')
-                ->take(8)
-                ->get();
-        });
-
-        if (empty($keyword)) {
-            $products = \Illuminate\Support\Facades\Cache::remember('home_products_page_1', 180, function () {
-                return Product::with([
-                    'seller.user',
-                    'category',
-                    'images',
-                ])
-                ->withAvg('reviews', 'rating')
-                ->withCount('reviews')
-                ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
-                    $query->whereHas('order', function ($q) {
-                        $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
-                    });
-                }], 'quantity')
-                ->latest()
-                ->paginate(12);
-            });
-        } else {
-            $products = Product::with([
-                'seller.user',
-                'category',
-                'images',
-            ])
+        $categories = Category::withCount('products')
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
-            ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
-                $query->whereHas('order', function ($q) {
-                    $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
-                });
-            }], 'quantity')
-            ->where('name', 'like', "%{$keyword}%")
-            ->latest()
-            ->paginate(12)
-            ->withQueryString();
+            ->orderByDesc('products_count')
+            ->orderBy('name')
+            ->take(8)
+            ->get();
+
+        $productsQuery = Product::with([
+            'seller.user',
+            'category',
+            'images',
+        ])
+        ->withAvg('reviews', 'rating')
+        ->withCount('reviews')
+        ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
+            $query->whereHas('order', function ($q) {
+                $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
+            });
+        }], 'quantity');
+
+        if (! empty($keyword)) {
+            $productsQuery->where('name', 'like', "%{$keyword}%");
         }
 
-        // Featured / Unggulan & Terlaris products (diurutkan berdasarkan terbanyak pesanan & rating tertinggi)
-        $featuredProducts = \Illuminate\Support\Facades\Cache::remember('home_featured_products_v3', 300, function () {
-            return Product::with([
-                'seller.user',
-                'category',
-                'images',
-            ])
-            ->withAvg('reviews', 'rating')
-            ->withCount('reviews')
-            ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
-                $query->whereHas('order', function ($q) {
-                    $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
-                });
-            }], 'quantity')
-            ->latest()
-            ->get()
-            ->sortByDesc(function ($prod) {
-                $sales = (int) ($prod->order_items_sum_quantity ?? 0);
-                $rating = (float) ($prod->reviews_avg_rating ?? 0);
-                $reviews = (int) ($prod->reviews_count ?? 0);
-                return ($sales * 1000) + ($rating * 10) + $reviews;
-            })
-            ->take(8)
-            ->values();
-        });
+        $products = $productsQuery->latest()
+            ->paginate(12)
+            ->withQueryString();
+
+        // Featured / Unggulan & Terlaris products (top 8 by sales quantity, rating, and review count)
+        $featuredProducts = Product::with([
+            'seller.user',
+            'category',
+            'images',
+        ])
+        ->withAvg('reviews', 'rating')
+        ->withCount('reviews')
+        ->withSum(['orderItems as order_items_sum_quantity' => function ($query) {
+            $query->whereHas('order', function ($q) {
+                $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
+            });
+        }], 'quantity')
+        ->orderByRaw('COALESCE(order_items_sum_quantity, 0) * 1000 + COALESCE(reviews_avg_rating, 0) * 10 + reviews_count DESC')
+        ->latest()
+        ->take(8)
+        ->get();
 
         $settings = \App\Models\WebsiteSetting::first();
 
