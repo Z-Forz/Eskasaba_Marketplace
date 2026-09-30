@@ -36,7 +36,7 @@ class SyncSiPintuUsersCommand extends Command
             $userData = $schoolApi->validate($targetNis);
             if (!$userData) {
                 $this->error("Data pengguna NIS/NIP {$targetNis} tidak ditemukan di SiPintu Gateway.");
-                return Command::FAILURE;
+                return self::FAILURE;
             }
 
             $user = User::where('nis_nip', (string) $targetNis)->first();
@@ -59,7 +59,7 @@ class SyncSiPintuUsersCommand extends Command
             );
 
             $this->info("Berhasil menyinkronkan data pengguna: {$user->username} (NIS/NIP: {$user->nis_nip}, Kelas: {$user->class_room})");
-            return Command::SUCCESS;
+            return self::SUCCESS;
         }
 
         $this->info('Memulai sinkronisasi data pengguna SiPintu Gateway...');
@@ -88,14 +88,14 @@ class SyncSiPintuUsersCommand extends Command
                 ]);
             }
 
-            return Command::SUCCESS;
+            return self::SUCCESS;
         } catch (\Throwable $e) {
             $this->error('Gagal melakukan sinkronisasi: ' . $e->getMessage());
             Log::error('SyncSiPintuUsersCommand error: ' . $e->getMessage(), [
                 'exception' => $e,
             ]);
 
-            return Command::FAILURE;
+            return self::FAILURE;
         }
     }
 }

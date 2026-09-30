@@ -113,6 +113,27 @@ class SchoolLoginController extends Controller
                     }
 
                     return redirect()->route('profile.index')->with('success', 'Berhasil login! Selamat datang kembali, ' . $localUser->username . '.');
+                } else {
+                    // Pengguna memasukkan password baru buatan mereka (bukan 'password' default)
+                    // Simpan password baru ini ke database lokal dan ubah is_default_password menjadi false
+                    $localUser->update([
+                        'password'            => Hash::make($inputPassword),
+                        'is_default_password' => false,
+                    ]);
+
+                    Auth::login($localUser);
+                    $request->session()->regenerate();
+
+                    if (class_exists(\App\Models\ActivityLog::class)) {
+                        \App\Models\ActivityLog::record(
+                            $localUser->id,
+                            'login',
+                            "Login & aktivasi password baru berhasil dari IP {$request->ip()}",
+                            $request
+                        );
+                    }
+
+                    return redirect()->route('profile.index')->with('success', 'Berhasil login dengan kata sandi baru! Selamat datang kembali, ' . $localUser->username . '.');
                 }
             }
         }
@@ -159,44 +180,44 @@ class SchoolLoginController extends Controller
                 ]);
             }
 
-            if ($inputPassword === 'password') {
-                $extractedPhone = SchoolApiService::extractPhone($apiData);
-                $phoneToSave    = ($localUser && !empty($localUser->phone)) ? $localUser->phone : $extractedPhone;
+            $extractedPhone = SchoolApiService::extractPhone($apiData);
+            $phoneToSave    = ($localUser && !empty($localUser->phone)) ? $localUser->phone : $extractedPhone;
 
-                $userEmail = $apiData['email'] ?? ($localUser ? $localUser->email : null);
-                if (empty($userEmail)) {
-                    $userEmail = $cleanNisNip . '@sijuna.com';
-                }
-
-                // Update atau buat akun lokal secara otomatis
-                $localUser = User::updateOrCreate(
-                    ['nis_nip' => $apiData['nis_nip']],
-                    [
-                        'username'            => $apiData['nama'],
-                        'email'               => $userEmail,
-                        'role'                => $role,
-                        'class_room'          => $apiData['class_room'] ?? null,
-                        'phone'               => $phoneToSave,
-                        'api_id'              => $apiData['id'] ?? ($localUser ? $localUser->api_id : rand(1000, 9999)),
-                        'password'            => $localUser ? $localUser->password : Hash::make('password'),
-                        'is_default_password' => $localUser ? $localUser->is_default_password : true,
-                    ]
-                );
-
-                Auth::login($localUser);
-                $request->session()->regenerate();
-
-                if (class_exists(\App\Models\ActivityLog::class)) {
-                    \App\Models\ActivityLog::record(
-                        $localUser->id,
-                        'login',
-                        "Login berhasil dari IP {$request->ip()}",
-                        $request
-                    );
-                }
-
-                return redirect()->route('profile.index')->with('success', 'Berhasil login! Selamat datang kembali, ' . $localUser->username . '.');
+            $userEmail = $apiData['email'] ?? ($localUser ? $localUser->email : null);
+            if (empty($userEmail)) {
+                $userEmail = $cleanNisNip . '@sijuna.com';
             }
+
+            $isDefaultPw = ($inputPassword === 'password') && ($localUser ? $localUser->is_default_password : true);
+
+            // Update atau buat akun lokal secara otomatis
+            $localUser = User::updateOrCreate(
+                ['nis_nip' => $apiData['nis_nip']],
+                [
+                    'username'            => $apiData['nama'],
+                    'email'               => $userEmail,
+                    'role'                => $role,
+                    'class_room'          => $apiData['class_room'] ?? null,
+                    'phone'               => $phoneToSave,
+                    'api_id'              => $apiData['id'] ?? ($localUser ? $localUser->api_id : 0),
+                    'password'            => $isDefaultPw ? ($localUser ? $localUser->password : Hash::make('password')) : Hash::make($inputPassword),
+                    'is_default_password' => $isDefaultPw,
+                ]
+            );
+
+            Auth::login($localUser);
+            $request->session()->regenerate();
+
+            if (class_exists(\App\Models\ActivityLog::class)) {
+                \App\Models\ActivityLog::record(
+                    $localUser->id,
+                    'login',
+                    "Login berhasil dari IP {$request->ip()}",
+                    $request
+                );
+            }
+
+            return redirect()->route('profile.index')->with('success', 'Berhasil login! Selamat datang kembali, ' . $localUser->username . '.');
         }
 
         // 3. Fallback jika user tidak ditemukan atau password salah
@@ -210,12 +231,14 @@ class SchoolLoginController extends Controller
      */
     public function logout(Request $request): RedirectResponse
     {
-        Auth::logout();
+        try {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Logout session warning: ' . $e->getMessage());
+        }
 
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return redirect()->route('home');
+        return redirect()->route('home')->with('success', 'Anda telah berhasil keluar dari akun.');
     }
 }
