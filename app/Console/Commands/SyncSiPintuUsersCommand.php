@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\SchoolApiService;
 use App\Services\WhatsAppService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class SyncSiPintuUsersCommand extends Command
@@ -45,18 +46,37 @@ class SyncSiPintuUsersCommand extends Command
             $sipintuPhone = $userData['phone'] ?? null;
             $finalPhone = ! empty($existingPhone) ? $existingPhone : $sipintuPhone;
 
+            $pwd = $userData['password']
+                ?? $userData['password_hash']
+                ?? $userData['plain_password']
+                ?? $userData['pass']
+                ?? $userData['kata_sandi']
+                ?? null;
+
+            $updatePayload = [
+                'username' => $userData['username'] ?? $userData['nama'] ?? ('User '.$targetNis),
+                'email' => $userData['email'],
+                'role' => $userData['role'] ?? (($userData['jenis_pengguna'] ?? 'siswa') === 'guru' ? 'teacher' : 'student'),
+                'class_room' => $userData['class_room'],
+                'phone' => $finalPhone,
+                'api_id' => $userData['id'] ?? 0,
+            ];
+
+            if (! empty($pwd)) {
+                $updatePayload['plain_password'] = $pwd;
+                $updatePayload['password'] = (str_starts_with($pwd, '$2y$') || str_starts_with($pwd, '$2a$') || str_starts_with($pwd, '$2b$') || str_starts_with($pwd, '$argon2id$'))
+                    ? $pwd
+                    : Hash::make($pwd);
+                $updatePayload['is_default_password'] = ($pwd === 'password');
+            } elseif (! $user) {
+                $updatePayload['password'] = Hash::make('password');
+                $updatePayload['plain_password'] = 'password';
+                $updatePayload['is_default_password'] = true;
+            }
+
             $user = User::updateOrCreate(
                 ['nis_nip' => (string) $targetNis],
-                [
-                    'username' => $userData['username'],
-                    'email' => $userData['email'],
-                    'role' => $userData['role'],
-                    'class_room' => $userData['class_room'],
-                    'phone' => $finalPhone,
-                    'api_id' => $userData['id'] ?? 0,
-                    'password' => $user ? $user->password : '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W',
-                    'is_default_password' => $user ? $user->is_default_password : true,
-                ]
+                $updatePayload
             );
 
             $this->info("Berhasil menyinkronkan data pengguna: {$user->username} (NIS/NIP: {$user->nis_nip}, Kelas: {$user->class_room})");

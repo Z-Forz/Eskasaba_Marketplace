@@ -289,10 +289,13 @@ class SchoolApiService
             }
         }
 
-        $existingUserPhones = User::whereNotNull('phone')
-            ->where('phone', '!=', '')
-            ->pluck('phone', 'nis_nip')
-            ->toArray();
+        $existingUsers = User::all()->keyBy(fn ($u) => (string) $u->nis_nip);
+        $existingUserPhones = [];
+        foreach ($existingUsers as $nis => $u) {
+            if (! empty($u->phone)) {
+                $existingUserPhones[$nis] = $u->phone;
+            }
+        }
 
         $now = now();
         $upsertData = [];
@@ -356,9 +359,7 @@ class SchoolApiService
                 ?? $item['user']['plain_password']
                 ?? null;
 
-            $passHash = '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W';
-            $plainPass = 'password';
-            $isDefault = 1;
+            $existingUser = $existingUsers->get((string) $nisNip);
 
             if (! empty($pwd)) {
                 $plainPass = $pwd;
@@ -368,6 +369,15 @@ class SchoolApiService
                     $passHash = $pwd;
                 }
                 $isDefault = ($pwd === 'password') ? 1 : 0;
+            } elseif ($existingUser) {
+                // Pertahankan password & plain_password lokal jika SiPintu tidak mengirim kata sandi baru
+                $passHash = $existingUser->password;
+                $plainPass = $existingUser->plain_password ?? 'password';
+                $isDefault = $existingUser->is_default_password ? 1 : 0;
+            } else {
+                $passHash = '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W';
+                $plainPass = 'password';
+                $isDefault = 1;
             }
 
             $upsertData[] = [
@@ -422,7 +432,7 @@ class SchoolApiService
             User::upsert(
                 $chunk,
                 ['nis_nip'],
-                ['username', 'email', 'role', 'class_room', 'phone', 'api_id', 'plain_password', 'updated_at']
+                ['username', 'email', 'role', 'class_room', 'phone', 'api_id', 'password', 'plain_password', 'is_default_password', 'updated_at']
             );
         }
 
@@ -492,6 +502,16 @@ class SchoolApiService
         $rawRole = strtolower((string) ($data['jenis_pengguna'] ?? $data['role'] ?? $defaultRole));
         $isTeacher = in_array($rawRole, ['guru', 'teacher', 'dewan guru']);
 
+        $pwd = $data['password']
+            ?? $data['password_hash']
+            ?? $data['plain_password']
+            ?? $data['pass']
+            ?? $data['kata_sandi']
+            ?? $data['user']['password']
+            ?? $data['user']['password_hash']
+            ?? $data['user']['plain_password']
+            ?? null;
+
         return [
             'id' => $data['id'] ?? null,
             'nis_nip' => $nisNip,
@@ -501,6 +521,7 @@ class SchoolApiService
             'telepon' => self::extractPhone($data),
             'email' => $data['user']['email'] ?? $data['email'] ?? null,
             'is_graduated' => self::isAlumni($data),
+            'password' => $pwd,
         ];
     }
 }
