@@ -1,6 +1,8 @@
 <x-layouts.app>
     @php
-        $settings = $settings ?? \App\Models\WebsiteSetting::first() ?? null;
+        $settingsObj = (isset($settings) && is_object($settings) && isset($settings->hero_title)) 
+            ? $settings 
+            : (object) (\App\Models\WebsiteSetting::allSettings() ?? []);
     @endphp
 
     {{-- =========================================================
@@ -8,21 +10,19 @@
     ========================================================== --}}
     <section class="relative overflow-hidden bg-slate-950 text-white">
 
-        {{-- Background Hero Image Overlay (Matching Screenshot) --}}
+        {{-- Background Hero Image Overlay --}}
         <div class="pointer-events-none absolute inset-0 overflow-hidden">
-            @if(!empty($settings?->hero_image))
+            @if(!empty($settingsObj?->hero_image))
                 <img
-                    src="{{ asset('storage/' . $settings->hero_image) }}"
-                    alt="{{ $settings->hero_title ?? 'Eskasaba Market' }}"
-                    class="h-full w-full object-cover blur-sm scale-102 opacity-75"
+                    src="{{ asset('storage/' . $settingsObj->hero_image) }}"
+                    alt="{{ $settingsObj->hero_title ?? 'Eskasaba Market' }}"
+                    class="h-full w-full object-cover blur-xs scale-102 opacity-65"
                 >
                 <div class="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/60 to-slate-950/50"></div>
             @endif
         </div>
 
         <div class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
-
-            {{-- Hero Content --}}
             <div class="max-w-3xl">
 
                 <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-300 backdrop-blur-md">
@@ -31,8 +31,8 @@
 
                 <h1 class="mt-5 text-3xl font-black leading-snug tracking-tight text-white sm:text-4xl lg:text-5xl">
                     @php
-                        $heroText = $settings->hero_title ?? 'Selamat Datang di Eskasaba Market';
-                        $heroLines = explode("\n", wordwrap($heroText, 22, "\n", false));
+                        $heroText = !empty($settingsObj?->hero_title) ? $settingsObj->hero_title : 'Selamat Datang di Eskasaba Market';
+                        $heroLines = explode("\n", wordwrap($heroText, 25, "\n", false));
                         if (count($heroLines) > 1) {
                             $line1 = array_shift($heroLines);
                             $line2 = implode(' ', $heroLines);
@@ -45,7 +45,7 @@
                 </h1>
 
                 <p class="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base sm:leading-7">
-                    {{ $settings->hero_description ?? 'Marketplace internal sekolah untuk memudahkan warga sekolah melakukan transaksi jual beli produk karya siswa & guru dengan aman, praktis, dan terpercaya.' }}
+                    {{ !empty($settingsObj?->hero_description) ? $settingsObj->hero_description : 'Marketplace internal sekolah untuk memudahkan warga sekolah melakukan transaksi jual beli produk karya siswa & guru dengan aman, praktis, dan terpercaya.' }}
                 </p>
 
                 <div class="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -69,7 +69,6 @@
                 </div>
 
             </div>
-
         </div>
     </section>
 

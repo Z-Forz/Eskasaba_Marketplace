@@ -65,7 +65,8 @@ class HomeController extends Controller
         ->take(8)
         ->get();
 
-        $settings = \App\Models\WebsiteSetting::first();
+        $allSettings = \App\Models\WebsiteSetting::allSettings();
+        $settings = (object) (is_array($allSettings) ? $allSettings : []);
 
         return view('home.index', compact(
             'products',
