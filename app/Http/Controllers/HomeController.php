@@ -90,11 +90,14 @@ class HomeController extends Controller
             ->values();
         });
 
+        $settings = \App\Models\WebsiteSetting::first();
+
         return view('home.index', compact(
             'products',
             'featuredProducts',
             'categories',
-            'keyword'
+            'keyword',
+            'settings'
         ));
     }
 

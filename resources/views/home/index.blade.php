@@ -1,4 +1,7 @@
 <x-layouts.app>
+    @php
+        $settings = $settings ?? \App\Models\WebsiteSetting::first() ?? null;
+    @endphp
 
     {{-- =========================================================
         HERO SECTION
