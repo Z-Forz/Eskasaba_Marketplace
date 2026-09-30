@@ -52,7 +52,7 @@ class SyncSiPintuUsersCommand extends Command
                     'role'                => $userData['role'],
                     'class_room'          => $userData['class_room'],
                     'phone'               => $finalPhone,
-                    'api_id'              => $userData['id'] ?? null,
+                    'api_id'              => $userData['id'] ?? 0,
                     'password'            => $user ? $user->password : '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W',
                     'is_default_password' => $user ? $user->is_default_password : true,
                 ]

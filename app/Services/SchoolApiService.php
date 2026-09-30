@@ -330,7 +330,7 @@ class SchoolApiService
                 'role'                => (string) $role,
                 'class_room'          => (string) $classRoom,
                 'phone'               => $finalPhone,
-                'api_id'              => $item['id'] ?? null,
+                'api_id'              => $item['id'] ?? 0,
                 'password'            => '$2y$12$mZc8nvSiP6snrKMPMkwmh.BsRQ/jaYv9Bc/IayudmIEOnQnGuS.9W',
                 'is_default_password' => 1,
                 'created_at'          => $now,
