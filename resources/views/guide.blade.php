@@ -16,7 +16,7 @@
                 </h1>
 
                 <p class="mt-4 text-sm leading-relaxed text-emerald-100/80 sm:text-base sm:leading-7">
-                    Pelajari petunjuk praktis berbelanja dengan login NIS@Email untuk murid dan NIP/Email untuk Guru/Staff, transaksi, serta tata cara pendaftaran & pengelolaan toko Seller.
+                    Pelajari petunjuk praktis berbelanja dengan login NIS@Email untuk murid dan NIP/Email untuk Guru, transaksi, serta tata cara pendaftaran & pengelolaan toko Seller.
                 </p>
             </div>
         </div>

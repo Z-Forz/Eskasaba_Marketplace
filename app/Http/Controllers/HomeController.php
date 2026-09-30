@@ -18,13 +18,11 @@ class HomeController extends Controller
     {
         $keyword = $request->keyword;
 
-        $categories = \Illuminate\Support\Facades\Cache::remember('home_categories_top', 300, function () {
+        $categories = \Illuminate\Support\Facades\Cache::remember('home_categories_v3', 300, function () {
             return Category::withCount('products')
                 ->withAvg('reviews', 'rating')
                 ->withCount('reviews')
                 ->orderByDesc('products_count')
-                ->orderByRaw('COALESCE(reviews_avg_rating, 0) DESC')
-                ->orderByDesc('reviews_count')
                 ->orderBy('name')
                 ->take(8)
                 ->get();
@@ -67,7 +65,7 @@ class HomeController extends Controller
         }
 
         // Featured / Unggulan & Terlaris products (diurutkan berdasarkan terbanyak pesanan & rating tertinggi)
-        $featuredProducts = \Illuminate\Support\Facades\Cache::remember('home_featured_products', 300, function () {
+        $featuredProducts = \Illuminate\Support\Facades\Cache::remember('home_featured_products_v3', 300, function () {
             return Product::with([
                 'seller.user',
                 'category',
@@ -80,12 +78,16 @@ class HomeController extends Controller
                     $q->whereIn('status', ['confirmed', 'completed', 'paid', 'processing']);
                 });
             }], 'quantity')
-            ->orderByRaw('COALESCE(order_items_sum_quantity, 0) DESC')
-            ->orderByRaw('COALESCE(reviews_avg_rating, 0) DESC')
-            ->orderBy('reviews_count', 'desc')
             ->latest()
+            ->get()
+            ->sortByDesc(function ($prod) {
+                $sales = (int) ($prod->order_items_sum_quantity ?? 0);
+                $rating = (float) ($prod->reviews_avg_rating ?? 0);
+                $reviews = (int) ($prod->reviews_count ?? 0);
+                return ($sales * 1000) + ($rating * 10) + $reviews;
+            })
             ->take(8)
-            ->get();
+            ->values();
         });
 
         return view('home.index', compact(
@@ -130,10 +132,8 @@ class HomeController extends Controller
                 'price_low'   => $query->orderBy('price', 'asc'),
                 'price_high'  => $query->orderBy('price', 'desc'),
                 'name'        => $query->orderBy('name', 'asc'),
-                'best_seller' => $query->orderByRaw('COALESCE(order_items_sum_quantity, 0) DESC')
-                                        ->orderByRaw('COALESCE(reviews_avg_rating, 0) DESC'),
-                'rating'      => $query->orderByRaw('COALESCE(reviews_avg_rating, 0) DESC')
-                                        ->orderByRaw('COALESCE(order_items_sum_quantity, 0) DESC'),
+                'best_seller' => $query->orderByDesc('reviews_count')->latest(),
+                'rating'      => $query->orderByDesc('reviews_count')->latest(),
                 default       => $query->latest(),
             };
         }, function ($query) {
@@ -213,10 +213,8 @@ class HomeController extends Controller
                     'price_low'   => $query->orderBy('price', 'asc'),
                     'price_high'  => $query->orderBy('price', 'desc'),
                     'name'        => $query->orderBy('name', 'asc'),
-                    'best_seller' => $query->orderByRaw('COALESCE(order_items_sum_quantity, 0) DESC')
-                                            ->orderByRaw('COALESCE(reviews_avg_rating, 0) DESC'),
-                    'rating'      => $query->orderByRaw('COALESCE(reviews_avg_rating, 0) DESC')
-                                            ->orderByRaw('COALESCE(order_items_sum_quantity, 0) DESC'),
+                    'best_seller' => $query->orderByDesc('reviews_count')->latest(),
+                    'rating'      => $query->orderByDesc('reviews_count')->latest(),
                     default       => $query->latest(),
                 };
             }, function ($query) {
