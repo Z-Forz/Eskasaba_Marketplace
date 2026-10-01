@@ -37,16 +37,69 @@
                     <x-alert type="success" :message="session('status')" class="mb-5" />
                 @endif
 
-                @if (session('error'))
-                    <x-alert type="error" :message="session('error')" class="mb-5" />
-                @endif
-
                 @if (session('warning'))
                     <x-alert type="warning" :message="session('warning')" class="mb-5" />
                 @endif
 
-                @if ($errors->has('general'))
-                    <x-alert type="error" :message="$errors->first('general')" class="mb-5" />
+                {{-- Error Popup Modal --}}
+                @if ($errors->any() || session('error'))
+                    <div
+                        x-data="{ showModal: true }"
+                        x-show="showModal"
+                        x-cloak
+                        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+                    >
+                        {{-- Backdrop --}}
+                        <div
+                            x-show="showModal"
+                            x-transition:enter="ease-out duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="ease-in duration-200"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
+                            @click="showModal = false"
+                        ></div>
+
+                        {{-- Modal Dialog --}}
+                        <div
+                            x-show="showModal"
+                            x-transition:enter="ease-out duration-300"
+                            x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave="ease-in duration-200"
+                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+                            class="relative w-full max-w-md transform overflow-hidden rounded-3xl bg-white p-6 text-center shadow-2xl transition-all sm:p-7 dark:bg-slate-900 dark:border dark:border-slate-800"
+                        >
+                            <div class="flex flex-col items-center text-center">
+                                {{-- Icon Badge --}}
+                                <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 text-red-600 dark:bg-red-950/70 dark:text-red-400 shadow-md shadow-red-500/10">
+                                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                                </div>
+
+                                {{-- Title --}}
+                                <h3 class="text-lg font-black tracking-tight text-slate-900 sm:text-xl dark:text-white">
+                                    Gagal Masuk
+                                </h3>
+
+                                {{-- Error Message Body --}}
+                                <p class="mt-2.5 text-xs font-semibold leading-relaxed text-slate-600 sm:text-sm dark:text-slate-300">
+                                    {{ session('error') ?? $errors->first('email') ?? $errors->first('general') ?? $errors->first() }}
+                                </p>
+
+                                {{-- Dismiss Button --}}
+                                <button
+                                    type="button"
+                                    @click="showModal = false"
+                                    class="mt-6 w-full rounded-2xl bg-emerald-700 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-emerald-800 active:scale-98 cursor-pointer"
+                                >
+                                    <i class="fa-solid fa-check mr-1.5"></i> Saya Mengerti
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 @endif
 
                 <form
@@ -81,11 +134,6 @@
                                 class="w-full rounded-2xl border bg-slate-50/50 py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 dark:bg-slate-800/50 dark:text-white dark:focus:border-emerald-500 @error('email') border-red-500 ring-2 ring-red-500/20 dark:border-red-500 @else border-slate-200 dark:border-slate-800 @enderror"
                             >
                         </div>
-                        @error('email')
-                            <p class="mt-1.5 text-xs font-bold text-red-600 dark:text-red-400">
-                                <i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}
-                            </p>
-                        @enderror
                     </div>
 
                     {{-- Password Input with Toggle --}}
