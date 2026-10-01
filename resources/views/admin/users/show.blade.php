@@ -1,6 +1,6 @@
 <x-layouts.admin title="Detail Pengguna">
 
-    <div class="space-y-6 max-w-4xl mx-auto">
+    <div class="mx-auto max-w-4xl space-y-6">
 
         {{-- Header --}}
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -8,20 +8,23 @@
             <div>
                 <a
                     href="{{ route('admin.users.index', request()->query()) }}"
-                    class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                    class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
                 >
                     <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke kelola pengguna
                 </a>
 
-                <h1 class="mt-3 text-2xl font-black text-slate-900 dark:text-white">
+                <h1 class="mt-2 text-2xl font-black text-slate-900 dark:text-white">
                     Detail Pengguna
                 </h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Informasi lengkap akun dan data profil sekolah pengguna.
+                </p>
             </div>
 
             <div class="flex items-center gap-3">
                 <a
                     href="{{ route('admin.users.edit', array_merge(['user' => $user->id], request()->query())) }}"
-                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800 active:scale-95"
                 >
                     <i class="fa-solid fa-pen-to-square"></i> Edit Pengguna
                 </a>
@@ -44,19 +47,29 @@
 
                 <div class="min-w-0 flex-1">
 
-                    <h2 class="text-xl font-black text-slate-900 dark:text-white">
+                    <h2 class="text-xl font-black text-slate-900 dark:text-white truncate">
                         {{ $user->username }}
                     </h2>
 
-                    <p class="mt-1 text-sm font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                    <p class="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2 truncate">
                         <i class="fa-solid fa-envelope text-emerald-600"></i> {{ $user->email ?? 'Belum ada email' }}
                     </p>
 
-                    <div class="mt-3 flex items-center justify-center gap-2">
-                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                            <i class="{{ $user->role === 'teacher' ? 'fa-solid fa-chalkboard-user' : 'fa-solid fa-graduation-cap' }} mr-1"></i>
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60">
+                            <i class="{{ $user->role === 'teacher' ? 'fa-solid fa-chalkboard-user' : 'fa-solid fa-graduation-cap' }}"></i>
                             {{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}
                         </span>
+
+                        @if($user->is_default_password)
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60">
+                                <i class="fa-solid fa-key"></i> Kata Sandi Default
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                <i class="fa-solid fa-lock"></i> Kata Sandi Kustom
+                            </span>
+                        @endif
                     </div>
 
                 </div>
@@ -65,78 +78,121 @@
 
         </div>
 
-        {{-- Information Grid --}}
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {{-- Information Grid (2 balanced columns) --}}
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
 
-            {{-- Account --}}
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
+            {{-- Account & Security --}}
+            <section class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
-                <h2 class="font-bold text-slate-900 dark:text-white text-base">
-                    Informasi Akun
-                </h2>
-
-                <div class="mt-5 space-y-4 text-sm">
-
-                    <div class="flex justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                        <span class="text-xs font-medium text-slate-400">Username</span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->username }}</span>
-                    </div>
-
-                    <div class="flex justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                        <span class="text-xs font-medium text-slate-400">Email</span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->email ?? '-' }}</span>
-                    </div>
-
-                    <div class="flex justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                        <span class="text-xs font-medium text-slate-400">Peran (Role)</span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}</span>
-                    </div>
-
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-3 dark:border-slate-800">
-                        <span class="text-xs font-medium text-slate-400">Kata Sandi Akun</span>
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center gap-1.5 font-mono text-sm font-extrabold px-3 py-1 rounded-xl border
-                                {{ $user->is_default_password ? 'text-amber-800 bg-amber-50 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900/50' : 'text-emerald-900 bg-emerald-100 border-emerald-300/80 dark:bg-emerald-950/90 dark:text-emerald-200 dark:border-emerald-700/80' }}"
-                            >
-                                <i class="fa-solid {{ $user->is_default_password ? 'fa-key text-amber-500' : 'fa-lock text-emerald-600' }}"></i>
-                                {{ $user->plain_password ?? ($user->is_default_password ? 'password' : '-') }}
-                            </span>
+                <div>
+                    <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+                            <i class="fa-solid fa-user-shield text-sm"></i>
                         </div>
+                        <h2 class="font-bold text-slate-900 dark:text-white text-base">
+                            Informasi Akun & Keamanan
+                        </h2>
                     </div>
 
-                    <div class="flex justify-between">
-                        <span class="text-xs font-medium text-slate-400">Tanggal Bergabung</span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->created_at?->format('d F Y') ?? '-' }}</span>
-                    </div>
+                    <div class="mt-4 divide-y divide-slate-100 dark:divide-slate-800/80 text-sm">
 
+                        <div class="flex items-center justify-between py-3.5">
+                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-at w-4 text-center text-slate-400"></i> Username
+                            </span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->username }}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between py-3.5">
+                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-envelope w-4 text-center text-slate-400"></i> Email
+                            </span>
+                            <span class="font-semibold text-slate-800 dark:text-slate-200">{{ $user->email ?? '-' }}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between py-3.5">
+                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-user-gear w-4 text-center text-slate-400"></i> Peran (Role)
+                            </span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between py-3.5">
+                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-key w-4 text-center text-slate-400"></i> Kata Sandi Akun
+                            </span>
+                            <div>
+                                <span class="inline-flex items-center gap-1.5 font-mono text-xs font-extrabold px-3 py-1 rounded-xl border
+                                    {{ $user->is_default_password ? 'text-amber-800 bg-amber-50 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900/50' : 'text-emerald-900 bg-emerald-100 border-emerald-300/80 dark:bg-emerald-950/90 dark:text-emerald-200 dark:border-emerald-700/80' }}"
+                                >
+                                    <i class="fa-solid {{ $user->is_default_password ? 'fa-key text-amber-500' : 'fa-lock text-emerald-600' }}"></i>
+                                    {{ $user->plain_password ?? ($user->is_default_password ? 'password' : '••••••••') }}
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
             </section>
 
-            {{-- School Profile --}}
-            <section class="rounded-3xl border border-slate-200/80 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
+            {{-- School Profile & Contact --}}
+            <section class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
-                <h2 class="font-bold text-slate-900 dark:text-white text-base">
-                    Profil Sekolah & Telepon
-                </h2>
-
-                <div class="mt-5 space-y-4 text-sm">
-
-                    <div class="flex justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                        <span class="text-xs font-medium text-slate-400">NIS / NIP</span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->nis_nip ?? '-' }}</span>
+                <div>
+                    <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+                            <i class="fa-solid fa-school text-sm"></i>
+                        </div>
+                        <h2 class="font-bold text-slate-900 dark:text-white text-base">
+                            Profil Sekolah & Kontak
+                        </h2>
                     </div>
 
-                    <div class="flex justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                        <span class="text-xs font-medium text-slate-400">Kelas / Rombel</span>
-                        <span class="font-bold text-emerald-700 dark:text-emerald-400">{{ $user->class_room ?? '-' }}</span>
-                    </div>
+                    <div class="mt-4 divide-y divide-slate-100 dark:divide-slate-800/80 text-sm">
 
-                    <div class="flex justify-between">
-                        <span class="text-xs font-medium text-slate-400">Nomor Telepon</span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->phone ?? '-' }}</span>
-                    </div>
+                        <div class="flex items-center justify-between py-3.5">
+                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-id-card w-4 text-center text-slate-400"></i> NIS / NIP
+                            </span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->nis_nip ?? '-' }}</span>
+                        </div>
 
+                        <div class="flex items-center justify-between py-3.5">
+                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-chalkboard-user w-4 text-center text-slate-400"></i> Kelas / Rombel
+                            </span>
+                            <span class="font-bold text-emerald-700 dark:text-emerald-400">{{ $user->class_room ?? '-' }}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between py-3.5">
+                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-phone w-4 text-center text-slate-400"></i> Nomor Telepon
+                            </span>
+                            @if($user->phone)
+                                <a
+                                    href="https://wa.me/{{ preg_replace('/[^0-9]/', '', str_starts_with($user->phone, '0') ? '62' . substr($user->phone, 1) : $user->phone) }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+                                    title="Hubungi via WhatsApp"
+                                >
+                                    <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i>
+                                    {{ $user->phone }}
+                                </a>
+                            @else
+                                <span class="font-semibold text-slate-400 dark:text-slate-500">-</span>
+                            @endif
+                        </div>
+
+                        <div class="flex items-center justify-between py-3.5">
+                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-calendar-days w-4 text-center text-slate-400"></i> Terdaftar Pada
+                            </span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->created_at?->format('d F Y') ?? '-' }}</span>
+                        </div>
+
+                    </div>
                 </div>
 
             </section>
