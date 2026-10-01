@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PickupSchedule;
 use App\Models\Product;
+use App\Models\User;
 use App\Services\WhatsAppService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -96,8 +97,9 @@ class CheckoutController extends Controller
         ]);
 
         // Synchronize/save user phone number if empty or updated
-        $user = Auth::user();
-        if ($request->filled('phone') && $user->phone !== $request->phone) {
+        /** @var User|null $user */
+        $user = User::find(Auth::id());
+        if ($user && $request->filled('phone') && $user->phone !== $request->phone) {
             $user->update(['phone' => $request->phone]);
         }
 
