@@ -210,7 +210,42 @@ flowchart TD
     WABotManager --> ResetSession[Reset Sesi / Logout Bot]
     
     AdminMenu --> SyncUser[Sinkronisasi Akun SiPintu / Database Sekolah]
-    SyncUser --> FetchSiPintu[(Update Data Siswa & Guru)]
+    SyncUser --> FetchSiPintu[(Update Data Siswa & Guru - Preserves WhatsApp Phone)]
+```
+
+---
+
+### 🌐 5️⃣ Alur Integrasi Real-Time Webhook & Sinkronisasi SiPintu Gateway
+
+```mermaid
+flowchart TD
+    subgraph SiPintuServer [Server SiPintu Gateway]
+        UserChangePwd[Siswa / Guru Ubah Password di SiPintu]
+        SiPintuDB[(Database SiPintu)]
+    end
+
+    subgraph WebhookSync [Integrasi Real-Time & Sync]
+        POSTWebhook[POST /api/sipintu/sync-password]
+        AdminButton[Tombol Sync Admin / Cron php artisan sipintu:sync]
+    end
+
+    subgraph EskasabaMarket [Eskasaba Marketplace App]
+        ProcessWebhook[OAuthController::syncPassword]
+        ProcessSync[SchoolApiService::syncAllUsers]
+        SaveEskasabaDB[(Update Table Users: password, plain_password, is_default_password)]
+        PreservePhone[Preserve Nomor WA Lokal Pengguna]
+        AdminView[Display plain_password di Admin User Detail]
+    end
+
+    UserChangePwd --> SiPintuDB
+    UserChangePwd -- Real-Time Webhook --> POSTWebhook
+    POSTWebhook --> ProcessWebhook
+    ProcessWebhook --> SaveEskasabaDB
+
+    AdminButton --> ProcessSync
+    ProcessSync --> PreservePhone
+    PreservePhone --> SaveEskasabaDB
+    SaveEskasabaDB --> AdminView
 ```
 
 ---

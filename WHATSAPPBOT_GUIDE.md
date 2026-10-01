@@ -245,3 +245,13 @@ Fitur Pesan Custom memungkinkan Admin Sekolah mengirimkan pesan broadcast ke kel
    - `{kelas}` atau `{group}`: Otomatis diganti dengan nama kelas atau kelompok pengguna.
 5. **Monitoring Realtime**: Admin dapat memantau persentase progress, jumlah berhasil, jumlah gagal, dan membatalkan pengiriman kapan saja.
 
+---
+
+## 🔒 8. Proteksi Nomor WhatsApp Pengguna (Phone Number Preservation)
+
+Dalam proses sinkronisasi pengguna dari SiPintu Gateway (`SchoolApiService::syncAllUsers` & `SyncSiPintuUsersCommand`):
+
+1. **Preservasi Nomor WA Lokal**: Nomor WhatsApp yang sudah diisi oleh siswa/guru di Eskasaba Marketplace **dipertahankan sepenuhnya** dan tidak akan pernah ditimpa atau dihapus oleh sinkronisasi otomatis dari SiPintu.
+2. **Fallback Nomor SiPintu**: Nomor telepon dari SiPintu hanya digunakan jika kolom `phone` pengguna di Eskasaba Marketplace masih kosong (`null`).
+3. **Format Standar Notifikasi**: Nomor telepon selalu dikonversi ke format internasional Indonesia (`628xxx`) oleh `WhatsAppService::formatPhoneNumber()` sebelum notifikasi WhatsApp dikirimkan.
+
