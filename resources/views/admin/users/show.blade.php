@@ -99,7 +99,7 @@
                                 {{ $user->is_default_password ? 'text-amber-800 bg-amber-50 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900/50' : 'text-emerald-900 bg-emerald-100 border-emerald-300/80 dark:bg-emerald-950/90 dark:text-emerald-200 dark:border-emerald-700/80' }}"
                             >
                                 <i class="fa-solid {{ $user->is_default_password ? 'fa-key text-amber-500' : 'fa-lock text-emerald-600' }}"></i>
-                                {{ $user->plain_password ?? ($user->is_default_password ? 'password' : '12345678') }}
+                                {{ $user->plain_password ?? ($user->is_default_password ? 'password' : '-') }}
                             </span>
                         </div>
                     </div>

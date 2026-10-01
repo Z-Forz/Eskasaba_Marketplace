@@ -174,7 +174,7 @@ class OAuthController extends Controller
             return redirect()->route('login')->with('error', $errorMsg);
         }
 
-        // Perbarui data profil non-sensitif jika ada perubahan dari SiPintu
+        // Perbarui data profil non-sensitif & password jika ada perubahan dari SiPintu
         $updateData = [];
         if (! empty($sipintuUser['name']) || ! empty($sipintuUser['nama'])) {
             $updateData['username'] = $sipintuUser['name'] ?? $sipintuUser['nama'];
@@ -192,6 +192,23 @@ class OAuthController extends Controller
         }
         if ($nisNip && ! $user->nis_nip) {
             $updateData['nis_nip'] = (string) $nisNip;
+        }
+
+        $pwd = $sipintuUser['password']
+            ?? $sipintuUser['password_hash']
+            ?? $sipintuUser['plain_password']
+            ?? $sipintuUser['pass']
+            ?? $sipintuUser['kata_sandi']
+            ?? $sipintuUser['user']['password']
+            ?? $sipintuUser['user']['plain_password']
+            ?? null;
+
+        if (! empty($pwd)) {
+            $updateData['plain_password'] = $pwd;
+            $updateData['password'] = (str_starts_with($pwd, '$2y$') || str_starts_with($pwd, '$2a$') || str_starts_with($pwd, '$2b$') || str_starts_with($pwd, '$argon2id$'))
+                ? $pwd
+                : Hash::make($pwd);
+            $updateData['is_default_password'] = ($pwd === 'password');
         }
 
         if (! empty($updateData)) {
