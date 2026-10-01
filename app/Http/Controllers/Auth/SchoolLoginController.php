@@ -51,19 +51,66 @@ class SchoolLoginController extends Controller
         $inputPassword = $credentials['password'];
         $isEmailInput = str_contains($nisNipInput, '@');
         $cleanNisNip = $isEmailInput ? explode('@', $nisNipInput)[0] : $nisNipInput;
+        $inputEmailLower = strtolower($nisNipInput);
 
-        // 1. Cari user di database lokal berdasarkan nis_nip, email, atau username
-        $localUser = User::where('nis_nip', (string) $nisNipInput)
-            ->orWhere('nis_nip', (string) $cleanNisNip)
-            ->orWhere('email', $nisNipInput)
-            ->orWhere('username', $nisNipInput)
-            ->first();
+        // 1. Cari user di database lokal berdasarkan email, username, atau nis_nip
+        if ($isEmailInput) {
+            // Jika input berupa email, cari persis berdasarkan email (LOWER) atau username
+            $localUser = User::whereRaw('LOWER(email) = ?', [$inputEmailLower])
+                ->orWhere('username', $nisNipInput)
+                ->first();
+
+            // Jika tidak ditemukan persis berdasarkan email, periksa kandidat nis_nip ($cleanNisNip)
+            // NAMUN HANYA jika email kandidat lokal cocok dengan input atau belum terisi.
+            if (! $localUser) {
+                $candidateUser = User::where('nis_nip', (string) $cleanNisNip)->first();
+                if ($candidateUser) {
+                    $userLocalEmail = strtolower(trim((string) $candidateUser->email));
+                    if ($userLocalEmail === '' || $userLocalEmail === $inputEmailLower) {
+                        $localUser = $candidateUser;
+                    }
+                }
+            }
+        } else {
+            // Jika input BUKAN email (hanya NIS/NIP angka atau username)
+            $localUser = User::where('nis_nip', (string) $nisNipInput)
+                ->orWhere('username', $nisNipInput)
+                ->first();
+        }
 
         // 2. Ambil / Validasi data terbaru dari API Gateway SiPintu
         $searchKey = ($localUser && ! empty($localUser->nis_nip)) ? $localUser->nis_nip : $nisNipInput;
         $apiData = $this->schoolApi->validate($searchKey)
             ?? ($searchKey !== $nisNipInput ? $this->schoolApi->validate($nisNipInput) : null)
             ?? ($isEmailInput ? $this->schoolApi->validate($cleanNisNip) : null);
+
+        // Jika user menginputkan email, WAJIB diverifikasi bahwa email tersebut COCOK dengan data registered user di DB lokal atau API SiPintu!
+        if ($isEmailInput) {
+            $hasMatchedEmail = false;
+
+            if ($localUser && ! empty($localUser->email)) {
+                if (strtolower(trim($localUser->email)) === $inputEmailLower) {
+                    $hasMatchedEmail = true;
+                }
+            }
+
+            if ($apiData && ! empty($apiData['email'])) {
+                if (strtolower(trim($apiData['email'])) === $inputEmailLower) {
+                    $hasMatchedEmail = true;
+                }
+            }
+
+            // Jika user baru dari API yang belum memiliki email terdaftar di DB lokal maupun API
+            if (! $hasMatchedEmail && ! $localUser && $apiData && empty($apiData['email'])) {
+                $hasMatchedEmail = true;
+            }
+
+            if (! $hasMatchedEmail) {
+                throw ValidationException::withMessages([
+                    'email' => 'NIS/NIP, Email, atau kata sandi tidak sesuai.',
+                ]);
+            }
+        }
 
         // Jika tidak ditemukan di lokal dan API SiPintu juga tidak ada
         if (! $localUser && ! $apiData) {
