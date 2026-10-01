@@ -61,15 +61,10 @@
                             {{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}
                         </span>
 
-                        @if($user->is_default_password)
-                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60">
-                                <i class="fa-solid fa-key"></i> Kata Sandi Default
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                <i class="fa-solid fa-lock"></i> Kata Sandi Kustom
-                            </span>
-                        @endif
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            <i class="fa-solid fa-calendar-days text-emerald-600"></i>
+                            Terdaftar: {{ $user->created_at?->format('d F Y') ?? '-' }}
+                        </span>
                     </div>
 
                 </div>
@@ -78,10 +73,10 @@
 
         </div>
 
-        {{-- Information Grid (2 balanced columns) --}}
+        {{-- Information Grid (2 balanced columns with 3 rows each) --}}
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
 
-            {{-- Account & Security --}}
+            {{-- Account --}}
             <section class="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
 
                 <div>
@@ -90,7 +85,7 @@
                             <i class="fa-solid fa-user-shield text-sm"></i>
                         </div>
                         <h2 class="font-bold text-slate-900 dark:text-white text-base">
-                            Informasi Akun & Keamanan
+                            Informasi Akun
                         </h2>
                     </div>
 
@@ -117,20 +112,6 @@
                             <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->role === 'teacher' ? 'Guru' : 'Siswa' }}</span>
                         </div>
 
-                        <div class="flex items-center justify-between py-3.5">
-                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-                                <i class="fa-solid fa-key w-4 text-center text-slate-400"></i> Kata Sandi Akun
-                            </span>
-                            <div>
-                                <span class="inline-flex items-center gap-1.5 font-mono text-xs font-extrabold px-3 py-1 rounded-xl border
-                                    {{ $user->is_default_password ? 'text-amber-800 bg-amber-50 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900/50' : 'text-emerald-900 bg-emerald-100 border-emerald-300/80 dark:bg-emerald-950/90 dark:text-emerald-200 dark:border-emerald-700/80' }}"
-                                >
-                                    <i class="fa-solid {{ $user->is_default_password ? 'fa-key text-amber-500' : 'fa-lock text-emerald-600' }}"></i>
-                                    {{ $user->plain_password ?? ($user->is_default_password ? 'password' : '••••••••') }}
-                                </span>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
 
@@ -145,7 +126,7 @@
                             <i class="fa-solid fa-school text-sm"></i>
                         </div>
                         <h2 class="font-bold text-slate-900 dark:text-white text-base">
-                            Profil Sekolah & Kontak
+                            Profil Sekolah & Telepon
                         </h2>
                     </div>
 
@@ -183,13 +164,6 @@
                             @else
                                 <span class="font-semibold text-slate-400 dark:text-slate-500">-</span>
                             @endif
-                        </div>
-
-                        <div class="flex items-center justify-between py-3.5">
-                            <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-                                <i class="fa-solid fa-calendar-days w-4 text-center text-slate-400"></i> Terdaftar Pada
-                            </span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $user->created_at?->format('d F Y') ?? '-' }}</span>
                         </div>
 
                     </div>

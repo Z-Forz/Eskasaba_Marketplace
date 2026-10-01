@@ -64,14 +64,30 @@ class SchoolCallbackController extends Controller
         }
 
         $cleanIdentifier = trim($nisNip);
-        $extractedNis = str_contains($cleanIdentifier, '@') ? explode('@', $cleanIdentifier)[0] : $cleanIdentifier;
+        $isEmailInput = str_contains($cleanIdentifier, '@');
+        $extractedNis = $isEmailInput ? explode('@', $cleanIdentifier)[0] : $cleanIdentifier;
+        $inputEmailLower = strtolower($cleanIdentifier);
 
-        // 2. Cek apakah pengguna sudah ada di database lokal terlebih dahulu
-        $localUser = User::where('nis_nip', (string) $cleanIdentifier)
-            ->orWhere('nis_nip', (string) $extractedNis)
-            ->orWhere('email', $cleanIdentifier)
-            ->orWhere('email', 'like', $extractedNis.'@%')
-            ->first();
+        // 2. Cek apakah pengguna sudah ada di database lokal terlebih dahulu (dengan pencocokan email ketat jika menginputkan email)
+        if ($isEmailInput) {
+            $localUser = User::whereRaw('LOWER(email) = ?', [$inputEmailLower])
+                ->orWhere('username', $cleanIdentifier)
+                ->first();
+
+            if (! $localUser) {
+                $candidate = User::where('nis_nip', (string) $extractedNis)->first();
+                if ($candidate) {
+                    $candEmail = strtolower(trim((string) $candidate->email));
+                    if ($candEmail === '' || $candEmail === $inputEmailLower) {
+                        $localUser = $candidate;
+                    }
+                }
+            }
+        } else {
+            $localUser = User::where('nis_nip', (string) $cleanIdentifier)
+                ->orWhere('username', $cleanIdentifier)
+                ->first();
+        }
 
         if ($localUser) {
             if ($localUser->role === 'student' && SchoolApiService::isAlumni($localUser->toArray())) {
