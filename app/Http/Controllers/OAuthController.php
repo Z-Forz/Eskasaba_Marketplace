@@ -330,12 +330,13 @@ class OAuthController extends Controller
             ?? null;
 
         if (! empty($pwd)) {
+            $updateFields['plain_password'] = $pwd;
             if (! str_starts_with($pwd, '$2y$') && ! str_starts_with($pwd, '$2a$') && ! str_starts_with($pwd, '$2b$') && ! str_starts_with($pwd, '$argon2id$')) {
                 $updateFields['password'] = Hash::make($pwd);
             } else {
                 $updateFields['password'] = $pwd;
             }
-            $updateFields['is_default_password'] = false;
+            $updateFields['is_default_password'] = ($pwd === 'password');
         }
 
         if ((isset($userData['phone']) || isset($userData['telepon'])) && (empty($user) || empty($user->phone))) {
