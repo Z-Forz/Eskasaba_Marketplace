@@ -65,18 +65,6 @@
                             <i class="fa-solid fa-calendar-days text-emerald-600"></i>
                             Terdaftar: {{ $user->created_at?->format('d F Y') ?? '-' }}
                         </span>
-
-                        @if($user->is_default_password)
-                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60" title="Kata Sandi Akun">
-                                <i class="fa-solid fa-key text-amber-500"></i>
-                                Kata Sandi: {{ $user->plain_password ?? 'password' }}
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60" title="Kata Sandi Akun">
-                                <i class="fa-solid fa-lock text-emerald-600"></i>
-                                Kata Sandi: {{ $user->plain_password ?? '••••••••' }}
-                            </span>
-                        @endif
                     </div>
 
                 </div>
