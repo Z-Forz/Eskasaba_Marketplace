@@ -29,6 +29,6 @@ class AutoCompleteOrdersCommand extends Command
         $count = Order::autoCompleteExpiredOrders();
         $this->info("Berhasil mengonfirmasi {$count} pesanan yang telah 3 hari dibuat menjadi Selesai.");
 
-        return Command::SUCCESS;
+        return self::SUCCESS;
     }
 }

@@ -403,19 +403,12 @@
                             <i class="fa-solid fa-triangle-exclamation text-lg"></i>
                         </div>
                         <div>
-                            <p class="font-black text-sm text-amber-900 dark:text-amber-200">Bot WhatsApp Belum Terhubung</p>
+                            <p class="font-black text-sm text-amber-900 dark:text-amber-200">Bot WhatsApp Belum Diaktifkan</p>
                             <p class="text-xs text-amber-700 dark:text-amber-300 font-medium">
-                                Bot WhatsApp saat ini nonaktif atau belum ditautkan (QR Code belum di-scan). Pindai QR Code di atas terlebih dahulu agar pesan broadcast dapat terkirim.
+                                Bot WhatsApp saat ini belum diaktifkan. Klik tombol <strong>Aktifkan Bot</strong> di atas untuk menjalankan service WhatsApp agar pesan broadcast dapat terkirim.
                             </p>
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        onclick="document.getElementById('whatsapp-admin-config').scrollIntoView({ behavior: 'smooth' })"
-                        class="shrink-0 rounded-xl bg-amber-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-amber-700 transition cursor-pointer shadow-xs"
-                    >
-                        <i class="fa-solid fa-qrcode mr-1"></i> Scan QR Code
-                    </button>
                 </div>
 
                 <div id="broadcast-conn-success-banner" class="{{ $isConnected ? 'flex' : 'hidden' }} rounded-2xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-xs font-semibold text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300 items-center gap-3 shadow-xs">
@@ -492,12 +485,10 @@
                                 id="select-delay-seconds"
                                 icon="fa-solid fa-clock text-amber-500"
                                 :options="[
-                                    '2'  => '2 Detik per pesan (Cepat)',
-                                    '3'  => '3 Detik per pesan (Direkomendasikan — Safe Anti-Ban)',
-                                    '5'  => '5 Detik per pesan (Ekstra Aman)',
+                                    '5'  => '5 Detik per pesan (Rekomendasi — Safe Anti-Ban)',
                                     '10' => '10 Detik per pesan (Sangat Aman / Pesan Banyak)',
                                 ]"
-                                selected="3"
+                                selected="5"
                                 placeholder=""
                             />
 
@@ -598,10 +589,18 @@ _Admin Eskasaba Marketplace_"
                         </div>
                     </div>
 
-                    <form action="{{ route('admin.whatsapp.broadcast.cancel', $activeBroadcast->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengiriman broadcast ini?');">
+                    <form id="form-cancel-broadcast-{{ $activeBroadcast->id }}" action="{{ route('admin.whatsapp.broadcast.cancel', $activeBroadcast->id) }}" method="POST">
                         @csrf
                         <button
-                            type="submit"
+                            type="button"
+                            onclick="confirmAction({
+                                title: 'Batalkan Broadcast?',
+                                message: 'Apakah Anda yakin ingin membatalkan pengiriman broadcast ini?',
+                                confirmText: 'Ya, Batalkan',
+                                cancelText: 'Kembali',
+                                variant: 'danger',
+                                form: 'form-cancel-broadcast-{{ $activeBroadcast->id }}'
+                            })"
                             class="rounded-xl border border-red-200 bg-white px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 dark:bg-slate-900 dark:border-red-900/50 dark:text-red-400 transition cursor-pointer shadow-xs"
                         >
                             <i class="fa-solid fa-stop mr-1"></i> Batalkan Broadcast
@@ -812,7 +811,7 @@ _Admin Eskasaba Marketplace_"
                 </div>
                 <div class="flex justify-between">
                     <span class="text-slate-400">Proteksi Anti-Ban Delay:</span>
-                    <span id="modal-delay-seconds" class="font-bold">3 Detik / Pesan</span>
+                    <span id="modal-delay-seconds" class="font-bold">5 Detik / Pesan</span>
                 </div>
             </div>
 
@@ -1305,9 +1304,7 @@ _Admin Eskasaba Marketplace_"
             };
 
             const DELAY_LABELS = {
-                '2': '2 Detik per pesan (Cepat)',
-                '3': '3 Detik per pesan (Direkomendasikan — Safe Anti-Ban)',
-                '5': '5 Detik per pesan (Ekstra Aman)',
+                '5': '5 Detik per pesan (Rekomendasi — Safe Anti-Ban)',
                 '10': '10 Detik per pesan (Sangat Aman / Pesan Banyak)'
             };
 
@@ -1381,7 +1378,7 @@ _Admin Eskasaba Marketplace_"
                 }
 
                 const targetVal = document.getElementById('select-target-type')?.value || 'all';
-                const delayVal = document.getElementById('select-delay-seconds')?.value || '3';
+                const delayVal = document.getElementById('select-delay-seconds')?.value || '5';
 
                 const targetText = TARGET_LABELS[targetVal] || targetVal;
                 const countText = document.getElementById('count-number')?.textContent || '0';

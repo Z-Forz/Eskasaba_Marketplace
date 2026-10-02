@@ -131,12 +131,12 @@ class WhatsAppController extends Controller
             'title' => 'nullable|string|max:255',
             'target_type' => 'required|in:all,teacher,student_10,student_11,student_12',
             'message' => 'required|string|min:3|max:4000',
-            'delay_seconds' => 'required|integer|min:1|max:60',
+            'delay_seconds' => 'required|integer|in:5,10',
         ]);
 
         $targetType = $request->input('target_type');
         $message = $request->input('message');
-        $delaySeconds = (int) $request->input('delay_seconds', 3);
+        $delaySeconds = (int) $request->input('delay_seconds', 5);
         $title = $request->input('title') ?: 'Pesan Broadcast Kustom';
 
         // Cek status koneksi WhatsApp Bot
@@ -224,6 +224,11 @@ class WhatsAppController extends Controller
             return response()->json(['error' => 'Broadcast tidak ditemukan'], 404);
         }
 
+        // Self-healing: Jika broadcast masih 'pending', panggil ulang background runner untuk antisipasi kegagalan launch awal di server
+        if ($broadcast->status === 'pending') {
+            $this->launchBackgroundBroadcast($broadcast->id);
+        }
+
         return response()->json([
             'id' => $broadcast->id,
             'title' => $broadcast->title,
@@ -271,17 +276,79 @@ class WhatsAppController extends Controller
     }
 
     /**
+     * Cari lokasi binary PHP CLI di OS (bukan php-fpm atau php-cgi)
+     */
+    protected static function getPhpCliBinary(): string
+    {
+        if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+            $php = PHP_BINARY;
+            if (! empty($php) && ! str_contains(strtolower($php), 'php-cgi')) {
+                return escapeshellarg($php);
+            }
+
+            return 'php';
+        }
+
+        // 1. Cek PHP_BINARY saat ini jika bukan fpm / cgi
+        $currentPhp = PHP_BINARY;
+        if (! empty($currentPhp) && ! str_contains($currentPhp, 'fpm') && ! str_contains($currentPhp, 'cgi') && file_exists($currentPhp)) {
+            return escapeshellarg($currentPhp);
+        }
+
+        // 2. Cek via shell_exec 'which php'
+        if (function_exists('shell_exec')) {
+            try {
+                $which = trim((string) @shell_exec('which php 2>/dev/null'));
+                if (! empty($which) && file_exists($which) && is_executable($which) && ! str_contains($which, 'fpm') && ! str_contains($which, 'cgi')) {
+                    return escapeshellarg($which);
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+
+        // 3. Jalur umum PHP CLI di Linux server / cPanel / DirectAdmin
+        $commonPaths = [
+            '/usr/bin/php',
+            '/usr/local/bin/php',
+            '/usr/bin/env php',
+        ];
+
+        // 4. Cek khusus cPanel EA-PHP (contoh: /opt/cpanel/ea-php82/root/usr/bin/php)
+        if (file_exists('/opt/cpanel/')) {
+            $eaPaths = glob('/opt/cpanel/ea-php*/root/usr/bin/php') ?: [];
+            rsort($eaPaths);
+            $commonPaths = array_merge($eaPaths, $commonPaths);
+        }
+
+        foreach ($commonPaths as $path) {
+            if (file_exists($path) && is_executable($path)) {
+                return escapeshellarg($path);
+            }
+        }
+
+        return 'php';
+    }
+
+    /**
      * Run background CLI command for processing broadcast asynchronously.
      */
     protected function launchBackgroundBroadcast(int $broadcastId): void
     {
-        $artisan = base_path('artisan');
-        $php = PHP_BINARY ?: 'php';
+        $artisan = escapeshellarg(base_path('artisan'));
+        $php = self::getPhpCliBinary();
+        $broadcastIdArg = (int) $broadcastId;
 
-        if (str_starts_with(PHP_OS, 'WIN')) {
-            pclose(popen("start /B {$php} \"{$artisan}\" whatsapp:send-broadcast {$broadcastId} > NUL 2>&1", 'r'));
+        if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+            if (function_exists('popen') && function_exists('pclose')) {
+                @pclose(@popen("start /B {$php} {$artisan} whatsapp:send-broadcast {$broadcastIdArg} > NUL 2>&1", 'r'));
+            }
         } else {
-            exec("{$php} \"{$artisan}\" whatsapp:send-broadcast {$broadcastId} > /dev/null 2>&1 &");
+            $logFile = escapeshellarg(storage_path('logs/broadcast.log'));
+            if (function_exists('exec')) {
+                @exec("nohup {$php} {$artisan} whatsapp:send-broadcast {$broadcastIdArg} > {$logFile} 2>&1 &");
+            } elseif (function_exists('popen') && function_exists('pclose')) {
+                @pclose(@popen("nohup {$php} {$artisan} whatsapp:send-broadcast {$broadcastIdArg} > {$logFile} 2>&1 &", 'r'));
+            }
         }
     }
 }

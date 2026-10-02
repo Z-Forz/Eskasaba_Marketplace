@@ -37,6 +37,7 @@ class Order extends Model
             ->get();
 
         $count = 0;
+        /** @var \App\Models\Order $order */
         foreach ($expiredOrders as $order) {
             $order->update(['status' => 'completed']);
 

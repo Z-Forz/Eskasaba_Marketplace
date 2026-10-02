@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedInteger('total_recipients')->default(0);
             $table->unsignedInteger('sent_count')->default(0);
             $table->unsignedInteger('failed_count')->default(0);
-            $table->unsignedInteger('delay_seconds')->default(3);
+            $table->unsignedInteger('delay_seconds')->default(5);
             $table->enum('status', ['pending', 'processing', 'completed', 'failed', 'cancelled'])
                 ->default('pending');
             $table->unsignedBigInteger('created_by')->nullable();

@@ -39,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'seller.approved' => EnsureSellerApproved::class,
         ]);
 
-        $middleware->validateCsrfTokens(except: [
+        $middleware->preventRequestForgery(except: [
             'api/*',
             'sipintu/*',
             'api/sipintu/*',

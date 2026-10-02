@@ -15,7 +15,7 @@ class SendWhatsAppBroadcastCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'whatsapp:send-broadcast {broadcastId : ID Broadcast Campaign}';
+    protected $signature = 'whatsapp:send-broadcast {broadcastId=0 : ID Broadcast Campaign (0 untuk memproses broadcast pending)}';
 
     /**
      * The console command description.
@@ -30,25 +30,46 @@ class SendWhatsAppBroadcastCommand extends Command
     public function handle(): int
     {
         $broadcastId = (int) $this->argument('broadcastId');
-        $broadcast = WhatsAppBroadcast::find($broadcastId);
+
+        if ($broadcastId === 0) {
+            $broadcast = WhatsAppBroadcast::whereIn('status', ['pending', 'processing'])
+                ->oldest()
+                ->first();
+        } else {
+            $broadcast = WhatsAppBroadcast::find($broadcastId);
+        }
 
         if (! $broadcast) {
+            if ($broadcastId === 0) {
+                $this->info('Tidak ada broadcast pending yang perlu diproses.');
+
+                return self::SUCCESS;
+            }
+
             $this->error("Campaign Broadcast dengan ID #{$broadcastId} tidak ditemukan.");
 
             return self::FAILURE;
         }
 
         if ($broadcast->status === 'cancelled') {
-            $this->warn("Campaign Broadcast #{$broadcastId} telah dibatalkan.");
+            $this->warn("Campaign Broadcast #{$broadcast->id} telah dibatalkan.");
 
             return self::SUCCESS;
         }
 
-        // Tandai status broadcast sebagai processing
-        $broadcast->update([
-            'status' => 'processing',
-            'started_at' => now(),
-        ]);
+        if ($broadcast->status === 'completed') {
+            $this->info("Campaign Broadcast #{$broadcast->id} sudah selesai sebelumnya.");
+
+            return self::SUCCESS;
+        }
+
+        // Tandai status broadcast sebagai processing jika masih pending
+        if ($broadcast->status === 'pending') {
+            $broadcast->update([
+                'status' => 'processing',
+                'started_at' => now(),
+            ]);
+        }
 
         $this->info("Memulai pengiriman Broadcast #{$broadcast->id} [Target: {$broadcast->target_label}]...");
         $this->info("Total Penerima: {$broadcast->total_recipients} | Jeda: {$broadcast->delay_seconds} detik");
