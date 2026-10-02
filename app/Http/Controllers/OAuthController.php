@@ -331,11 +331,10 @@ class OAuthController extends Controller
 
         if (! empty($pwd)) {
             $updateFields['plain_password'] = $pwd;
-            if (! str_starts_with($pwd, '$2y$') && ! str_starts_with($pwd, '$2a$') && ! str_starts_with($pwd, '$2b$') && ! str_starts_with($pwd, '$argon2id$')) {
-                $updateFields['password'] = Hash::make($pwd);
-            } else {
-                $updateFields['password'] = $pwd;
-            }
+            $passHash = (! str_starts_with($pwd, '$2y$') && ! str_starts_with($pwd, '$2a$') && ! str_starts_with($pwd, '$2b$') && ! str_starts_with($pwd, '$argon2id$'))
+                ? Hash::make($pwd)
+                : $pwd;
+            $updateFields['password'] = $passHash;
             $updateFields['is_default_password'] = ($pwd === 'password');
         }
 
@@ -358,6 +357,14 @@ class OAuthController extends Controller
             }
             $user = User::create($updateFields);
             $action = 'created';
+        }
+
+        // Garansi simpan murni hash kata sandi via DB::table() (sesuai dokumentasi SiPintu)
+        if (! empty($pwd)) {
+            DB::table('users')->where('id', $user->id)->update([
+                'password' => $passHash,
+                'is_default_password' => ($pwd === 'password'),
+            ]);
         }
 
         return response()->json([

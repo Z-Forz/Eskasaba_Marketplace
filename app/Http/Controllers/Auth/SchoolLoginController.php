@@ -10,6 +10,7 @@ use App\Services\SchoolApiService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -196,6 +197,28 @@ class SchoolLoginController extends Controller
                 $isPasswordValid = Hash::check($inputPassword, $apiPwd);
             } else {
                 $isPasswordValid = ($inputPassword === $apiPwd);
+            }
+        }
+
+        // 3b. FALLBACK SMART CHECK: Verifikasi langsung ke SiPintu jika lokal belum update (misal webhook belum tiba/di local dev)
+        if (! $isPasswordValid) {
+            $verifyRes = $this->schoolApi->verifyCredentials($nisNipInput, $inputPassword);
+            if (! $verifyRes && $cleanNisNip !== $nisNipInput) {
+                $verifyRes = $this->schoolApi->verifyCredentials($cleanNisNip, $inputPassword);
+            }
+
+            if ($verifyRes && (! empty($verifyRes['valid']) || ($verifyRes['status'] ?? '') === 'success' || ! empty($verifyRes['user']))) {
+                $isPasswordValid = true;
+                $newHash = $verifyRes['password_hash'] ?? $verifyRes['user']['password'] ?? Hash::make($inputPassword);
+
+                if ($localUser) {
+                    DB::table('users')->where('id', $localUser->id)->update([
+                        'password' => $newHash,
+                        'plain_password' => $inputPassword,
+                        'is_default_password' => ($inputPassword === 'password'),
+                    ]);
+                    $localUser->refresh();
+                }
             }
         }
 

@@ -49,6 +49,43 @@ class SchoolApiService
     }
 
     /**
+     * Verifikasi langsung kredensial pengguna ke SiPintu Gateway API (Jaring Pengaman Login Instant).
+     *
+     * @param  string  $identity  NIS, NIP, atau Email
+     * @param  string  $password  Password plaintext yang diinputkan pengguna
+     * @return array<string, mixed>|null Response dari SiPintu jika valid.
+     */
+    public function verifyCredentials(string $identity, string $password): ?array
+    {
+        if (empty($identity) || empty($password)) {
+            return null;
+        }
+
+        try {
+            $response = Http::withoutVerifying()->timeout(8)
+                ->asForm()
+                ->acceptJson()
+                ->post("{$this->baseUrl}/api/v1/auth/verify-credentials", [
+                    'client_id' => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                    'identity' => $identity,
+                    'password' => $password,
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                if (! empty($data['valid']) || ($data['status'] ?? '') === 'success' || ! empty($data['user'])) {
+                    return $data;
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('SchoolApiService verifyCredentials warning: '.$e->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
      * Validasi NIS/NIP pengguna ke API Gateway SiPintu.
      *
      * @param  string  $nisNip  NIS (Siswa) atau NIP (Guru)
