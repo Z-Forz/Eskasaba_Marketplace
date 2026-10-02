@@ -32,9 +32,6 @@ class SchoolApiService
     /**
      * Heartbeat & Validasi Koneksi ke SiPintu Gateway.
      */
-    /**
-     * Heartbeat & Validasi Koneksi ke SiPintu Gateway.
-     */
     public function ping(): bool
     {
         try {
