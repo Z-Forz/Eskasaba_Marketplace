@@ -225,29 +225,7 @@ Admin dapat mengelola seluruh sesi koneksi WhatsApp Bot langsung dari antarmuka 
 
 ---
 
-## 📢 7. Fitur Pesan Custom Broadcast (Anti-Ban Queue)
-
-Fitur Pesan Custom memungkinkan Admin Sekolah mengirimkan pesan broadcast ke kelompok pengguna secara bertahap (rate-limited) untuk menghindari pemblokiran nomor (banned) oleh sistem anti-spam WhatsApp.
-
-### Target Penerima Pesan:
-- 👨‍🏫 **Dewan Guru & Staf**: Dikirimkan ke semua akun pengguna bertipe Guru (`role = teacher`).
-- 🎒 **Siswa Kelas 10 (X)**: Dikirimkan ke siswa aktif kelas 10.
-- 🎒 **Siswa Kelas 11 (XI)**: Dikirimkan ke siswa aktif kelas 11.
-- 🎓 **Siswa Kelas 12 (XII)**: Dikirimkan ke siswa aktif kelas 12.
-- 🌐 **Semua Users**: Dikirimkan ke seluruh Guru & Siswa yang telah mengisi nomor WhatsApp.
-
-### Proteksi Anti-Ban & Mekanisme Pengiriman:
-1. **Penerima Valid**: Hanya pengguna yang pernah login dan mengisi nomor HP yang akan dikirimkan pesan.
-2. **Jeda Bertahap (Delay per Message)**: Admin dapat memilih jeda pengiriman (2 detik, 3 detik [Rekomendasi], 5 detik, atau 10 detik).
-3. **Eksekusi Background Asinkron**: Pengiriman diproses melalui background runner Artisan command (`php artisan whatsapp:send-broadcast {id}`) sehingga halaman Admin dapat ditutup dan pengiriman tetap berjalan.
-4. **Variabel Pesan Kustom**:
-   - `{name}` atau `{nama}`: Otomatis diganti dengan nama pengguna penerima.
-   - `{kelas}` atau `{group}`: Otomatis diganti dengan nama kelas atau kelompok pengguna.
-5. **Monitoring Realtime**: Admin dapat memantau persentase progress, jumlah berhasil, jumlah gagal, dan membatalkan pengiriman kapan saja.
-
----
-
-## 🔒 8. Proteksi Nomor WhatsApp Pengguna (Phone Number Preservation)
+## 🔒 7. Proteksi Nomor WhatsApp Pengguna (Phone Number Preservation)
 
 Dalam proses sinkronisasi pengguna dari SiPintu Gateway (`SchoolApiService::syncAllUsers` & `SyncSiPintuUsersCommand`):
 

@@ -17,7 +17,7 @@
             ['route' => 'admin.login-logs.index',       'pattern' => 'admin.login-logs.*',       'label' => 'Log Login System',    'icon' => 'fa-solid fa-clock-rotate-left'],
         ],
         'Pengaturan' => [
-            ['route' => 'admin.whatsapp.index',         'pattern' => 'admin.whatsapp.*',         'label' => 'WhatsApp Bot & Broadcast', 'icon' => 'fa-brands fa-whatsapp'],
+            ['route' => 'admin.whatsapp.index',         'pattern' => 'admin.whatsapp.*',         'label' => 'WhatsApp Bot',        'icon' => 'fa-brands fa-whatsapp'],
             ['route' => 'admin.website-settings.index', 'pattern' => 'admin.website-settings.*', 'label' => 'Pengaturan Website',  'icon' => 'fa-solid fa-gear'],
         ],
     ];

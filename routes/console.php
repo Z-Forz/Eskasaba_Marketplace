@@ -21,6 +21,3 @@ Schedule::command('sipintu:sync')->dailyAt('00:00')->timezone('Asia/Jakarta');
 // Otomatis mengonfirmasi pesanan yang telah 3 hari menjadi Selesai setiap jam
 Schedule::command('orders:auto-complete')->hourly();
 
-// Otomatis memeriksa & memproses campaign broadcast WhatsApp yang pending setiap menit
-Schedule::command('whatsapp:send-broadcast 0')->everyMinute()->withoutOverlapping();
-
