@@ -13,13 +13,25 @@ PM2 digunakan di server untuk menjalankan Laravel Queue Worker dan service pendu
 # Cek status proses yang sedang berjalan
 npx pm2 status
 
-# Menjalankan Laravel Queue Worker
-npx pm2 start "php84 artisan queue:work --tries=3" --name "laravel-worker"
+# Menjalankan Laravel Scheduler (Otomatisasi Broadcast & Cron)
+# 1. Buat script helper scheduler.sh:
+#    cat << 'EOF' > scheduler.sh
+#    #!/bin/bash
+#    cd "$(dirname "$0")"
+#    while true; do
+#      php84 artisan schedule:run
+#      sleep 60
+#    done
+#    EOF
+#    chmod +x scheduler.sh
+# 2. Jalankan di PM2:
+npx pm2 start scheduler.sh --name "laravel-scheduler" --interpreter bash
 
 # Menjalankan WhatsApp Bot (jika ada)
-npx pm2 start "node whatsapp-bot/index.js" --name "wa-bot"
+npx pm2 start "node whatsapp-bot/index.js" --name "whatsapp-bot"
 
-# Restart worker/bot setelah update kode
+# Restart worker/scheduler setelah update kode
+npx pm2 restart laravel-scheduler
 npx pm2 restart laravel-worker
 
 # Menyimpan state/daftar proses PM2 ke disk (SANGAT PENTING!)

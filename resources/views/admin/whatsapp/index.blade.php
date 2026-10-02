@@ -670,7 +670,7 @@ _Admin Eskasaba Marketplace_"
                             <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
                                 <td class="px-4 py-3.5">
                                     <div class="font-bold text-slate-900 dark:text-white">
-                                        #{{ $bc->id }} - {{ $bc->title ?: 'Broadcast Pesan Custom' }}
+                                        {{ $bc->id }} - {{ $bc->title ?: 'Broadcast Pesan Custom' }}
                                     </div>
                                     <div class="text-[11px] text-slate-400 truncate max-w-xs mt-0.5">
                                         "{{ Str::limit($bc->message, 50) }}"
