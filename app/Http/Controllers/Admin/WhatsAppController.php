@@ -295,25 +295,44 @@ class WhatsAppController extends Controller
             return escapeshellarg($currentPhp);
         }
 
-        // 2. Cek via shell_exec 'which php'
-        if (function_exists('shell_exec')) {
-            try {
-                $which = trim((string) @shell_exec('which php 2>/dev/null'));
-                if (! empty($which) && file_exists($which) && is_executable($which) && ! str_contains($which, 'fpm') && ! str_contains($which, 'cgi')) {
-                    return escapeshellarg($which);
-                }
-            } catch (\Throwable $e) {
+        // 2. Jika PHP_BINARY adalah fpm/cgi, coba bersihkan fpm/cgi untuk mendapatkan path CLI
+        if (! empty($currentPhp)) {
+            $cliCandidate = preg_replace('/-?fpm[0-9.]*|-?cgi[0-9.]*/i', '', $currentPhp);
+            if (! empty($cliCandidate) && file_exists($cliCandidate) && is_executable($cliCandidate)) {
+                return escapeshellarg($cliCandidate);
             }
         }
 
-        // 3. Jalur umum PHP CLI di Linux server / cPanel / DirectAdmin
+        // 3. Cek binary PHP CLI versi spesifik via shell_exec (prioritaskan php84 & php8.4 sesuai server)
+        if (function_exists('shell_exec')) {
+            $binariesToTest = ['php84', 'php8.4', 'php83', 'php8.3', 'php82', 'php8.2', 'php'];
+            foreach ($binariesToTest as $bin) {
+                try {
+                    $which = trim((string) @shell_exec("which {$bin} 2>/dev/null"));
+                    if (! empty($which) && file_exists($which) && is_executable($which) && ! str_contains($which, 'fpm') && ! str_contains($which, 'cgi')) {
+                        return escapeshellarg($which);
+                    }
+                } catch (\Throwable $e) {
+                }
+            }
+        }
+
+        // 4. Jalur umum PHP CLI di Linux server / cPanel / DirectAdmin / custom environment
         $commonPaths = [
+            '/usr/bin/php84',
+            '/usr/bin/php8.4',
+            '/usr/local/bin/php84',
+            '/usr/local/bin/php8.4',
+            '/usr/bin/php83',
+            '/usr/bin/php8.3',
+            '/usr/bin/php82',
+            '/usr/bin/php8.2',
             '/usr/bin/php',
             '/usr/local/bin/php',
             '/usr/bin/env php',
         ];
 
-        // 4. Cek khusus cPanel EA-PHP (contoh: /opt/cpanel/ea-php82/root/usr/bin/php)
+        // 5. Cek khusus cPanel EA-PHP (contoh: /opt/cpanel/ea-php84/root/usr/bin/php)
         if (file_exists('/opt/cpanel/')) {
             $eaPaths = glob('/opt/cpanel/ea-php*/root/usr/bin/php') ?: [];
             rsort($eaPaths);
@@ -326,7 +345,7 @@ class WhatsAppController extends Controller
             }
         }
 
-        return 'php';
+        return 'php84';
     }
 
     /**
