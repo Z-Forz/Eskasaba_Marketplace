@@ -14,28 +14,31 @@
             </div>
 
             {{-- Filter Form --}}
-            <form method="GET" action="{{ route('admin.reports.sales') }}" class="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-xs">
+            <form method="GET" action="{{ route('admin.reports.sales') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 shadow-xs">
                 <div class="flex items-center gap-1.5 px-2 text-xs font-bold text-slate-500">
                     <i class="fa-solid fa-filter text-emerald-600"></i>
                     <span>Filter:</span>
                 </div>
-                <select name="month" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 focus:border-emerald-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-800 dark:text-white dark:focus:border-emerald-500">
-                    @foreach (range(1, 12) as $m)
-                        <option value="{{ $m }}" {{ (int)$selectedMonth === $m ? 'selected' : '' }}>
-                            {{ \Carbon\Carbon::create(null, $m, 1)->translatedFormat('F') }}
-                        </option>
-                    @endforeach
-                </select>
 
-                <select name="year" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 focus:border-emerald-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-slate-800 dark:text-white dark:focus:border-emerald-500">
-                    @foreach (range(date('Y') - 2, date('Y')) as $y)
-                        <option value="{{ $y }}" {{ (int)$selectedYear === $y ? 'selected' : '' }}>
-                            {{ $y }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="w-36">
+                    <x-custom-select
+                        name="month"
+                        :options="collect(range(1, 12))->mapWithKeys(fn($m) => [(string)$m => \Carbon\Carbon::create(null, $m, 1)->translatedFormat('F')])->all()"
+                        :selected="(string)$selectedMonth"
+                        placeholder=""
+                    />
+                </div>
 
-                <button type="submit" class="rounded-xl bg-emerald-700 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-800 transition cursor-pointer">
+                <div class="w-28">
+                    <x-custom-select
+                        name="year"
+                        :options="collect(range(date('Y') - 2, date('Y')))->mapWithKeys(fn($y) => [(string)$y => (string)$y])->all()"
+                        :selected="(string)$selectedYear"
+                        placeholder=""
+                    />
+                </div>
+
+                <button type="submit" class="rounded-2xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 transition cursor-pointer">
                     Terapkan
                 </button>
             </form>

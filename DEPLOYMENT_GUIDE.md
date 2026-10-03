@@ -1,6 +1,6 @@
 # Panduan Deployment & Manajemen Server - Eskasaba Marketplace
 
-Dokumentasi ini berisi panduan deployment, pengelolaan process manager (PM2), penjelasan variabel lingkungan (.env), serta perintah-perintah penting di server Linux.
+Dokumentasi ini berisi panduan deployment, pengelolaan process manager (PM2), penjelasan variabel lingkungan (.env), penatajadwalan tugas (Cron Jobs), serta perintah-perintah penting di server Linux.
 
 ---
 
@@ -75,7 +75,37 @@ npx pm2 save
 
 ---
 
-## 4. Konfigurasi Session di File `.env` (Laravel)
+## 4. Penjadwalan Tugas Server (Laravel Task Scheduler / Cron Job)
+
+Agar perintah terjadwal (seperti peringatan kelulusan kelas 12, auto-complete pesanan, dan sync SiPintu) berjalan secara otomatis, server Linux memerlukan 1 entri Cron Job master.
+
+### Konfigurasi Crontab Server
+Buka editor crontab server dengan perintah:
+```bash
+crontab -e
+```
+
+Tambahkan baris berikut di bagian paling bawah:
+```bash
+* * * * * cd /path/to/eskasaba-marketplace && php84 artisan schedule:run >> /dev/null 2>&1
+```
+
+### Daftar Perintah Terjadwal (`routes/console.php`):
+| Command Artisan | Jadwal Eksekusi | Deskripsi & Fungsi |
+| :--- | :--- | :--- |
+| `sellers:notify-graduating` | Setiap 1 April pukul 08:00 (`yearlyOn(4, 1, '08:00')`) | Mengirimkan notifikasi peringatan WhatsApp ke semua seller Kelas 12 agar menyelesaikan transaksi dan menonaktifkan produk sebelum akun mereka menjadi alumni. |
+| `sipintu:sync` | Setiap jam (`hourly()`) | Sinkronisasi data pengguna, kelas, dan kredensial dari SiPintu Gateway Sekolah. |
+| `orders:auto-complete` | Setiap hari pukul 23:00 (`dailyAt('23:00')`) | Otomatis mengubah status pesanan yang siap diambil menjadi Selesai jika telah melebihi batas waktu pickup. |
+| `notifications:clean` | Setiap Minggu pukul 03:00 (`weeklyOn(0, '03:00')`) | Membuang log notifikasi sistem yang sudah lama untuk menghemat penyimpanan database. |
+
+> **Pengujian Manual:** Anda dapat menguji pengiriman peringatan kelulusan seller kelas 12 secara manual tanpa menunggu tanggal 1 April dengan perintah:
+> ```bash
+> php84 artisan sellers:notify-graduating --force
+> ```
+
+---
+
+## 5. Konfigurasi Session di File `.env` (Laravel)
 
 Pengaturan Session Lifetime di file `.env` Laravel dihitung dalam satuan **MENIT**, **bukan detik**!
 

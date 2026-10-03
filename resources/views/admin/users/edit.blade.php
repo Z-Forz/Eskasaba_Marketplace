@@ -98,13 +98,12 @@
                         Peran (Role) <span class="text-xs font-normal text-slate-400">(Terkunci)</span>
                     </label>
 
-                    <select
+                    <input
+                        type="text"
+                        value="{{ $user->role === 'student' ? 'Siswa' : ($user->role === 'teacher' ? 'Guru' : ucfirst($user->role)) }}"
                         disabled
                         class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
                     >
-                        <option @selected($user->role === 'student')>Siswa</option>
-                        <option @selected($user->role === 'teacher')>Guru</option>
-                    </select>
                 </div>
 
                 {{-- Class --}}

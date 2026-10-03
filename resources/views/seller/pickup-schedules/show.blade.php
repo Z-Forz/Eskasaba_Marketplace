@@ -113,31 +113,19 @@
                 @csrf
                 @method('PUT')
 
-                <select
-                    name="status"
-                    class="flex-1 rounded-xl border-gray-200 bg-gray-50 px-4 py-3 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-
-                    <option value="scheduled"
-                        @selected($pickupSchedule->status === 'scheduled')}>
-                        Terjadwal
-                    </option>
-
-                    <option value="ready"
-                        @selected($pickupSchedule->status === 'ready')}>
-                        Siap Diambil
-                    </option>
-
-                    <option value="picked_up"
-                        @selected($pickupSchedule->status === 'picked_up')}>
-                        Sudah Diambil
-                    </option>
-
-                    <option value="cancelled"
-                        @selected($pickupSchedule->status === 'cancelled')}>
-                        Dibatalkan
-                    </option>
-
-                </select>
+                <div class="flex-1">
+                    <x-custom-select
+                        name="status"
+                        :options="[
+                            'scheduled' => 'Terjadwal',
+                            'ready'     => 'Siap Diambil',
+                            'picked_up' => 'Sudah Diambil',
+                            'cancelled' => 'Dibatalkan',
+                        ]"
+                        :selected="$pickupSchedule->status"
+                        placeholder=""
+                    />
+                </div>
 
                 <button
                     type="submit"

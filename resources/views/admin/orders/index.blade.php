@@ -13,65 +13,85 @@
             </div>
         </div>
 
-        {{-- Search & Filter Bar --}}
-        <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-            <form method="GET" action="{{ route('admin.orders.index') }}" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {{-- Status Filter Tabs Bar --}}
+        <div class="flex flex-wrap gap-2 rounded-3xl border border-slate-200/80 bg-white p-2 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            @php
+                $tabs = [
+                    'all'              => ['label' => 'Semua Pesanan',       'color' => 'slate',   'icon' => 'fa-list-ul'],
+                    'pending'          => ['label' => 'Menunggu Konfirmasi', 'color' => 'amber',   'icon' => 'fa-clock'],
+                    'processing'       => ['label' => 'Diproses Seller',     'color' => 'blue',    'icon' => 'fa-fire-burner'],
+                    'ready_for_pickup' => ['label' => 'Siap Diambil',        'color' => 'indigo',  'icon' => 'fa-box-open'],
+                    'completed'        => ['label' => 'Selesai',             'color' => 'emerald', 'icon' => 'fa-circle-check'],
+                    'cancelled'        => ['label' => 'Dibatalkan / Return', 'color' => 'red',     'icon' => 'fa-circle-xmark'],
+                ];
+            @endphp
 
-                <div>
-                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        <i class="fa-solid fa-magnifying-glass mr-1 text-slate-400"></i> Cari Invoice / ID
-                    </label>
+            @foreach ($tabs as $key => $tab)
+                @php
+                    $isActive = ($status ?? 'all') === $key;
+                    $count = $counts[$key] ?? 0;
+                    
+                    if ($isActive) {
+                        $activeClass = match ($tab['color']) {
+                            'emerald' => 'bg-emerald-700 text-white font-bold shadow-xs',
+                            'amber'   => 'bg-amber-600 text-white font-bold shadow-xs',
+                            'blue'    => 'bg-blue-600 text-white font-bold shadow-xs',
+                            'indigo'  => 'bg-indigo-600 text-white font-bold shadow-xs',
+                            'red'     => 'bg-red-600 text-white font-bold shadow-xs',
+                            default   => 'bg-slate-900 text-white font-bold shadow-xs dark:bg-white dark:text-slate-900',
+                        };
+                    } else {
+                        $activeClass = 'bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 font-semibold';
+                    }
+                @endphp
 
+                <a
+                    href="{{ route('admin.orders.index', array_merge(request()->except('page'), ['status' => $key])) }}"
+                    class="inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs transition {{ $activeClass }}"
+                >
+                    <i class="fa-solid {{ $tab['icon'] }} text-xs"></i>
+                    <span>{{ $tab['label'] }}</span>
+
+                    <span class="rounded-full px-2 py-0.5 text-[11px] font-extrabold {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300' }}">
+                        {{ number_format($count) }}
+                    </span>
+                </a>
+            @endforeach
+        </div>
+
+        {{-- Search Card --}}
+        <div class="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <form method="GET" action="{{ route('admin.orders.index') }}" class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <input type="hidden" name="status" value="{{ $status ?? 'all' }}">
+
+                <div class="relative flex-1">
                     <input
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Contoh: INV/2026/... atau ID..."
-                        class="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        placeholder="Cari nomor invoice pesanan atau ID (contoh: INV/...)"
+                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 pl-10 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                     >
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                 </div>
 
-                <div>
-                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        <i class="fa-solid fa-filter mr-1 text-slate-400"></i> Status Pesanan
-                    </label>
-
-                    <x-custom-select
-                        name="status"
-                        :options="[
-                            ''                                  => 'Semua Status',
-                            'pending'                           => 'Menunggu Konfirmasi (Pending)',
-                            'confirmed'                         => 'Dikonfirmasi',
-                            'processing'                        => 'Diproses Seller',
-                            'ready_for_pickup'                  => 'Siap Diambil',
-                            'completed'                         => 'Selesai',
-                            'cancel_requested'                  => 'Pengajuan Pembatalan (Buyer)',
-                            'return_requested'                  => 'Pengajuan Return (Buyer)',
-                            'refund_pending_buyer_confirmation' => 'Menunggu Konfirmasi Refund',
-                            'cancelled'                         => 'Dibatalkan',
-                            'returned'                          => 'Return & Refund Berhasil',
-                        ]"
-                        :selected="request('status')"
-                        placeholder=""
-                    />
-                </div>
-
-                <div class="flex items-end gap-2">
+                <div class="flex items-center gap-2 shrink-0">
                     <button
                         type="submit"
-                        class="flex-1 rounded-2xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-800 flex items-center justify-center gap-1.5 shadow-xs"
+                        class="rounded-2xl bg-emerald-700 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-800 flex items-center gap-1.5 shadow-xs"
                     >
-                        <i class="fa-solid fa-magnifying-glass"></i> Filter
+                        <i class="fa-solid fa-magnifying-glass"></i> Cari
                     </button>
                     
-                    <a
-                        href="{{ route('admin.orders.index') }}"
-                        class="rounded-2xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 flex items-center justify-center gap-1"
-                    >
-                        <i class="fa-solid fa-rotate-left"></i> Reset
-                    </a>
+                    @if(request('search'))
+                        <a
+                            href="{{ route('admin.orders.index', ['status' => $status ?? 'all']) }}"
+                            class="rounded-2xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 flex items-center gap-1"
+                        >
+                            <i class="fa-solid fa-rotate-left"></i> Reset Cari
+                        </a>
+                    @endif
                 </div>
-
             </form>
         </div>
         
@@ -123,7 +143,7 @@
                                 <td class="px-6 py-4 font-bold text-emerald-800 dark:text-emerald-400">
                                     <div class="flex items-center gap-2">
                                         <i class="fa-solid fa-store text-emerald-600 text-xs"></i>
-                                        <span>{{ $order->seller?->user?->username ?? '-' }}</span>
+                                        <span>{{ $order->seller_name_with_status }}</span>
                                     </div>
                                 </td>
 
@@ -212,7 +232,7 @@
                         <div class="space-y-1 text-xs text-slate-600 dark:text-slate-300 border-t border-slate-100 pt-2.5 dark:border-slate-800">
                             <p><span class="text-slate-400">Tanggal:</span> {{ $order->created_at?->format('d M Y H:i') }}</p>
                             <p><span class="text-slate-400">Pembeli:</span> {{ $order->buyer?->username ?? $order->user?->username ?? '-' }}</p>
-                            <p><span class="text-slate-400">Seller:</span> {{ $order->seller?->user?->username ?? '-' }}</p>
+                            <p><span class="text-slate-400">Seller:</span> {{ $order->seller_name_with_status }}</p>
                             <p class="font-black text-emerald-700 dark:text-emerald-400 text-sm">Total: Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}</p>
                         </div>
 

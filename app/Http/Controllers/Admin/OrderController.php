@@ -14,14 +14,20 @@ class OrderController extends Controller
      */
     public function index(Request $request): View
     {
+        $status = $request->input('status', 'all');
+
         $query = Order::with([
             'user',
             'seller.user',
             'items.product',
         ]);
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        if ($status === 'processing') {
+            $query->whereIn('status', ['confirmed', 'processing']);
+        } elseif ($status === 'cancelled') {
+            $query->whereIn('status', ['cancelled', 'cancel_requested', 'return_requested', 'refund_pending_buyer_confirmation', 'returned']);
+        } elseif ($status && $status !== 'all') {
+            $query->where('status', $status);
         }
 
         if ($request->filled('search')) {
@@ -32,9 +38,18 @@ class OrderController extends Controller
             });
         }
 
-        $orders = $query->latest()->paginate(15);
+        $orders = $query->latest()->paginate(15)->withQueryString();
 
-        return view('admin.orders.index', compact('orders'));
+        $counts = [
+            'all'              => Order::count(),
+            'pending'          => Order::where('status', 'pending')->count(),
+            'processing'       => Order::whereIn('status', ['confirmed', 'processing'])->count(),
+            'ready_for_pickup' => Order::where('status', 'ready_for_pickup')->count(),
+            'completed'        => Order::where('status', 'completed')->count(),
+            'cancelled'        => Order::whereIn('status', ['cancelled', 'cancel_requested', 'return_requested', 'refund_pending_buyer_confirmation', 'returned'])->count(),
+        ];
+
+        return view('admin.orders.index', compact('orders', 'status', 'counts'));
     }
 
     /**

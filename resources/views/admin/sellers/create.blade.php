@@ -35,30 +35,12 @@
                     Pengguna
                 </label>
 
-                <select
+                <x-custom-select
                     name="user_id"
-                    required
-                    class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                >
-
-                    <option value="">
-                        Pilih pengguna
-                    </option>
-
-                    @foreach ($users ?? [] as $user)
-
-                        <option
-                            value="{{ $user->id }}"
-                            @selected(old('user_id') == $user->id)
-                        >
-                            {{ $user->name ?? $user->username }}
-                            —
-                            {{ $user->email ?? $user->school_number ?? '-' }}
-                        </option>
-
-                    @endforeach
-
-                </select>
+                    :options="collect($users ?? [])->mapWithKeys(fn($u) => [(string)$u->id => ($u->name ?? $u->username) . ' — ' . ($u->email ?? $u->school_number ?? '-')])->all()"
+                    :selected="old('user_id')"
+                    placeholder="Pilih pengguna"
+                />
 
                 @error('user_id')
                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>

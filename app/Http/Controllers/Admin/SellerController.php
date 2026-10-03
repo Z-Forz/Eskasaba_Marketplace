@@ -192,10 +192,12 @@ class SellerController extends Controller
     /**
      * Delete seller.
      */
-    public function destroy(Seller $seller): RedirectResponse
+    public function destroy(Request $request, Seller $seller): RedirectResponse
     {
-        // Kirim notifikasi WA pencabutan status seller
-        WhatsAppService::sendSellerRevokedNotification($seller);
+        $reason = $request->input('reason');
+
+        // Kirim notifikasi WA pencabutan status seller dengan alasan jika ada
+        WhatsAppService::sendSellerRevokedNotification($seller, $reason);
 
         $seller->delete();
 
@@ -231,22 +233,40 @@ class SellerController extends Controller
     }
 
     /**
-     * Reject seller registration with a reason.
+     * Reject or revoke seller registration with a reason.
      */
     public function reject(Request $request, Seller $seller): RedirectResponse
     {
         $request->validate([
-            'rejection_note' => ['required', 'string', 'min:5'],
+            'rejection_note' => ['required', 'string', 'min:3'],
         ], [
-            'rejection_note.required' => 'Alasan penolakan wajib diisi.',
+            'rejection_note.required' => 'Alasan pencabutan / penolakan wajib diisi.',
             'rejection_note.min' => 'Alasan terlalu singkat.',
         ]);
+
+        $wasApproved = $seller->isApproved();
 
         $seller->update([
             'status' => 'rejected',
             'rejection_note' => $request->rejection_note,
             'approved_at' => null,
         ]);
+
+        if ($wasApproved) {
+            Notification::create([
+                'user_id' => $seller->user_id,
+                'title' => 'Status Seller Dicabut 🚫',
+                'message' => 'Status kepemilikan toko Anda telah dicabut oleh admin. Alasan: '.$request->rejection_note,
+                'type' => 'seller_rejected',
+                'link' => route('profile.index'),
+            ]);
+
+            WhatsAppService::sendSellerRevokedNotification($seller, $request->rejection_note);
+
+            return redirect()
+                ->route('admin.sellers.show', $seller)
+                ->with('success', "Status seller {$seller->user->username} berhasil dicabut.");
+        }
 
         Notification::create([
             'user_id' => $seller->user_id,

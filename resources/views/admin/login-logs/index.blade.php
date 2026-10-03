@@ -94,35 +94,32 @@
                 {{-- Type Filter --}}
                 <div>
                     <label for="type" class="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-400">Tipe Akun</label>
-                    <select
+                    <x-custom-select
                         name="type"
-                        id="type"
-                        onchange="this.form.submit()"
-                        class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-sm text-slate-800 transition focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                    >
-                        <option value="">Semua Akun</option>
-                        <option value="user" {{ request('type') === 'user' ? 'selected' : '' }}>User (Siswa & Guru)</option>
-                        <option value="admin" {{ request('type') === 'admin' ? 'selected' : '' }}>Admin Panel</option>
-                    </select>
+                        :options="[
+                            '' => 'Semua Akun',
+                            'user' => 'User (Siswa & Guru)',
+                            'admin' => 'Admin Panel',
+                        ]"
+                        :selected="request('type')"
+                        placeholder=""
+                        :submitOnSelect="true"
+                    />
                 </div>
 
                 {{-- Event Filter --}}
                 <div>
                     <label for="event" class="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-400">Jenis Event</label>
                     <div class="flex gap-2">
-                        <select
-                            name="event"
-                            id="event"
-                            onchange="this.form.submit()"
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-3 text-sm text-slate-800 transition focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                        >
-                            <option value="">Semua Event</option>
-                            @foreach ($events as $ev)
-                                <option value="{{ $ev }}" {{ request('event') === $ev ? 'selected' : '' }}>
-                                    {{ Str::headline($ev) }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="w-full">
+                            <x-custom-select
+                                name="event"
+                                :options="array_merge(['' => 'Semua Event'], collect($events)->mapWithKeys(fn($ev) => [$ev => Str::headline($ev)])->all())"
+                                :selected="request('event')"
+                                placeholder=""
+                                :submitOnSelect="true"
+                            />
+                        </div>
 
                         @if (request()->hasAny(['search', 'type', 'event']))
                             <a

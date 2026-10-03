@@ -47,15 +47,17 @@
                         Pilih kategori produk jika Anda ingin menambah kategori baru untuk jualan.
                     </p>
 
-                    <select
-                        id="type"
-                        name="type"
-                        required
-                        class="mt-2 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                    >
-                        <option value="category" @selected(old('type') === 'category' || !old('type'))>Kategori Produk Baru</option>
-                        <option value="other" @selected(old('type') === 'other')>Saran / Lainnya</option>
-                    </select>
+                    <div class="mt-2">
+                        <x-custom-select
+                            name="type"
+                            :options="[
+                                'category' => 'Kategori Produk Baru',
+                                'other'    => 'Saran / Lainnya',
+                            ]"
+                            :selected="old('type', 'category')"
+                            placeholder=""
+                        />
+                    </div>
                     @error('type')
                         <p class="mt-1.5 text-xs text-rose-500">{{ $message }}</p>
                     @enderror

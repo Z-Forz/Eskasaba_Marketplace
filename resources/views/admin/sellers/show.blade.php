@@ -151,9 +151,9 @@
                         </p>
                     </div>
 
-                    <div class="rounded-2xl border border-emerald-200/80 bg-emerald-50/60 p-3.5 dark:border-emerald-950 dark:bg-emerald-950/30">
-                        <p class="text-xs font-bold text-emerald-800 dark:text-emerald-400">Kelas / Guru Mapel</p>
-                        <p class="mt-1 text-sm font-black text-emerald-700 dark:text-emerald-300">
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-800/50">
+                        <p class="text-xs font-bold text-slate-400">Kelas / Guru Mapel</p>
+                        <p class="mt-1 text-sm font-black text-slate-900 dark:text-slate-100">
                             {{ $seller->user->class_room ?? '-' }}
                         </p>
                     </div>
@@ -542,7 +542,20 @@
                 class="mt-6 space-y-4"
             >
                 @csrf
-                <input type="hidden" name="rejection_note" value="Status seller dicabut oleh admin.">
+
+                <div>
+                    <label for="rejection_note_revoke" class="mb-1.5 block text-xs font-bold text-slate-700 dark:text-slate-300">
+                        Alasan Pencabutan Status Seller <span class="text-red-500">*</span>
+                    </label>
+                    <textarea
+                        id="rejection_note_revoke"
+                        name="rejection_note"
+                        rows="3"
+                        required
+                        placeholder="Contoh: Terjadi pelanggaran ketentuan jualan atau toko sudah tidak aktif..."
+                        class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-red-500 focus:bg-white focus:ring-2 focus:ring-red-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    ></textarea>
+                </div>
 
                 <div class="flex justify-end gap-3">
                     <button

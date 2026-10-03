@@ -102,14 +102,15 @@
                         Peran (Role) <span class="text-red-500">*</span>
                     </label>
 
-                    <select
+                    <x-custom-select
                         name="role"
-                        required
-                        class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                    >
-                        <option value="student" @selected(old('role') === 'student')>Siswa</option>
-                        <option value="teacher" @selected(old('role') === 'teacher')>Guru</option>
-                    </select>
+                        :options="[
+                            'student' => 'Siswa',
+                            'teacher' => 'Guru',
+                        ]"
+                        :selected="old('role', 'student')"
+                        placeholder=""
+                    />
 
                     @error('role')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>

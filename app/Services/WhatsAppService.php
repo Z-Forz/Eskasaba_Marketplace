@@ -181,12 +181,12 @@ class WhatsAppService
             $buyerMsg = "✅ *PESANAN BERHASIL DIBUAT!*\n\n"
                 ."Halo *{$order->user->username}*,\n"
                 ."Pesanan Anda dengan Invoice *#{$order->invoice_number}* telah berhasil dibuat.\n\n"
-                ."🏪 *Toko Penjual:* {$order->seller->user->username}\n"
+                ."🏪 *Penjual:* {$order->seller->user->username}\n"
                 ."📱 *No. HP/WA Penjual:* {$sellerPhoneText}\n"
                 .'💰 *Total Pembayaran:* Rp '.number_format((float) ($order->total_price ?? 0), 0, ',', '.')."\n"
                 ."📍 *Lokasi & Waktu Pengambilan:* {$pickupLoc}\n\n"
                 ."📋 *Item Pesanan:*\n{$itemsList}\n"
-                ."Silakan selesaikan pembayaran dan koordinasi pengambilan pesanan dengan penjual.\n\n"
+                ."Silakan selesaikan pembayaran dan koordinasi pengambilan pesanan dengan penjual jika belum dilakukan.\n\n"
                 ."Terima kasih telah berbelanja di Eskasaba Marketplace!\n"
                 .'🌐 *Akses Website:* https://eskamart.smkn1bangsri.sch.id/';
 
@@ -214,7 +214,7 @@ class WhatsAppService
             'pending' => 'Menunggu Konfirmasi Penjual ⏳',
             'confirmed' => 'Dikonfirmasi Penjual ✅',
             'processing' => 'Sedang Diproses Penjual 👨‍🍳',
-            'ready_for_pickup', 'ready' => 'Siap Diambil di Kantin/Toko 🎒',
+            'ready_for_pickup', 'ready' => 'Siap Diambil 🎒',
             'completed' => 'Selesai & Diserahterimakan 🎉',
             'cancel_requested' => 'Pengajuan Pembatalan Pembeli ⚠️',
             'return_requested' => 'Pengajuan Return / Pengembalian Barang 📦',
@@ -281,7 +281,7 @@ class WhatsAppService
         if ($userPhone) {
             $userMsg = "📝 *PENGAJUAN SELLER BERHASIL DIKIRIM*\n\n"
                 ."Halo *{$seller->user->username}*,\n"
-                ."Pengajuan toko Anda di Eskasaba Marketplace telah berhasil dikirim.\n"
+                ."Pengajuan Seller Anda di Eskasaba Marketplace telah berhasil dikirim.\n"
                 ."Tim Admin Sekolah akan melakukan verifikasi dalam 1×24 jam.\n\n"
                 .'Status pengajuan Anda saat ini: *PENDING VERIFIKASI*.';
 
@@ -320,33 +320,33 @@ class WhatsAppService
         if ($seller->isApproved()) {
             $userMsg = "🎉 *PENGAJUAN SELLER DISETUJUI!*\n\n"
                 ."Selamat *{$username}*!\n"
-                ."Pengajuan toko Anda di Eskasaba Marketplace telah *DISETUJUI* oleh Admin.\n"
+                ."Pengajuan Seller Anda di Eskasaba Marketplace telah *DISETUJUI* oleh Admin.\n"
                 ."Anda sekarang dapat mulai menambah produk dan berjualan online melalui Dashboard Seller Anda.\n\n"
                 .'Selamat berjualan!';
 
             $adminMsg = "✅ *VERIFIKASI SELLER: DISETUJUI*\n\n"
-                ."Pengajuan toko *{$username}* ({$nisNip}) telah *DISETUJUI* oleh Admin.\n"
+                ."Pengajuan Seller *{$username}* ({$nisNip}) telah *DISETUJUI* oleh Admin.\n"
                 .'Nomor WA Seller: '.($userPhone ?? '-');
 
         } elseif ($seller->needsRevision()) {
             $userMsg = "⚠️ *PENGAJUAN SELLER MEMERLUKAN REVISI*\n\n"
                 ."Halo *{$username}*,\n"
-                ."Pengajuan toko Anda memerlukan perbaikan dari Admin.\n"
+                ."Pengajuan Seller Anda memerlukan perbaikan dari Admin.\n"
                 ."Catatan Admin: _\"{$seller->rejection_note}\"_\n\n"
                 .'Silakan login ke akun Anda untuk memperbarui pengajuan.';
 
             $adminMsg = "⚠️ *VERIFIKASI SELLER: MEMERLUKAN REVISI*\n\n"
-                ."Pengajuan toko *{$username}* ({$nisNip}) diubah ke status: *PERLU REVISI*.\n"
+                ."Pengajuan Seller *{$username}* ({$nisNip}) diubah ke status: *PERLU REVISI*.\n"
                 ."Catatan Revisi: _\"{$seller->rejection_note}\"_";
 
         } elseif ($seller->isRejected()) {
             $userMsg = "❌ *PENGAJUAN SELLER DITOLAK*\n\n"
                 ."Halo *{$username}*,\n"
-                ."Mohon maaf, pengajuan toko Anda saat ini belum dapat disetujui.\n"
+                ."Mohon maaf, pengajuan Seller Anda saat ini belum dapat disetujui.\n"
                 ."Alasan: _\"{$seller->rejection_note}\"_";
 
             $adminMsg = "❌ *VERIFIKASI SELLER: DITOLAK*\n\n"
-                ."Pengajuan toko *{$username}* ({$nisNip}) telah *DITOLAK* oleh Admin.\n"
+                ."Pengajuan Seller *{$username}* ({$nisNip}) telah *DITOLAK* oleh Admin.\n"
                 ."Alasan: _\"{$seller->rejection_note}\"_";
 
         } else {
@@ -367,7 +367,7 @@ class WhatsAppService
     /**
      * Kirim notifikasi pencabutan / penghapusan status Seller.
      */
-    public static function sendSellerRevokedNotification(Seller $seller): void
+    public static function sendSellerRevokedNotification(Seller $seller, ?string $reason = null): void
     {
         $seller->loadMissing('user');
 
@@ -375,11 +375,13 @@ class WhatsAppService
         $adminPhone = self::getAdminPhone();
 
         $username = $seller->user?->username ?? 'User';
+        $reasonText = !empty($reason) ? "\n*Alasan:* {$reason}\n" : '';
 
         if ($userPhone) {
             $userMsg = "🚫 *STATUS SELLER DICABUT*\n\n"
                 ."Halo *{$username}*,\n"
                 ."Status kepemilikan toko / seller Anda di Eskasaba Marketplace telah dicabut oleh Admin.\n"
+                .$reasonText."\n"
                 .'Akun Anda kembali menjadi akun pembeli biasa.';
 
             self::send($userPhone, $userMsg);
@@ -387,10 +389,37 @@ class WhatsAppService
 
         if ($adminPhone) {
             $adminMsg = "🚫 *STATUS SELLER DICABUT*\n\n"
-                ."Status toko untuk pengguna *{$username}* telah dicabut / dihapus oleh Admin.";
+                ."Status Seller untuk pengguna *{$username}* telah dicabut / dihapus oleh Admin.\n"
+                .$reasonText;
 
             self::send($adminPhone, $adminMsg);
         }
+    }
+
+    /**
+     * Kirim notifikasi peringatan kelulusan untuk Seller Kelas 12 pada bulan April.
+     */
+    public static function sendGraduatingSellerWarningNotification(Seller $seller): void
+    {
+        $seller->loadMissing('user');
+        $userPhone = $seller->user?->phone ?: $seller->whatsapp_number;
+        if (! $userPhone) {
+            return;
+        }
+
+        $username = $seller->user?->username ?? 'Penjual';
+        $classRoom = $seller->user?->class_room ?? 'Kelas 12';
+
+        $msg = "🎓 *PEMBERITAHUAN SELLER KELAS 12 (PERSIAPAN KELULUSAN)*\n\n"
+            ."Halo *{$username}* ({$classRoom}),\n"
+            ."Mendekati masa akhir sekolah di bulan April ini, kami mengingatkan Anda untuk:\n"
+            ."1. 📦 Selesaikan seluruh pesanan & transaksi yang masih berjalan di toko Anda.\n"
+            ."2. 🛍️ Menonaktifkan / mengarsipkan produk jualan Anda di Eskasaba Marketplace.\n\n"
+            ."⚠️ Setelah Anda lulus dan status akun berubah menjadi Alumni, toko Anda tidak dapat lagi menerima pesanan baru. Seluruh riwayat transaksi Anda akan tetap tersimpan secara aman di sistem.\n\n"
+            ."Terima kasih atas kontribusi jualan Anda di Eskasaba Marketplace! 🎒\n"
+            ."🌐 *Buka Dashboard Seller:* https://eskamart.smkn1bangsri.sch.id/seller/dashboard";
+
+        self::send($userPhone, $msg);
     }
 
     /**
@@ -427,7 +456,7 @@ class WhatsAppService
         $typeText = $sellerRequest->typeLabel();
 
         $msg = "📬 *REQUEST SELLER BARU! (Kategori / Fitur)*\n\n"
-            ."Halo Admin, toko *{$sellerName}* baru saja mengirimkan request baru:\n\n"
+            ."Halo Admin, *{$sellerName}* baru saja mengirimkan request baru:\n\n"
             ."📌 *Tipe:* {$typeText}\n"
             ."🏷️ *Nama Kategori / Judul:* {$sellerRequest->title}\n"
             .($sellerRequest->description ? "📝 *Keterangan:* {$sellerRequest->description}\n\n" : "\n")
@@ -505,7 +534,7 @@ class WhatsAppService
 
         $msg = "🔄 *PENGAJUAN RETURN / PENGEMBALIAN BARANG*\n\n"
             ."Halo *{$order->seller->user->username}*,\n"
-            ."Pembeli *{$order->user->username}* mengajukan pengembalian (return) untuk pesanan *#{$order->invoice_number}*.\n\n"
+            ."Pembeli *{$order->user->username}* mengajukan pengembalian (return) untuk pesanan *{$order->invoice_number}*.\n\n"
             ."📝 *{$reason}*{$hasProof}\n"
             .'💰 *Total Tagihan Pesanan:* Rp '.number_format((float) ($order->total_price ?? 0), 0, ',', '.')."\n\n"
             ."Silakan periksa foto bukti kondisi barang dan konfirmasi pengembalian melalui panel Seller Anda.\n"
@@ -530,7 +559,7 @@ class WhatsAppService
 
         $msg = "💳 *BUKTI REFUND DIUNGGAH PENJUAL*\n\n"
             ."Halo *{$order->user->username}*,\n"
-            ."Penjual toko *{$order->seller->user->username}* telah mengunggah bukti pengembalian dana (refund) sebesar *Rp ".number_format((float) ($order->total_price ?? 0), 0, ',', '.')."* untuk pesanan *#{$order->invoice_number}*.{$notes}\n\n"
+            ."Penjual *{$order->seller->user->username}* telah mengunggah bukti pengembalian dana (refund) sebesar *Rp ".number_format((float) ($order->total_price ?? 0), 0, ',', '.')."* untuk pesanan *#{$order->invoice_number}*.{$notes}\n\n"
             ."⚠️ *PENTING:* Silakan periksa rekening / e-wallet Anda. Jika dana sudah masuk, tekan tombol *\"Konfirmasi Pengembalian Dana Diterima\"* di halaman detail pesanan untuk menyelesaikan transaksi.\n"
             ."🌐 *Buka Detail Pesanan:* https://eskamart.smkn1bangsri.sch.id/buyer/orders/{$order->id}";
 
@@ -586,7 +615,7 @@ class WhatsAppService
         $msg = "❌ *PESANAN DIBATALKAN / DIRETURN*\n\n"
             ."Halo *{$order->user->username}*,\n"
             ."Pesanan *#{$order->invoice_number}* {$byText}.{$reason}{$hasRefund}\n\n"
-            ."🏪 *Toko Penjual:* {$order->seller->user->username}\n"
+            ."🏪 *Penjual:* {$order->seller->user->username}\n"
             .'💰 *Total Nominal:* Rp '.number_format((float) ($order->total_price ?? 0), 0, ',', '.')."\n\n"
             ."Terima kasih atas kerja samanya.\n"
             ."🌐 *Akses Website:* https://eskamart.smkn1bangsri.sch.id/buyer/orders/{$order->id}";

@@ -124,6 +124,28 @@ class Order extends Model
         ];
     }
 
+    /**
+     * Accessor untuk nama Penjual yang secara otomatis menyertakan label jika Penjual Nonaktif / Alumni.
+     */
+    public function getSellerNameWithStatusAttribute(): string
+    {
+        $user = $this->seller?->user;
+        $username = $user?->username;
+
+        if (! $this->seller || ! $user) {
+            return 'Penjual Nonaktif (Alumni)';
+        }
+
+        $isAlumni = str_contains(strtolower($user->class_room ?? ''), 'alumni');
+        $isApproved = $this->seller->status === 'approved';
+
+        if ($isAlumni || ! $isApproved) {
+            return "{$username} (Penjual Nonaktif / Alumni)";
+        }
+
+        return $username;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Relationships

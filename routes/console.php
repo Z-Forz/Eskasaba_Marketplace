@@ -21,3 +21,6 @@ Schedule::command('sipintu:sync')->dailyAt('00:00')->timezone('Asia/Jakarta');
 // Otomatis mengonfirmasi pesanan yang telah 3 hari menjadi Selesai setiap jam
 Schedule::command('orders:auto-complete')->hourly();
 
+// Kirim notifikasi ingatan kelulusan untuk seller Kelas 12 setiap tanggal 1 April pukul 08:00 WIB
+Schedule::command('sellers:notify-graduating')->yearlyOn(4, 1, '08:00')->timezone('Asia/Jakarta');
+

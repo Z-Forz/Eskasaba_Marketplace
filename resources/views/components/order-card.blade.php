@@ -79,19 +79,17 @@
     {{-- Location & Seller Info --}}
     <div class="mt-4 grid gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:grid-cols-2">
 
-        @if($order->seller?->user)
-            <div class="flex items-center gap-2.5">
-                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white dark:bg-slate-700">
-                    {{ strtoupper(substr($order->seller->user->username ?? 'S', 0, 1)) }}
-                </div>
-                <div class="min-w-0">
-                    <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400">Penjual Toko</p>
-                    <p class="truncate text-xs font-bold text-slate-800 dark:text-slate-200">
-                        {{ $order->seller->user->username }}
-                    </p>
-                </div>
+        <div class="flex items-center gap-2.5">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white dark:bg-slate-700">
+                {{ strtoupper(substr($order->seller?->user?->username ?? 'P', 0, 1)) }}
             </div>
-        @endif
+            <div class="min-w-0">
+                <p class="text-[11px] font-medium uppercase tracking-wider text-slate-400">Penjual</p>
+                <p class="truncate text-xs font-bold text-slate-800 dark:text-slate-200">
+                    {{ $order->seller_name_with_status }}
+                </p>
+            </div>
+        </div>
 
         @if($order->pickup_location)
             <div class="flex items-center gap-2">

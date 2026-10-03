@@ -22,30 +22,12 @@
         </label>
     @endif
 
-    <select
-        id="{{ $name }}"
-        name="{{ $name }}"
-        @required($required)
-        {{ $attributes->merge([
-            'class' => 'block w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
-        ]) }}
-    >
-        @if ($placeholder)
-            <option value="" disabled {{ !$selected ? 'selected' : '' }}>{{ $placeholder }}</option>
-        @endif
-
-        @foreach ($options as $val => $label)
-            @php
-                // Support both ['key' => 'label'] and [['value' => ..., 'label' => ...]]
-                $optValue = is_array($label) ? $label['value'] : $val;
-                $optLabel = is_array($label) ? $label['label'] : $label;
-                $isSelected = old($name, $selected) == $optValue;
-            @endphp
-            <option value="{{ $optValue }}" {{ $isSelected ? 'selected' : '' }}>
-                {{ $optLabel }}
-            </option>
-        @endforeach
-    </select>
+    <x-custom-select
+        :name="$name"
+        :options="$options"
+        :selected="old($name, $selected)"
+        :placeholder="$placeholder"
+    />
 
     @if ($hint)
         <p class="text-xs text-slate-400">{{ $hint }}</p>

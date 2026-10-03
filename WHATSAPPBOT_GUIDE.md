@@ -149,18 +149,20 @@ Status pengajuan Anda saat ini: *PENDING VERIFIKASI*.
 
 ---
 
-### 4️⃣ Notifikasi Hasil Verifikasi Seller oleh Admin
-- **Trigger**: Admin menyetujui, meminta revisi, atau menolak pendaftaran toko Seller.
-- **Penerima**: Pendaftar & Admin.
+### 4️⃣ Notifikasi Hasil Verifikasi & Pencabutan Seller oleh Admin
+- **Trigger**: Admin menyetujui, meminta revisi, menolak, atau mencabut status toko Seller aktif (`WhatsAppService::sendSellerRevokedNotification`).
+- **Penerima**: Penjual (Seller).
 
 ```text
-🎉 *PENGAJUAN SELLER DISETUJUI!*
+⚠️ *PEMBERITAHUAN STATUS SELLER*
 
-Selamat *[Nama Seller]*!
-Pengajuan toko Anda di Eskasaba Marketplace telah *DISETUJUI* oleh Admin.
-Anda sekarang dapat mulai menambah produk dan berjualan online melalui Dashboard Seller Anda.
+Halo *[Nama Seller]*,
+Akses toko *[Nama Toko]* Anda di Eskasaba Marketplace telah *DICABUT / DITOLAK* oleh Admin.
 
-Selamat berjualan!
+📌 *Alasan Pencabutan:*
+[Alasan Alasan Pencabutan dari Admin / Pelanggaran Aturan]
+
+Jika Anda memiliki pertanyaan, silakan hubungi tim Admin Sekolah.
 ```
 
 ---
@@ -180,6 +182,27 @@ Halo Admin, toko *[Nama Toko]* baru saja mengirimkan request baru:
 
 Silakan periksa dan beri tanggapan melalui Panel Admin Eskasaba Marketplace.
 🌐 http://eskamart.smkn1bangsri.sch.id/admin/seller-requests
+```
+
+---
+
+### 6️⃣ Notifikasi Peringatan Kelulusan Seller Kelas 12 (Awal April)
+- **Trigger**: Perintah otomatis `php artisan sellers:notify-graduating` yang berjalan setiap tanggal 1 April pukul 08:00 via Cron Job (`WhatsAppService::sendGraduatingSellerWarningNotification`).
+- **Penerima**: Seller aktif yang terdaftar di Kelas 12 (`XII`).
+
+```text
+🎓 *PERINGATAN KELULUSAN & PENONAKTIFAN TOKO SELLER*
+
+Halo *[Nama Seller]* (*[Nama Toko]*),
+Memasuki bulan April, kami menginfokan bahwa akun siswa Kelas 12 akan segera memasuki masa kelulusan dan berubah status menjadi Alumni.
+
+⚠️ *Tindakan yang Perlu Anda Lakukan:*
+1. Selesaikan semua pesanan berjalan yang belum diserahterimakan.
+2. Nonaktifkan atau sembunyikan produk-produk toko Anda agar tidak ada pesanan baru masuk.
+3. Setelah Anda menjadi alumni, riwayat transaksi Anda akan *tetap dipertahankan* untuk pembeli, namun status penjual akan ditampilkan sebagai *(Penjual Nonaktif / Alumni)*.
+
+Terima kasih telah menjadi bagian dari pengusaha muda Eskasaba Marketplace! 🚀
+🌐 http://eskamart.smkn1bangsri.sch.id/
 ```
 
 ---

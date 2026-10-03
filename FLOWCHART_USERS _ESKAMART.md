@@ -193,11 +193,12 @@ flowchart TD
     
     AdminDashboard --> AdminMenu{Pilih Menu Kelola}
     
-    AdminMenu --> VerifSellers[Verifikasi Pengajuan Toko Seller]
+    AdminMenu --> VerifSellers[Verifikasi & Kelola Seller]
     VerifSellers --> ActionVerif{Aksi Admin}
     ActionVerif --> ApproveSeller[Setujui Toko Seller]
     ActionVerif --> ReviseSeller[Minta Revisi Form / QRIS]
-    ActionVerif --> RejectSeller[Tolak / Cabut Status Seller]
+    ActionVerif --> RejectSeller[Tolak / Cabut Status Seller - Isi Alasan Pencabutan]
+    RejectSeller --> SendWARevoke[Kirim Notifikasi WA Pencabutan + Alasan ke Seller]
     
     AdminMenu --> ManageRequests[Kelola Permintaan Kategori / Fitur]
     ManageRequests --> RespondReq[Balas Catatan & Update Status Request]
@@ -250,6 +251,34 @@ flowchart TD
 
 ---
 
+### 🎓 6️⃣ Alur Peringatan Kelulusan Seller Kelas 12 & Preservasi Riwayat Alumni
+
+```mermaid
+flowchart TD
+    subgraph CronSystem [Laravel Task Scheduler]
+        AprilCron[Cron Job 1 April 08:00 / php artisan sellers:notify-graduating]
+    end
+
+    subgraph SellerXIIFlow [Seller Kelas 12 (XII)]
+        AprilCron --> FetchGrade12[(Query Seller Aktif Kelas 12)]
+        FetchGrade12 --> SendWANotif[WhatsAppService::sendGraduatingSellerWarningNotification]
+        SendWANotif --> ReceiveWA[Seller Terima WA Peringatan Kelulusan]
+        ReceiveWA --> ActionGraduating[1. Selesaikan Pesanan Berjalan<br/>2. Nonaktifkan Produk]
+    end
+
+    subgraph HistoryPreservation [Preservasi Riwayat Pesanan Alumni]
+        GraduationPass[Siswa Lulus & Akun Menjadi Alumni]
+        OrderRecord[(Database Orders & Order Items Utuh)]
+        BuyerHistoryView[Pembeli / Admin Buka Riwayat Transaksi]
+        
+        GraduationPass --> OrderRecord
+        OrderRecord --> BuyerHistoryView
+        BuyerHistoryView --> DisplayStatus[SellerNameWithStatus: Nama Seller (Penjual Nonaktif / Alumni)]
+    end
+```
+
+---
+
 ## 📊 3. State Diagram Status Pesanan & Toko (State Machine)
 
 ### 🏷️ State Diagram Life-Cycle Status Pesanan (Orders)
@@ -279,13 +308,16 @@ stateDiagram-v2
     [*] --> Pending : User Mengirim Formulir Toko
     Pending --> Approved : Admin Menyetujui Pendaftaran
     Pending --> NeedsRevision : Admin Meminta Perbaikan Form / QRIS
-    Pending --> Rejected : Admin Menolak Pendaftaran
+    Pending --> Rejected : Admin Menolak Pendaftaran (Wajib Isi Alasan)
     
     NeedsRevision --> Pending : User Mengirim Ulang Revisi Formulir
     
-    Approved --> Revoked : Admin Mencabut Status Toko
+    Approved --> Revoked : Admin Mencabut Status Toko (Wajib Isi Alasan Pencabutan)
+    Approved --> InactiveAlumni : Lulus / Berubah Menjadi Alumni (Peringatan Awal April)
+    
     Revoked --> Pending : User Mengajukan Ulang Pengajuan Toko
     
+    InactiveAlumni --> [*] : Riwayat Transaksi Dipertahankan + Label '(Penjual Nonaktif / Alumni)'
     Approved --> [*]
     Rejected --> [*]
 ```

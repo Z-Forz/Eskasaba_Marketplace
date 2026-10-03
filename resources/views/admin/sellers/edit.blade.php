@@ -37,41 +37,17 @@
                     Status Seller
                 </label>
 
-                <select
+                <x-custom-select
                     name="status"
-                    required
-                    class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                >
-
-                    <option
-                        value="pending"
-                        @selected(old('status', $seller->status) === 'pending')
-                    >
-                        Pending (Menunggu Verifikasi)
-                    </option>
-
-                    <option
-                        value="approved"
-                        @selected(old('status', $seller->status) === 'approved')
-                    >
-                        Approved (Disetujui)
-                    </option>
-
-                    <option
-                        value="revision"
-                        @selected(old('status', $seller->status) === 'revision')
-                    >
-                        Revision (Perlu Revisi)
-                    </option>
-
-                    <option
-                        value="rejected"
-                        @selected(old('status', $seller->status) === 'rejected')
-                    >
-                        Rejected (Ditolak)
-                    </option>
-
-                </select>
+                    :options="[
+                        'pending'  => 'Pending (Menunggu Verifikasi)',
+                        'approved' => 'Approved (Disetujui)',
+                        'revision' => 'Revision (Perlu Revisi)',
+                        'rejected' => 'Rejected (Ditolak)',
+                    ]"
+                    :selected="old('status', $seller->status)"
+                    placeholder=""
+                />
 
                 @error('status')
                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
