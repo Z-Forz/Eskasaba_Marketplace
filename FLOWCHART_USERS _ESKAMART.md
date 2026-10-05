@@ -339,3 +339,4 @@ stateDiagram-v2
 | **Verifikasi Toko & Request Seller** | ❌ | ❌ | ❌ | ✅ |
 | **Monitoring & Control QR WA Bot** | ❌ | ❌ | ❌ | ✅ |
 | **Sinkronisasi Akun SiPintu** | ❌ | ❌ | ❌ | ✅ |
+

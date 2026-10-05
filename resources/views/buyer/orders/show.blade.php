@@ -402,64 +402,66 @@
             </div>
         @else
             {{-- Standard Progress Stepper --}}
-            <div class="mb-8 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
-                    Status Progres Pesanan
+            <div class="mb-8 rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-2xs dark:border-slate-800 dark:bg-slate-900">
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-check text-emerald-600"></i> Status Progres Pesanan
                 </p>
 
-                <div class="relative flex items-center justify-between">
-                    {{-- Progress Line --}}
-                    <div class="absolute left-4 right-4 top-4.5 -z-0 h-1 -translate-y-1/2 sm:left-5 sm:right-5">
-                        <div class="h-full w-full rounded-full bg-slate-100 dark:bg-slate-800"></div>
-                        <div class="absolute left-0 top-0 h-full rounded-full bg-emerald-600 transition-all duration-500 {{ $progressWidthClass }}"></div>
-                    </div>
-
-                    {{-- Step 1 --}}
-                    <div class="relative z-10 flex flex-col items-center">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 1 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
-                            1
+                <div class="overflow-x-auto scrollbar-none -mx-2 px-2 pb-2 pt-1">
+                    <div class="relative flex items-start justify-between min-w-[480px] sm:min-w-0">
+                        {{-- Progress Line --}}
+                        <div class="absolute left-6 right-6 top-4.5 -z-0 h-1 -translate-y-1/2">
+                            <div class="h-full w-full rounded-full bg-slate-100 dark:bg-slate-800"></div>
+                            <div class="absolute left-0 top-0 h-full rounded-full bg-emerald-600 transition-all duration-500 {{ $progressWidthClass }}"></div>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 1 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Pending</span>
-                    </div>
 
-                    {{-- Step 2 --}}
-                    <div class="relative z-10 flex flex-col items-center">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 2 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
-                            2
+                        {{-- Step 1 --}}
+                        <div class="relative z-10 flex flex-col items-center flex-1 min-w-[70px]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 1 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
+                                1
+                            </div>
+                            <span class="mt-2 text-[10px] sm:text-[11px] font-bold text-center leading-tight px-1 {{ $statusStep >= 1 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Pending</span>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 2 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Dikonfirmasi</span>
-                    </div>
 
-                    {{-- Step 3 --}}
-                    <div class="relative z-10 flex flex-col items-center">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 3 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
-                            3
+                        {{-- Step 2 --}}
+                        <div class="relative z-10 flex flex-col items-center flex-1 min-w-[70px]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 2 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
+                                2
+                            </div>
+                            <span class="mt-2 text-[10px] sm:text-[11px] font-bold text-center leading-tight px-1 {{ $statusStep >= 2 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Dikonfirmasi</span>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 3 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Diproses</span>
-                    </div>
 
-                    {{-- Step 4 --}}
-                    <div class="relative z-10 flex flex-col items-center">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 4 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
-                            4
+                        {{-- Step 3 --}}
+                        <div class="relative z-10 flex flex-col items-center flex-1 min-w-[70px]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 3 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
+                                3
+                            </div>
+                            <span class="mt-2 text-[10px] sm:text-[11px] font-bold text-center leading-tight px-1 {{ $statusStep >= 3 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Diproses</span>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 4 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Siap Diambil</span>
-                    </div>
 
-                    {{-- Step 5 --}}
-                    <div class="relative z-10 flex flex-col items-center">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 5 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
-                            5
+                        {{-- Step 4 --}}
+                        <div class="relative z-10 flex flex-col items-center flex-1 min-w-[70px]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 4 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
+                                4
+                            </div>
+                            <span class="mt-2 text-[10px] sm:text-[11px] font-bold text-center leading-tight px-1 {{ $statusStep >= 4 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Siap Diambil</span>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 5 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Diterima</span>
-                    </div>
 
-                    {{-- Step 6 --}}
-                    <div class="relative z-10 flex flex-col items-center">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 6 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
-                            6
+                        {{-- Step 5 --}}
+                        <div class="relative z-10 flex flex-col items-center flex-1 min-w-[70px]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 5 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
+                                5
+                            </div>
+                            <span class="mt-2 text-[10px] sm:text-[11px] font-bold text-center leading-tight px-1 {{ $statusStep >= 5 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Diterima</span>
                         </div>
-                        <span class="mt-2 text-[11px] font-bold {{ $statusStep >= 6 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Selesai</span>
+
+                        {{-- Step 6 --}}
+                        <div class="relative z-10 flex flex-col items-center flex-1 min-w-[70px]">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-xs {{ $statusStep >= 6 ? 'bg-emerald-700 text-white ring-4 ring-emerald-100 dark:ring-emerald-950' : 'bg-slate-100 text-slate-400 dark:bg-slate-800' }}">
+                                6
+                            </div>
+                            <span class="mt-2 text-[10px] sm:text-[11px] font-bold text-center leading-tight px-1 {{ $statusStep >= 6 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400' }}">Selesai</span>
+                        </div>
                     </div>
                 </div>
             </div>

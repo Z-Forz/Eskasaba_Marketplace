@@ -23,7 +23,7 @@ class CheckoutController extends Controller
     /**
      * Display checkout page.
      */
-    public function index(): View|RedirectResponse
+    public function index(Request $request): View|RedirectResponse
     {
         $cart = Cart::with([
             'items.product.seller.user',
@@ -35,6 +35,22 @@ class CheckoutController extends Controller
             return redirect()
                 ->route('buyer.cart.index')
                 ->with('error', 'Keranjang kamu masih kosong.');
+        }
+
+        // Filter items based on selected items if passed via request
+        $selectedItemIds = $request->input('items', []);
+        if (is_string($selectedItemIds)) {
+            $selectedItemIds = array_filter(explode(',', $selectedItemIds));
+        }
+
+        if (! empty($selectedItemIds)) {
+            $cart->setRelation('items', $cart->items->whereIn('id', $selectedItemIds));
+        }
+
+        if ($cart->items->isEmpty()) {
+            return redirect()
+                ->route('buyer.cart.index')
+                ->with('error', 'Tidak ada item terpilih yang valid untuk checkout.');
         }
 
         // Prevent seller from checking out own products
@@ -55,7 +71,7 @@ class CheckoutController extends Controller
         if ($sellerIds->count() > 1) {
             return redirect()
                 ->route('buyer.cart.index')
-                ->with('error', 'Checkout hanya dapat dilakukan untuk satu seller.');
+                ->with('error', 'Checkout hanya dapat dilakukan untuk 1 seller dalam sekali transaksi. Silakan pilih produk dari toko yang sama di keranjang.');
         }
 
         return view('buyer.checkout.index', compact(
@@ -113,6 +129,28 @@ class CheckoutController extends Controller
             return redirect()
                 ->route('buyer.cart.index')
                 ->with('error', 'Keranjang kamu masih kosong.');
+        }
+
+        $selectedItemIds = $request->input('items', []);
+        if (is_string($selectedItemIds)) {
+            $selectedItemIds = array_filter(explode(',', $selectedItemIds));
+        }
+
+        if (! empty($selectedItemIds)) {
+            $cart->setRelation('items', $cart->items->whereIn('id', $selectedItemIds));
+        }
+
+        if ($cart->items->isEmpty()) {
+            return redirect()
+                ->route('buyer.cart.index')
+                ->with('error', 'Tidak ada produk terpilih yang valid untuk checkout.');
+        }
+
+        $sellerIds = $cart->items->pluck('product.seller_id')->unique();
+        if ($sellerIds->count() > 1) {
+            return redirect()
+                ->route('buyer.cart.index')
+                ->with('error', 'Checkout hanya dapat dilakukan untuk 1 seller dalam sekali transaksi.');
         }
 
         // Prevent seller from checking out own products
@@ -225,7 +263,9 @@ class CheckoutController extends Controller
                     'is_picked_up' => false,
                 ]);
 
-                $cart->items()->delete();
+                // Delete only the checked out cart items
+                $checkedOutItemIds = $cart->items->pluck('id')->toArray();
+                Cart::where('user_id', Auth::id())->first()?->items()->whereIn('id', $checkedOutItemIds)->delete();
 
                 return $order;
             });

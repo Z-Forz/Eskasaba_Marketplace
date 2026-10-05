@@ -17,6 +17,9 @@ Route::middleware(['auth'])
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
+        Route::delete('/cart/bulk-destroy', [CartController::class, 'bulkDestroy'])
+            ->name('cart.bulk-destroy');
+
         Route::resource('cart', CartController::class);
 
         Route::get('/checkout', [CheckoutController::class, 'index'])

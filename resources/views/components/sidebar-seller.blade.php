@@ -7,6 +7,7 @@
             ['route' => 'seller.pickup-schedules.index', 'label' => 'Jadwal Pengambilan','icon' => 'fa-solid fa-calendar-check'],
             ['route' => 'seller.seller-requests.index',  'label' => 'Request Kategori',  'icon' => 'fa-solid fa-folder-plus'],
             ['route' => 'seller.profile.edit',          'label' => 'Pengaturan Toko',   'icon' => 'fa-solid fa-sliders'],
+            ['route' => 'seller.reports.sales',          'label' => 'Laporan Penjualan', 'icon' => 'fa-solid fa-chart-line'],
         ],
         'Akun' => [
             ['route' => 'profile.index',                 'label' => 'Profil Saya',       'icon' => 'fa-solid fa-user-gear'],

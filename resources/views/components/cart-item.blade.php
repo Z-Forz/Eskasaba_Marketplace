@@ -48,7 +48,17 @@
     class="rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white p-3.5 sm:p-5 shadow-xs transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900"
 >
 
-    <div class="flex gap-3 sm:gap-5">
+    <div class="flex items-center gap-3 sm:gap-4">
+
+        {{-- Checkbox selection --}}
+        <div class="shrink-0 flex items-center justify-center">
+            <input
+                type="checkbox"
+                :checked="isSelected({{ $item->id }})"
+                @change="toggleItem({{ $item->id }})"
+                class="h-5 w-5 rounded-lg border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:focus:ring-emerald-600 cursor-pointer"
+            >
+        </div>
 
         {{-- Product Image --}}
         <div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 sm:h-28 sm:w-28">

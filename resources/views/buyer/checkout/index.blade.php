@@ -50,6 +50,10 @@
             >
                 @csrf
 
+                @foreach($cart->items as $item)
+                    <input type="hidden" name="items[]" value="{{ $item->id }}">
+                @endforeach
+
                 <div class="grid gap-6 lg:grid-cols-3">
 
                     {{-- Left Column: Items & Pickup Details --}}

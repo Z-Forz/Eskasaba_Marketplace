@@ -6,6 +6,7 @@ use App\Http\Controllers\Seller\PaymentController;
 use App\Http\Controllers\Seller\PickupScheduleController;
 use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Seller\ProfileController;
+use App\Http\Controllers\Seller\ReportController;
 use App\Http\Controllers\Seller\SellerRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,9 @@ Route::middleware(['auth', 'seller.approved'])
 
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
+
+        Route::get('/reports/sales', [ReportController::class, 'sales'])
+            ->name('reports.sales');
 
         Route::get('/profile', [ProfileController::class, 'edit'])
             ->name('profile.edit');
