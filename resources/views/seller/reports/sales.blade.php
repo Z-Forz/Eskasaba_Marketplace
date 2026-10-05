@@ -324,13 +324,17 @@
                                 type: 'linear',
                                 display: true,
                                 position: 'left',
+                                beginAtZero: true,
+                                suggestedMax: 1000000,
                                 title: {
                                     display: true,
                                     text: 'Pendapatan (Rp)',
                                     font: { size: 11, weight: 'bold' }
                                 },
                                 ticks: {
+                                    precision: 0,
                                     callback: function(value) {
+                                        if (value % 1 !== 0) return '';
                                         return 'Rp ' + value.toLocaleString('id-ID');
                                     }
                                 },
