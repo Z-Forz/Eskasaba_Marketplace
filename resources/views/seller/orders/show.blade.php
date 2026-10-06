@@ -97,7 +97,7 @@
                 <div class="overflow-x-auto scrollbar-none -mx-2 px-2 pb-2 pt-1">
                     <div class="relative flex items-start justify-between min-w-[480px] sm:min-w-0">
                         {{-- Progress Line --}}
-                        <div class="absolute left-6 right-6 top-4.5 -z-0 h-1 -translate-y-1/2">
+                        <div class="absolute left-[8.333%] right-[8.333%] top-4.5 -z-0 h-1 -translate-y-1/2">
                             <div class="h-full w-full rounded-full bg-slate-100 dark:bg-slate-800"></div>
                             <div class="absolute left-0 top-0 h-full rounded-full bg-emerald-600 transition-all duration-500 {{ $progressWidthClass }}"></div>
                         </div>
