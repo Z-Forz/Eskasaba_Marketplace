@@ -21,7 +21,7 @@
                 @endif
 
                 <h1 class="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
-                    Selamat Datang
+                    Selamat Datang di Eskamart
                 </h1>
 
                 <p class="mt-1.5 text-xs text-slate-500 sm:text-sm dark:text-slate-400">

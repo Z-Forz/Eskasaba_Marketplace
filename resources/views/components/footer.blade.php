@@ -107,7 +107,7 @@
             {{-- Contact Info --}}
             <div>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                    Kontak Sekolah
+                    Kontak
                 </h3>
 
                 <div class="mt-4 space-y-3 text-xs text-slate-400">

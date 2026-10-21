@@ -17,7 +17,7 @@ class AdminSeeder extends Seeder
             ['username' => 'admin'],
             [
                 'email' => 'admin@eskasaba.com',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('eskamart2026'),
             ]
         );
     }
