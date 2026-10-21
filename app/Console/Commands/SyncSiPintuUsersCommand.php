@@ -60,6 +60,7 @@ class SyncSiPintuUsersCommand extends Command
                 'class_room' => $userData['class_room'],
                 'phone' => $finalPhone,
                 'api_id' => $userData['id'] ?? 0,
+                'profile_photo_url' => $userData['profile_photo_url'] ?? null,
             ];
 
             if (! empty($pwd)) {

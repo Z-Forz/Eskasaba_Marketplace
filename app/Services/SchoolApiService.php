@@ -422,6 +422,7 @@ class SchoolApiService
                 'role' => (string) $role,
                 'class_room' => (string) $classRoom,
                 'phone' => $finalPhone,
+                'profile_photo_url' => self::extractProfilePhotoUrl($item),
                 'api_id' => $item['id'] ?? 0,
                 'password' => $passHash,
                 'plain_password' => $plainPass,
@@ -467,7 +468,7 @@ class SchoolApiService
             User::upsert(
                 $chunk,
                 ['nis_nip'],
-                ['username', 'email', 'role', 'class_room', 'phone', 'api_id', 'password', 'plain_password', 'is_default_password', 'updated_at']
+                ['username', 'email', 'role', 'class_room', 'phone', 'profile_photo_url', 'api_id', 'password', 'plain_password', 'is_default_password', 'updated_at']
             );
         }
 
@@ -522,6 +523,56 @@ class SchoolApiService
         return ! empty($raw) ? trim((string) $raw) : null;
     }
 
+    /**
+     * Ekstraksi URL foto profil dari berbagai skema field SiPintu API Gateway.
+     */
+    public static function extractProfilePhotoUrl(array $data): ?string
+    {
+        $raw = $data['foto']
+            ?? $data['photo']
+            ?? $data['foto_profil']
+            ?? $data['profile_photo']
+            ?? $data['profile_photo_url']
+            ?? $data['avatar']
+            ?? $data['avatar_url']
+            ?? $data['image']
+            ?? $data['picture']
+            ?? $data['photo_url']
+            ?? $data['img']
+            ?? $data['user']['foto']
+            ?? $data['user']['photo']
+            ?? $data['user']['foto_profil']
+            ?? $data['user']['profile_photo']
+            ?? $data['user']['profile_photo_url']
+            ?? $data['user']['avatar']
+            ?? $data['user']['avatar_url']
+            ?? $data['user']['image']
+            ?? $data['user']['picture']
+            ?? null;
+
+        if (empty($raw)) {
+            return null;
+        }
+
+        $url = trim((string) $raw);
+
+        // Jika URL tidak memiliki skema, tambahkan base URL dari service
+        if (! str_starts_with($url, 'http://') && ! str_starts_with($url, 'https://')) {
+            // Dapatkan base URL dari konfigurasi SiPintu
+            $base = config('services.sipintu.url') ?? config('services.sipintu.base_url');
+            if ($base) {
+                $url = rtrim($base, '/') . '/' . ltrim($url, '/');
+            }
+        }
+
+        // Pastikan URL valid setelah penambahan
+        if (! str_starts_with($url, 'http://') && ! str_starts_with($url, 'https://')) {
+            return null;
+        }
+
+        return $url;
+    }
+
     protected function formatUserData(array $data, string $defaultRole): array
     {
         $nisNip = $data['external_id'] ?? $data['nis_nip'] ?? $data['nis'] ?? $data['nip'] ?? null;
@@ -557,6 +608,7 @@ class SchoolApiService
             'email' => $data['user']['email'] ?? $data['email'] ?? null,
             'is_graduated' => self::isAlumni($data),
             'password' => $pwd,
+            'profile_photo_url' => self::extractProfilePhotoUrl($data),
         ];
     }
 }

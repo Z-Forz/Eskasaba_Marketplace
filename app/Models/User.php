@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $kelas
  * @property int $api_id
  * @property string|null $phone
+ * @property string|null $profile_photo_url
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -38,6 +39,7 @@ class User extends Authenticatable
         // Data profil dari API Sekolah
         'api_id',
         'phone',
+        'profile_photo_url',
     ];
 
     protected $hidden = [

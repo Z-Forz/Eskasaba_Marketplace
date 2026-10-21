@@ -175,6 +175,7 @@ class SchoolCallbackController extends Controller
                 'api_id' => $apiData['id'] ?? ($existingLocalUser ? $existingLocalUser->api_id : null),
                 'password' => $existingLocalUser ? $existingLocalUser->password : Hash::make('password'),
                 'is_default_password' => $existingLocalUser ? $existingLocalUser->is_default_password : true,
+                'profile_photo_url' => $apiData['profile_photo_url'] ?? null,
             ]
         );
 

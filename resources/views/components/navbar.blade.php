@@ -108,9 +108,7 @@
                     href="{{ route('profile.index') }}"
                     class="ml-0.5 lg:ml-1 flex items-center gap-2 lg:gap-2.5 rounded-xl p-1.5 transition hover:bg-slate-50 dark:hover:bg-slate-800 {{ request()->routeIs('profile.*') ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-300 shadow-xs dark:bg-emerald-950/60 dark:text-emerald-300' : '' }}"
                 >
-                    <div class="flex h-8 w-8 lg:h-9 lg:w-9 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-xs lg:text-sm font-bold text-white shadow-xs">
-                        {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
-                    </div>
+                    <x-user-avatar size="sm" class="shadow-xs" />
 
                     <div class="hidden sm:block max-w-24 lg:max-w-32">
                         <p class="truncate text-xs lg:text-sm font-bold text-slate-800 dark:text-white">
@@ -283,9 +281,7 @@
                 <div class="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4">
                     <div class="flex items-center justify-between gap-3 rounded-2xl border p-3.5 {{ request()->routeIs('profile.*') ? 'border-emerald-300 bg-emerald-100/70 ring-2 ring-emerald-600/20 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/60' : 'border-slate-200/80 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/60' }}">
                         <a href="{{ route('profile.index') }}" class="flex min-w-0 flex-1 items-center gap-3">
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-800 text-sm font-semibold text-white shadow-xs">
-                                {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
-                            </div>
+                            <x-user-avatar size="md" class="shadow-xs" />
                             <div class="min-w-0 flex-1">
                                 <p class="truncate text-sm font-bold text-slate-900 dark:text-white">
                                     {{ auth()->user()->username }}

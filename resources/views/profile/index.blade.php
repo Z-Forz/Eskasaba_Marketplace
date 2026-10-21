@@ -45,9 +45,7 @@
             {{-- Profile Card --}}
             <div class="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex flex-col items-center text-center">
-                    <div class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-emerald-600 text-2xl font-black text-white shadow-lg shadow-emerald-600/25 border-2 border-emerald-400/40">
-                        {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
-                    </div>
+                    <x-user-avatar size="xl" class="shadow-lg shadow-emerald-600/25 border-2 border-white/40 ring-2 ring-emerald-400/30" />
 
                     <h2 class="mt-4 text-xl font-extrabold text-slate-900 dark:text-white">
                         {{ auth()->user()->username }}

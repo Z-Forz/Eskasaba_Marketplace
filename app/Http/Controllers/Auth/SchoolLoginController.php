@@ -256,6 +256,7 @@ class SchoolLoginController extends Controller
             'class_room' => $apiData['class_room'] ?? $localUser?->class_room ?? ($role === 'student' ? 'Siswa PKL / Aktif' : 'Dewan Guru'),
             'phone' => $finalPhone,
             'api_id' => $apiData['id'] ?? $localUser?->api_id ?? 0,
+            'profile_photo_url' => $apiData['profile_photo_url'] ?? $localUser?->profile_photo_url ?? null,
         ];
 
         // Update password jika user login dengan password baru atau jika default password diubah

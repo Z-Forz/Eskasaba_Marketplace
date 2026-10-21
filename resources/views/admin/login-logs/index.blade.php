@@ -183,7 +183,12 @@
                                         </div>
                                     @elseif ($log->user)
                                         <div class="flex items-center gap-3">
-                                            @if ($log->user->profile_photo)
+                                            @if ($log->user->profile_photo_url)
+                                                <img src="{{ $log->user->profile_photo_url }}" alt="{{ $log->user->username }}" class="h-9 w-9 shrink-0 rounded-xl object-cover border border-slate-200 dark:border-slate-700" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" loading="lazy">
+                                                <div style="display:none;" class="h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 font-black dark:bg-emerald-950/80 dark:text-emerald-300">
+                                                    {{ strtoupper(substr($log->user->username, 0, 1)) }}
+                                                </div>
+                                            @elseif ($log->user->profile_photo)
                                                 <img src="{{ asset('storage/' . $log->user->profile_photo) }}" alt="{{ $log->user->username }}" class="h-9 w-9 shrink-0 rounded-xl object-cover border border-slate-200 dark:border-slate-700">
                                             @else
                                                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 font-black dark:bg-emerald-950/80 dark:text-emerald-300">
